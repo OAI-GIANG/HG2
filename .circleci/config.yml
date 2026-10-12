@@ -1,0 +1,28 @@
+version: 2.1
+jobs:
+  verify:
+    docker:
+      - image: cimg/python:3.12
+    steps:
+      - checkout
+      - run:
+          name: Assert clean checkout and record revision
+          command: |
+            set -eu
+            printf 'CIRCLE_SHA1=%s\n' "${CIRCLE_SHA1:-unknown}"
+            printf 'HEAD=%s\n' "$(git rev-parse HEAD)"
+            test -z "$(git status --porcelain)"
+      - run:
+          name: Check patch whitespace
+          command: |
+            set -eu
+            git diff --check HEAD^ HEAD
+      - run:
+          name: Run unittest suite with ResourceWarning as ERROR (strict)
+          command: |
+            set -eu
+            PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v
+workflows:
+  deep-strict-verify:
+    jobs:
+      - verify
