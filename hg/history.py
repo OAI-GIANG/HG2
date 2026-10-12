@@ -44,15 +44,28 @@ class StateStore:
 
     def _runtime_id(self):
         p = os.path.join(self.dir, "runtime_id")
-        if os.path.exists(p):
-            with open(p, encoding="utf-8") as fh:
-                v = fh.read().strip()
-            if v:
-                return v
-        v = uuid.uuid4().hex
-        with open(p, "w", encoding="utf-8") as fh:
-            fh.write(v + "\n")
-        return v
+        if self._preexisting["runtime_id"]:
+            try:
+                with open(p, encoding="utf-8") as fh:
+                    value = fh.read().strip()
+            except OSError as exc:
+                raise HistoryError("runtime identity unreadable") from exc
+            if not value:
+                raise HistoryError("runtime identity empty")
+            return value
+        # A runtime identity may only be minted for a genuinely new store.
+        # Never replace a missing identity when any durable state remains.
+        if any(self._preexisting[name] for name in ("log", "head", "state")):
+            raise HistoryError("runtime identity missing while state artifacts exist")
+        value = uuid.uuid4().hex
+        try:
+            with open(p, "x", encoding="utf-8") as fh:
+                fh.write(value + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
+        except OSError as exc:
+            raise HistoryError("runtime identity could not be initialized") from exc
+        return value
 
     def _head(self):
         return (0, ZERO) if not self._events else (self._events[-1]["seq"], self._events[-1]["record_hash"])
@@ -66,38 +79,61 @@ class StateStore:
             if have_head or have_state or have_rid:
                 raise HistoryError("history log missing while other state artifacts exist")
             return
-        if not have_head:
-            raise HistoryError("head checkpoint missing while history log exists")
+        missing = [name for name, present in (("head checkpoint", have_head),
+                                               ("state projection", have_state),
+                                               ("runtime identity", have_rid)) if not present]
+        if missing:
+            raise HistoryError("required state artifact missing: " + ", ".join(missing))
         prev, seq, seen = ZERO, 0, set()
-        with open(self.log, encoding="utf-8") as fh:
-            for n, line in enumerate(fh, 1):
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    rec = json.loads(line)
-                except json.JSONDecodeError as exc:
-                    raise HistoryError("malformed record line %d" % n) from exc
-                rh = rec.get("record_hash")
-                core = {k: v for k, v in rec.items() if k != "record_hash"}
-                if not rh or digest(core) != rh:
-                    raise HistoryError("record hash mismatch line %d" % n)
-                if rec["prev_hash"] != prev:
-                    raise HistoryError("chain break line %d" % n)
-                if rec["seq"] != seq + 1:
-                    raise HistoryError("sequence gap line %d" % n)
-                if rec["event_id"] in seen:
-                    raise HistoryError("duplicate event_id line %d" % n)
-                seen.add(rec["event_id"])
-                prev, seq = rh, rec["seq"]
-                self._events.append(rec)
-                self._by_id[rec["event_id"]] = rec
-                self._apply(rec)
+        try:
+            with open(self.log, encoding="utf-8") as fh:
+                for line_no, line in enumerate(fh, 1):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        rec = json.loads(line)
+                    except json.JSONDecodeError as exc:
+                        raise HistoryError("malformed record line %d" % line_no) from exc
+                    if not isinstance(rec, dict):
+                        raise HistoryError("record is not an object line %d" % line_no)
+                    required = {"seq", "event_id", "event_type", "recorded_at", "correlation_id",
+                                "causation_id", "product_id", "runtime_id", "schema", "payload",
+                                "prev_hash", "record_hash"}
+                    if not required.issubset(rec):
+                        raise HistoryError("record fields missing line %d" % line_no)
+                    if isinstance(rec["seq"], bool) or not isinstance(rec["seq"], int) or rec["seq"] != seq + 1:
+                        raise HistoryError("sequence gap line %d" % line_no)
+                    if not isinstance(rec["event_id"], str) or not rec["event_id"] or rec["event_id"] in seen:
+                        raise HistoryError("invalid or duplicate event_id line %d" % line_no)
+                    if not isinstance(rec["event_type"], str) or not rec["event_type"]:
+                        raise HistoryError("invalid event_type line %d" % line_no)
+                    if not isinstance(rec["payload"], dict):
+                        raise HistoryError("invalid payload line %d" % line_no)
+                    if rec["product_id"] != PRODUCT_ID or rec["schema"] != SCHEMA:
+                        raise HistoryError("identity/schema mismatch line %d" % line_no)
+                    if rec["runtime_id"] != self.runtime_id:
+                        raise HistoryError("runtime identity mismatch line %d" % line_no)
+                    if rec["prev_hash"] != prev:
+                        raise HistoryError("chain break line %d" % line_no)
+                    core = {key: value for key, value in rec.items() if key != "record_hash"}
+                    if not isinstance(rec["record_hash"], str) or digest(core) != rec["record_hash"]:
+                        raise HistoryError("record hash mismatch line %d" % line_no)
+                    if seq == 0 and (rec["event_type"] != GENESIS_EVENT or
+                                     rec["payload"].get("product_id") != PRODUCT_ID or
+                                     rec["payload"].get("schema") != SCHEMA):
+                        raise HistoryError("invalid genesis record")
+                    seen.add(rec["event_id"])
+                    prev, seq = rec["record_hash"], rec["seq"]
+                    self._events.append(rec)
+                    self._by_id[rec["event_id"]] = rec
+                    self._apply(rec)
+        except OSError as exc:
+            raise HistoryError("history log unreadable") from exc
+        if not self._events:
+            raise HistoryError("history log empty while durable state artifacts exist")
         self._checkpoint_check()
-        if have_state:
-            self._projection_check()
-        self._write_state()
-        self._write_head()
+        self._projection_check()
 
     def _checkpoint_check(self):
         try:
@@ -169,41 +205,89 @@ class StateStore:
             return rec
 
     def verify(self):
-        if not os.path.exists(self.log):
-            if os.path.exists(self.head) or os.path.exists(self.state):
+        """Verify all durable artifacts and the replay-derived state, without repairing anything."""
+        log_exists = os.path.exists(self.log)
+        head_exists = os.path.exists(self.head)
+        state_exists = os.path.exists(self.state)
+        rid_path = os.path.join(self.dir, "runtime_id")
+        rid_exists = os.path.exists(rid_path)
+        if not log_exists:
+            if head_exists or state_exists or rid_exists:
                 return {"ok": False, "events": 0, "reason": "log_missing_while_state_present"}
-            return {"ok": True, "events": 0, "reason": "empty_log"}
-        prev, seq, seen, n = ZERO, 0, set(), 0
+            return {"ok": True, "events": 0, "reason": "empty_store"}
+        if not head_exists:
+            return {"ok": False, "events": 0, "reason": "checkpoint_missing"}
+        if not state_exists:
+            return {"ok": False, "events": 0, "reason": "state_projection_missing"}
+        if not rid_exists:
+            return {"ok": False, "events": 0, "reason": "runtime_identity_missing"}
         try:
+            with open(rid_path, encoding="utf-8") as fh:
+                stored_runtime_id = fh.read().strip()
+            if not stored_runtime_id or stored_runtime_id != self.runtime_id:
+                return {"ok": False, "events": 0, "reason": "runtime_identity_mismatch"}
+            prev, seq, seen, count = ZERO, 0, set(), 0
+            sessions, counters = {}, {}
             with open(self.log, encoding="utf-8") as fh:
-                for lineno, line in enumerate(fh, 1):
+                for line_no, line in enumerate(fh, 1):
                     line = line.strip()
                     if not line:
                         continue
                     rec = json.loads(line)
-                    rh = rec.get("record_hash")
-                    core = {k: v for k, v in rec.items() if k != "record_hash"}
-                    if not rh or digest(core) != rh:
-                        return {"ok": False, "events": n, "reason": "record_hash_mismatch_line_%d" % lineno}
+                    if not isinstance(rec, dict):
+                        return {"ok": False, "events": count, "reason": "record_not_object_line_%d" % line_no}
+                    required = {"seq", "event_id", "event_type", "recorded_at", "correlation_id",
+                                "causation_id", "product_id", "runtime_id", "schema", "payload",
+                                "prev_hash", "record_hash"}
+                    if not required.issubset(rec):
+                        return {"ok": False, "events": count, "reason": "record_fields_missing_line_%d" % line_no}
+                    if isinstance(rec["seq"], bool) or not isinstance(rec["seq"], int) or rec["seq"] != seq + 1:
+                        return {"ok": False, "events": count, "reason": "sequence_gap_line_%d" % line_no}
+                    if not isinstance(rec["event_id"], str) or not rec["event_id"] or rec["event_id"] in seen:
+                        return {"ok": False, "events": count, "reason": "duplicate_or_invalid_event_id_line_%d" % line_no}
+                    if not isinstance(rec["event_type"], str) or not rec["event_type"]:
+                        return {"ok": False, "events": count, "reason": "invalid_event_type_line_%d" % line_no}
+                    if not isinstance(rec["payload"], dict):
+                        return {"ok": False, "events": count, "reason": "invalid_payload_line_%d" % line_no}
+                    if rec["product_id"] != PRODUCT_ID or rec["schema"] != SCHEMA:
+                        return {"ok": False, "events": count, "reason": "identity_schema_mismatch_line_%d" % line_no}
+                    if rec["runtime_id"] != stored_runtime_id:
+                        return {"ok": False, "events": count, "reason": "runtime_identity_mismatch_line_%d" % line_no}
                     if rec["prev_hash"] != prev:
-                        return {"ok": False, "events": n, "reason": "chain_break_line_%d" % lineno}
-                    if rec["seq"] != seq + 1:
-                        return {"ok": False, "events": n, "reason": "sequence_gap_line_%d" % lineno}
-                    if rec["event_id"] in seen:
-                        return {"ok": False, "events": n, "reason": "duplicate_event_id_line_%d" % lineno}
+                        return {"ok": False, "events": count, "reason": "chain_break_line_%d" % line_no}
+                    core = {key: value for key, value in rec.items() if key != "record_hash"}
+                    if not isinstance(rec["record_hash"], str) or digest(core) != rec["record_hash"]:
+                        return {"ok": False, "events": count, "reason": "record_hash_mismatch_line_%d" % line_no}
+                    if seq == 0 and (rec["event_type"] != GENESIS_EVENT or
+                                     rec["payload"].get("product_id") != PRODUCT_ID or
+                                     rec["payload"].get("schema") != SCHEMA):
+                        return {"ok": False, "events": count, "reason": "invalid_genesis"}
                     seen.add(rec["event_id"])
-                    prev, seq, n = rh, rec["seq"], n + 1
-        except json.JSONDecodeError:
-            return {"ok": False, "events": n, "reason": "malformed_record"}
-        if os.path.exists(self.head):
+                    prev, seq, count = rec["record_hash"], rec["seq"], count + 1
+                    if rec["event_type"] == "session.created" and "session_id" in rec["payload"]:
+                        sessions[rec["payload"]["session_id"]] = dict(rec["payload"])
+                    counters[rec["event_type"]] = counters.get(rec["event_type"], 0) + 1
+            if count == 0:
+                return {"ok": False, "events": 0, "reason": "history_log_empty"}
             try:
                 with open(self.head, encoding="utf-8") as fh:
-                    hd = json.loads(fh.read())
-            except (OSError, json.JSONDecodeError):
-                return {"ok": False, "events": n, "reason": "checkpoint_unreadable"}
-            if hd.get("seq") != seq or hd.get("head_hash") != prev:
-                return {"ok": False, "events": n, "reason": "checkpoint_mismatch"}
-        return {"ok": True, "events": n, "head_hash": prev, "reason": "chain_ok"}
+                    checkpoint = json.load(fh)
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+                return {"ok": False, "events": count, "reason": "checkpoint_unreadable"}
+            if not isinstance(checkpoint, dict) or checkpoint.get("seq") != seq or checkpoint.get("head_hash") != prev:
+                return {"ok": False, "events": count, "reason": "checkpoint_mismatch"}
+            try:
+                with open(self.state, encoding="utf-8") as fh:
+                    projection = json.load(fh)
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+                return {"ok": False, "events": count, "reason": "state_projection_unreadable"}
+            expected = {"schema": SCHEMA, "product_id": PRODUCT_ID, "runtime_id": stored_runtime_id,
+                        "last_seq": seq, "head_hash": prev, "sessions": sessions, "counters": counters}
+            if projection != expected:
+                return {"ok": False, "events": count, "reason": "state_projection_mismatch"}
+            return {"ok": True, "events": count, "head_hash": prev, "reason": "chain_and_artifacts_ok"}
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError, KeyError, AttributeError):
+            return {"ok": False, "events": 0, "reason": "artifact_unreadable_or_malformed"}
 
     def replay(self):
         return [dict(e) for e in self._events]

@@ -176,12 +176,32 @@ class EdgeTests(unittest.TestCase):
 
 
 class PhoneTests(unittest.TestCase):
+    def test_session_creation_fails_closed_without_verifier(self):
+        with tempfile.TemporaryDirectory() as d:
+            rt = PhoneRuntime(state_dir=d)
+            before = rt.store.audit_export()["events"]
+            with self.assertRaises(PermissionError):
+                rt.start_session(credential="anything")
+            self.assertEqual(rt.store.audit_export()["events"], before)
+
+    def test_session_creation_fails_closed_when_verifier_rejects_or_raises(self):
+        for verifier in (lambda _credential: False, lambda _credential: (_ for _ in ()).throw(RuntimeError("auth unavailable"))):
+            with self.subTest(verifier=verifier), tempfile.TemporaryDirectory() as d:
+                rt = PhoneRuntime(state_dir=d, session_authenticator=verifier)
+                before = rt.store.audit_export()["events"]
+                with self.assertRaises(PermissionError):
+                    rt.start_session(credential="invalid")
+                self.assertEqual(rt.store.audit_export()["events"], before)
+
     def test_local_and_offline(self):
         with tempfile.TemporaryDirectory() as d:
-            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4)
+            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4,
+                              session_authenticator=lambda credential: credential == "session-test-token")
             self.assertTrue(rt.health()["ok"])
             self.assertFalse(rt.heartbeat())
-            s = rt.start_session()
+            with self.assertRaises(PermissionError):
+                rt.start_session()
+            s = rt.start_session(credential="session-test-token")
             self.assertEqual(s["product"], "HG")
             self.assertEqual(rt.store.audit_export()["events"], 2)
 

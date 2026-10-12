@@ -40,6 +40,52 @@ class IntegrityPolicyTests(unittest.TestCase):
         with self.assertRaises(HistoryError):
             StateStore(d)
 
+    def test_verify_fails_closed_when_checkpoint_missing(self):
+        s, d = build()
+        os.remove(os.path.join(d, "head.json"))
+        self.assertEqual(s.verify()["reason"], "checkpoint_missing")
+        with self.assertRaises(HistoryError):
+            StateStore(d)
+
+    def test_missing_state_projection_is_fail_closed_and_not_recreated(self):
+        s, d = build()
+        p = os.path.join(d, "state.json")
+        os.remove(p)
+        self.assertEqual(s.verify()["reason"], "state_projection_missing")
+        with self.assertRaises(HistoryError):
+            StateStore(d)
+        self.assertFalse(os.path.exists(p))
+
+    def test_missing_runtime_identity_is_fail_closed_and_not_recreated(self):
+        s, d = build()
+        p = os.path.join(d, "runtime_id")
+        os.remove(p)
+        self.assertEqual(s.verify()["reason"], "runtime_identity_missing")
+        with self.assertRaises(HistoryError):
+            StateStore(d)
+        self.assertFalse(os.path.exists(p))
+
+    def test_runtime_identity_tamper_is_detected(self):
+        s, d = build()
+        p = os.path.join(d, "runtime_id")
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write("substituted-runtime-id\n")
+        self.assertEqual(s.verify()["reason"], "runtime_identity_mismatch")
+        with self.assertRaises(HistoryError):
+            StateStore(d)
+
+    def test_verify_detects_projection_tamper_without_repair(self):
+        s, d = build()
+        p = os.path.join(d, "state.json")
+        with open(p, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        doc["counters"]["session.created"] = 999
+        with open(p, "w", encoding="utf-8") as fh:
+            json.dump(doc, fh)
+        self.assertEqual(s.verify()["reason"], "state_projection_mismatch")
+        with open(p, encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh), doc)
+
     def test_corrupt_checkpoint_json(self):
         s, d = build()
         with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
