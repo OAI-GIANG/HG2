@@ -1,0 +1,35 @@
+test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
+test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
+test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
+test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
+test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
+test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
+test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
+test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
+test_identity (test_core.IdentityTests.test_identity) ... ok
+test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
+test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
+test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
+test_session_creation_fails_closed_when_verifier_rejects_or_raises (test_core.PhoneTests.test_session_creation_fails_closed_when_verifier_rejects_or_raises) ... ok
+test_session_creation_fails_closed_without_verifier (test_core.PhoneTests.test_session_creation_fails_closed_without_verifier) ... ok
+test_checkpoint_rollback_mismatch (test_integrity_v2.IntegrityPolicyTests.test_checkpoint_rollback_mismatch) ... ok
+test_corrupt_checkpoint_json (test_integrity_v2.IntegrityPolicyTests.test_corrupt_checkpoint_json) ... ok
+test_fresh_directory_initialises (test_integrity_v2.IntegrityPolicyTests.test_fresh_directory_initialises) ... ok
+test_healthy_roundtrip_and_recovery (test_integrity_v2.IntegrityPolicyTests.test_healthy_roundtrip_and_recovery) ... ok
+test_missing_checkpoint_is_fail_closed (test_integrity_v2.IntegrityPolicyTests.test_missing_checkpoint_is_fail_closed) ... ok
+test_missing_log_and_state_but_runtime_id_present (test_integrity_v2.IntegrityPolicyTests.test_missing_log_and_state_but_runtime_id_present) ... ok
+test_missing_log_with_state_present_is_fail_closed (test_integrity_v2.IntegrityPolicyTests.test_missing_log_with_state_present_is_fail_closed) ... ok
+test_missing_runtime_identity_is_fail_closed_and_not_recreated (test_integrity_v2.IntegrityPolicyTests.test_missing_runtime_identity_is_fail_closed_and_not_recreated) ... ok
+test_missing_state_projection_is_fail_closed_and_not_recreated (test_integrity_v2.IntegrityPolicyTests.test_missing_state_projection_is_fail_closed_and_not_recreated) ... ok
+test_runtime_identity_tamper_is_detected (test_integrity_v2.IntegrityPolicyTests.test_runtime_identity_tamper_is_detected) ... ok
+test_state_projection_corrupt (test_integrity_v2.IntegrityPolicyTests.test_state_projection_corrupt) ... ok
+test_state_projection_tamper (test_integrity_v2.IntegrityPolicyTests.test_state_projection_tamper) ... ok
+test_tail_truncation_and_reorder_and_duplicate (test_integrity_v2.IntegrityPolicyTests.test_tail_truncation_and_reorder_and_duplicate) ... ok
+test_torn_append_is_fail_closed (test_integrity_v2.IntegrityPolicyTests.test_torn_append_is_fail_closed) ... ok
+test_verify_detects_projection_tamper_without_repair (test_integrity_v2.IntegrityPolicyTests.test_verify_detects_projection_tamper_without_repair) ... ok
+test_verify_fails_closed_when_checkpoint_missing (test_integrity_v2.IntegrityPolicyTests.test_verify_fails_closed_when_checkpoint_missing) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 2.206s
+
+OK
