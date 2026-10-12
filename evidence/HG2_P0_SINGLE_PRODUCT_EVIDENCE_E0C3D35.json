@@ -35,7 +35,16 @@
   "checks": {
     "git_diff_check": "PASS on clean checkout",
     "independent_review": "PENDING",
-    "external_CI": "NOT_CONFIRMED_FOR_THIS_COMMIT",
+    "external_CI": {
+      "source_commit": "e0c3d3578d54b830cd55f50a075e3862b3b13cce",
+      "status": "PASS",
+      "context": "ci/circleci: verify",
+      "target_url": "https://circleci.com/gh/OAI-GIANG/HG2/8",
+      "evidence_head_commit": "b870b0b252bb6ec024fbeaaa1c7e299110f196c6",
+      "evidence_head_status": "PASS",
+      "evidence_head_target_url": "https://circleci.com/gh/OAI-GIANG/HG2/9",
+      "configuration": "CircleCI job runs clean-checkout assertion, git diff --check HEAD^ HEAD, and the unittest suite with ResourceWarning promoted to ERROR"
+    },
     "production_device_E2E": "NOT_RUN",
     "merge": "NOT_PERFORMED",
     "deploy": "NOT_PERFORMED"
