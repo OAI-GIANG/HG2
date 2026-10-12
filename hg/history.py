@@ -116,7 +116,10 @@ class StateStore:
         except (OSError, json.JSONDecodeError) as exc:
             raise HistoryError("state projection unreadable") from exc
         current = self._doc()
-        if doc.get("head_hash") != current["head_hash"] or sorted(doc.get("sessions", {})) != sorted(current["sessions"]):
+        # The projection is a derived cache, but any divergence is an integrity
+        # failure. Do not silently repair it during startup: an operator must
+        # explicitly investigate the discrepancy before recovery is permitted.
+        if doc != current:
             raise HistoryError("state projection does not match history")
 
     def _apply(self, rec):

@@ -42,30 +42,49 @@ class IntegrityPolicyTests(unittest.TestCase):
 
     def test_corrupt_checkpoint_json(self):
         s, d = build()
-        open(os.path.join(d, "head.json"), "w", encoding="utf-8").write("{not json")
+        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
+            fh.write("{not json")
         self.assertEqual(s.verify()["reason"], "checkpoint_unreadable")
         with self.assertRaises(HistoryError):
             StateStore(d)
 
     def test_checkpoint_rollback_mismatch(self):
         s, d = build()
-        open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 1, "head_hash": ZERO}))
+        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"seq": 1, "head_hash": ZERO}))
         self.assertEqual(s.verify()["reason"], "checkpoint_mismatch")
         with self.assertRaises(HistoryError):
             StateStore(d)
 
     def test_state_projection_tamper(self):
-        s, d = build()
-        p = os.path.join(d, "state.json")
-        doc = json.loads(open(p, encoding="utf-8").read())
-        doc["sessions"] = {}
-        open(p, "w", encoding="utf-8").write(json.dumps(doc))
-        with self.assertRaises(HistoryError):
-            StateStore(d)
+        for field, mutate in (
+            ("sessions", lambda doc: doc["sessions"]["a"].__setitem__("tampered", True)),
+            ("counters", lambda doc: doc["counters"].__setitem__("session.created", 999)),
+            ("schema", lambda doc: doc.__setitem__("schema", "TAMPERED")),
+            ("runtime_id", lambda doc: doc.__setitem__("runtime_id", "TAMPERED")),
+            ("product_id", lambda doc: doc.__setitem__("product_id", "TAMPERED")),
+            ("last_seq", lambda doc: doc.__setitem__("last_seq", 999)),
+            ("extra_field", lambda doc: doc.__setitem__("unexpected", True)),
+        ):
+            with self.subTest(field=field):
+                s, d = build()
+                self.addCleanup(shutil.rmtree, d, ignore_errors=True)
+                p = os.path.join(d, "state.json")
+                with open(p, encoding="utf-8") as fh:
+                    doc = json.load(fh)
+                mutate(doc)
+                with open(p, "w", encoding="utf-8") as fh:
+                    json.dump(doc, fh)
+                with self.assertRaisesRegex(HistoryError, "state projection does not match history"):
+                    StateStore(d)
+                # Fail-closed means the rejected projection is not rewritten.
+                with open(p, encoding="utf-8") as fh:
+                    self.assertEqual(json.load(fh), doc)
 
     def test_state_projection_corrupt(self):
         s, d = build()
-        open(os.path.join(d, "state.json"), "w", encoding="utf-8").write("not json")
+        with open(os.path.join(d, "state.json"), "w", encoding="utf-8") as fh:
+            fh.write("not json")
         with self.assertRaises(HistoryError):
             StateStore(d)
 
@@ -80,8 +99,10 @@ class IntegrityPolicyTests(unittest.TestCase):
         for mutate in (lambda L: L[:-1], lambda L: [L[0], L[2], L[1]], lambda L: L + [L[-1]]):
             s, d = build()
             p = os.path.join(d, "history.jsonl")
-            L = [x for x in open(p, encoding="utf-8").read().splitlines() if x.strip()]
-            open(p, "w", encoding="utf-8").write("\n".join(mutate(L)) + "\n")
+            with open(p, encoding="utf-8") as fh:
+                L = [x for x in fh.read().splitlines() if x.strip()]
+            with open(p, "w", encoding="utf-8") as fh:
+                fh.write("\n".join(mutate(L)) + "\n")
             self.assertFalse(s.verify()["ok"])
             with self.assertRaises(HistoryError):
                 StateStore(d)
