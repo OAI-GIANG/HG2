@@ -1,0 +1,14 @@
+{
+ "name": "hg",
+ "version": "1.0.0",
+ "runtime": "python>=3.10",
+ "dependencies": {},
+ "modules": [
+  "hg.identity",
+  "hg.authority",
+  "hg.history",
+  "hg.phone_runtime",
+  "hg.edge"
+ ],
+ "origin": "clean_room"
+}
