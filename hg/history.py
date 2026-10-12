@@ -29,6 +29,9 @@ class StateStore:
         self.head = os.path.join(self.dir, "head.json")
         self.state = os.path.join(self.dir, "state.json")
         self._clock = clock
+        self._preexisting = {"log": os.path.exists(self.log), "head": os.path.exists(self.head),
+                             "state": os.path.exists(self.state),
+                             "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id"))}
         self.runtime_id = self._runtime_id()
         self._lock = threading.RLock()
         self._events = []
@@ -55,10 +58,10 @@ class StateStore:
         return (0, ZERO) if not self._events else (self._events[-1]["seq"], self._events[-1]["record_hash"])
 
     def _load(self):
-        have_log = os.path.exists(self.log)
-        have_head = os.path.exists(self.head)
-        have_state = os.path.exists(self.state)
-        have_rid = os.path.exists(os.path.join(self.dir, "runtime_id"))
+        have_log = self._preexisting["log"]
+        have_head = self._preexisting["head"]
+        have_state = self._preexisting["state"]
+        have_rid = self._preexisting["runtime_id"]
         if not have_log:
             if have_head or have_state or have_rid:
                 raise HistoryError("history log missing while other state artifacts exist")
