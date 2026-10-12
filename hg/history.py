@@ -94,16 +94,20 @@ class StateStore:
                         rec = json.loads(line)
                     except json.JSONDecodeError as exc:
                         raise HistoryError("malformed record line %d" % n) from exc
+                    if not isinstance(rec, dict):
+                        raise HistoryError("record is not an object line %d" % n)
                     try:
                         rh = rec.get("record_hash")
                         core = {k: v for k, v in rec.items() if k != "record_hash"}
                         if not rh or digest(core) != rh:
                             raise HistoryError("record hash mismatch line %d" % n)
-                        if rec["prev_hash"] != prev:
+                        if not isinstance(rec.get("prev_hash"), str) or rec["prev_hash"] != prev:
                             raise HistoryError("chain break line %d" % n)
-                        if rec["seq"] != seq + 1:
-                            raise HistoryError("sequence gap line %d" % n)
-                        if not rec.get("event_id") or rec["event_id"] in seen:
+                        if not isinstance(rec.get("event_type"), str) or not rec["event_type"]:
+                            raise HistoryError("invalid event type line %d" % n)
+                        if not isinstance(rec["seq"], int) or isinstance(rec["seq"], bool) or rec["seq"] != seq + 1:
+                            raise HistoryError("sequence gap or invalid sequence line %d" % n)
+                        if not isinstance(rec.get("event_id"), str) or not rec["event_id"] or rec["event_id"] in seen:
                             raise HistoryError("duplicate or missing event_id line %d" % n)
                         if rec.get("schema") != SCHEMA or rec.get("product_id") != PRODUCT_ID or rec.get("runtime_id") != self.runtime_id:
                             raise HistoryError("record identity mismatch line %d" % n)
@@ -196,16 +200,20 @@ class StateStore:
                         rec = json.loads(line)
                     except json.JSONDecodeError:
                         return {"ok": False, "events": n, "reason": "malformed_record_line_%d" % lineno}
+                    if not isinstance(rec, dict):
+                        return {"ok": False, "events": n, "reason": "record_not_object_line_%d" % lineno}
                     try:
                         rh = rec.get("record_hash")
                         core = {k: v for k, v in rec.items() if k != "record_hash"}
                         if not rh or digest(core) != rh:
                             return {"ok": False, "events": n, "reason": "record_hash_mismatch_line_%d" % lineno}
-                        if rec["prev_hash"] != prev:
+                        if not isinstance(rec.get("prev_hash"), str) or rec["prev_hash"] != prev:
                             return {"ok": False, "events": n, "reason": "chain_break_line_%d" % lineno}
-                        if rec["seq"] != seq + 1:
+                        if not isinstance(rec.get("event_type"), str) or not rec["event_type"]:
+                            return {"ok": False, "events": n, "reason": "invalid_event_type_line_%d" % lineno}
+                        if not isinstance(rec["seq"], int) or isinstance(rec["seq"], bool) or rec["seq"] != seq + 1:
                             return {"ok": False, "events": n, "reason": "sequence_gap_line_%d" % lineno}
-                        if not rec.get("event_id") or rec["event_id"] in seen:
+                        if not isinstance(rec.get("event_id"), str) or not rec["event_id"] or rec["event_id"] in seen:
                             return {"ok": False, "events": n, "reason": "duplicate_event_id_line_%d" % lineno}
                         if rec.get("schema") != SCHEMA or rec.get("product_id") != PRODUCT_ID or rec.get("runtime_id") != runtime_id:
                             return {"ok": False, "events": n, "reason": "record_identity_mismatch_line_%d" % lineno}

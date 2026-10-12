@@ -3,7 +3,7 @@ from unittest.mock import patch
 from http.server import ThreadingHTTPServer
 from hg import edge
 from hg.authority import ALLOWED, FORBIDDEN, authorize
-from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest
+from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest, canonical
 from hg.identity import PRODUCT_ID, identity
 from hg.phone_runtime import PhoneRuntime
 
@@ -177,6 +177,40 @@ class HistoryTests(unittest.TestCase):
             self.assertEqual(store.verify()["reason"], "checkpoint_mismatch")
             with self.assertRaises(HistoryError):
                 StateStore(d)
+
+    def test_non_object_history_record_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            path = os.path.join(d, "history.jsonl")
+            with open(path, encoding="utf-8") as fh:
+                rows = fh.read().splitlines()
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write("[]\n")
+            result = store.verify()
+            self.assertFalse(result["ok"])
+            self.assertEqual(result["reason"], "record_not_object_line_1")
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
+    def test_invalid_sequence_and_event_type_fail_closed(self):
+        for name, alter in (
+            ("boolean_sequence", lambda r: r.update(seq=True)),
+            ("empty_event_type", lambda r: r.update(event_type="")),
+        ):
+            with self.subTest(case=name), tempfile.TemporaryDirectory() as d:
+                store = StateStore(d)
+                path = os.path.join(d, "history.jsonl")
+                with open(path, encoding="utf-8") as fh:
+                    rec = json.loads(fh.readline())
+                alter(rec)
+                core = {k: v for k, v in rec.items() if k != "record_hash"}
+                rec["record_hash"] = digest(core)
+                with open(path, "w", encoding="utf-8") as fh:
+                    fh.write(canonical(rec) + "\n")
+                result = store.verify()
+                self.assertFalse(result["ok"], name)
+                with self.assertRaises(HistoryError, msg=name):
+                    StateStore(d)
 
     def test_interrupted_append_detected(self):
         with tempfile.TemporaryDirectory() as d:
