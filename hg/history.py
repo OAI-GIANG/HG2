@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib, json, os, threading, time, uuid
+from contextlib import contextmanager
 
 SCHEMA = "HG_STATE_V1"
 PRODUCT_ID = "HG"
@@ -21,6 +22,44 @@ class HistoryError(Exception):
     pass
 
 
+@contextmanager
+def _exclusive_file_lock(path):
+    """Cross-process exclusive lock for one state directory's writer."""
+    fh = open(path, "a+", encoding="utf-8")
+    lock_kind = None
+    try:
+        try:
+            import fcntl
+            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+            lock_kind = ("fcntl", fcntl)
+        except ImportError:
+            try:
+                import msvcrt
+            except ImportError as exc:
+                raise HistoryError("exclusive writer locking unavailable on this platform") from exc
+            fh.seek(0, os.SEEK_END)
+            if fh.tell() == 0:
+                fh.write("0")
+                fh.flush()
+            fh.seek(0)
+            msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)
+            lock_kind = ("msvcrt", msvcrt)
+        yield
+    finally:
+        if lock_kind:
+            kind, module = lock_kind
+            try:
+                if kind == "fcntl":
+                    module.flock(fh.fileno(), module.LOCK_UN)
+                else:
+                    fh.seek(0)
+                    module.locking(fh.fileno(), module.LK_UNLCK, 1)
+            finally:
+                fh.close()
+        else:
+            fh.close()
+
+
 class StateStore:
     def __init__(self, directory, *, clock=time.time):
         self.dir = str(directory)
@@ -34,6 +73,7 @@ class StateStore:
                              "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id"))}
         self.runtime_id = self._runtime_id()
         self._lock = threading.RLock()
+        self._poisoned = False
         self._events = []
         self._by_id = {}
         self._sessions = {}
@@ -69,6 +109,21 @@ class StateStore:
 
     def _head(self):
         return (0, ZERO) if not self._events else (self._events[-1]["seq"], self._events[-1]["record_hash"])
+
+    def _refresh_from_disk(self):
+        """Reload a current, verified snapshot while holding the writer lock."""
+        had_events = bool(self._events)
+        self._preexisting = {"log": os.path.exists(self.log), "head": os.path.exists(self.head),
+                             "state": os.path.exists(self.state),
+                             "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id"))}
+        if had_events and not any(self._preexisting.values()):
+            raise HistoryError("all durable state artifacts disappeared")
+        self.runtime_id = self._runtime_id()
+        self._events = []
+        self._by_id = {}
+        self._sessions = {}
+        self._counters = {}
+        self._load()
 
     def _load(self):
         have_log = self._preexisting["log"]
@@ -142,7 +197,7 @@ class StateStore:
         except (OSError, json.JSONDecodeError) as exc:
             raise HistoryError("head checkpoint unreadable") from exc
         s, h = self._head()
-        if hd.get("seq") != s or hd.get("head_hash") != h:
+        if not isinstance(hd, dict) or hd.get("seq") != s or hd.get("head_hash") != h:
             raise HistoryError("log does not match head checkpoint")
 
     def _projection_check(self):
@@ -183,26 +238,40 @@ class StateStore:
 
     def emit(self, event_type, payload, *, correlation_id=None, causation_id=None, event_id=None):
         with self._lock:
-            if event_id and event_id in self._by_id:
-                return self._by_id[event_id]
-            seq = (self._events[-1]["seq"] if self._events else 0) + 1
-            prev = self._events[-1]["record_hash"] if self._events else ZERO
-            core = {"seq": seq, "event_id": event_id or uuid.uuid4().hex, "event_type": event_type,
-                    "recorded_at": self._clock(), "correlation_id": correlation_id or uuid.uuid4().hex,
-                    "causation_id": causation_id, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
-                    "schema": SCHEMA, "payload": payload, "prev_hash": prev}
-            rec = dict(core)
-            rec["record_hash"] = digest(core)
-            with open(self.log, "a", encoding="utf-8") as fh:
-                fh.write(canonical(rec) + "\n")
-                fh.flush()
-                os.fsync(fh.fileno())
-            self._events.append(rec)
-            self._by_id[rec["event_id"]] = rec
-            self._apply(rec)
-            self._write_state()
-            self._write_head()
-            return rec
+            if self._poisoned:
+                raise HistoryError("state store is poisoned after a persistence failure; reopen only after investigation")
+            lock_path = os.path.join(self.dir, ".writer.lock")
+            with _exclusive_file_lock(lock_path):
+                # A second process/object may have advanced the log. Refresh while
+                # exclusively locked so sequence/hash decisions never use stale memory.
+                if self._events or os.path.exists(self.log):
+                    self._refresh_from_disk()
+                if event_id and event_id in self._by_id:
+                    return self._by_id[event_id]
+                seq = (self._events[-1]["seq"] if self._events else 0) + 1
+                prev = self._events[-1]["record_hash"] if self._events else ZERO
+                core = {"seq": seq, "event_id": event_id or uuid.uuid4().hex, "event_type": event_type,
+                        "recorded_at": self._clock(), "correlation_id": correlation_id or uuid.uuid4().hex,
+                        "causation_id": causation_id, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
+                        "schema": SCHEMA, "payload": payload, "prev_hash": prev}
+                rec = dict(core)
+                rec["record_hash"] = digest(core)
+                try:
+                    with open(self.log, "a", encoding="utf-8") as fh:
+                        fh.write(canonical(rec) + "\n")
+                        fh.flush()
+                        os.fsync(fh.fileno())
+                    self._events.append(rec)
+                    self._by_id[rec["event_id"]] = rec
+                    self._apply(rec)
+                    self._write_state()
+                    self._write_head()
+                except Exception:
+                    # Never allow a later emit to silently heal a partially
+                    # committed append/projection/checkpoint sequence.
+                    self._poisoned = True
+                    raise
+                return rec
 
     def verify(self):
         """Verify all durable artifacts and the replay-derived state, without repairing anything."""

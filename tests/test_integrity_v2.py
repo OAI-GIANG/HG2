@@ -1,5 +1,6 @@
 """Counter-tests for HG2 history/checkpoint fail-closed policy (P0 remediation)."""
 import json, os, shutil, tempfile, unittest
+from pathlib import Path
 from hg.history import ZERO, HistoryError, StateStore
 
 
@@ -153,6 +154,47 @@ class IntegrityPolicyTests(unittest.TestCase):
             with self.assertRaises(HistoryError):
                 StateStore(d)
             shutil.rmtree(d, ignore_errors=True)
+
+    def test_shared_directory_writers_refresh_under_exclusive_lock(self):
+        with tempfile.TemporaryDirectory() as d:
+            first = StateStore(d)
+            second = StateStore(d)
+            first.emit("probe.first", {"n": 1}, event_id="writer-first")
+            second.emit("probe.second", {"n": 2}, event_id="writer-second")
+            self.assertTrue(first.verify()["ok"])
+            self.assertTrue(second.verify()["ok"])
+            reopened = StateStore(d)
+            self.assertEqual(reopened.verify()["events"], 3)
+
+    def test_persistence_failure_poison_prevents_silent_repair(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            original_write_state = store._write_state
+            calls = {"count": 0}
+
+            def fail_once():
+                calls["count"] += 1
+                if calls["count"] == 1:
+                    raise OSError("injected state projection failure")
+                return original_write_state()
+
+            store._write_state = fail_once
+            with self.assertRaisesRegex(OSError, "injected state projection failure"):
+                store.emit("probe.partial", {"n": 1}, event_id="partial-write")
+            before_state = Path(store.state).read_bytes()
+            before_head = Path(store.head).read_bytes()
+            with self.assertRaisesRegex(HistoryError, "poisoned"):
+                store.emit("probe.next", {"n": 2}, event_id="must-not-repair")
+            self.assertEqual(Path(store.state).read_bytes(), before_state)
+            self.assertEqual(Path(store.head).read_bytes(), before_head)
+            self.assertFalse(store.verify()["ok"])
+
+    def test_checkpoint_wrong_json_type_is_normalized_to_history_error(self):
+        store, d = build()
+        with open(store.head, "w", encoding="utf-8") as fh:
+            json.dump([], fh)
+        with self.assertRaisesRegex(HistoryError, "checkpoint"):
+            StateStore(d)
 
     def test_healthy_roundtrip_and_recovery(self):
         s, d = build()
