@@ -1,19 +1,20 @@
 {
   "schema": "HG-CTI-VERIFICATION-RECORD-V1",
-  "tested_commit": "ef9fa97665ec752ff50d911e2c21396a5d4e13a7",
+  "tested_commit": "f05c1a13838ec44fbb67c7325676c6ce2cb4733f",
   "branch": "feature/hg-creative-assimilation-v1-20261013",
   "base_branch": "hg-genesis",
   "base_commit": "cdebaeed014371f033f14352f552c6d0d4e69198",
   "clean_checkout": true,
   "working_tree_clean_before_tests": true,
-  "focused_command": "PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest tests.test_creative_assimilation -v",
-  "focused_result": "PASS; 25 tests",
-  "full_command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v",
+  "focused_result": "PASS; 25 tests; ResourceWarning treated as error",
   "full_result": "PASS; 48 tests",
-  "archive_manifest_verification": "PASS; 18 archives; SHA-256 and ZIP CRC checks",
+  "archive_verification": "PASS; 18 archive SHA-256 and ZIP CRC checks",
+  "upstream_snapshot_verification": "PASS; 18/18 ZIP file trees match the observed upstream commit trees by path and Git blob SHA-1",
   "git_diff_check": "PASS",
-  "limitations": [
-    "Full-suite legacy tests emit ResourceWarning messages; the suite exits 0.",
-    "No independent reviewer, source revision proof, benchmark result, runtime integration, or production deployment is claimed."
+  "open_gates": [
+    "License compatibility for archives with missing license files and the xsstools metadata conflict",
+    "Creative benefit benchmark is pre-registered but not run",
+    "Independent review not available in the observed collaborator set",
+    "No runtime integration or production deployment"
   ]
 }

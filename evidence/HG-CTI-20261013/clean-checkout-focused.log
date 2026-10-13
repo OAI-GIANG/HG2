@@ -25,6 +25,6 @@ test_missing_source_evidence_ref_blocks (tests.test_creative_assimilation.Source
 test_verified_source_has_no_blockers (tests.test_creative_assimilation.SourceEvidenceTests.test_verified_source_has_no_blockers) ... ok
 
 ----------------------------------------------------------------------
-Ran 25 tests in 0.002s
+Ran 25 tests in 0.003s
 
 OK
