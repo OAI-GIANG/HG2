@@ -45,3 +45,29 @@ CircleCI docs state the normal config source is `.circleci/config.yml` in the sa
 - Independent security review: NOT SATISFIED.
 - Canonical refs: unresolved remote-vs-local drift; no attempt to reconcile/force push.
 - Merge/deploy: NO-GO. Keep PR #14 OPEN/DRAFT and canonical baseline/release state unchanged until CI and independent review/security gates are independently satisfied.
+
+## Remediation follow-up — 2026-10-14
+
+The isolated remediation branch is reachable again. A read-only status check confirmed the working tree was clean before this addendum and the remote branch head matched the local head. The missing `.circleci/config.yml` was added on the remediation branch only; its shell `printf` newline escapes were normalized before commit.
+
+- CI config commit: `43d4122218c0941a6e98193969518fc262edff4d` (`ci: add isolated code intelligence verification config`).
+- Push result: PASS; remote branch `fix/hg2-code-intelligence-coverage-failclosed-20261014` resolved to the same SHA.
+- GitHub combined status for that exact SHA: `ci/circleci: verify = success`.
+- CircleCI pipeline: https://circleci.com/gh/OAI-GIANG/HG2/68.
+- Local verification on Android/ARM64 Termux / Python 3.14.6: `py_compile` PASS; full suite 35 tests PASS, exit 0. Existing `ResourceWarning` messages are from unchanged `tests/test_core.py`/existing HTTP error handling; they did not fail the suite.
+- `git diff --check origin/hg-genesis...HEAD`: PASS.
+- Four source archives rehashed and fully CRC-tested in place, without extraction or code execution: all SHA-256 values, byte counts, entry counts and uncompressed sizes matched the inventory above; all ZIP CRC checks PASS.
+- Canonical `manifest.json` SHA-256: `748649af5d45e10d7df322e430aa01240a6f303c5f2bcb6a363aa5cf8c221abf`, identical to the compared base file. `manifest.json`, phone runtime, authority, history, identity and edge paths are unchanged in the candidate diff.
+- Candidate module SHA-256 remains `bee7216245f01491c111d43e1c11efae131a0be5757e6f9e910b5e263eb92342`.
+
+This resolves the missing-config root cause for the tested commit; it does not erase the historical failures on earlier commits. The evidence addendum itself is documentation-only and will be pushed as a subsequent commit, whose own hosted status must be checked separately.
+
+## Remaining gates — still open
+
+- Representative ground-truth benchmark for coverage and patch-impact quality: NOT RUN.
+- Independent review and independent security review: NOT SATISFIED.
+- Exact upstream source commit/tree provenance for all four ZIP archives: UNKNOWN.
+- Component-level license/compliance audit of the upstream Codebase Memory archive: NOT COMPLETE; no upstream implementation code was copied.
+- Canonical reference drift remains unresolved: task-recorded baseline `d11e71ed8b34338b8568664b39bc777c926826d5`; remote-tracking `origin/hg-genesis` is `cdebaeed014371f033f14352f552c6d0d4e69198`. No attempt was made to reconcile or force-push either ref.
+
+**Disposition:** source inventory, clean-room candidate, local regression and hosted CI for commit `43d4122` are verified. Keep merge/deploy on HOLD and the PR draft/open until the remaining gates are explicitly satisfied. Canonical refs and runtime remain unchanged.
