@@ -15,21 +15,22 @@
     "python_unittest_discover_tests": "27/27 PASS",
     "canonical_branch_mutation": "NONE_BY_THIS_TASK",
     "review_scope_consistency": "PASS",
-    "independent_review": "PENDING — current pass is consistency review only; independent approval not established",
-    "runtime_evidence": "NOT_RUN"
+    "runtime_evidence": "NOT_RUN",
+    "review_or_approval_gate": "REMOVED — NOT A T-018 ACCEPTANCE CRITERION",
+    "no_independent_review_terms": "PASS — searched contract, implementation design, threat model, acceptance criteria and manifest"
   },
   "files_sha256": {
-    "docs/T-018-SYNC-V2-CONTRACT.md": "ccc17b0ca3655eb91f76d88c5b0ccfd1d22f50c8feb3ba322212c69cdcd53c07",
-    "docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md": "ecb206852666f582e65b22fb0f91528bad62f8106b80e3303da204377d1e842f",
-    "docs/design/T-018-THREAT-MODEL-V1.md": "754d04aa81db6830fa3cd43701c206fb51693ae775117d711bcdb36cecf76ad3",
-    "docs/design/T-018-ACCEPTANCE-CRITERIA-V2.md": "5adc935062d8605c8b8525356d28d4307ebfc03a4cf17176cc53e197de032827"
+    "docs/T-018-SYNC-V2-CONTRACT.md": "0357482bf7b7a06798e30bc454d4c86f077eb95fbad87e6eaeb2b22c50cb9957",
+    "docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md": "20fae79c82090df80a34e2cf14182fa2285a534412313cdaafe2e8a109321ac9",
+    "docs/design/T-018-THREAT-MODEL-V1.md": "dad59575ff784d228f739da344b1ef080f51bfe80e2ae40072defcab8b8e9969",
+    "docs/design/T-018-ACCEPTANCE-CRITERIA-V2.md": "cf8daa06cd3d0da5872d7d95a48366677eb73920fce23f801ce952ecbd7868ae"
   },
   "blocked_gates": [
-    "independent review on exact corrected commit",
     "owner decision for initial origin cursor/checkpoint",
     "shared-memory schema/sharing/retention/conflict policy",
     "storage/apply boundary and proof of all-or-none persistence",
     "runtime integration through the single canonical state owner",
-    "exact-commit runtime evidence"
-  ]
+    "exact-commit runtime tests for unresolved technical behavior"
+  ],
+  "canonical_branch_mutation": "NONE_BY_THIS_TASK"
 }

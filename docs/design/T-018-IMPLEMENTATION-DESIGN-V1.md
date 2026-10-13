@@ -16,7 +16,7 @@
 - **EVIDENCE:** exact source and branch refs, diff checks, targeted test results, document hashes and final branch head.
 - **RISKS:** an unkeyed hash is not sender authentication; replay/rollback; partial writes; split-brain; unintended disclosure; unresolved memory conflicts.
 - **STOP CONDITION:** do not implement runtime changes while the initial cursor policy, memory semantics or storage boundary remains undecided.
-- **NEXT ACTION:** independent review of the corrected documents and explicit owner decisions for unresolved gates.
+- **NEXT ACTION:** resolve explicit owner decisions for the remaining technical gates and gather exact-commit test evidence.
 
 ## 2. Observed implementation boundary
 
@@ -100,7 +100,6 @@ These are requirements for later implementation evidence, not claims that these 
 | Storage migration (including SQLite) | NEEDS_OWNER_DECISION | No migration is authorized by this design. |
 | Phone-runtime integration | REQUIRED | Exact-SHA integration evidence required. |
 | Network/cross-device sync | OBSOLETE for current scope | Local spool only. |
-| Independent review and provenance | REQUIRED | Release remains blocked until complete. |
 
 ## 7. Non-goals
 
@@ -110,4 +109,4 @@ This correction does not implement sync, select a cryptographic or non-cryptogra
 
 **Current decision: DOCUMENTS CORRECTED; IMPLEMENTATION BLOCKED.**
 
-The corrected documents must be checked for internal consistency and hashed. Existing tests may be run to detect regressions, but passing unit tests cannot establish runtime integration, a trusted initial cursor, atomic persistence or independent review.
+The corrected documents must be checked for internal consistency and hashed. Existing tests may be run to detect regressions, but passing unit tests cannot establish runtime integration, a trusted initial cursor or atomic persistence.

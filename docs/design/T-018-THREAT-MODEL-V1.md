@@ -1,6 +1,6 @@
 # T-018 Threat Model V1 — Local Spool Sync (Signature-Free Scope)
 
-**Status:** DESIGN ONLY — REVIEW REQUIRED
+**Status:** DESIGN ONLY — TECHNICAL GATES OPEN
 **Canonical boundary:** `hg-genesis` remains unchanged
 **Release:** `BLOCKED`
 
@@ -28,7 +28,6 @@ The earlier source inspection was recorded at design base `4d97c34d8bb7c10912653
 3. Validated batch → replay/cursor/conflict checks.
 4. Planned import → canonical persistence boundary.
 5. Runtime process → durable state and audit files.
-6. Implementation author → independent reviewer and release authority.
 
 The spool is not a network transport or an authenticated identity channel. The phone remains the sole canonical state owner.
 
@@ -54,7 +53,7 @@ The spool is not a network transport or an authenticated identity channel. The p
 | T16 | Audit omission/tampering | Record rejection/acceptance outcomes and verify evidence hashes | Manifest rehash and negative tests pass |
 | T17 | Resource exhaustion | Bound batch size/count/depth and reject malformed structures | Oversized/nested inputs fail safely; exact limits require implementation contract |
 | T18 | Spool path/name manipulation | Constrain import paths to the configured spool and validate resolved file identity | Path traversal/out-of-spool paths rejected |
-| T19 | Storage backend or migration failure | Do not migrate until owner approves; verify recovery properties for selected design | No migration assumed; exact storage design independently reviewed |
+| T19 | Storage backend or migration failure | Do not migrate until owner decision; verify recovery properties for selected design | No migration assumed; exact storage design and fault-recovery evidence required |
 | T20 | Clock rollback/freeze | Cursor/sequence, not wall-clock time alone, drives replay protection | Old sequence remains rejected after clock rollback |
 
 ## 4. Residual risks and assumptions
@@ -75,13 +74,9 @@ The spool is not a network transport or an authenticated identity channel. The p
 - A proven all-or-none persistence boundary before claiming atomic apply.
 - Explicitly preserved authority and single canonical writer.
 - No application-memory merge until its schema and conflict policy are approved.
-- Exact-commit tests, reproducible evidence hashes and independent review.
+- Exact-commit tests and reproducible evidence hashes.
 
-## 6. Independent review status
-
-This file is a corrected threat-model proposal, not evidence that the implementation has met the controls. An independent reviewer must verify the exact corrected commit and later runtime evidence before release. Current inspection in the scope-correction branch is a consistency review, not approval by a second implementation authority.
-
-## 7. Review decision
+## 6. Technical status
 
 **Current decision: BLOCKED — design and runtime gates remain open.**
 

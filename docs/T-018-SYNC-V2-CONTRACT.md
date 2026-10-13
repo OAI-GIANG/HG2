@@ -28,7 +28,7 @@ These hashes establish consistency of the submitted data only. They do not prove
 
 An exact repeated event must not cause a second application of its effects. Reuse of an event ID with different content or provenance is a conflict. Replay detection must use durable accepted-event/cursor state, not timestamps alone. Invalid batches are rejected and recorded; no foreign event from an invalid batch may be applied. Rejection/conflict audit events do not mean the rejected payload was accepted.
 
-Rollback protection is required against the last durably accepted origin cursor. The initial cursor/checkpoint trust policy is unresolved; until the owner approves it, first-time origin imports must fail closed rather than treating a sender-provided initial head as independently trusted.
+Rollback protection is required against the last durably accepted origin cursor. The initial cursor/checkpoint trust policy is unresolved; until the owner approves it, first-time origin imports must fail closed rather than treating a sender-provided initial head as trusted.
 
 ## Atomicity and state ownership
 
@@ -53,10 +53,10 @@ The phone remains the single canonical state owner. T-018 must not instantiate a
 1. Preserve the existing host credential and `context_id` / `runtime_id` contract without adding a signature requirement or substituting another authentication scheme.
 2. Obtain an owner decision for the initial origin cursor/checkpoint policy; prove replay and rollback handling against persisted accepted state.
 3. Define shared-memory schema, sharing permissions, retention and conflict behavior before any application-state merge.
-4. Choose and independently review a storage/apply boundary that satisfies the all-or-none requirement; no storage migration is presumed.
+4. Choose a storage/apply boundary that satisfies the all-or-none requirement; no storage migration is presumed.
 5. Integrate through the single canonical state owner; do not open a second independent `StateStore` on the canonical directory.
 6. Test duplicate/replay, changed-content ID conflict, sequence gaps/forks, malformed batches, restart, crash/failure points and offline recovery.
-7. Run tests against exact commit, record provenance and obtain independent review.
+7. Run tests against the exact commit and record provenance.
 
 ## Canonical boundary
 

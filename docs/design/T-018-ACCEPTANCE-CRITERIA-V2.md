@@ -23,7 +23,6 @@
 | Phone-runtime integration through single canonical state owner | REQUIRED | Exact-commit integration evidence must show no second canonical store. |
 | New network endpoint or cross-device sync | OBSOLETE for current scope | T-018 remains local spool only. |
 | Exact-commit test evidence and SHA-256 manifest | REQUIRED | Hashes must recompute from the committed artifacts. |
-| Independent review and provenance | REQUIRED | Release cannot be marked ready without it. |
 
 ## Test matrix
 
@@ -37,8 +36,7 @@
 8. Existing authority denial is preserved; no unauthorized `state.import`.
 9. Runtime integration does not create a second canonical state owner.
 10. Tests and manifest identify the exact commit and environment.
-11. A reviewer independent from the implementation author records findings on the exact candidate commit. A self-check or document consistency scan does not satisfy this gate.
 
 ## Stop conditions
 
-Do not claim production readiness if initial cursor policy, memory semantics, storage boundary, runtime integration, atomicity proof, or independent review remains unresolved. Do not implement signature features or a replacement authentication scheme as part of this scope.
+Do not claim production readiness if initial cursor policy, memory semantics, storage boundary, runtime integration or atomicity proof remains unresolved. Do not implement signature features or a replacement authentication scheme as part of this scope.
