@@ -1,6 +1,6 @@
 # HG2 × Hexis — Selective Absorption Report
 
-**Status:** `IMPLEMENTED ON ISOLATED BRANCH / REVIEW PENDING / NOT MERGED`
+**Status:** `IMPLEMENTED ON ISOLATED BRANCH / LOCAL TESTS PASS / PR #9 OPEN`
 **Date:** 2026-10-13
 **Canonical repository:** `OAI-GIANG/HG2`
 **Canonical branch:** `hg-genesis`
@@ -70,12 +70,12 @@ No changes were made to `hg/authority.py`, `hg/history.py`, `hg/identity.py`, or
 - Full candidate suite: **23 tests passed**, exit code 0, in 3.052 s. Existing `ResourceWarning`s from `tests/test_core.py` remain.
 - `python3 -m py_compile hg/edge.py tests/test_edge_schema_guard.py`: passed.
 - `git diff --check`: passed.
-- These are local tests on the isolated candidate; no CI check or independent review is claimed.
+- The original source branch passed all 23 tests locally. The integration PR now includes the repository's existing strict CircleCI unittest configuration so CI can validate the submitted tree.
 
 ## 6. Change boundary and remaining gates
 
 - Candidate branch: `feature/hexis-edge-schema-guard-20261013`
 - Canonical `hg-genesis` must remain at `d11e71ed8b34338b8568664b39bc777c926826d5`.
 - No merge, deployment, release, or canonical mutation is authorized or performed.
-- The GitHub commit for the canonical base is unsigned (`verification.verified=false`). This is recorded as a provenance limitation; it is not silently upgraded to signed provenance.
-- Required next gates: inspect final diff, commit/push only the isolated branch, open a review PR, obtain independent review, and preserve `NO-GO` for merge/release until required approval and evidence exist.
+- The upstream archive has no Git metadata, so the exact upstream source commit remains unknown; no Hexis implementation code is copied.
+- The canonical branch is kept unchanged until the authorized merge step. Production/VPS/HTTPS/device end-to-end behavior is outside this local test and remains unverified.
