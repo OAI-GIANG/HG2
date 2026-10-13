@@ -388,7 +388,8 @@ def index_repository(
     too_large_count = sum(rec["status"] == "SKIPPED_FILE_SIZE" and rec.get("analysis_support") == "PYTHON_AST" for rec in records)
     source_too_large_count = sum(rec["status"] == "SKIPPED_FILE_SIZE" for rec in records)
     unsupported_count = sum(rec.get("analysis_support") == "UNSUPPORTED_LANGUAGE" for rec in records)
-    coverage_incomplete = bool(syntax_error_count or too_large_count or unsupported_count or source_too_large_count or unclassified_count or dynamic_import_sites or secrets_excluded or symlinks_excluded)
+    duplicate_module_names_count = len(duplicate_modules)
+    coverage_incomplete = bool(syntax_error_count or too_large_count or unsupported_count or source_too_large_count or unclassified_count or dynamic_import_sites or secrets_excluded or symlinks_excluded or duplicate_module_names_count)
     source_records = [{"path": r["path"], "status": r["status"], "analysis_support": r.get("analysis_support"),
                        "size_bytes": r["size_bytes"], "sha256": r.get("sha256")}
                       for r in records]
@@ -450,6 +451,7 @@ def index_repository(
             "source_files_skipped_file_size": source_too_large_count,
             "unsupported_source_files": unsupported_count,
             "unclassified_files_count": unclassified_count,
+            "duplicate_module_names_count": duplicate_module_names_count,
             "dynamic_import_sites": dynamic_import_sites,
             "parsed_python_ratio": _ratio(parsed_count, len(python_files)),
             "coverage_complete_for_all_repository_source": not coverage_incomplete,
@@ -458,6 +460,7 @@ def index_repository(
                 "Recognized non-Python source files are counted as unsupported and make impact analysis incomplete.",
                 "Regular non-secret files with unrecognized names/extensions are listed as UNCLASSIFIED_FILE_TYPE and make coverage incomplete.",
                 "Excluded secret-shaped files and skipped symlinks also make coverage incomplete because their contents are not analyzed.",
+                "Duplicate Python module names are not resolved by arbitrary selection and make coverage incomplete.",
                 "Dynamic import sites make impact analysis incomplete; source aliases/reflection may remain unresolved.",
                 "Hash integrity and a caller-declared revision do not establish source authenticity or correctness.",
             ],

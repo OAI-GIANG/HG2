@@ -193,6 +193,34 @@ class CodeIntelligenceTests(unittest.TestCase):
         self.assertNotEqual(first["snapshot_sha256"], second["snapshot_sha256"])
         self.assertEqual(compare_staleness(first, second)["status"], "STALE")
 
+
+    def test_duplicate_module_names_force_incomplete_coverage(self):
+        self.put("shared.py", "VALUE = 1\n")
+        self.put("shared/__init__.py", "VALUE = 2\n")
+        self.put("consumer.py", "import shared\n")
+        report = index_repository(self.root, source_revision="rev", changed_paths=["shared.py"])
+        self.assertEqual(report["coverage"]["duplicate_module_names_count"], 1)
+        self.assertFalse(report["coverage"]["coverage_complete_for_all_repository_source"])
+        self.assertEqual(report["impact"]["status"], "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE")
+
+    def test_encoding_error_is_disclosed_and_forces_incomplete_coverage(self):
+        path = self.root / "invalid_encoding.py"
+        path.write_bytes(b"VALUE = '\xff'\n")
+        report = index_repository(self.root, source_revision="rev")
+        self.assertFalse(report["coverage"]["coverage_complete_for_all_repository_source"])
+        self.assertEqual(report["coverage"]["python_files_parse_failed"], 1)
+        record = next(item for item in report["files"] if item["path"] == "invalid_encoding.py")
+        self.assertEqual(record["status"], "PARSE_ERROR_ENCODING")
+
+    def test_oversize_unclassified_file_is_reported_without_claiming_coverage(self):
+        self.put("app.py", "VALUE = 1\n")
+        self.put("unknown.blob", "x" * 64)
+        report = index_repository(self.root, source_revision="rev", max_file_bytes=16)
+        record = next(item for item in report["files"] if item["path"] == "unknown.blob")
+        self.assertEqual(record["status"], "UNCLASSIFIED_FILE_TYPE_SIZE_LIMIT")
+        self.assertNotIn("sha256", record)
+        self.assertFalse(report["coverage"]["coverage_complete_for_all_repository_source"])
+
     def test_analyzer_version_change_marks_index_stale(self):
         self.put("app.py", "VALUE = 1\n")
         first = index_repository(self.root, source_revision="rev")
