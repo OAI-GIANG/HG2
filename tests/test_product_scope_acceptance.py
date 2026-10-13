@@ -164,6 +164,9 @@ class DependencyInventoryTests(unittest.TestCase):
         self.assertEqual(inventory["candidate_before_acceptance_tests"]["sha"], "d834b7424c89c346b9db55d79dd869ecca46cd31")
         self.assertEqual(inventory["http_api"]["legacy_source"]["commit"], "0495ac8bba4dc59bbf5b84ef7f38dd78bae7dead")
         self.assertEqual(inventory["phone_bridge"]["source"]["commit"], "4a20c319fe740f1a092ade4e407d693439629385")
+        ops = next(repo for repo in inventory["repositories_examined"] if repo["repository"] == "OAI-GIANG/hg-ops")
+        self.assertEqual(ops["sha"], "2e75a6cbae2fa46e48ffa3fe67a134c385ee880e")
+        self.assertIn("No references", inventory["http_api"]["known_dependencies"]["operations_repo_scan"]["result"])
         self.assertEqual(inventory["http_api"]["known_dependencies"]["external_deployments_or_clients"], "UNKNOWN_NOT_ACCESSIBLE_FROM_REPOSITORY_SOURCES")
         self.assertEqual(inventory["phone_bridge"]["consumer_search"]["external_clients_or_deployments"], "UNKNOWN_NOT_ACCESSIBLE_FROM_REPOSITORY_SOURCES")
         for source in inventory["http_api"]["legacy_source"]["files"] + inventory["phone_bridge"]["source"]["files"]:
