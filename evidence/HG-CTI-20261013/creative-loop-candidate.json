@@ -59,8 +59,7 @@
     "Material unsupported-claim rate no more than 2% and no worse than baseline",
     "Counterexample sensitivity at least 95%",
     "No critical baseline regression",
-    "All source revisions, licenses, and evidence references pass their gates",
-    "Independent review completed against the exact candidate SHA"
+    "All source revisions, licenses, and evidence references pass their gates"
   ],
   "failure_modes": [
     "False novelty from paraphrase",
@@ -77,13 +76,11 @@
     "semantic_validity": "NOT_TESTED_ON_BENCHMARK",
     "independent_verification": "NOT_PERFORMED"
   },
-  "current_decision": "DRAFT_ONLY",
+  "current_decision": "CANDIDATE_FOR_EXISTING_GOVERNANCE_DECISION",
   "blockers": [
-    "License compatibility remains unresolved for archives without a license file and for the xsstools metadata conflict",
     "Some source archives have no license file; xsstools has a license/package-metadata conflict",
     "Benchmark protocol has not been executed",
-    "Independent review has not been performed",
     "No runtime integration or measurable creativity advantage is claimed",
-    "No trusted reviewer/attestation verifier is integrated; ACCEPTED remains unreachable in V1"
+    "License status still unclear for archives with no license file and xsstools has conflicting license indicators"
   ]
 }

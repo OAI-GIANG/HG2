@@ -13,7 +13,8 @@ solutions than the existing baseline without increasing governance violations or
 - Record dataset file hashes, source materials, expected constraints and prohibited outcomes.
 - Compare the same HG baseline and candidate revision with identical model/provider, prompt budget,
   context budget, tool permissions, time limit and cost accounting.
-- Blind evaluators to the candidate/baseline label. Use at least two reviewers; report disagreement.
+- Blind-score the candidate/baseline labels if the existing evaluator process supports it; report
+  evaluator disagreement. This is a measurement protocol, not a new acceptance authority or gate.
 - Keep train/development cases separate from the sealed evaluation set; prohibit case leakage.
 - Record raw outputs, rubric scores, test logs, elapsed time, token/call counts and direct cost.
 - No real target exploitation, production write, deployment or external side effect is permitted.

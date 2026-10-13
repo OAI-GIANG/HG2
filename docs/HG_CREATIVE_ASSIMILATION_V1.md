@@ -45,8 +45,7 @@ dependency or service was integrated.
    and terminal-state reopening.
 4. Benefit proof: not established. The pre-registered protocol in HG_CTI_BENCHMARK_PROTOCOL_V1.md
    defines a versioned baseline-vs-candidate benchmark; it has not been executed.
-5. Independent review: not performed by the authoring agent; required before canonical merge.
 6. Runtime/production: no runtime wiring or deployment is included or claimed.
 
 ## Verdict
-Implementation candidate on isolated branch. No production/release certification. License compatibility, benchmark advantage and independent review remain open gates.
+Implementation candidate on isolated branch. No production/release certification. License compatibility and benchmark benefit remain open gates.

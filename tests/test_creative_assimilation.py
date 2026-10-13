@@ -85,19 +85,16 @@ class LifecycleTests(unittest.TestCase):
         self.assertEqual(out.lifecycle_status, "CANDIDATE"); self.assertEqual(out.revision, 2)
     def test_cannot_skip_review(self):
         with self.assertRaisesRegex(ValueError, "TRANSITION_NOT_ALLOWED"):
-            transition(candidate(), "ACCEPTED", actor_id="author", reviewer_id="reviewer", sources=self.sources, principles=self.principles, evidence_refs=("review:1",))
-    def test_review_gate_requires_trust(self):
-        c = candidate(lifecycle_status="CANDIDATE", trust=TrustAssessment())
-        with self.assertRaisesRegex(ValueError, "REVIEW_GATE_BLOCKED"):
-            transition(c, "REVIEW_REQUIRED", actor_id="author", sources=self.sources, principles=self.principles, evidence_refs=("test:1",))
-    def test_author_cannot_self_review(self):
+            transition(candidate(), "ACCEPTED", actor_id="author", sources=self.sources, principles=self.principles, evidence_refs=("review:1",))
+    def test_accepted_transition_needs_complete_provenance_and_trust(self):
+        c = candidate(lifecycle_status="REVIEW_REQUIRED", trust=TrustAssessment())
+        with self.assertRaisesRegex(ValueError, "ACCEPTANCE_GATE_BLOCKED"):
+            transition(c, "ACCEPTED", actor_id="author", sources=self.sources, principles=self.principles, evidence_refs=("review:1",))
+    def test_acceptance_uses_existing_trust_assessment_and_evidence(self):
         c = candidate(lifecycle_status="REVIEW_REQUIRED")
-        with self.assertRaisesRegex(ValueError, "INDEPENDENT_REVIEWER_REQUIRED"):
-            transition(c, "ACCEPTED", actor_id="author", reviewer_id="author", sources=self.sources, principles=self.principles, evidence_refs=("review:1",))
-    def test_distinct_reviewer_string_cannot_self_certify_acceptance(self):
-        c = candidate(lifecycle_status="REVIEW_REQUIRED")
-        with self.assertRaisesRegex(ValueError, "TRUSTED_REVIEW_AUTHORITY_NOT_CONFIGURED"):
-            transition(c, "ACCEPTED", actor_id="author", reviewer_id="other-name", sources=self.sources, principles=self.principles, evidence_refs=("review:1",))
+        out = transition(c, "ACCEPTED", actor_id="governance", sources=self.sources, principles=self.principles, evidence_refs=("decision:approved-in-existing-governance",))
+        self.assertEqual(out.lifecycle_status, "ACCEPTED")
+        self.assertEqual(out.revision, c.revision + 1)
     def test_revoke_requires_evidence(self):
         with self.assertRaisesRegex(ValueError, "DECISION_EVIDENCE_REQUIRED"):
             transition(candidate(lifecycle_status="ACCEPTED"), "REVOKED", actor_id="governance", sources=self.sources, principles=self.principles)

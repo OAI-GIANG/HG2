@@ -21,15 +21,15 @@ OBSERVE → DIVERGE → CHALLENGE → DISCRIMINATE → VALIDATE → DISTILL → 
 ## State transitions
 DRAFT → CANDIDATE → REVIEW_REQUIRED → REJECTED | QUARANTINED.
 ACCEPTED → QUARANTINED | REVOKED; QUARANTINED → REVOKED.
-ACCEPTED is intentionally unreachable through this V1 module: it has no host-trusted reviewer
-identity/attestation verifier. A caller-supplied reviewer name is not proof of independent review.
 Rejected and revoked records are terminal. Reopening means creating a new revision/record with
 explicit lineage, not rewriting history.
 
 CANDIDATE means a structurally complete proposal, not approved knowledge.
 REVIEW_REQUIRED requires all provenance/trust gates to pass.
-ACCEPTED remains blocked until a host-trusted reviewer/attestation verifier is integrated.
-No transition grants execution rights or mutates HG memory.
+ACCEPTED depends only on the already-existing trust assessment and decision-evidence reference.
+This module does not introduce any signature, reviewer-attestation, or independent-review
+requirement, and it does not create a new authority owner. No transition grants tool-execution
+rights or mutates HG memory.
 
 ## Fail-closed rules
 - Archive SHA-256 proves byte consistency only; it does not prove upstream authenticity,

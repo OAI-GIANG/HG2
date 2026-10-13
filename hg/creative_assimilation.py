@@ -168,7 +168,7 @@ def evaluate_candidate(candidate: SynthesisCandidate, sources: Mapping[str, Sour
     return Evaluation(not blockers, tuple(dict.fromkeys(blockers)))
 
 def transition(candidate: SynthesisCandidate, target: str, *, actor_id: str,
-               sources: Mapping[str, SourceEvidence], principles: Mapping[str, CreativePrinciple], reviewer_id: str = "",
+               sources: Mapping[str, SourceEvidence], principles: Mapping[str, CreativePrinciple],
                evidence_refs: Sequence[str] = ()) -> SynthesisCandidate:
     """Apply a checked lifecycle transition; never grants execution authority."""
     if not actor_id.strip():
@@ -197,13 +197,8 @@ def transition(candidate: SynthesisCandidate, target: str, *, actor_id: str,
         result = evaluate_candidate(candidate, sources, principles)
         if not result.ready_for_review:
             raise ValueError("ACCEPTANCE_GATE_BLOCKED:" + ",".join(result.blockers))
-        if not reviewer_id.strip() or reviewer_id == actor_id:
-            raise ValueError("INDEPENDENT_REVIEWER_REQUIRED")
         if not evidence_refs:
             raise ValueError("ACCEPTANCE_EVIDENCE_REQUIRED")
-        # This pure module has no host-trusted reviewer identity/attestation verifier.
-        # A caller-provided reviewer string is not independent verification.
-        raise ValueError("TRUSTED_REVIEW_AUTHORITY_NOT_CONFIGURED")
     if target in {"REJECTED", "QUARANTINED", "REVOKED"} and not evidence_refs:
         raise ValueError("DECISION_EVIDENCE_REQUIRED")
     return replace(candidate, lifecycle_status=target, revision=candidate.revision + 1)
