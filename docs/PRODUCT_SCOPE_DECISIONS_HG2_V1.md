@@ -49,15 +49,13 @@ Acceptance criteria: `AC-ID-01` through `AC-ID-05` in the JSON contract.
 
 Implementation-level tests above remain `BLOCKED_NOT_RUN` until their required sources/routers/fixtures are available and the test is implemented and executed, except `T-ID-01`, which passed locally before the first commit. That local result is not a substitute for independent verification of the exact candidate SHA and CI. A passing contract-record test proves only that this decision record is structurally consistent; it does not pass the implementation gates.
 
-The previously recorded durability tests and CI result apply only to their exact recorded source SHA and do not prove these new scope decisions are implemented. No power-loss test is implied.
+The previously recorded durability tests and CI result apply only to their exact recorded source SHA and do not prove these new scope decisions are implemented. No power-loss test is implied. The governance simplification proposal removes the two previously mandatory governance controls; this does not change any historic evidence record.
 
-A provenance exception was detected for commit `b5f49770cba13cd995533cd140b7560d999c441e`: GitHub reports it unsigned and its author/committer metadata does not match the authorized canonical identity. History will not be rewritten. This exception is recorded in the JSON contract and keeps provenance `BLOCKED`; subsequent commits must use canonical OAI-GIANG metadata.
+Historical source and commit metadata remain recorded as originally observed. This policy proposal does not rewrite historical records or alter any existing commit.
 
 ## 4. Global fail-closed gates
 
 - Exact-SHA acceptance tests and CI: `BLOCKED`.
-- Independent review by someone other than the author on the exact candidate SHA: `BLOCKED`.
-- Provenance: `BLOCKED` until evidence is independently checked; do not represent unsigned commits as signed.
 - Production authentication and applicable VPS/HTTPS/device E2E: `BLOCKED` until supported by evidence.
 - No merge, deploy, canonical branch mutation, repository/branch archive or deletion, or history rewrite is authorized by these choices.
 

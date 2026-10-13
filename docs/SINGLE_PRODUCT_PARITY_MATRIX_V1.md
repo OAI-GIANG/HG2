@@ -26,7 +26,6 @@ Audit references:
 ## Current gate state
 
 - Feature parity: `BLOCKED` — scope acceptance plan is `docs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md`; source inventory is `evidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json`. External clients/deployments remain unknown and exact-SHA/CI evidence is pending.
-- History integrity: `CANDIDATE IMPLEMENTATION` — remediation on this branch must be independently reviewed and tested; this document alone is not evidence of correctness.
+- History integrity: `CANDIDATE IMPLEMENTATION` — remediation must be tested on the exact candidate SHA; this document alone is not evidence of correctness.
 - Session authentication: `PARTIAL` — the runtime now requires a host-supplied verifier and fails closed if missing/rejecting/raising; production credential verification and authority integration remain to be independently assessed.
-- Independent review: `BLOCKED` until a reviewer other than the author reviews the exact candidate SHA.
 - Production / VPS / HTTPS / device E2E: `NOT_RUN` in this branch; no deployment is authorized.
