@@ -81,4 +81,4 @@ The following archive contents are not approved for code reuse or implementation
 - Canonical `hg-genesis` was independently compared before and after the push and remained at d11e71ed8b34338b8568664b39bc777c926826d5 at the time of verification.
 
 ## Acceptance / rollback / stop
-Accept only as a local reference document. Do not merge or treat as product implementation. Stop any code reuse if license/provenance remains unclear or if G2 cannot prove a genuine gap. Rollback is simply discard this local document; no canonical rollback is needed because no repository mutation occurred.
+Accept only as a local reference document. Do not merge or treat as product implementation. Stop any code reuse if license/provenance remains unclear or if G2 cannot prove a genuine gap. Rollback is to close the unmerged PR and delete the isolated reference branch if rejected; no canonical rollback is needed because canonical was not changed.
