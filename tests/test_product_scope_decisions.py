@@ -58,6 +58,13 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
         self.assertIn("HG2 is the product/repository label", readme)
         self.assertIn("`PRODUCT_ID=HG` remains the durable event and on-disk identity", readme)
 
+    def test_provenance_exception_is_explicit_and_not_rewritten(self):
+        exceptions = self.record["provenance_exceptions"]
+        self.assertEqual(len(exceptions), 1)
+        self.assertEqual(exceptions[0]["commit"], "b5f49770cba13cd995533cd140b7560d999c441e")
+        self.assertEqual(exceptions[0]["status"], "BLOCKED_REQUIRES_RECONCILIATION")
+        self.assertIn("Do not rewrite or remove history", exceptions[0]["handling"])
+
     def test_global_gates_remain_blocked_and_canonical_is_protected(self):
         self.assertTrue(all(gate["status"] == "BLOCKED" for gate in self.record["global_gates"]))
         boundaries = self.record["change_boundaries"]

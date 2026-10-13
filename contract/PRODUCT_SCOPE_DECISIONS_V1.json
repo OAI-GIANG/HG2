@@ -214,13 +214,13 @@
       "status": "BLOCKED"
     },
     {
-      "id": "G-PROVENANCE",
-      "requirement": "Provenance is independently verifiable; unsigned commits are never described as signed.",
+      "id": "G-PRODUCTION",
+      "requirement": "Production authentication and applicable VPS/HTTPS/device E2E gates have evidence.",
       "status": "BLOCKED"
     },
     {
-      "id": "G-PRODUCTION",
-      "requirement": "Production authentication and applicable VPS/HTTPS/device E2E gates have evidence.",
+      "id": "G-PROVENANCE",
+      "requirement": "Commit/evidence provenance is independently verifiable; no unsigned or mismatched metadata is misrepresented as verified; historical exception b5f49770cba13cd995533cd140b7560d999c441e is explicitly reconciled without history rewrite.",
       "status": "BLOCKED"
     }
   ],
@@ -231,5 +231,13 @@
     "archive_or_delete_repository_or_branch": "FORBIDDEN",
     "history_rewrite": "FORBIDDEN"
   },
-  "evidence_rule": "This record is owner-approved scope only, not implementation/test/review evidence or readiness certification. Remain BLOCKED/NO-GO until applicable criteria have evidence tied to the exact candidate SHA. The product-ID mapping metadata and its unit assertion passed locally before commit; this is not exact-SHA or CI evidence."
+  "evidence_rule": "This record is owner-approved scope only, not implementation/test/review evidence or readiness certification. Remain BLOCKED/NO-GO until applicable criteria have evidence tied to the exact candidate SHA. The product-ID mapping metadata and its unit assertion passed locally before commit; this is not exact-SHA or CI evidence.",
+  "provenance_exceptions": [
+    {
+      "commit": "b5f49770cba13cd995533cd140b7560d999c441e",
+      "finding": "GitHub reports this commit unsigned and its author/committer metadata does not match the authorized canonical identity.",
+      "handling": "Do not rewrite or remove history. Preserve this exception explicitly; subsequent commits must use canonical OAI-GIANG metadata.",
+      "status": "BLOCKED_REQUIRES_RECONCILIATION"
+    }
+  ]
 }
