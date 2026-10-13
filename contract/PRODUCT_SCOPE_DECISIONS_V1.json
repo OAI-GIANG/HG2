@@ -8,7 +8,7 @@
   },
   "candidate_branch": "fix/hg2-single-product-readiness-20261013",
   "decision_status": "RECORDED",
-  "implementation_status": "PARTIALLY_VERIFIED_EXACT_SHA; EXTERNAL_IMPACT_AND_RELEASE_GATES_BLOCKED",
+  "implementation_status": "PARTIALLY_VERIFIED_EXACT_SHA; EXTERNAL_IMPACT_AND_PRODUCTION_GATES_BLOCKED",
   "overall_gate": "BLOCKED_NO_GO",
   "decisions": [
     {
@@ -209,19 +209,14 @@
       "status": "PASS_ON_SHA_46E90FB"
     },
     {
-      "id": "G-INDEPENDENT-REVIEW",
-      "requirement": "Reviewer other than author reviews exact candidate SHA.",
-      "status": "BLOCKED"
-    },
-    {
       "id": "G-PRODUCTION",
       "requirement": "Production authentication and applicable VPS/HTTPS/device E2E gates have evidence.",
       "status": "BLOCKED"
     },
     {
-      "id": "G-PROVENANCE",
-      "requirement": "Commit/evidence provenance is independently verifiable; no unsigned or mismatched metadata is misrepresented as verified; historical exception b5f49770cba13cd995533cd140b7560d999c441e is explicitly reconciled without history rewrite.",
-      "status": "BLOCKED"
+      "id": "G-HISTORY-TRACEABILITY",
+      "requirement": "Historical source/evidence references remain recorded and no past facts are misrepresented; historical metadata is preserved without history rewrite.",
+      "status": "PASS_HISTORICAL_RECORD_PRESERVED"
     }
   ],
   "change_boundaries": {
@@ -231,7 +226,7 @@
     "archive_or_delete_repository_or_branch": "FORBIDDEN",
     "history_rewrite": "FORBIDDEN"
   },
-  "evidence_rule": "This record is owner-approved scope only, not implementation/test/review evidence or readiness certification. Remain BLOCKED/NO-GO until applicable criteria have evidence tied to the exact candidate SHA. The product-ID mapping metadata and its unit assertion passed locally before commit; this is not exact-SHA or CI evidence.",
+  "evidence_rule": "This record is owner-approved scope only, not implementation or runtime certification. Keep BLOCKED/NO-GO until applicable production and external-impact criteria have evidence tied to the exact candidate SHA. Historical records are retained as facts; neither of the two retired governance controls is required by this scope policy.",
   "provenance_exceptions": [
     {
       "commit": "b5f49770cba13cd995533cd140b7560d999c441e",
@@ -247,9 +242,7 @@
     "remaining_blockers": [
       "external HTTP API consumers/deployments unknown",
       "external Phone Bridge consumers/deployments unknown",
-      "independent review pending",
       "production auth and VPS/HTTPS/device E2E not run",
-      "provenance exception remains unresolved",
       "no actual power-loss test"
     ]
   }

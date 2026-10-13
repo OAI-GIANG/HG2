@@ -1,6 +1,6 @@
 # HG2 × Hexis — Selective Absorption Report
 
-**Status:** `IMPLEMENTED ON ISOLATED BRANCH / LOCAL TESTS PASS / PR #9 OPEN`
+**Status:** `MERGED INTO HG2 CANONICAL VIA PR #9 / POST-MERGE TESTS PASS`
 **Date:** 2026-10-13
 **Canonical repository:** `OAI-GIANG/HG2`
 **Canonical branch:** `hg-genesis`
@@ -72,10 +72,12 @@ No changes were made to `hg/authority.py`, `hg/history.py`, `hg/identity.py`, or
 - `git diff --check`: passed.
 - The original source branch passed all 23 tests locally. The integration PR now includes the repository's existing strict CircleCI unittest configuration so CI can validate the submitted tree.
 
-## 6. Change boundary and remaining gates
+## 6. Final integration status
 
-- Candidate branch: `feature/hexis-edge-schema-guard-20261013`
-- Canonical `hg-genesis` must remain at `d11e71ed8b34338b8568664b39bc777c926826d5`.
-- No merge, deployment, release, or canonical mutation is authorized or performed.
-- The upstream archive has no Git metadata, so the exact upstream source commit remains unknown; no Hexis implementation code is copied.
-- The canonical branch is kept unchanged until the authorized merge step. Production/VPS/HTTPS/device end-to-end behavior is outside this local test and remains unverified.
+- Pull request #9 was merged into `hg-genesis` on 2026-10-13.
+- Canonical merge commit: `cdebaeed014371f033f14352f552c6d0d4e69198`.
+- Post-merge verification ran on that exact commit: **23 tests passed**, exit code 0, using `PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest discover -s tests -v`.
+- CircleCI run #28 passed on the submitted source commit `ddfd11e2af38ca9cbc38b3aa18e71e5a4c92b0cc`.
+- `git diff HEAD^ HEAD --check` passed; the SHA-256 evidence manifest verified every listed item.
+- The implementation adapts a request-validation principle; no Hexis implementation code or runtime dependency was copied. The inspected archive has no Git metadata, so the exact upstream commit remains unknown.
+- Production/VPS/HTTPS/device end-to-end behavior was not run by this change and is not claimed as verified.

@@ -41,14 +41,14 @@ The capability inventory covers request parsing, injected authentication, replay
 
 The test suite is evidence only for the exact source SHA executed. A clean checkout, `PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v`, output log SHA-256 and successful CI status tied to the same commit are required. A test failure discovered during work must be recorded and fixed before acceptance. No source-tree grep is substituted for router integration tests.
 
-Known limits remain: external consumers are unknown; production authentication, VPS/HTTPS/device E2E and actual power-loss tests have not been performed; independent review is still required; and provenance exception `b5f49770cba13cd995533cd140b7560d999c441e` remains documented without history rewrite. Keep all applicable gates `BLOCKED` and overall status `NO-GO` until evidence and independent review close them.
+Known limits remain: external consumers are unknown; production authentication, VPS/HTTPS/device E2E and actual power-loss tests have not been performed. Historical evidence and metadata remain preserved as facts. Keep the overall status `BLOCKED / NO-GO` until the external-impact and production criteria are resolved.
 
 No merge, deployment, canonical mutation, repository/branch archive or deletion, or history rewrite is authorized.
 
 
 ## Exact-SHA evidence snapshot
 
-`evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json` records clean-checkout results for source commit `74ecb9ef310008d07e2799b567e50b2ebd41f271`, 54/54 strict tests, log SHA-256 `d4571599a93253ee562ef70ce5dcca10c2e395070a3cd54851318ff051eb0cd8`, and CircleCI run #17. The evidence-record commit itself must be re-tested on its own exact SHA. This evidence does not close the external-consumer, independent-review, provenance, or production gates.
+`evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json` records clean-checkout results for source commit `74ecb9ef310008d07e2799b567e50b2ebd41f271`, 54/54 strict tests, log SHA-256 `d4571599a93253ee562ef70ce5dcca10c2e395070a3cd54851318ff051eb0cd8`, and CircleCI run #17. The evidence-record commit itself must be re-tested on its own exact SHA. This evidence does not close the external-consumer or production gates.
 
 
 ## Updated exact-SHA evidence

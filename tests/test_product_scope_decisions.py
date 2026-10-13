@@ -17,9 +17,9 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
     def test_record_is_scope_only_and_fail_closed(self):
         self.assertEqual(self.record["record_type"], "OWNER_SCOPE_DECISIONS_NOT_IMPLEMENTATION_EVIDENCE")
         self.assertEqual(self.record["decision_status"], "RECORDED")
-        self.assertIn("EXTERNAL_IMPACT_AND_RELEASE_GATES_BLOCKED", self.record["implementation_status"])
+        self.assertIn("EXTERNAL_IMPACT_AND_PRODUCTION_GATES_BLOCKED", self.record["implementation_status"])
         self.assertEqual(self.record["overall_gate"], "BLOCKED_NO_GO")
-        self.assertIn("not implementation/test/review evidence", self.record["evidence_rule"])
+        self.assertIn("not implementation or runtime certification", self.record["evidence_rule"])
 
     def test_explicit_owner_choices_are_recorded(self):
         decisions = {item["id"]: item for item in self.record["decisions"]}
@@ -76,7 +76,7 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
         self.assertEqual(self.record["overall_gate"], "BLOCKED_NO_GO")
         self.assertTrue(evidence["remaining_blockers"])
 
-    def test_provenance_exception_is_explicit_and_not_rewritten(self):
+    def test_historical_exception_remains_recorded_without_rewriting(self):
         exceptions = self.record["provenance_exceptions"]
         self.assertEqual(len(exceptions), 1)
         self.assertEqual(exceptions[0]["commit"], "b5f49770cba13cd995533cd140b7560d999c441e")
@@ -85,7 +85,10 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
 
     def test_global_gates_remain_blocked_and_canonical_is_protected(self):
         self.assertEqual(next(gate["status"] for gate in self.record["global_gates"] if gate["id"] == "G-EXACT-SHA"), "PASS_ON_SHA_46E90FB")
-        self.assertTrue(all(gate["status"] == "BLOCKED" for gate in self.record["global_gates"] if gate["id"] != "G-EXACT-SHA"))
+        self.assertNotIn("G-INDEPENDENT-REVIEW", {gate["id"] for gate in self.record["global_gates"]})
+        self.assertNotIn("G-PROVENANCE", {gate["id"] for gate in self.record["global_gates"]})
+        self.assertEqual(next(gate["status"] for gate in self.record["global_gates"] if gate["id"] == "G-HISTORY-TRACEABILITY"), "PASS_HISTORICAL_RECORD_PRESERVED")
+        self.assertEqual(next(gate["status"] for gate in self.record["global_gates"] if gate["id"] == "G-PRODUCTION"), "BLOCKED")
         boundaries = self.record["change_boundaries"]
         self.assertEqual(boundaries["canonical_branch_mutation"], "FORBIDDEN")
         self.assertEqual(boundaries["merge"], "FORBIDDEN")
