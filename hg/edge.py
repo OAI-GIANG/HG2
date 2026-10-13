@@ -9,6 +9,80 @@ DEVICES = {}
 _LOCK = threading.RLock()
 
 
+class DuplicateJSONKey(ValueError):
+    """Raised when a JSON object repeats a key."""
+
+
+def _object_without_duplicate_keys(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise DuplicateJSONKey(key)
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(value):
+    raise ValueError("non-standard JSON constant: " + value)
+
+
+def _contains_model_key_field(value):
+    """Inspect field names, not arbitrary string values, for model-key material."""
+    if isinstance(value, dict):
+        for key, nested in value.items():
+            normalized = "".join(ch.lower() for ch in key if ch.isalnum())
+            if "model" in normalized and "key" in normalized:
+                return True
+            if _contains_model_key_field(nested):
+                return True
+    elif isinstance(value, list):
+        return any(_contains_model_key_field(item) for item in value)
+    return False
+
+
+_PAYLOAD_FIELDS = {
+    "/edge/register": frozenset({"device_id", "runtime", "architecture"}),
+    "/edge/heartbeat": frozenset({"device_id", "runtime", "seq"}),
+}
+
+
+def validate_payload(path, payload):
+    """Validate an edge request before any device-state mutation; never coerce fields."""
+    if not isinstance(payload, dict):
+        return "INVALID_PAYLOAD"
+    if _contains_model_key_field(payload):
+        return "MODEL_KEY_NOT_ACCEPTED"
+    allowed = _PAYLOAD_FIELDS.get(path)
+    if allowed is None:
+        return "INVALID_ENDPOINT"
+    if set(payload) - allowed:
+        return "UNKNOWN_FIELD"
+
+    device_id = payload.get("device_id")
+    if not isinstance(device_id, str) or not device_id.strip():
+        return "DEVICE_ID_REQUIRED"
+    if len(device_id) > 128:
+        return "DEVICE_ID_TOO_LONG"
+
+    if "runtime" in payload:
+        runtime = payload["runtime"]
+        if not isinstance(runtime, str):
+            return "INVALID_RUNTIME"
+        if len(runtime) > 64:
+            return "RUNTIME_TOO_LONG"
+
+    if path == "/edge/register" and "architecture" in payload:
+        if payload["architecture"] != "PHONE_PRIMARY_V1":
+            return "UNSUPPORTED_ARCHITECTURE"
+
+    if path == "/edge/heartbeat":
+        seq = payload.get("seq")
+        if isinstance(seq, bool) or not isinstance(seq, int) or seq < 0:
+            return "INVALID_SEQUENCE"
+
+    return None
+
+
 def edge_token():
     return os.environ.get("HG_EDGE_TOKEN", "")
 
@@ -70,18 +144,23 @@ class Handler(BaseHTTPRequestHandler):
             self._send(403, {"ok": False, "error": "AUTHENTICATION_REQUIRED"})
             return
         try:
-            payload = json.loads(self.rfile.read(length).decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError):
+            payload = json.loads(
+                self.rfile.read(length).decode("utf-8"),
+                object_pairs_hook=_object_without_duplicate_keys,
+                parse_constant=_reject_json_constant,
+            )
+        except DuplicateJSONKey:
+            self._send(400, {"ok": False, "error": "DUPLICATE_JSON_KEY"})
+            return
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
             self._send(400, {"ok": False, "error": "INVALID_JSON"})
             return
-        blob = json.dumps(payload).lower()
-        if "model" in blob and "key" in blob:
-            self._send(400, {"ok": False, "error": "MODEL_KEY_NOT_ACCEPTED"})
+
+        validation_error = validate_payload(self.path, payload)
+        if validation_error:
+            self._send(400, {"ok": False, "error": validation_error})
             return
-        device_id = payload.get("device_id") if isinstance(payload, dict) else None
-        if not isinstance(device_id, str) or not device_id:
-            self._send(400, {"ok": False, "error": "DEVICE_ID_REQUIRED"})
-            return
+        device_id = payload["device_id"]
         with _LOCK:
             entry = DEVICES.setdefault(device_id, {"device_id": device_id, "first_seen": int(time.time())})
             entry["last_seen"] = int(time.time())

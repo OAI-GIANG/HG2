@@ -1,5 +1,4 @@
 version: 2.1
-
 jobs:
   verify:
     docker:
@@ -7,7 +6,19 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Verify test suite twice with ResourceWarning as errors
+          name: Record exact revision and assert clean checkout
+          command: |
+            set -eu
+            printf 'CIRCLE_SHA1=%s\\n' "${CIRCLE_SHA1:-unknown}"
+            printf 'HEAD=%s\\n' "$(git rev-parse HEAD)"
+            test -z "$(git status --porcelain)"
+      - run:
+          name: Check patch whitespace
+          command: |
+            set -eu
+            git diff --check HEAD^ HEAD
+      - run:
+          name: Run suite twice with ResourceWarning as errors and compare logs
           command: |
             set -euo pipefail
             python --version
@@ -21,26 +32,22 @@ jobs:
             python - <<'PY'
             import re
             from pathlib import Path
-
-            logs = [Path('/tmp/hg2-suite-1.log').read_text(), Path('/tmp/hg2-suite-2.log').read_text()]
-            for index, text in enumerate(logs, 1):
-                if not re.search(r'^Ran [0-9]+ tests in [0-9.]+s$', text, re.MULTILINE):
-                    raise SystemExit(f'run {index}: missing unittest summary')
-                if not re.search(r'^OK$', text, re.MULTILINE):
-                    raise SystemExit(f'run {index}: unittest did not report OK')
+            logs = [Path(f'/tmp/hg2-suite-{i}.log').read_text() for i in (1, 2)]
+            for i, text in enumerate(logs, 1):
+                if not re.search(r'^Ran [0-9]+ tests in [0-9.]+s$', text, re.M):
+                    raise SystemExit(f'run {i}: missing test summary')
+                if not re.search(r'^OK$', text, re.M):
+                    raise SystemExit(f'run {i}: suite did not report OK')
                 if 'ResourceWarning:' in text or 'Exception ignored' in text:
-                    raise SystemExit(f'run {index}: resource warning or ignored finalizer detected')
-                text = re.sub(r'^Ran ([0-9]+) tests in [0-9.]+s$', r'Ran \1 tests in <TIME>', text, flags=re.MULTILINE)
-                Path(f'/tmp/hg2-suite-{index}.normalized.log').write_text(text)
+                    raise SystemExit(f'run {i}: warning/finalizer failure detected')
+                normalized = re.sub(r'^Ran ([0-9]+) tests in [0-9.]+s$', r'Ran \\1 tests in <TIME>', text, flags=re.M)
+                Path(f'/tmp/hg2-suite-{i}.normalized.log').write_text(normalized)
             if Path('/tmp/hg2-suite-1.normalized.log').read_bytes() != Path('/tmp/hg2-suite-2.normalized.log').read_bytes():
-                raise SystemExit('normalized test logs differ')
-            print('RUN1:', re.search(r'^Ran .*$', logs[0], re.MULTILINE).group(0), 'OK')
-            print('RUN2:', re.search(r'^Ran .*$', logs[1], re.MULTILINE).group(0), 'OK')
-            print('ResourceWarning=0; Exception ignored=0; normalized_cmp=YES')
+                raise SystemExit('normalized logs differ')
+            print('ResourceWarning=0; Exception ignored=0; normalized_cmp=PASS')
             PY
             sha256sum /tmp/hg2-suite-1.normalized.log /tmp/hg2-suite-2.normalized.log
-
 workflows:
-  verify:
+  hg2-t018-strict-verification:
     jobs:
       - verify
