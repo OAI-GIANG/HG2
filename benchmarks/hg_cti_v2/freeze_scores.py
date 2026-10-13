@@ -16,6 +16,26 @@ def digest(path: Path) -> str:
     return h.hexdigest()
 
 
+def verify_manifest(run_dir: Path) -> None:
+    manifest = run_dir / "SHA256SUMS.txt"
+    if not manifest.is_file():
+        raise SystemExit("BLOCKED: run manifest missing before score freeze.")
+    for line in manifest.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        expected, relative = line.split("  ", 1)
+        target = run_dir / relative
+        if not target.is_file() or digest(target) != expected:
+            raise SystemExit(f"BLOCKED: run artifact failed manifest verification: {relative}")
+
+
+def write_manifest(run_dir: Path) -> None:
+    lines = []
+    for path in sorted(item for item in run_dir.iterdir() if item.is_file() and item.name not in {"SHA256SUMS.txt", "blind_key.json"}):
+        lines.append(f"{digest(path)}  {path.name}")
+    (run_dir / "SHA256SUMS.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-dir", required=True)
@@ -26,6 +46,7 @@ def main() -> int:
     freeze_path = run_dir / "score-freeze.json"
     if freeze_path.exists():
         raise SystemExit("BLOCKED: a score freeze already exists; do not overwrite frozen scoring.")
+    verify_manifest(run_dir)
     if not blind_path.is_file() or not score_path.is_file():
         raise SystemExit("BLOCKED: blind pairs or score file missing.")
     blind_rows = [json.loads(x) for x in blind_path.read_text(encoding="utf-8").splitlines() if x.strip()]
@@ -91,6 +112,7 @@ def main() -> int:
         "signature": None
     }
     freeze_path.write_text(json.dumps(freeze, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_manifest(run_dir)
     print(json.dumps(freeze, indent=2))
     return 0
 

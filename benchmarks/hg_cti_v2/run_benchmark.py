@@ -12,7 +12,6 @@ import json
 import os
 import platform
 import random
-import socket
 import subprocess
 import sys
 import time
@@ -66,7 +65,7 @@ def write_json(path: Path, obj: object) -> None:
 
 def write_manifest(out_dir: Path) -> None:
     manifest = []
-    for path in sorted(item for item in out_dir.iterdir() if item.is_file() and item.name != "SHA256SUMS.txt"):
+    for path in sorted(item for item in out_dir.iterdir() if item.is_file() and item.name not in {"SHA256SUMS.txt", "blind_key.json"}):
         manifest.append(f"{sha256_file(path)}  {path.name}")
     (out_dir / "SHA256SUMS.txt").write_text("\n".join(manifest) + "\n", encoding="utf-8")
 

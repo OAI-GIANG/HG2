@@ -68,7 +68,7 @@ The runner:
 7. checks claim spans and evidence references against the supplied case-prompt evidence ID;
 8. emits the structured answer only if the gate accepts it; otherwise emits a standard blocked response and records all blockers.
 
-The raw model response is retained. The guard does not establish semantic entailment between a claim and its cited source, does not perfectly parse all natural-language actions, and does not independently establish the truth of a source. These limitations must be stated in the final report.
+The run manifest is regenerated at each evidence stage and covers all run files except local-only `blind_key.json`; the exact key hash is recorded in run metadata. The raw model response is retained. The guard does not establish semantic entailment between a claim and its cited source, does not perfectly parse all natural-language actions, and does not independently establish the truth of a source. These limitations must be stated in the final report.
 
 ## 6. Blind scoring
 

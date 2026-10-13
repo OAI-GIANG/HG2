@@ -25,6 +25,26 @@ def write_json(path: Path, obj: object) -> None:
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def verify_run_manifest(run_dir: Path) -> None:
+    manifest = run_dir / "SHA256SUMS.txt"
+    if not manifest.is_file():
+        raise SystemExit("BLOCKED: run manifest missing before analysis.")
+    for line in manifest.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        expected, relative = line.split("  ", 1)
+        target = run_dir / relative
+        if not target.is_file() or sha256(target) != expected:
+            raise SystemExit(f"BLOCKED: run artifact failed manifest verification: {relative}")
+
+
+def write_run_manifest(run_dir: Path) -> None:
+    lines = []
+    for path in sorted(item for item in run_dir.iterdir() if item.is_file() and item.name not in {"SHA256SUMS.txt", "blind_key.json"}):
+        lines.append(f"{sha256(path)}  {path.name}")
+    (run_dir / "SHA256SUMS.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo", default=".")
@@ -45,7 +65,10 @@ def main() -> int:
     for p in [meta_path, blind_path, key_path, score_freeze_path, pre_path, prereg_freeze_path, scores_path]:
         if not p.is_file():
             raise SystemExit(f"BLOCKED: required file missing: {p}")
+    verify_run_manifest(run_dir)
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    if meta.get("blind_key_sha256") != sha256(key_path):
+        raise SystemExit("BLOCKED: blind key hash differs from run metadata.")
     prereg = json.loads(pre_path.read_text(encoding="utf-8"))
     prereg_freeze = json.loads(prereg_freeze_path.read_text(encoding="utf-8"))
     if prereg.get("status") != "FROZEN_BEFORE_EVALUATION" or prereg_freeze.get("status") != "FROZEN_BEFORE_EVALUATION":
@@ -303,10 +326,7 @@ def main() -> int:
         "This report does not imply merge, production deployment, or broad creative-performance claims.",
     ]
     (run_dir / "benchmark_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    manifest_lines = []
-    for path in sorted(p for p in run_dir.iterdir() if p.is_file() and p.name != "SHA256SUMS.txt"):
-        manifest_lines.append(f"{sha256(path)}  {path.name}")
-    (run_dir / "SHA256SUMS.txt").write_text("\n".join(manifest_lines) + "\n", encoding="utf-8")
+    write_run_manifest(run_dir)
     print(json.dumps({"status": report["status"], "mean_delta": mean_delta, "ci": [ci_low, ci_high], "gates": gates}, indent=2))
     return 0 if all_pass else 1
 

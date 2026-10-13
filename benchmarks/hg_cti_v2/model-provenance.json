@@ -20,7 +20,7 @@
     "quantization": "Q8_0",
     "repository": "ggml-org/SmolVLM2-500M-Video-Instruct-GGUF"
   },
-  "observed_utc": "2026-10-13T17:41:02.243029+00:00",
+  "observed_utc": "2026-10-13T17:46:09.486736+00:00",
   "permission_and_limitations": {
     "model_use_basis": "Model card and local GGUF metadata both identify Apache-2.0. This record does not claim legal advice.",
     "no_external_inference": "All benchmark completion calls go only to loopback; no hosted inference provider is called.",

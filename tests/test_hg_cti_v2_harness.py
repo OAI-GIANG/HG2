@@ -220,6 +220,10 @@ class HGCTIV2HarnessTests(unittest.TestCase):
                 "case_scores": score_rows,
             }
             (directory / "blind_scores.json").write_text(json.dumps(score_doc))
+            (directory / "blind_key.json").write_text(json.dumps({case_id: {"A": "baseline", "B": "candidate"} for case_id in ids}))
+            (directory / "SHA256SUMS.txt").write_text(
+                hashlib.sha256(blind_path.read_bytes()).hexdigest() + "  blind_pairs.jsonl\n"
+            )
 
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
@@ -228,6 +232,10 @@ class HGCTIV2HarnessTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
             freeze = json.loads((directory / "score-freeze.json").read_text())
             self.assertEqual(freeze["status"], "FROZEN_BLIND_SCORES")
+            manifest = (directory / "SHA256SUMS.txt").read_text()
+            self.assertIn("blind_scores.json", manifest)
+            self.assertIn("score-freeze.json", manifest)
+            self.assertNotIn("blind_key.json", manifest)
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
             build_run(directory, valid=False)
