@@ -1,0 +1,110 @@
+{
+  "inventory_id": "HG2-SCOPE-DEPENDENCY-INVENTORY-V1",
+  "purpose": "Source-level dependency and capability inventory for owner-approved intentional scope removal; not a claim of production equivalence or external-consumer absence.",
+  "candidate_before_acceptance_tests": {
+    "repository": "OAI-GIANG/HG2",
+    "branch": "fix/hg2-single-product-readiness-20261013",
+    "sha": "d834b7424c89c346b9db55d79dd869ecca46cd31",
+    "tree": "26f8e74307de41af317e035be9bd638ca035cffb"
+  },
+  "repositories_examined": [
+    {"repository": "OAI-GIANG/HG2", "branch": "fix/hg2-single-product-readiness-20261013", "sha": "d834b7424c89c346b9db55d79dd869ecca46cd31", "method": "Candidate source, manifest, tests, docs, CI config and static reference scan."},
+    {"repository": "OAI-GIANG/HG", "branch": "hg-genesis", "sha": "0495ac8bba4dc59bbf5b84ef7f38dd78bae7dead", "method": "Read-only shallow clone; legacy route implementation, tests, contracts and architecture inspected."},
+    {"repository": "OAI-GIANG/GO", "branch": "hg-phone-bridge-v1", "sha": "4a20c319fe740f1a092ade4e407d693439629385", "tree": "31cca9787636fa336317f6b47f33641cd97d282f", "method": "Read-only shallow clone; branch file inventory and references outside phone_bridge scanned."}
+  ],
+  "http_api": {
+    "decision_id": "PSD-API-001",
+    "owner_choice": "C",
+    "disposition": "NOT_INCLUDED_IN_HG2; ROUTES_NOT_SERVED_BY_HG2_EDGE_ROUTER",
+    "legacy_source": {
+      "repository": "OAI-GIANG/HG",
+      "branch": "hg-genesis",
+      "commit": "0495ac8bba4dc59bbf5b84ef7f38dd78bae7dead",
+      "files": [
+        {"path": "runtime/hg_runtime/service.py", "git_blob": "3b301a163663584adf365e1a2b5c56c2bd3721cd", "sha256": "e579e488b566b76fd2c02e2704a969fc0ca50c78beb39fb70d2459969b130e18", "routes": [{"method": "GET", "path": "/v1/history", "line": 152}, {"method": "POST", "path": "/v1/sessions", "line": 161}]},
+        {"path": "tests/test_hg_runtime.py", "git_blob": "6a9772626c1289181e2978e946a11791410b29a8", "sha256": "a6d54944ee16014f397997bab655d0b7b722a1e872ca9cdee61aee3a10c07f44", "relevance": "Exercises legacy /v1/sessions authentication, success and error behavior."},
+        {"path": "tests/test_hg_native_history.py", "git_blob": "b0b4074be2ab64997aad764b40a4dcd3d948f0b6", "sha256": "8fd73b4fd588f5cbdc84b2360de27c795365c38f659b4993c71cc9a39728c18d", "relevance": "Exercises /v1/sessions through the legacy service."},
+        {"path": "tests/test_hg_security_hardening.py", "git_blob": "289873fb542b8080cbe152b5597e6064555cdea9", "sha256": "1baf3685884512040156d356a0f1aeaff1239fbd127d9be401490b4d9c6ce701", "relevance": "Adversarial tests against the legacy HTTP service."},
+        {"path": "contracts/HG_RUNTIME_CONTRACT_V1.md", "git_blob": "e3697e1e711c85ee525a61608426d8e511b865fa", "sha256": "5c9ff8ab5113636b51111135fc76acf96ca02e8f4f049a67dc126d3da3beae13"},
+        {"path": "control/HG_ACCEPTANCE_MATRIX_V1.md", "git_blob": "1592899a49f0ce2d39182fe3fa1dda04c7a113bf", "sha256": "7ff7c958eebff5e5024843a8353167f513e56696e713def1849c635df2f2c784"},
+        {"path": "control/HG_ARCHITECTURE_V1.md", "git_blob": "0a5e6055f6ee5e4ec486c00e6d7b4685e3b76662", "sha256": "ecf85ca4372ebb1b4995bcf76fc211609a550c5822814ed8688da6eac97dd54e"}
+      ]
+    },
+    "candidate_hg2": {
+      "http_router": "hg/edge.py",
+      "supported_routes": ["GET /health", "GET /edge/status", "POST /edge/register", "POST /edge/heartbeat"],
+      "legacy_service_module_in_manifest": false,
+      "runtime_service_module_present": false,
+      "unsupported_get_behavior": "404 {ok:false,error:NOT_FOUND}",
+      "unsupported_post_behavior": "404 {ok:false,error:NOT_FOUND}"
+    },
+    "known_dependencies": {
+      "legacy_in_repo": "Legacy service tests and documentation listed above; no external client inventory established by source audit.",
+      "candidate_hg2": "No route implementation/import/config references for the two legacy paths found; candidate edge-router integration tests added.",
+      "external_deployments_or_clients": "UNKNOWN_NOT_ACCESSIBLE_FROM_REPOSITORY_SOURCES"
+    },
+    "acceptance_boundary": "Direct candidate-router tests prove behavior of this candidate router only. They do not prove absence of unknown external clients or deployed copies."
+  },
+  "phone_bridge": {
+    "decision_id": "PSD-BRIDGE-001",
+    "owner_choice": "C",
+    "disposition": "BRIDGE_1_1_NOT_INCLUDED_IN_HG2; ORIGINAL_GO_SOURCE_PRESERVED_UNCHANGED",
+    "source": {
+      "repository": "OAI-GIANG/GO",
+      "branch": "hg-phone-bridge-v1",
+      "commit": "4a20c319fe740f1a092ade4e407d693439629385",
+      "tree": "31cca9787636fa336317f6b47f33641cd97d282f",
+      "files": [
+        {"path": "phone_bridge/bridge.py", "git_blob": "4354320045d8ac41c9cea9e1958d7998f2e8833f", "sha256": "a9489bec18dc0519483a9a1f6e669c3ef2b8dfa3bbbe2ff9f990b35d05db152b"},
+        {"path": "phone_bridge/protocol.md", "git_blob": "262c5a8e51aef97bbf4706ec3bd5cbb6308dc348", "sha256": "0a191423f98843fdad96cc20a64d2f1b68e55df075d6996b9197e3a3239a5adb"},
+        {"path": "phone_bridge/README.md", "git_blob": "de4e0a2f17beabc25787d35174794e018e76aa36", "sha256": "c29cdb82d3af157b4ab4e941ac70f7ec4d9f3098e676f517f4e43db54e9e496a"}
+      ],
+      "source_status": "README calls it skeleton/not production; protocol states staging-only and separates production replay persistence, real governance/AEGR, durable execution, EvidenceLedger, device E2E and production transport as verification gates."
+    },
+    "capability_inventory": [
+      {"capability": "Protocol 1.1 request schema, UUID request_id, operation, timestamp, nonce and payload", "source": "phone_bridge/bridge.py parse_request"},
+      {"capability": "Injected credential authentication verifier", "source": "phone_bridge/bridge.py handle"},
+      {"capability": "Replay/time-window guard keyed by request_id and nonce; persistent production store required", "source": "ReplayGuard, RuntimeStoreReplayAdapter, protocol.md Replay"},
+      {"capability": "Authorization outcomes ALLOW/DENY/BLOCKED/CONFLICT/UNKNOWN; only ALLOW submits execution", "source": "GateOutcome, handle, protocol.md GateOutcome"},
+      {"capability": "Governed execution submission with distinct request/authorization/execution identities", "source": "GovernedExecutionSubmission, ExecutionIdentity, protocol.md Execution boundary"},
+      {"capability": "Evidence correlation reference; client-supplied evidence truth prohibited", "source": "EvidenceCorrelation, protocol.md Evidence"},
+      {"capability": "Stable safe errors and internal-error redaction", "source": "BridgeError, safe_error, protocol.md Errors"}
+    ],
+    "consumer_search": {
+      "branch_file_count": 3,
+      "files_outside_phone_bridge": 0,
+      "imports_or_symbol_references_outside_bridge_package_found": false,
+      "candidate_hg2_bridge_module_or_protocol_found": false,
+      "candidate_hg2_manifest_bridge_module_found": false,
+      "external_clients_or_deployments": "UNKNOWN_NOT_ACCESSIBLE_FROM_REPOSITORY_SOURCES"
+    },
+    "acceptance_boundary": "This proves the Bridge skeleton is not shipped by the inspected HG2 tree and no in-branch consumer exists in the inspected GO branch. It does not prove production-grade capabilities existed, were replaced, or that external clients do not depend on them."
+  },
+  "identity": {
+    "decision_id": "PSD-ID-001",
+    "owner_choice": "A",
+    "durable_product_id": "HG",
+    "product_label": "HG2",
+    "metadata_file": "manifest.json",
+    "runtime_constants": ["hg/identity.py: PRODUCT_ID = HG", "hg/history.py: PRODUCT_ID = HG"],
+    "pre_mapping_fixture": {
+      "directory": "tests/fixtures/hg_store_pre_mapping",
+      "generated_from_canonical_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "durable_files": [
+        {"path": "tests/fixtures/hg_store_pre_mapping/history.jsonl", "sha256": "9f5296d8d9e06a71f7768f7cc09085268d75c1d52f4bda13cc9c6a0bf69c9faf"},
+        {"path": "tests/fixtures/hg_store_pre_mapping/head.json", "sha256": "fe28f0a5bc5140cd2e89a945e6e3d48167d37c44b2f4ad5b7825ab8c8c6b579e"},
+        {"path": "tests/fixtures/hg_store_pre_mapping/state.json", "sha256": "8983a94a29a885fa984fb9700586ec9b7de05fffd9e8090036f299da18ebb75a"},
+        {"path": "tests/fixtures/hg_store_pre_mapping/runtime_id", "sha256": "a2d2d36056312c874bb376e2635bf5e3d524a7ff2e5220fd04aadccba63af893"}
+      ],
+      "fixture_scope": "Valid two-event store generated with implementation extracted read-only from exact canonical baseline; candidate reopening must preserve byte-identical durable artifacts."
+    }
+  },
+  "risk_and_limits": [
+    "External HTTP API clients/deployments cannot be enumerated from repository sources alone; do not claim global consumer absence.",
+    "Bridge source explicitly labels itself a skeleton/staging-only; its existence is not evidence of production readiness.",
+    "No changes were made to OAI-GIANG/HG or OAI-GIANG/GO; both are read-only inventory inputs.",
+    "Production authentication, VPS/HTTPS/device E2E and actual power-loss tests have not been performed."
+  ],
+  "status": "INVENTORY_RECORDED_ACCEPTANCE_TESTS_PENDING_EXACT_SHA_CI",
+  "overall_gate": "BLOCKED_NO_GO"
+}

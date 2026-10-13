@@ -1,0 +1,21 @@
+{
+  "fixture_id": "HG2-PRE-MAPPING-STORE-V1",
+  "source_repository": "OAI-GIANG/HG2",
+  "source_canonical_branch": "hg-genesis",
+  "source_canonical_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
+  "generation": "Generated using the StateStore implementation extracted read-only from the exact source_canonical_sha; two-event store; deterministic event timestamps/IDs except runtime_id.",
+  "sha256": {
+    "history.jsonl": "9f5296d8d9e06a71f7768f7cc09085268d75c1d52f4bda13cc9c6a0bf69c9faf",
+    "head.json": "fe28f0a5bc5140cd2e89a945e6e3d48167d37c44b2f4ad5b7825ab8c8c6b579e",
+    "state.json": "8983a94a29a885fa984fb9700586ec9b7de05fffd9e8090036f299da18ebb75a",
+    "runtime_id": "a2d2d36056312c874bb376e2635bf5e3d524a7ff2e5220fd04aadccba63af893"
+  },
+  "event_ids": [
+    "a63e02e3c28d4a1eb7c346d2f7eb8d79",
+    "legacy-fixture-event"
+  ],
+  "event_types": [
+    "hg.genesis",
+    "session.created"
+  ]
+}
