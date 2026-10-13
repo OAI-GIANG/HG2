@@ -1,0 +1,54 @@
+{
+  "evidence_id": "HG2-PRODUCT-SCOPE-ACCEPTANCE-49AFBC1",
+  "evidence_kind": "CLEAN_CHECKOUT_TEST_AND_CI_EVIDENCE",
+  "source_commit": "49afbc1013aeb5adcb3b7d5854d458197552525c",
+  "source_tree": "3e3cf261e902f4b7e3e1edf340ef5ef583bc57ae",
+  "branch": "fix/hg2-single-product-readiness-20261013",
+  "clean_checkout": true,
+  "worktree_clean_before_test": true,
+  "worktree_clean_after_test": true,
+  "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+  "exit_code": 0,
+  "tests_run": 53,
+  "test_result": "OK",
+  "log": {
+    "path_outside_repository": "$HOME/hg2-scope-acceptance-49afbc1.log",
+    "sha256": "034e1e608551db0898e33552d06d4db1a585ebf5e209fe7ee273ec4e038bc44b",
+    "bytes": 7548
+  },
+  "ci": {
+    "provider": "CircleCI",
+    "context": "ci/circleci: verify",
+    "state": "success",
+    "run_url": "https://circleci.com/gh/OAI-GIANG/HG2/16",
+    "status_observed_at": "2026-10-13T03:58:09Z",
+    "commit_sha": "49afbc1013aeb5adcb3b7d5854d458197552525c"
+  },
+  "acceptance_results": {
+    "T-API-01": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
+    "T-API-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
+    "T-API-03": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
+    "T-API-04": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
+    "T-BRIDGE-01": "PASS_ON_SOURCE_SHA_INVENTORY",
+    "T-BRIDGE-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
+    "T-BRIDGE-03": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
+    "T-BRIDGE-04": "PASS_ON_SOURCE_SHA_STATIC_PACKAGE_SCAN",
+    "T-ID-01": "PASS_ON_SOURCE_SHA",
+    "T-ID-02": "PASS_ON_SOURCE_SHA",
+    "T-ID-03": "PASS_ON_SOURCE_SHA_BYTE_PRESERVATION_FIXTURE",
+    "T-ID-04": "PASS_ON_SOURCE_SHA"
+  },
+  "development_failures_resolved_before_this_evidence": [
+    "A pre-commit fixture test initially assumed the genesis event_id was the literal string genesis; the implementation generates a UUID. The fixture manifest now records the actual immutable event IDs, and the clean-checkout test passes.",
+    "An earlier uncommitted decision-record assertion used a wording that did not match the JSON rule. The assertion was aligned to the actual contract text before the passing commit."
+  ],
+  "scope_limitations": [
+    "External clients/deployments for the removed API and Bridge are not enumerable from the inspected repository sources; those impact gates remain BLOCKED.",
+    "This test run does not establish production authentication, VPS/HTTPS/device E2E, independent review, or real power-loss behavior.",
+    "The previously recorded provenance exception is not rewritten or erased; provenance gate remains BLOCKED."
+  ],
+  "overall_gate": "BLOCKED_NO_GO",
+  "development_failures_resolved_before_evidence_commit": [
+    "The evidence-update test initially expected implementation_status=NOT_PROVEN; the contract was intentionally advanced to PARTIALLY_VERIFIED_EXACT_SHA while overall readiness remains BLOCKED_NO_GO. The assertion now checks the exact fail-closed blocker state."
+  ]
+}

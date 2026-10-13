@@ -17,7 +17,7 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
     def test_record_is_scope_only_and_fail_closed(self):
         self.assertEqual(self.record["record_type"], "OWNER_SCOPE_DECISIONS_NOT_IMPLEMENTATION_EVIDENCE")
         self.assertEqual(self.record["decision_status"], "RECORDED")
-        self.assertEqual(self.record["implementation_status"], "NOT_PROVEN")
+        self.assertIn("EXTERNAL_IMPACT_AND_RELEASE_GATES_BLOCKED", self.record["implementation_status"])
         self.assertEqual(self.record["overall_gate"], "BLOCKED_NO_GO")
         self.assertIn("not implementation/test/review evidence", self.record["evidence_rule"])
 
@@ -37,16 +37,18 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
                 self.assertTrue(decision["tests"])
                 self.assertTrue(all(item["id"] and item["criterion"] for item in decision["acceptance_criteria"]))
                 self.assertTrue(all(item["id"] and item["purpose"] and item["expected"] for item in decision["tests"]))
-                self.assertTrue(all(item["status"] in {"BLOCKED_NOT_RUN", "LOCAL_PASS_UNCOMMITTED"} for item in decision["tests"]))
-                if decision["id"] != "PSD-ID-001":
-                    self.assertTrue(all(item["status"] == "BLOCKED_NOT_RUN" for item in decision["tests"]))
+                self.assertTrue(all(item["status"] == "BLOCKED_NOT_RUN" or item["status"] == "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN" or item["status"].startswith("PASS_ON_SHA_") for item in decision["tests"]))
+                if decision["id"] == "PSD-API-001":
+                    self.assertEqual(next(item["status"] for item in decision["tests"] if item["id"] == "T-API-02"), "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN")
+                if decision["id"] == "PSD-BRIDGE-001":
+                    self.assertEqual(next(item["status"] for item in decision["tests"] if item["id"] == "T-BRIDGE-02"), "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN")
 
     def test_identity_choice_preserves_durable_product_id(self):
         mapping = next(item["mapping"] for item in self.record["decisions"] if item["id"] == "PSD-ID-001")
         self.assertEqual(PRODUCT_ID, "HG")
         self.assertEqual(mapping["product_id"], "HG")
         self.assertEqual(mapping["product_name"], "HG2")
-        self.assertEqual(next(item["status"] for item in next(d for d in self.record["decisions"] if d["id"] == "PSD-ID-001")["tests"] if item["id"] == "T-ID-01"), "LOCAL_PASS_UNCOMMITTED")
+        self.assertTrue(next(item["status"] for item in next(d for d in self.record["decisions"] if d["id"] == "PSD-ID-001")["tests"] if item["id"] == "T-ID-01").startswith("PASS_ON_SHA_"))
         self.assertIn("Never silently rewrite historical product_id values", mapping["rule"])
         with open(os.path.join(ROOT, "manifest.json"), encoding="utf-8") as fh:
             manifest = json.load(fh)
@@ -58,6 +60,13 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
         self.assertIn("HG2 is the product/repository label", readme)
         self.assertIn("`PRODUCT_ID=HG` remains the durable event and on-disk identity", readme)
 
+    def test_acceptance_evidence_is_exact_sha_and_no_go_remains(self):
+        evidence = self.record["acceptance_evidence"]
+        self.assertEqual(evidence["tested_source_sha"], "49afbc1013aeb5adcb3b7d5854d458197552525c")
+        self.assertEqual(evidence["test_suite_status"], "PASS_ON_SHA_49AFBC1")
+        self.assertEqual(self.record["overall_gate"], "BLOCKED_NO_GO")
+        self.assertTrue(evidence["remaining_blockers"])
+
     def test_provenance_exception_is_explicit_and_not_rewritten(self):
         exceptions = self.record["provenance_exceptions"]
         self.assertEqual(len(exceptions), 1)
@@ -66,7 +75,8 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
         self.assertIn("Do not rewrite or remove history", exceptions[0]["handling"])
 
     def test_global_gates_remain_blocked_and_canonical_is_protected(self):
-        self.assertTrue(all(gate["status"] == "BLOCKED" for gate in self.record["global_gates"]))
+        self.assertEqual(next(gate["status"] for gate in self.record["global_gates"] if gate["id"] == "G-EXACT-SHA"), "PASS_ON_SHA_49AFBC1")
+        self.assertTrue(all(gate["status"] == "BLOCKED" for gate in self.record["global_gates"] if gate["id"] != "G-EXACT-SHA"))
         boundaries = self.record["change_boundaries"]
         self.assertEqual(boundaries["canonical_branch_mutation"], "FORBIDDEN")
         self.assertEqual(boundaries["merge"], "FORBIDDEN")
