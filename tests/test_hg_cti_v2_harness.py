@@ -313,7 +313,15 @@ class HGCTIV2HarnessTests(unittest.TestCase):
         freeze = json.loads(freeze_path.read_text())
         self.assertEqual(freeze["preregistration_sha256"], hashlib.sha256(prereg_path.read_bytes()).hexdigest())
         self.assertTrue(freeze["no_model_inference_before_freeze"])
-        self.assertFalse((ROOT / "evidence/HG-CTI-20261014/benchmark-run-v2-local-001/raw_runs.jsonl").exists())
+        record_path = archive / "v2-0-supersession-record.json"
+        record = json.loads(record_path.read_text())
+        self.assertEqual(record["protocol_version"], "V2.0")
+        self.assertFalse(record["raw_run_existed_at_supersession"])
+        self.assertFalse(record["inference_started_under_this_protocol"])
+        v21_record = json.loads((archive / "v2-1-supersession-record.json").read_text())
+        self.assertEqual(v21_record["protocol_version"], "V2.1")
+        self.assertFalse(v21_record["raw_run_existed_at_supersession"])
+        self.assertFalse(v21_record["inference_started_under_this_protocol"])
 
 
 if __name__ == "__main__":
