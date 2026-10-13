@@ -1,0 +1,54 @@
+{
+  "evidence_id": "HG2-DURABILITY-P0-51676A7",
+  "evidence_schema": "HG2_DURABILITY_P0_EVIDENCE_V1",
+  "source_commit_sha": "51676a7b8c813f512bdc262708cfed92e39590a0",
+  "source_tree_sha": "38b41e088cb50bcfa845ed03d11b4f878c870495",
+  "parent_commit_sha": "e7b72d05de9441e662b1ccc4cc56d6c8b1638adc",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "fix/hg2-single-product-readiness-20261013",
+  "canonical_baseline_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
+  "clean_checkout": {
+    "verified": true,
+    "head_sha": "51676a7b8c813f512bdc262708cfed92e39590a0",
+    "worktree_status_entries": 0
+  },
+  "checks": {
+    "git_diff_check": "PASS",
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "exit_code": 0,
+    "tests_run": 38,
+    "result": "OK",
+    "python_version": "3.14.6",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "log_artifact_path": "/data/data/com.termux/files/home/hg2-durability-p0-clean-tests-51676a7.log",
+    "log_bytes": 4701,
+    "log_sha256": "6d3ad9b95810fe54eee2d55f62040c4b127927c3a53a077c87de4e3134ec200b"
+  },
+  "ci": {
+    "context": "ci/circleci: verify",
+    "state": "success",
+    "tested_sha": "51676a7b8c813f512bdc262708cfed92e39590a0",
+    "url": "https://circleci.com/gh/OAI-GIANG/HG2/12"
+  },
+  "coverage": [
+    "file fsync failure",
+    "directory fsync failure",
+    "runtime_id initialization directory fsync failure",
+    "atomic replace failure",
+    "persistence failure poisons store",
+    "six concurrent writer processes preserve hash chain"
+  ],
+  "not_claimed": [
+    "No real power-loss or forced-kernel-crash test was performed",
+    "No production filesystem durability guarantee beyond observed fsync behavior is claimed"
+  ],
+  "provenance": {
+    "author_name": "OAI-GIANG",
+    "author_email": "337459912+OAI-GIANG@users.noreply.github.com",
+    "committer_name": "OAI-GIANG",
+    "committer_email": "337459912+OAI-GIANG@users.noreply.github.com",
+    "signature_status": "unsigned; signature verification not provided"
+  },
+  "independent_review": "PENDING",
+  "readiness": "NO-GO: non-code readiness gates remain unresolved"
+}

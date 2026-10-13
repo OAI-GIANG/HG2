@@ -1,0 +1,51 @@
+{
+  "evidence_id": "HG2-PRODUCT-SCOPE-ACCEPTANCE-74ECB9E",
+  "evidence_kind": "CLEAN_CHECKOUT_TEST_AND_CI_EVIDENCE",
+  "source_commit": "74ecb9ef310008d07e2799b567e50b2ebd41f271",
+  "source_tree": "acd6620f0c4f98fa311887e49affe0aa837acd79",
+  "branch": "fix/hg2-single-product-readiness-20261013",
+  "clean_checkout": true,
+  "worktree_clean_before_test": true,
+  "worktree_clean_after_test": true,
+  "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+  "exit_code": 0,
+  "tests_run": 54,
+  "test_result": "OK",
+  "log": {
+    "path_outside_repository": "$HOME/hg2-scope-acceptance-74ecb9e.log",
+    "sha256": "d4571599a93253ee562ef70ce5dcca10c2e395070a3cd54851318ff051eb0cd8",
+    "bytes": 7730
+  },
+  "ci": {
+    "provider": "CircleCI",
+    "context": "ci/circleci: verify",
+    "state": "success",
+    "run_url": "https://circleci.com/gh/OAI-GIANG/HG2/17",
+    "status_observed_at": "2026-10-13T03:59:34Z",
+    "commit_sha": "74ecb9ef310008d07e2799b567e50b2ebd41f271"
+  },
+  "acceptance_results": {
+    "T-API-01": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
+    "T-API-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
+    "T-API-03": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
+    "T-API-04": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
+    "T-BRIDGE-01": "PASS_ON_SOURCE_SHA_INVENTORY",
+    "T-BRIDGE-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
+    "T-BRIDGE-03": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
+    "T-BRIDGE-04": "PASS_ON_SOURCE_SHA_STATIC_PACKAGE_SCAN",
+    "T-ID-01": "PASS_ON_SOURCE_SHA",
+    "T-ID-02": "PASS_ON_SOURCE_SHA",
+    "T-ID-03": "PASS_ON_SOURCE_SHA_BYTE_PRESERVATION_FIXTURE",
+    "T-ID-04": "PASS_ON_SOURCE_SHA"
+  },
+  "scope_limitations": [
+    "External clients/deployments for the removed API and Bridge are not enumerable from the inspected repository sources; those impact gates remain BLOCKED.",
+    "This test run does not establish production authentication, VPS/HTTPS/device E2E, independent review, or real power-loss behavior.",
+    "The previously recorded provenance exception is not rewritten or erased; provenance gate remains BLOCKED.",
+    "This evidence describes source commit 74ecb9e; the later evidence-record commit must be independently clean-checked and tested at its own exact SHA."
+  ],
+  "overall_gate": "BLOCKED_NO_GO",
+  "development_failures_resolved_before_evidence_record_commit": [
+    "The new evidence-file assertion initially used pathlib division on ROOT, which is a string in the existing test module. The path is now explicitly converted to pathlib.Path; this was fixed before the evidence-record commit and is not part of the 54-test result recorded for source commit 74ecb9e."
+  ]
+}

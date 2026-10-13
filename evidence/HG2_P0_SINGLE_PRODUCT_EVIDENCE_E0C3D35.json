@@ -1,0 +1,58 @@
+{
+  "evidence_schema": "HG2_P0_TEST_EVIDENCE_V1",
+  "status": "PASS_LOCAL_CLEAN_CHECKOUT_ONLY",
+  "tested_source_commit": "e0c3d3578d54b830cd55f50a075e3862b3b13cce",
+  "tested_tree_sha": "28bf83e10f155f224f748dc75910585810bcafdb",
+  "branch": "fix/hg2-single-product-readiness-20261013",
+  "baseline_genesis_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
+  "checkout": "fresh clone of https://github.com/OAI-GIANG/HG2.git branch fix/hg2-single-product-readiness-20261013; checked out commit e0c3d3578d54b830cd55f50a075e3862b3b13cce",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+  "result": {
+    "exit_code": 0,
+    "tests_run": 30,
+    "failures": 0,
+    "errors": 0,
+    "resource_warnings": "none observed; ResourceWarning promoted to error"
+  },
+  "environment": {
+    "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "machine": "aarch64",
+    "device": "Android / Termux, ARM64"
+  },
+  "clean_checkout_log": {
+    "path": "evidence/hg2-single-product-clean-tests-e0c3d35.log",
+    "sha256": "e23d84c045938f6fe7f56fe3056dfff82431bb115560ff94e6f2308096080da2",
+    "bytes": 3435
+  },
+  "source_files_sha256": {
+    "hg/history.py": "b24e7b79983bb93e6cb38ae21c92e84cc048bf9ba0d9aa2f5435890988608799",
+    "hg/phone_runtime.py": "ee6297a37238dbaaef380731f14393e70b60fc80d04c51e84c114acb3c070539",
+    "tests/test_core.py": "ded000e4753a89c642eb7002a1b496279c2e3f693e2ee2342e908539adf95b56",
+    "tests/test_integrity_v2.py": "97bfecda1322870d351cab5576ecae4fcf6f1784e2317e4a550933ec732fcc39",
+    "docs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md": "17094215e11ad62acdcfdb698ebf8d9d344dee1a450332843e7297f9df5ee6d7"
+  },
+  "checks": {
+    "git_diff_check": "PASS on clean checkout",
+    "independent_review": "PENDING",
+    "external_CI": {
+      "source_commit": "e0c3d3578d54b830cd55f50a075e3862b3b13cce",
+      "status": "PASS",
+      "context": "ci/circleci: verify",
+      "target_url": "https://circleci.com/gh/OAI-GIANG/HG2/8",
+      "evidence_head_commit": "b870b0b252bb6ec024fbeaaa1c7e299110f196c6",
+      "evidence_head_status": "PASS",
+      "evidence_head_target_url": "https://circleci.com/gh/OAI-GIANG/HG2/9",
+      "configuration": "CircleCI job runs clean-checkout assertion, git diff --check HEAD^ HEAD, and the unittest suite with ResourceWarning promoted to ERROR"
+    },
+    "production_device_E2E": "NOT_RUN",
+    "merge": "NOT_PERFORMED",
+    "deploy": "NOT_PERFORMED"
+  },
+  "limitations": [
+    "Local test pass is not an independent review.",
+    "Authentication now fails closed unless a host-supplied verifier returns literal True; production credential verifier integration is not proven.",
+    "Product identity naming HG versus HG2 remains an explicit decision gate.",
+    "GO/HG feature parity decisions remain incomplete."
+  ]
+}

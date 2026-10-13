@@ -12,11 +12,13 @@ TOKEN = "edge-token-x"
 
 
 def lines(d):
-    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+    with open(os.path.join(d, "history.jsonl"), encoding="utf-8") as fh:
+        return [line for line in fh.read().splitlines() if line.strip()]
 
 
 def put(d, ls):
-    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+    with open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8") as fh:
+        fh.write("\n".join(ls) + "\n")
 
 
 class IdentityTests(unittest.TestCase):
@@ -29,7 +31,8 @@ class IdentityTests(unittest.TestCase):
         for base, _dirs, files in os.walk(os.path.join(ROOT, "hg")):
             for name in files:
                 if name.endswith(".py"):
-                    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+                    with open(os.path.join(base, name), encoding="utf-8") as fh:
+                        text = fh.read().lower()
                     for m in ("go_runtime", "paradise", "love", "hg_ops", "governance_engine"):
                         if m in text:
                             found.append((name, m))
@@ -99,7 +102,8 @@ class HistoryTests(unittest.TestCase):
 
     def test_checkpoint_mismatch(self):
         s, d = self._case(lambda L: L)
-        open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
+        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"seq": 99, "head_hash": ZERO}))
         self.assertEqual(s.verify()["reason"], "checkpoint_mismatch")
         with self.assertRaises(HistoryError):
             StateStore(d)
@@ -145,7 +149,10 @@ class EdgeTests(unittest.TestCase):
             with urllib.request.urlopen(req, timeout=4) as r:
                 return r.status, r.read().decode()
         except urllib.error.HTTPError as e:
-            return e.code, e.read().decode()
+            try:
+                return e.code, e.read().decode()
+            finally:
+                e.close()
 
     def test_edge_behaviour(self):
         self.assertEqual(self.call("/health")[0], 200)
@@ -169,12 +176,32 @@ class EdgeTests(unittest.TestCase):
 
 
 class PhoneTests(unittest.TestCase):
+    def test_session_creation_fails_closed_without_verifier(self):
+        with tempfile.TemporaryDirectory() as d:
+            rt = PhoneRuntime(state_dir=d)
+            before = rt.store.audit_export()["events"]
+            with self.assertRaises(PermissionError):
+                rt.start_session(credential="anything")
+            self.assertEqual(rt.store.audit_export()["events"], before)
+
+    def test_session_creation_fails_closed_when_verifier_rejects_or_raises(self):
+        for verifier in (lambda _credential: False, lambda _credential: (_ for _ in ()).throw(RuntimeError("auth unavailable"))):
+            with self.subTest(verifier=verifier), tempfile.TemporaryDirectory() as d:
+                rt = PhoneRuntime(state_dir=d, session_authenticator=verifier)
+                before = rt.store.audit_export()["events"]
+                with self.assertRaises(PermissionError):
+                    rt.start_session(credential="invalid")
+                self.assertEqual(rt.store.audit_export()["events"], before)
+
     def test_local_and_offline(self):
         with tempfile.TemporaryDirectory() as d:
-            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4)
+            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4,
+                              session_authenticator=lambda credential: credential == "session-test-token")
             self.assertTrue(rt.health()["ok"])
             self.assertFalse(rt.heartbeat())
-            s = rt.start_session()
+            with self.assertRaises(PermissionError):
+                rt.start_session()
+            s = rt.start_session(credential="session-test-token")
             self.assertEqual(s["product"], "HG")
             self.assertEqual(rt.store.audit_export()["events"], 2)
 
