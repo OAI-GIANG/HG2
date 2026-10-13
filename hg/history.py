@@ -269,6 +269,12 @@ class StateStore:
         _atomic_write(self.head, canonical({"seq": s, "head_hash": h}))
 
     def emit(self, event_type, payload, *, correlation_id=None, causation_id=None, event_id=None):
+        # Validate caller input before touching the append-only log. Writing an
+        # invalid event would make the store fail closed on its next reopen.
+        if not isinstance(event_type, str) or not event_type:
+            raise HistoryError("event type must be a non-empty string")
+        if not isinstance(payload, dict):
+            raise HistoryError("event payload must be an object")
         with self._lock:
             if self._poisoned:
                 raise HistoryError("state store is poisoned after a persistence failure; reopen only after investigation")

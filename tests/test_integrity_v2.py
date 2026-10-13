@@ -30,6 +30,28 @@ class IntegrityPolicyTests(unittest.TestCase):
         self.assertEqual(len(s.replay()), 1)
         self.assertTrue(s.verify()["ok"])
 
+    def test_emit_rejects_invalid_input_before_durable_write(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            original = {path: Path(getattr(store, attr)).read_bytes()
+                        for attr, path in (("log", "history.jsonl"),
+                                           ("state", "state.json"),
+                                           ("head", "head.json"))}
+            invalid_cases = (("", {}), (123, {}), ("probe.invalid", []),
+                             ("probe.invalid", None), ("probe.invalid", "not-an-object"))
+            for event_type, payload in invalid_cases:
+                with self.subTest(event_type=event_type, payload_type=type(payload).__name__):
+                    with self.assertRaises(HistoryError):
+                        store.emit(event_type, payload, event_id="invalid-input")
+                    for attr, path in (("log", "history.jsonl"),
+                                       ("state", "state.json"),
+                                       ("head", "head.json")):
+                        self.assertEqual(Path(getattr(store, attr)).read_bytes(), original[path])
+                    self.assertTrue(store.verify()["ok"])
+            reopened = StateStore(d)
+            self.assertEqual(len(reopened.replay()), 1)
+            self.assertTrue(reopened.verify()["ok"])
+
     def test_missing_checkpoint_is_fail_closed(self):
         s, d = build(); os.remove(os.path.join(d, "head.json"))
         with self.assertRaises(HistoryError):
