@@ -31,8 +31,8 @@
     }
   ],
   "tests_not_substitutes_for_benchmark": {
-    "focused_contract_tests": "25 PASS",
-    "full_repository_tests": "48 PASS",
+    "focused_contract_tests": "25 PASS on clean checkout",
+    "full_repository_tests": "48 PASS on clean checkout",
     "interpretation": "Correctness/regression tests for metadata evaluation, not novelty/usefulness/creative advantage measurements."
   },
   "prohibited_claims": [
@@ -40,5 +40,6 @@
     "No creativity-improvement claim",
     "Unit tests do not substitute for protocol"
   ],
-  "next_technical_prerequisite": "An already-available, authorized, non-paid local baseline and candidate generation runner with fixed provider/model, prompt/context budget and cost logging; then freeze/hash at least 40 cases and run both arms. No signature or independent-review gate is required."
+  "next_technical_prerequisite": "An already-available, authorized, non-paid local baseline and candidate generation runner with fixed provider/model, prompt/context budget and cost logging; then freeze/hash at least 40 cases and run both arms. No signature or independent-review gate is required.",
+  "rechecked_at_commit": "90ba4a7236aca4b278a4c02b68c6bd579d450f7d"
 }
