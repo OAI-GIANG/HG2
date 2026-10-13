@@ -81,5 +81,38 @@
     "head_branch": "remediation/hg-cti-p0-guards-20261014",
     "merge_authorized_now": false
   },
-  "latest_verified_remote_head_before_this_evidence_update": "9a1fc9b2eae6673702bc1308d5f8cab8df66a207"
+  "latest_verified_remote_head_before_this_evidence_update": "9a1fc9b2eae6673702bc1308d5f8cab8df66a207",
+  "current_worktree_test_run": {
+    "focused_command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_guards.py' -v",
+    "focused_exit_code": 0,
+    "focused_tests_run": 42,
+    "full_command": "python3 -B -m unittest discover -s tests -v",
+    "full_exit_code": 0,
+    "full_tests_run": 96,
+    "diff_check_exit_code": 0,
+    "note": "Executed after adding CTI-specific regression mappings; clean-checkout verification for this exact new code commit is pending."
+  },
+  "matrix_coverage": {
+    "unit_tested_case_ids": [
+      "CTI-001",
+      "CTI-003",
+      "CTI-004",
+      "CTI-005",
+      "CTI-008",
+      "CTI-017",
+      "CTI-018",
+      "CTI-019",
+      "CTI-020",
+      "CTI-021",
+      "CTI-023",
+      "CTI-026",
+      "CTI-027",
+      "CTI-029",
+      "CTI-034",
+      "CTI-035",
+      "CTI-040"
+    ],
+    "full_case_end_to_end_status": "NOT_RUN",
+    "remaining_case_specific_tests": "PLANNED"
+  }
 }

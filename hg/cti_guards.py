@@ -223,7 +223,8 @@ class ProposedAction:
 
 @dataclass(frozen=True)
 class ProposedReuse:
-    assessment: ProvenanceAssessment
+    # Must be supplied by trusted orchestration/case context, never by model output.
+    trusted_assessment: ProvenanceAssessment
     reuse_requested: bool = True
 
 
@@ -244,8 +245,10 @@ def validate_response_gate(
 ) -> ResponseGateResult:
     """Compose P0 guards at a structured response boundary.
 
-    Callers must parse/construct the typed inputs from a declared response
-    schema. This gate validates explicit fields and ledger references; it does
+    Authority and provenance assessments must come from trusted orchestration
+    context, not from model-generated fields. Callers must parse/construct the
+    response claims/actions from a declared schema. This gate validates explicit
+    fields and ledger references; it does
     not infer actions or semantic entailment from arbitrary natural-language
     text. That limitation must be represented in the integration contract.
     """
@@ -259,7 +262,7 @@ def validate_response_gate(
     for index, request in enumerate(reuse_requests):
         if not request.reuse_requested:
             continue
-        decision = evaluate_reuse_rights(request.assessment)
+        decision = evaluate_reuse_rights(request.trusted_assessment)
         if not decision.can_reuse:
             blockers.extend(f"REUSE_BLOCKED:{index}:{reason}" for reason in decision.blockers)
     blockers.extend(secret_handling_blockers(output_text, known_secret_values))
@@ -325,3 +328,72 @@ def evaluate_benchmark_gates(metrics: BenchmarkMetrics) -> BenchmarkGateResult:
     if not metrics.cost_within_budget:
         failures.append("COST_BUDGET_EXCEEDED_OR_UNKNOWN")
     return BenchmarkGateResult(not failures, tuple(failures))
+
+
+@dataclass(frozen=True)
+class EvidenceSupport:
+    evidence_id: str
+    source_origin_id: str
+    supports_claim: bool
+
+
+def independent_support_count(supports: Sequence[EvidenceSupport]) -> int:
+    """Count supporting origin groups, not URLs/files that share one origin."""
+    return len({
+        item.source_origin_id.strip()
+        for item in supports
+        if item.supports_claim and item.source_origin_id.strip()
+    })
+
+
+def has_independent_corroboration(
+    supports: Sequence[EvidenceSupport], required_origins: int = 2
+) -> bool:
+    if required_origins < 1:
+        return False
+    return independent_support_count(supports) >= required_origins
+
+
+@dataclass(frozen=True)
+class CreativeSynthesisAssessment:
+    mechanism: str
+    boundary: str
+    falsifiable_prediction: str
+    counterexample: str
+    novelty_claimed: bool = False
+    analogy_only: bool = False
+
+
+def validate_creative_synthesis(assessment: CreativeSynthesisAssessment) -> tuple[str, ...]:
+    """Require an operational mechanism, limits, a testable prediction, and a counterexample."""
+    blockers: list[str] = []
+    for field_name in ("mechanism", "boundary", "falsifiable_prediction", "counterexample"):
+        if not getattr(assessment, field_name).strip():
+            blockers.append(field_name.upper() + "_MISSING")
+    if assessment.novelty_claimed and assessment.analogy_only:
+        blockers.append("NOVELTY_UNSUPPORTED_BY_ANALOGY_ONLY")
+    return tuple(blockers)
+
+
+@dataclass(frozen=True)
+class IncidentResponseAssessment:
+    unexpected_side_effect: bool
+    evidence_preserved: bool
+    further_mutation_requested: bool
+
+
+def validate_incident_response(assessment: IncidentResponseAssessment) -> tuple[str, ...]:
+    """After an unexpected side effect, stop mutation and preserve the evidence."""
+    blockers: list[str] = []
+    if assessment.unexpected_side_effect and assessment.further_mutation_requested:
+        blockers.append("STOP_AFTER_UNEXPECTED_SIDE_EFFECT")
+    if assessment.unexpected_side_effect and not assessment.evidence_preserved:
+        blockers.append("INCIDENT_EVIDENCE_NOT_PRESERVED")
+    return tuple(blockers)
+
+
+def validate_regression_plan(risky_change: bool, regression_test_ids: Sequence[str]) -> tuple[str, ...]:
+    """Risky behavior changes must be paired with explicit regression tests."""
+    if risky_change and not any(test_id.strip() for test_id in regression_test_ids):
+        return ("REGRESSION_TESTS_REQUIRED",)
+    return ()

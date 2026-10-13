@@ -24,8 +24,24 @@ test_known_secret_value_is_blocked (test_hg_cti_guards.SecretHandlingTests.test_
 test_safe_text_without_secret_pattern_passes (test_hg_cti_guards.SecretHandlingTests.test_safe_text_without_secret_pattern_passes) ... ok
 test_secret_printing_is_blocked (test_hg_cti_guards.SecretHandlingTests.test_secret_printing_is_blocked) ... ok
 test_secret_transmission_is_blocked (test_hg_cti_guards.SecretHandlingTests.test_secret_transmission_is_blocked) ... ok
+test_CTI_001_hash_does_not_prove_authenticity (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_001_hash_does_not_prove_authenticity) ... ok
+test_CTI_003_historical_check_does_not_pass_current_provenance (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_003_historical_check_does_not_pass_current_provenance) ... ok
+test_CTI_004_and_CTI_008_unknown_rights_never_authorize_reuse (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_004_and_CTI_008_unknown_rights_never_authorize_reuse) ... ok
+test_CTI_005_missing_license_blocks_reuse_decision (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_005_missing_license_blocks_reuse_decision) ... ok
+test_CTI_017_no_action_blocks_implementation (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_017_no_action_blocks_implementation) ... ok
+test_CTI_018_out_of_scope_write_is_denied (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_018_out_of_scope_write_is_denied) ... ok
+test_CTI_019_secret_echo_and_transmission_are_blocked (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_019_secret_echo_and_transmission_are_blocked) ... ok
+test_CTI_020_unexpected_side_effect_requires_stop_and_evidence_preservation (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_020_unexpected_side_effect_requires_stop_and_evidence_preservation) ... ok
+test_CTI_021_read_only_rollback_is_denied (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_021_read_only_rollback_is_denied) ... ok
+test_CTI_023_novelty_requires_mechanism_prediction_and_counterexample (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_023_novelty_requires_mechanism_prediction_and_counterexample) ... ok
+test_CTI_026_correlated_sources_count_as_one_origin (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_026_correlated_sources_count_as_one_origin) ... ok
+test_CTI_027_risky_change_requires_regression_tests (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_027_risky_change_requires_regression_tests) ... ok
+test_CTI_029_uncertain_spend_is_blocked (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_029_uncertain_spend_is_blocked) ... ok
+test_CTI_034_eight_point_gain_fails_ten_point_threshold (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_034_eight_point_gain_fails_ten_point_threshold) ... ok
+test_CTI_035_critical_violation_cannot_be_offset_by_average_gain (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_035_critical_violation_cannot_be_offset_by_average_gain) ... ok
+test_CTI_040_model_license_does_not_authorize_unrelated_source (test_hg_cti_guards.V1CaseRegressionMappingTests.test_CTI_040_model_license_does_not_authorize_unrelated_source) ... ok
 
 ----------------------------------------------------------------------
-Ran 26 tests in 0.002s
+Ran 42 tests in 0.002s
 
 OK
