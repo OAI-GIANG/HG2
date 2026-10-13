@@ -77,8 +77,8 @@ The following archive contents are not approved for code reuse or implementation
 - No dependencies installed; no backend or production API called.
 - No tests run for this reference pack.
 - No independent review claimed.
-- The GitHub integration denied branch creation (HTTP 403 Resource not accessible by integration); therefore this document has NOT been committed to the HG2 repository and canonical remains untouched.
-- Canonical ref was read directly and resolved to d11e71ed8b34338b8568664b39bc777c926826d5 at the time of this check.
+- The initial GitHub integration branch-creation request was denied (HTTP 403 Resource not accessible by integration). The document was subsequently committed and pushed from authorized Termux Git CLI to the isolated reference branch; it has NOT been merged into canonical.
+- Canonical `hg-genesis` was independently compared before and after the push and remained at d11e71ed8b34338b8568664b39bc777c926826d5 at the time of verification.
 
 ## Acceptance / rollback / stop
 Accept only as a local reference document. Do not merge or treat as product implementation. Stop any code reuse if license/provenance remains unclear or if G2 cannot prove a genuine gap. Rollback is simply discard this local document; no canonical rollback is needed because no repository mutation occurred.
