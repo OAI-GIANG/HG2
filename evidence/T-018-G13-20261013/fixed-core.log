@@ -1,0 +1,17 @@
+test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
+test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... ok
+test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
+test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... ok
+test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... ok
+test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
+test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
+test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... ok
+test_identity (tests.test_core.IdentityTests.test_identity) ... ok
+test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... ok
+test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... ok
+test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 3.007s
+
+OK

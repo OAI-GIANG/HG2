@@ -1,0 +1,81 @@
+test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
+test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
+test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
+test_duplicate_event_id_different_payload_is_conflict (tests.test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/.consumed-ctx-a-b8d9c257e4b7.json' mode='rb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 77, in test_duplicate_event_id_different_payload_is_conflict
+    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/.consumed-ctx-a-b8d9c257e4b7.json' mode='r' encoding='utf-8'>
+Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/conflict.json' mode='wb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 81, in test_duplicate_event_id_different_payload_is_conflict
+    open(p, "w").write(json.dumps(raw))
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/conflict.json' mode='w' encoding='utf-8'>
+ok
+test_duplicate_event_id_is_idempotent (tests.test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/.consumed-ctx-a-2f0846698f78.json' mode='rb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 64, in test_duplicate_event_id_is_idempotent
+    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/.consumed-ctx-a-2f0846698f78.json' mode='r' encoding='utf-8'>
+Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/again.json' mode='wb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 66, in test_duplicate_event_id_is_idempotent
+    open(replay, "w").write(json.dumps(raw))
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/again.json' mode='w' encoding='utf-8'>
+ok
+test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/.consumed-ctx-a-89c6cbfde757.json' mode='rb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 151, in test_restart_recovery_keeps_state_and_no_reapply
+    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/.consumed-ctx-a-89c6cbfde757.json' mode='r' encoding='utf-8'>
+Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/again2.json' mode='wb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 152, in test_restart_recovery_keeps_state_and_no_reapply
+    open(os.path.join(self.b.spool, "inbox", "again2.json"), "w").write(json.dumps(raw))
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/again2.json' mode='w' encoding='utf-8'>
+ok
+test_stale_in_batch_chain_and_self_origin_rejected (tests.test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/chain.json' mode='wb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 113, in test_stale_in_batch_chain_and_self_origin_rejected
+    open(os.path.join(self.a.spool, "outbox", "chain.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [e1, e2]}))
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/chain.json' mode='w' encoding='utf-8'>
+Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/self.json' mode='wb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 118, in test_stale_in_batch_chain_and_self_origin_rejected
+    open(os.path.join(self.b.spool, "outbox", "self.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [own]}))
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/self.json' mode='w' encoding='utf-8'>
+ok
+test_tampered_payload_rejected (tests.test_t018_sync.SyncTests.test_tampered_payload_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='rb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 89, in test_tampered_payload_rejected
+    raw = json.loads(open(p).read())
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='r' encoding='utf-8'>
+Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='wb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 91, in test_tampered_payload_rejected
+    open(p, "w").write(json.dumps(raw))
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='w' encoding='utf-8'>
+ok
+test_truncated_batch_rejected_and_audited (tests.test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpmvmhmi5e/spool/outbox/trunc.json' mode='wb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 125, in test_truncated_batch_rejected_and_audited
+    open(p, "w").write('{"schema": "HG_SYNC_BATCH_V1", "events": [')
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpmvmhmi5e/spool/outbox/trunc.json' mode='w' encoding='utf-8'>
+ok
+test_two_processes_are_used (tests.test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
+test_unsupported_schema_and_missing_field_rejected (tests.test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/bad.json' mode='wb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 98, in test_unsupported_schema_and_missing_field_rejected
+    open(p, "w").write(json.dumps({"schema": "OTHER", "events": [{}]}))
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/bad.json' mode='w' encoding='utf-8'>
+Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/missing.json' mode='wb' closefd=True>:
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 104, in test_unsupported_schema_and_missing_field_rejected
+    open(os.path.join(self.a.spool, "outbox", "missing.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [ev]}))
+ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/missing.json' mode='w' encoding='utf-8'>
+ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.945s
+
+OK
