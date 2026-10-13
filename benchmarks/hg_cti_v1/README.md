@@ -32,13 +32,12 @@ python3 benchmarks/hg_cti_v1/run_benchmark.py \
 
 The runner refuses to use a non-loopback endpoint, a changed dataset, a different model digest, a missing model alias, or an existing output path. It stops and marks the run incomplete on any failed inference; it does not silently drop cases.
 
-## Evidence sequence
+## Evidence sequence and current status
 
-1. Execute runner. Raw responses are written and flushed as each call completes.
-2. Score `blind_pairs.jsonl` using `scoring-rubric.md`, without opening `blind_key.json`.
-3. Save the score file and hash it.
-4. Run `python3 benchmarks/hg_cti_v1/freeze_scores.py --run-dir evidence/HG-CTI-20261013/benchmark-run-local-001` to freeze score and blind-file hashes without opening the key.
-5. Only after that freeze record exists, use `analyze_scores.py` to join the blinded key, calculate paired statistics, and evaluate thresholds.
-6. Record the result and all hashes. Keep the PR in Draft/NO-GO if any required gate fails.
+1. The inference run completed 40/40 pairs (80/80 responses) with no failed inference requests; raw outputs and blind pairs are hashed.
+2. Automated local-model rubric scoring was attempted but failed to produce reliable complete A/B score records. Evidence: `evidence/HG-CTI-20261013/benchmark-scoring-attempt.json`.
+3. No complete blind score file was saved or frozen. Therefore no benchmark acceptance gates have been evaluated; the inference run alone is not a PASS.
+4. The next required action is a reliable blind rubric-scoring pass over all 40 cases, followed by `freeze_scores.py` before reading `blind_key.json`, then `analyze_scores.py`.
+5. Keep PR in Draft/NO-GO until scoring and all acceptance gates are backed by evidence. Do not add signatures or an independent-review gate.
 
 No independent-review/signature gate is used. Scoring is a predeclared measurement procedure, not a separate authority that approves the work. Never claim production deployment from this benchmark.
