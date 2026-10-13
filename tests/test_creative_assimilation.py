@@ -17,10 +17,13 @@ def candidate(**changes):
         "Compare fixed baseline and candidate on a versioned case set.",
         ("No authority bypass.", "At least one measurable quality gain."),
         ("False rejection.", "Stale source revision."), ("archive:a", "archive:b"),
-        trust=TrustAssessment("PASS", "PASS", "VERIFIED", "PASS", "PASS"))
+        trust=TrustAssessment("PASS", "PASS", "VERIFIED", "PASS"))
     return replace(base, **changes)
 
 class SourceEvidenceTests(unittest.TestCase):
+    def test_trust_assessment_has_no_independent_verification_axis(self):
+        from dataclasses import fields
+        self.assertNotIn("independent_verification", {f.name for f in fields(TrustAssessment)})
     def test_verified_source_has_no_blockers(self): self.assertEqual(validate_source(source()), ())
     def test_digest_not_source_authenticity(self):
         issues = validate_source(replace(source(), source_revision="", source_authenticity="UNKNOWN"))

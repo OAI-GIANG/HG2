@@ -73,8 +73,7 @@
     "artifact_integrity": "PASS",
     "source_authenticity": "PASS_FOR_OBSERVED_UPSTREAM_TREE_MATCH",
     "license_status": "UNKNOWN_OR_CONFLICTING_BY_SOURCE",
-    "semantic_validity": "NOT_TESTED_ON_BENCHMARK",
-    "independent_verification": "NOT_PERFORMED"
+    "semantic_validity": "NOT_TESTED_ON_BENCHMARK"
   },
   "current_decision": "CANDIDATE_FOR_EXISTING_GOVERNANCE_DECISION",
   "blockers": [

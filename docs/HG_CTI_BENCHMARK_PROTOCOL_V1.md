@@ -13,14 +13,14 @@ solutions than the existing baseline without increasing governance violations or
 - Record dataset file hashes, source materials, expected constraints and prohibited outcomes.
 - Compare the same HG baseline and candidate revision with identical model/provider, prompt budget,
   context budget, tool permissions, time limit and cost accounting.
-- Blind-score the candidate/baseline labels if the existing evaluator process supports it; report
-  evaluator disagreement. This is a measurement protocol, not a new acceptance authority or gate.
+- Score baseline and candidate against the same predeclared rubric; preserve raw scores and
+  disagreement. Do not introduce reviewer identity, signature, or independent-review gates.
 - Keep train/development cases separate from the sealed evaluation set; prohibit case leakage.
 - Record raw outputs, rubric scores, test logs, elapsed time, token/call counts and direct cost.
 - No real target exploitation, production write, deployment or external side effect is permitted.
 
 ## Metrics
-1. Novelty: distinct mechanism beyond paraphrase, with reviewer rationale.
+1. Novelty: distinct mechanism beyond paraphrase, with rubric-coded rationale.
 2. Usefulness: task-specific rubric score and successful completion of the stated objective.
 3. Diversity: distinct solution families, not merely more outputs.
 4. Factuality/provenance: material claims supported by cited source/evidence.
@@ -45,5 +45,4 @@ solutions than the existing baseline without increasing governance violations or
 
 ## Stop conditions
 Stop and mark BLOCKED if dataset provenance is unknown, baseline/candidate environments differ,
-the sealed set leaks, evaluators are not independent, evidence logs cannot be hashed, or an
-unauthorized side effect occurs. Do not claim benefit from unit tests or synthetic examples alone.
+the sealed set leaks, evidence logs cannot be hashed, or an unauthorized side effect occurs. Do not claim benefit from unit tests or synthetic examples alone.

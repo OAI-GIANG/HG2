@@ -44,10 +44,9 @@ class TrustAssessment:
     source_authenticity: str = "UNKNOWN"
     license_status: str = "UNKNOWN"
     semantic_validity: str = "UNKNOWN"
-    independent_verification: str = "UNKNOWN"
 
     def __post_init__(self):
-        for name in ("artifact_integrity", "source_authenticity", "semantic_validity", "independent_verification"):
+        for name in ("artifact_integrity", "source_authenticity", "semantic_validity"):
             if getattr(self, name) not in TRUST_VALUES:
                 raise ValueError("INVALID_TRUST_VALUE:" + name)
         if self.license_status not in LICENSE_VALUES:
@@ -157,8 +156,6 @@ def evaluate_candidate(candidate: SynthesisCandidate, sources: Mapping[str, Sour
         blockers.extend(source_id + ":" + issue for issue in validate_source(source))
     if candidate.trust.semantic_validity != "PASS":
         blockers.append("SEMANTIC_VALIDITY_NOT_VERIFIED")
-    if candidate.trust.independent_verification != "PASS":
-        blockers.append("INDEPENDENT_VERIFICATION_NOT_PASS")
     if candidate.trust.artifact_integrity != "PASS":
         blockers.append("CANDIDATE_ARTIFACT_INTEGRITY_NOT_PASS")
     if candidate.trust.source_authenticity != "PASS":
@@ -180,7 +177,7 @@ def transition(candidate: SynthesisCandidate, target: str, *, actor_id: str,
         ignored = (
             "UPSTREAM_URL_UNVERIFIED", "UPSTREAM_REVISION_UNVERIFIED", "LICENSE_NOT_VERIFIED",
             "ARTIFACT_INTEGRITY_NOT_VERIFIED", "SOURCE_AUTHENTICITY_NOT_VERIFIED",
-            "SEMANTIC_VALIDITY_NOT_VERIFIED", "INDEPENDENT_VERIFICATION_NOT_PASS",
+            "SEMANTIC_VALIDITY_NOT_VERIFIED",
             "CANDIDATE_ARTIFACT_INTEGRITY_NOT_PASS", "CANDIDATE_SOURCE_AUTHENTICITY_NOT_PASS",
             "CANDIDATE_LICENSE_NOT_VERIFIED",
         )

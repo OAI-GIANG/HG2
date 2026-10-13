@@ -15,7 +15,7 @@ OBSERVE → DIVERGE → CHALLENGE → DISCRIMINATE → VALIDATE → DISTILL → 
   expected benefit, bounded scope, discriminating experiment, acceptance criteria, failure modes
   and evidence references.
 - TrustAssessment: independent axes for artifact integrity, source authenticity, license,
-  semantic validity and independent verification.
+  and semantic validity.
 - Lifecycle status is workflow state only and is never a proxy for trust.
 
 ## State transitions

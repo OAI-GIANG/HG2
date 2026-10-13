@@ -21,9 +21,10 @@ test_http_upstream_rejected (tests.test_creative_assimilation.SourceEvidenceTest
 test_missing_inspected_path_blocks (tests.test_creative_assimilation.SourceEvidenceTests.test_missing_inspected_path_blocks) ... ok
 test_missing_license_fails_closed (tests.test_creative_assimilation.SourceEvidenceTests.test_missing_license_fails_closed) ... ok
 test_missing_source_evidence_ref_blocks (tests.test_creative_assimilation.SourceEvidenceTests.test_missing_source_evidence_ref_blocks) ... ok
+test_trust_assessment_has_no_independent_verification_axis (tests.test_creative_assimilation.SourceEvidenceTests.test_trust_assessment_has_no_independent_verification_axis) ... ok
 test_verified_source_has_no_blockers (tests.test_creative_assimilation.SourceEvidenceTests.test_verified_source_has_no_blockers) ... ok
 
 ----------------------------------------------------------------------
-Ran 24 tests in 0.002s
+Ran 25 tests in 0.003s
 
 OK

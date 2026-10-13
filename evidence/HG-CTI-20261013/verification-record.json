@@ -12,8 +12,10 @@
   "upstream_snapshot_verification": "PASS; 18/18 ZIP file trees match the observed upstream commit trees by path and Git blob SHA-1",
   "git_diff_check": "PASS",
   "open_gates": [
-    "Creative benefit benchmark is pre-registered but not run",
     "No runtime integration or production deployment",
-    "License status unclear for some archives; benchmark benefit not yet measured"
-  ]
+    "Creative benefit benchmark cannot execute until an authorized non-paid baseline and candidate generation runner is available.",
+    "xsstools license conflict remains unresolved; missing or metadata-only license indicators do not authorize code reuse."
+  ],
+  "license_audit": "18 sources inventoried; root/package/component license evidence recorded; unresolved/conflicting sources restricted to principle-only use",
+  "benchmark_status": "BLOCKED_NOT_RUN; no baseline/candidate inference runner or model-inference tool available; unit tests not substituted for creativity benchmark"
 }

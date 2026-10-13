@@ -9,56 +9,56 @@ test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... /data/data/com
   _warnings.warn(self.warn_message, ResourceWarning)
 ok
 test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
-test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... /data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpibl8cu2u/history.jsonl' mode='r' encoding='utf-8'>
+test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... /data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpu8wpg8ud/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpibl8cu2u/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpu8wpg8ud/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:102: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpibl8cu2u/head.json' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:102: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpu8wpg8ud/head.json' mode='w' encoding='utf-8'>
   open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... /data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp8ildkur2/history.jsonl' mode='r' encoding='utf-8'>
+test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... /data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpra6npjg7/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
 test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
-test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... /data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmppt4oujdr/history.jsonl' mode='r' encoding='utf-8'>
+test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... /data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpychheie5/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmppt4oujdr/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpychheie5/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpg94k6zhp/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_j_h94pk/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpg94k6zhp/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_j_h94pk/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpku17r2ax/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpd99g4bfk/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpku17r2ax/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpd99g4bfk/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpvp4kxrci/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp1nh714dj/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpvp4kxrci/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp1nh714dj/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpta3xofyl/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpmay2gwa9/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpta3xofyl/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpmay2gwa9/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_7s_k03s/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpgp07vo73/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_7s_k03s/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/home/HG2-selective-absorption-v2-upload/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpgp07vo73/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -110,6 +110,7 @@ test_http_upstream_rejected (test_creative_assimilation.SourceEvidenceTests.test
 test_missing_inspected_path_blocks (test_creative_assimilation.SourceEvidenceTests.test_missing_inspected_path_blocks) ... ok
 test_missing_license_fails_closed (test_creative_assimilation.SourceEvidenceTests.test_missing_license_fails_closed) ... ok
 test_missing_source_evidence_ref_blocks (test_creative_assimilation.SourceEvidenceTests.test_missing_source_evidence_ref_blocks) ... ok
+test_trust_assessment_has_no_independent_verification_axis (test_creative_assimilation.SourceEvidenceTests.test_trust_assessment_has_no_independent_verification_axis) ... ok
 test_verified_source_has_no_blockers (test_creative_assimilation.SourceEvidenceTests.test_verified_source_has_no_blockers) ... ok
 test_bounds_and_architecture_are_checked (test_edge_schema_guard.EdgePayloadSchemaTests.test_bounds_and_architecture_are_checked) ... ok
 test_existing_heartbeat_payload_shape_remains_valid (test_edge_schema_guard.EdgePayloadSchemaTests.test_existing_heartbeat_payload_shape_remains_valid) ... ok
@@ -124,6 +125,6 @@ test_string_values_are_not_scanned_as_field_names (test_edge_schema_guard.EdgePa
 test_unknown_fields_are_rejected (test_edge_schema_guard.EdgePayloadSchemaTests.test_unknown_fields_are_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 47 tests in 3.441s
+Ran 48 tests in 3.537s
 
 OK

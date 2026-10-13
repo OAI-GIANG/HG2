@@ -68,3 +68,8 @@ projects. No source-level implementation behavior is claimed for files not expli
 - Opal-main.zip — https://github.com/debpalash/Opal @ 3b708aa2bfc791c8885a26b0339ff6318e7d1355 — TREE_MATCH
 - bootable-main.zip — https://github.com/debpalash/bootable @ f4837882be756cc33fda738890a6e382473f926f — TREE_MATCH
 - homebrew-memxt-main.zip — https://github.com/Yupcha/homebrew-memxt @ 07b8451114302080dcaafc3ae01daa6e2b36a223 — TREE_MATCH
+
+
+## License audit details
+
+See [HG_CREATIVE_ASSIMILATION_LICENSE_AUDIT.md](HG_CREATIVE_ASSIMILATION_LICENSE_AUDIT.md) for pinned-commit GitHub license API results, license text paths, package metadata, nested component scope, and reuse decisions. No source code is copied; sources with missing/conflicting license evidence remain principle-only.

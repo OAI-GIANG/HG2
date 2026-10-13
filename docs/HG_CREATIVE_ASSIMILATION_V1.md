@@ -25,8 +25,9 @@ owner, one canonical runtime/state owner, and fail-closed evidence gates.
 - Homebrew memXT: packaging/distribution reference only.
 
 The source-by-source evidence and remaining license gates are recorded in
-HG_CREATIVE_ASSIMILATION_SOURCE_MATRIX.md. These are bounded abstractions, not claims that every
-upstream revision or implementation detail has been independently verified.
+HG_CREATIVE_ASSIMILATION_SOURCE_MATRIX.md and the detailed license report
+HG_CREATIVE_ASSIMILATION_LICENSE_AUDIT.md. These are bounded abstractions; license uncertainty is
+not converted into permission to reuse source code.
 
 ## Architecture decision
 HG-CTI is a pure proposal/evaluation layer. Existing hg.authority, hg.phone_runtime and hg.history
@@ -40,12 +41,17 @@ dependency or service was integrated.
    License files are absent from some archives, so license status is not inferred from project names.
 2. Capability gap: canonical HG had no creative-assimilation candidate contract/evaluator. This
    branch adds a bounded pure module; it does not claim a production intelligence advantage.
-3. Semantic safety: tests cover missing source, unverified revision/license, unknown trust,
-   same-source false synthesis, missing experiment/evidence, self-review, illegal transitions,
-   and terminal-state reopening.
-4. Benefit proof: not established. The pre-registered protocol in HG_CTI_BENCHMARK_PROTOCOL_V1.md
-   defines a versioned baseline-vs-candidate benchmark; it has not been executed.
+3. Semantic safety: focused tests cover missing source, unverified revision/license, unknown trust,
+   same-source false synthesis, missing experiment/evidence, absence of the removed independent-
+   verification trust axis, illegal transitions, and terminal-state reopening.
+4. Benefit proof: BLOCKED_NOT_RUN. The pre-registered protocol is preserved, but no baseline or
+   candidate generation runner exists in this repository/tool surface. See
+   evidence/HG-CTI-20261013/benchmark-execution-attempt.json. Contract tests are not creativity
+   benchmark results.
+5. License disposition: see HG_CREATIVE_ASSIMILATION_LICENSE_AUDIT.md. xsstools is conflicted;
+   five sources have no explicit license indicator; metadata-only declarations are not treated as
+   full reuse permission. No source code is copied.
 6. Runtime/production: no runtime wiring or deployment is included or claimed.
 
 ## Verdict
-Implementation candidate on isolated branch. No production/release certification. License compatibility and benchmark benefit remain open gates.
+Implementation candidate on isolated branch. No production/release certification. License uncertainty is contained by principle-only use; measurable creative benefit remains unproven because the benchmark runner is unavailable.
