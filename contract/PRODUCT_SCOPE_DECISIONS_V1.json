@@ -1,0 +1,235 @@
+{
+  "contract_id": "HG2-PRODUCT-SCOPE-DECISIONS-V1",
+  "record_type": "OWNER_SCOPE_DECISIONS_NOT_IMPLEMENTATION_EVIDENCE",
+  "decision_authority": "Product Owner explicit instruction",
+  "baseline": {
+    "branch": "hg-genesis",
+    "sha": "d11e71ed8b34338b8568664b39bc777c926826d5"
+  },
+  "candidate_branch": "fix/hg2-single-product-readiness-20261013",
+  "decision_status": "RECORDED",
+  "implementation_status": "NOT_PROVEN",
+  "overall_gate": "BLOCKED_NO_GO",
+  "decisions": [
+    {
+      "id": "PSD-API-001",
+      "area": "HG_HTTP_API",
+      "choice": "C",
+      "disposition": "INTENTIONAL_REMOVAL_ALLOWED",
+      "scope": [
+        "/v1/sessions",
+        "/v1/history"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-API-01",
+          "criterion": "Removal is explicit and traceable; endpoints are not silently omitted.",
+          "status": "NOT_VERIFIED"
+        },
+        {
+          "id": "AC-API-02",
+          "criterion": "Repository/source/client/config/documentation/deployment dependency inventory is complete and every dependency is dispositioned.",
+          "status": "NOT_VERIFIED"
+        },
+        {
+          "id": "AC-API-03",
+          "criterion": "Supported HG2 public interface and removal behavior are documented; no undocumented compatibility shim remains.",
+          "status": "NOT_VERIFIED"
+        },
+        {
+          "id": "AC-API-04",
+          "criterion": "Canonical hg-genesis and source/evidence history remain unchanged.",
+          "status": "NOT_VERIFIED"
+        }
+      ],
+      "tests": [
+        {
+          "id": "T-API-01",
+          "purpose": "Inventory candidate and legacy route definitions and record exact findings.",
+          "expected": "Route presence/absence is evidenced from source and actual router, not inferred from one-tree grep.",
+          "status": "BLOCKED_NOT_RUN"
+        },
+        {
+          "id": "T-API-02",
+          "purpose": "Search available sources, configs, docs and client material for endpoint consumers.",
+          "expected": "Each consumer is migrated, retired by explicit decision, or blocks acceptance.",
+          "status": "BLOCKED_NOT_RUN"
+        },
+        {
+          "id": "T-API-03",
+          "purpose": "Integration-test the actual candidate HTTP server/router.",
+          "expected": "Removed endpoints are not served; resulting status/error behavior is documented; remaining routes pass.",
+          "status": "BLOCKED_NOT_RUN"
+        },
+        {
+          "id": "T-API-04",
+          "purpose": "Run durable-state/history/identity/authorization regression tests.",
+          "expected": "No regression caused by endpoint removal; tests pass on exact candidate SHA.",
+          "status": "BLOCKED_NOT_RUN"
+        }
+      ]
+    },
+    {
+      "id": "PSD-BRIDGE-001",
+      "area": "GO_PHONE_BRIDGE_1_1",
+      "choice": "C",
+      "disposition": "INTENTIONAL_REMOVAL_ALLOWED",
+      "scope": [
+        "request/authentication protocol",
+        "replay protection",
+        "governed execution",
+        "evidence correlation"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-BRIDGE-01",
+          "criterion": "Exact Bridge 1.1 capabilities and security/authority/evidence responsibilities are inventoried from source and protocol documents.",
+          "status": "NOT_VERIFIED"
+        },
+        {
+          "id": "AC-BRIDGE-02",
+          "criterion": "All consumers and operational dependencies are identified and dispositioned; no required workflow is silently lost.",
+          "status": "NOT_VERIFIED"
+        },
+        {
+          "id": "AC-BRIDGE-03",
+          "criterion": "Removal is explicitly documented and does not imply the capabilities exist elsewhere.",
+          "status": "NOT_VERIFIED"
+        },
+        {
+          "id": "AC-BRIDGE-04",
+          "criterion": "HG2 phone-primary authority, fail-closed behavior, durable history and evidence integrity remain covered by regression tests.",
+          "status": "NOT_VERIFIED"
+        },
+        {
+          "id": "AC-BRIDGE-05",
+          "criterion": "No repository, branch, tag or historical evidence is deleted or archived as part of this scope decision.",
+          "status": "NOT_VERIFIED"
+        }
+      ],
+      "tests": [
+        {
+          "id": "T-BRIDGE-01",
+          "purpose": "Compare original Bridge 1.1 source/protocol capabilities with HG2 source/tests.",
+          "expected": "Every capability is intentionally removed, independently evidenced as replaced, or unresolved; no implicit equivalence.",
+          "status": "BLOCKED_NOT_RUN"
+        },
+        {
+          "id": "T-BRIDGE-02",
+          "purpose": "Search call sites, clients, configs, docs and workflows for bridge dependencies.",
+          "expected": "All consumers are retired or dispositioned; any unresolved consumer blocks acceptance.",
+          "status": "BLOCKED_NOT_RUN"
+        },
+        {
+          "id": "T-BRIDGE-03",
+          "purpose": "Run fail-closed authority/authentication and history integrity regression tests.",
+          "expected": "Security and durability regressions pass on exact candidate SHA.",
+          "status": "BLOCKED_NOT_RUN"
+        },
+        {
+          "id": "T-BRIDGE-04",
+          "purpose": "Audit runtime capability declarations and user-facing docs.",
+          "expected": "No removed capability is claimed available without separate proof.",
+          "status": "BLOCKED_NOT_RUN"
+        }
+      ]
+    },
+    {
+      "id": "PSD-ID-001",
+      "area": "HG_HG2_PRODUCT_IDENTITY",
+      "choice": "A",
+      "disposition": "KEEP_PRODUCT_ID_HG_WITH_FORMAL_HG2_MAPPING",
+      "mapping": {
+        "product_id": "HG",
+        "product_name": "HG2",
+        "repository": "OAI-GIANG/HG2",
+        "canonical_branch": "hg-genesis",
+        "canonical_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
+        "rule": "HG is the durable/event identity; HG2 is the product/repository label. Never silently rewrite historical product_id values."
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-ID-01",
+          "criterion": "PRODUCT_ID remains exactly HG in identity and history modules.",
+          "status": "LOCAL_PASS_UNCOMMITTED"
+        },
+        {
+          "id": "AC-ID-02",
+          "criterion": "Formal mapping HG durable/event identity to HG2 product/repository label is consistent across contract, product metadata and operator-facing docs without changing durable ID.",
+          "status": "IMPLEMENTED_UNVERIFIED_EXACT_SHA"
+        },
+        {
+          "id": "AC-ID-03",
+          "criterion": "Identity tests prove events, projections, replay output and audit exports retain product_id=HG.",
+          "status": "NOT_VERIFIED"
+        },
+        {
+          "id": "AC-ID-04",
+          "criterion": "Existing stores with product_id=HG reopen and verify without migration or history rewrite.",
+          "status": "NOT_VERIFIED"
+        },
+        {
+          "id": "AC-ID-05",
+          "criterion": "No implicit product_id=HG2 conversion; future migration requires a separate decision and contract.",
+          "status": "NOT_VERIFIED"
+        }
+      ],
+      "tests": [
+        {
+          "id": "T-ID-01",
+          "purpose": "Unit-test PRODUCT_ID and formal mapping contract.",
+          "expected": "PRODUCT_ID == HG and declared product_name == HG2.",
+          "status": "LOCAL_PASS_UNCOMMITTED"
+        },
+        {
+          "id": "T-ID-02",
+          "purpose": "Create, replay, verify and audit-export a fresh store.",
+          "expected": "Durable/event identity remains HG; HG2 is metadata/product label only.",
+          "status": "BLOCKED_NOT_RUN"
+        },
+        {
+          "id": "T-ID-03",
+          "purpose": "Reopen and verify a pre-existing HG fixture.",
+          "expected": "Verification succeeds without rewriting event bytes or product_id.",
+          "status": "BLOCKED_NOT_RUN"
+        },
+        {
+          "id": "T-ID-04",
+          "purpose": "Static-scan identity-bearing code, metadata and docs.",
+          "expected": "No unapproved HG-to-HG2 durable identity conversion.",
+          "status": "BLOCKED_NOT_RUN"
+        }
+      ]
+    }
+  ],
+  "global_gates": [
+    {
+      "id": "G-EXACT-SHA",
+      "requirement": "All implementation acceptance tests and CI pass on exact candidate SHA.",
+      "status": "BLOCKED"
+    },
+    {
+      "id": "G-INDEPENDENT-REVIEW",
+      "requirement": "Reviewer other than author reviews exact candidate SHA.",
+      "status": "BLOCKED"
+    },
+    {
+      "id": "G-PROVENANCE",
+      "requirement": "Provenance is independently verifiable; unsigned commits are never described as signed.",
+      "status": "BLOCKED"
+    },
+    {
+      "id": "G-PRODUCTION",
+      "requirement": "Production authentication and applicable VPS/HTTPS/device E2E gates have evidence.",
+      "status": "BLOCKED"
+    }
+  ],
+  "change_boundaries": {
+    "canonical_branch_mutation": "FORBIDDEN",
+    "merge": "FORBIDDEN",
+    "deploy": "FORBIDDEN",
+    "archive_or_delete_repository_or_branch": "FORBIDDEN",
+    "history_rewrite": "FORBIDDEN"
+  },
+  "evidence_rule": "This record is owner-approved scope only, not implementation/test/review evidence or readiness certification. Remain BLOCKED/NO-GO until applicable criteria have evidence tied to the exact candidate SHA. The product-ID mapping metadata and its unit assertion passed locally before commit; this is not exact-SHA or CI evidence."
+}
