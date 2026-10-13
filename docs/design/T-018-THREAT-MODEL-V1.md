@@ -12,6 +12,8 @@ Digital signatures, signed envelopes/checkpoints, peer key registries and signat
 
 ## 2. Assets and trust boundaries
 
+The earlier source inspection was recorded at design base `4d97c34d8bb7c1091265330aef63dd78d0e72c49`; it is not a substitute for runtime evidence on the corrected commit.
+
 ### Assets
 - Phone canonical event history, state projections and runtime identity.
 - Event IDs, origin sequence/predecessor hashes and accepted-event index.
@@ -75,7 +77,11 @@ The spool is not a network transport or an authenticated identity channel. The p
 - No application-memory merge until its schema and conflict policy are approved.
 - Exact-commit tests, reproducible evidence hashes and independent review.
 
-## 6. Review decision
+## 6. Independent review status
+
+This file is a corrected threat-model proposal, not evidence that the implementation has met the controls. An independent reviewer must verify the exact corrected commit and later runtime evidence before release. Current inspection in the scope-correction branch is a consistency review, not approval by a second implementation authority.
+
+## 7. Review decision
 
 **Current decision: BLOCKED — design and runtime gates remain open.**
 

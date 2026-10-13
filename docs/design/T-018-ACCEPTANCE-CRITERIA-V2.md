@@ -37,6 +37,7 @@
 8. Existing authority denial is preserved; no unauthorized `state.import`.
 9. Runtime integration does not create a second canonical state owner.
 10. Tests and manifest identify the exact commit and environment.
+11. A reviewer independent from the implementation author records findings on the exact candidate commit. A self-check or document consistency scan does not satisfy this gate.
 
 ## Stop conditions
 

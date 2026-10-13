@@ -20,15 +20,17 @@
 
 ## 2. Observed implementation boundary
 
-The source inspection recorded the following facts at the referenced design base. They are not claims about a live deployment:
+The original read-only inspection was tied to design-base commit `4d97c34d8bb7c1091265330aef63dd78d0e72c49`. The following source facts were recorded there and must be reverified before any implementation claim:
 
-| File | Observed fact |
-|---|---|
-| `hg/phone_runtime.py` | Instantiates `StateStore`; does not import or instantiate `SyncContext`; no T-018 sync API is exposed. |
-| `hg/sync.py` | Uses a local file spool; validates unkeyed hashes and in-batch continuity; stores foreign payloads as `sync.received`; does not merge them into application state. |
-| `hg/history.py` | Persists JSONL history plus JSON projections/checkpoint files; this is not a demonstrated multi-record transaction manager. |
-| `hg/authority.py` | Existing allowlist does not authorize `state.import`; this correction does not bypass that rule. |
-| `contract/ARCHITECTURE_V1.md` | Phone is the sole canonical state owner; relay/DR roles must not become a second primary. |
+| File | Recorded blob SHA | Recorded fact |
+|---|---|---|
+| `hg/phone_runtime.py` | `75fa6bcda1e29bf08aeb5341dbe8f0e124684199` | Instantiates `StateStore`; does not import or instantiate `SyncContext`; no sync API is exposed. |
+| `hg/sync.py` | `f5c706348de6b2364fe2286a4121594d08e74a22` | Spool-based V2; checks unkeyed hashes/in-batch continuity; stores foreign payloads as `sync.received`; no application-state merge. |
+| `hg/history.py` | `acb466e8a4c2b8882db58b783028b59804ecc812` | JSONL history plus JSON projections/checkpoints; no proven multi-record transaction boundary. |
+| `hg/authority.py` | `a9fb1ddae181944e2e87decb806368e916ac6379` | Existing allowlist does not authorize `state.import`; do not bypass that rule. |
+| `contract/ARCHITECTURE_V1.md` | `7defc59985b2ea291b614a63de0a3152b64d064d` | Phone is sole canonical state owner; relay/DR must not become a second primary. |
+
+These facts describe the recorded design-base inspection, not a live deployment or independent reinspection by this review.
 
 The source hash checks are consistency checks. They do not establish authorship. The signature feature and its supporting key-management design are removed from this task's acceptance scope; this does not authorize a replacement authentication design.
 
