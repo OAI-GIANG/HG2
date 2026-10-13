@@ -61,12 +61,12 @@
     "Claim ledger validation checks span/reference structure but does not prove semantic entailment between a claim and evidence.",
     "No merge or deployment has occurred."
   ],
-  "tested_commit": "de827b796e6a8c1743c1f7e926db8b8469933ccd",
+  "tested_commit": "1b3dbe6c00f6e86cb01f12614d9f354d669c061d",
   "clean_checkout_verification": {
-    "worktree": "/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7",
-    "commit": "de827b796e6a8c1743c1f7e926db8b8469933ccd",
+    "worktree": "/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-1b3dbe6",
+    "commit": "1b3dbe6c00f6e86cb01f12614d9f354d669c061d",
     "full_test_exit_code": 0,
-    "full_test_count": 80,
+    "full_test_count": 96,
     "root_v1_manifest_exit_code": 0,
     "root_v1_manifest_failed_entries": 0,
     "run_v1_manifest_exit_code": 0,
@@ -81,7 +81,7 @@
     "head_branch": "remediation/hg-cti-p0-guards-20261014",
     "merge_authorized_now": false
   },
-  "latest_verified_remote_head_before_this_evidence_update": "9a1fc9b2eae6673702bc1308d5f8cab8df66a207",
+  "latest_verified_remote_head_before_this_evidence_update": "1b3dbe6c00f6e86cb01f12614d9f354d669c061d",
   "current_worktree_test_run": {
     "focused_command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_guards.py' -v",
     "focused_exit_code": 0,
