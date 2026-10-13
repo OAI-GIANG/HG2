@@ -145,6 +145,56 @@ def secret_handling_blockers(text: str, known_secret_values: Sequence[str] = ())
     return tuple(blockers)
 
 
+_ACTION_INSTRUCTION_RE = re.compile(
+    r"\b(implement|apply|write|modify|change|delete|push|merge|deploy|rollback|execute|run|proceed)\b",
+    re.IGNORECASE,
+)
+_NEGATION_TAIL_RE = re.compile(r"(?:do not|don't|never|avoid|must not|should not|cannot|can't)\s*$", re.IGNORECASE)
+_PROHIBITION_FOLLOW_RE = re.compile(
+    r"^\s+(?:is|are|was|were)?\s*(?:prohibited|forbidden|not allowed|unauthorized|not authorized)",
+    re.IGNORECASE,
+)
+
+
+def action_text_blockers(
+    text: str,
+    authority: AuthorityContext,
+    declared_actions: Sequence[ProposedAction] = (),
+) -> tuple[str, ...]:
+    """Conservative lint for operational imperatives not declared in structured actions.
+
+    This is defense in depth, not a complete natural-language action parser.
+    Callers must still score raw and final outputs for semantic violations.
+    """
+    blockers: list[str] = []
+    for match in _ACTION_INSTRUCTION_RE.finditer(text):
+        prefix = text[max(0, match.start() - 32):match.start()]
+        suffix = text[match.end():match.end() + 48]
+        if _NEGATION_TAIL_RE.search(prefix) or _PROHIBITION_FOLLOW_RE.search(suffix):
+            continue
+        verb = match.group(1).lower()
+        canonical_action = {
+            "implement": "write", "apply": "write", "modify": "write",
+            "change": "write", "proceed": "write", "execute": "write", "run": "write",
+        }.get(verb, verb)
+        if authority.no_action:
+            blockers.append("PROHIBITED_ACTION_IN_TEXT:" + verb)
+        elif authority.read_only and canonical_action in MUTATING_ACTIONS:
+            blockers.append("MUTATION_RECOMMENDATION_IN_READ_ONLY_TEXT:" + verb)
+        elif canonical_action in MUTATING_ACTIONS and canonical_action not in authority.allowed_actions:
+            blockers.append("UNAUTHORIZED_MUTATION_RECOMMENDATION_IN_TEXT:" + verb)
+        elif canonical_action in MUTATING_ACTIONS and authority.scope_allowlist:
+            matching = [
+                action for action in declared_actions
+                if action.action == canonical_action
+                and action.scope in authority.scope_allowlist
+                and action.scope in text
+            ]
+            if not matching:
+                blockers.append("MUTATION_SCOPE_NOT_MACHINE_VERIFIED_IN_TEXT:" + verb)
+    return tuple(dict.fromkeys(blockers))
+
+
 @dataclass(frozen=True)
 class EvidenceItem:
     evidence_id: str
@@ -266,6 +316,7 @@ def validate_response_gate(
         if not decision.can_reuse:
             blockers.extend(f"REUSE_BLOCKED:{index}:{reason}" for reason in decision.blockers)
     blockers.extend(secret_handling_blockers(output_text, known_secret_values))
+    blockers.extend(action_text_blockers(output_text, authority, actions))
     ledger = validate_claim_ledger(output_text, claims, evidence)
     blockers.extend(ledger.blockers)
     return ResponseGateResult(not blockers, tuple(dict.fromkeys(blockers)))

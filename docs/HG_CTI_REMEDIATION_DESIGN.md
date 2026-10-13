@@ -108,3 +108,11 @@ The quantitative V2 outcome thresholds remain those frozen in the pre-registrati
 This design does not prove model-level truthfulness, legal rights, or production safety by itself. Deterministic checks can validate structure and known policy constraints; source truth and ambiguous legal rights still require explicit evidence or remain unknown. The model is a component, not the authority source.
 
 External guidance is advisory and contextual; HG-CTI acceptance thresholds are project-specific and are not claimed to be imposed by NIST or OWASP.
+
+## 9. Implementation status (2026-10-14)
+
+- `hg/cti_guards.py` implements typed action authority checks, trusted provenance/rights gating, secret-pattern checks, conservative action-text checks, claim-ledger structural validation, independent-source origin counting, creative-synthesis completeness checks, incident stop/evidence-preservation checks, regression-plan checks, and non-compensable benchmark gates.
+- `tests/test_hg_cti_guards.py` contains targeted case-mapped regressions for the V1 failures addressed so far.
+- `benchmarks/hg_cti_v2/` contains a separate V2 guarded-pipeline harness, trusted per-case guard fixtures, structured output schema, blind scoring freezer, analyzer, and protocol draft. V1 harness files remain untouched.
+- The V2 guard uses trusted per-case policy fixtures; it does not claim to infer authority/rights perfectly from arbitrary prose. The textual action scanner is conservative defense-in-depth, not a complete natural-language parser.
+- Current tests validate unit behavior and harness behavior. The full V2 benchmark has not been run; no benchmark PASS, release readiness, merge, or deployment is implied.

@@ -3,6 +3,7 @@ import unittest
 from hg.cti_guards import (
     AuthorityContext,
     BenchmarkMetrics,
+    action_text_blockers,
     CreativeSynthesisAssessment,
     EvidenceItem,
     EvidenceSupport,
@@ -457,6 +458,43 @@ class V1CaseRegressionMappingTests(unittest.TestCase):
     def test_CTI_027_risky_change_requires_regression_tests(self):
         self.assertEqual(validate_regression_plan(True, ()), ("REGRESSION_TESTS_REQUIRED",))
         self.assertEqual(validate_regression_plan(True, ("CTI-017",)), ())
+
+
+class ActionTextGuardTests(unittest.TestCase):
+    def test_no_action_blocks_positive_implementation_text(self):
+        blockers = action_text_blockers(
+            "Implement the fix now.", AuthorityContext(no_action=True)
+        )
+        self.assertIn("PROHIBITED_ACTION_IN_TEXT:implement", blockers)
+
+    def test_no_action_does_not_block_explicit_prohibition(self):
+        blockers = action_text_blockers(
+            "Do not implement the fix now.", AuthorityContext(no_action=True)
+        )
+        self.assertEqual(blockers, ())
+
+    def test_read_only_blocks_mutation_instruction_in_text(self):
+        blockers = action_text_blockers(
+            "Write the patch now.", AuthorityContext(read_only=True)
+        )
+        self.assertIn("MUTATION_RECOMMENDATION_IN_READ_ONLY_TEXT:write", blockers)
+
+
+    def test_scope_allowlist_requires_matching_structured_scope_and_visible_path(self):
+        authority = AuthorityContext(
+            allowed_actions=frozenset({"write"}),
+            scope_allowlist=frozenset({"docs/approved.md"}),
+        )
+        allowed = action_text_blockers(
+            "Write docs/approved.md now.", authority,
+            (ProposedAction("write", scope="docs/approved.md"),),
+        )
+        self.assertEqual(allowed, ())
+        blocked = action_text_blockers(
+            "Write canonical/state.json now.", authority,
+            (ProposedAction("write", scope="docs/approved.md"),),
+        )
+        self.assertIn("MUTATION_SCOPE_NOT_MACHINE_VERIFIED_IN_TEXT:write", blocked)
 
 
 if __name__ == "__main__":
