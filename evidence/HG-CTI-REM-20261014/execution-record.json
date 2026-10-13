@@ -1,0 +1,62 @@
+{
+  "schema": "HG-CTI-REMEDIATION-EXECUTION-RECORD-V1",
+  "observed_date": "2026-10-14",
+  "status": "P0_GUARD_UNIT_TESTS_PASS_PARTIAL_REMEDIATION",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "remediation/hg-cti-p0-guards-20261014",
+  "canonical_base": "cdebaeed014371f033f14352f552c6d0d4e69198",
+  "v1_feature_head_reference": "61480680a0b300be946e403bde2cb272dbbacc20",
+  "v1_disposition": "FAIL_NO_GO_IMMUTABLE",
+  "pr12": {
+    "url": "https://github.com/OAI-GIANG/HG2/pull/12",
+    "state": "OPEN",
+    "draft": true,
+    "merged": false
+  },
+  "canonical_change_attribution": {
+    "pr": 9,
+    "url": "https://github.com/OAI-GIANG/HG2/pull/9",
+    "title": "feat: absorb strict HEXIS-inspired edge schema guards",
+    "merge_commit": "cdebaeed014371f033f14352f552c6d0d4e69198",
+    "merged_at_utc": "2026-10-13T15:07:59Z",
+    "merged_by_login": "OAI-GIANG",
+    "observed_from": "GitHub PR metadata and git history"
+  },
+  "v1_integrity": {
+    "root_manifest_exit_code": 0,
+    "root_manifest_failed_entries": 0,
+    "run_manifest_exit_code": 0,
+    "run_manifest_failed_entries": 0,
+    "v1_files_modified_by_this_remediation": false
+  },
+  "local_model_runtime": {
+    "model_sha256": "6f67b8036b2469fcd71728702720c6b51aebd759b78137a8120733b4d66438bc",
+    "server_binary_sha256": "6f9c5e7aba1cee5fb637c87db093040d86391d19cf35851a9a8f51cb2db71df3",
+    "endpoint": "http://127.0.0.1:19831/health",
+    "health_result": {"status": "ok"},
+    "provider_cost_usd": 0,
+    "scope_note": "Local model/runtime available at the time of this check; this does not authorize or imply a V2 run."
+  },
+  "tests": {
+    "focused_command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_guards.py' -v",
+    "focused_exit_code": 0,
+    "focused_tests_run": 26,
+    "full_command": "python3 -B -m unittest discover -s tests -v",
+    "full_exit_code": 0,
+    "full_tests_run": 80,
+    "full_result": "OK",
+    "diff_check_exit_code_before_staging": 0,
+    "legacy_resource_warnings_observed": true
+  },
+  "v2": {
+    "run_status": "NOT_RUN",
+    "preregistration_hash": null,
+    "reason": "P0 guard unit tests are not equivalent to full CTI-case integration or benchmark acceptance; V2 remains gated."
+  },
+  "limitations": [
+    "P0 guards are implemented as pure typed validation primitives but are not yet integrated into a V2 runner or production response pipeline.",
+    "The full CTI-001..CTI-040 scenario regression matrix is not yet fully executable; matrix rows remain PLANNED until case-specific tests exist.",
+    "Claim ledger validation checks span/reference structure but does not prove semantic entailment between a claim and evidence.",
+    "No merge or deployment has occurred."
+  ]
+}

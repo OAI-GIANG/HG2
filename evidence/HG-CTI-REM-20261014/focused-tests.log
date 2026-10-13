@@ -1,0 +1,31 @@
+test_missing_capability_and_scope_fail_closed (test_hg_cti_guards.AuthorityGuardTests.test_missing_capability_and_scope_fail_closed) ... ok
+test_no_action_instruction_blocks_read_and_mutation (test_hg_cti_guards.AuthorityGuardTests.test_no_action_instruction_blocks_read_and_mutation) ... ok
+test_read_only_blocks_rollback_even_if_capability_list_contains_it (test_hg_cti_guards.AuthorityGuardTests.test_read_only_blocks_rollback_even_if_capability_list_contains_it) ... ok
+test_spend_requires_explicit_limit_and_stays_within_limit (test_hg_cti_guards.AuthorityGuardTests.test_spend_requires_explicit_limit_and_stays_within_limit) ... ok
+test_unknown_action_is_denied (test_hg_cti_guards.AuthorityGuardTests.test_unknown_action_is_denied) ... ok
+test_all_registered_gates_pass_only_when_every_gate_passes (test_hg_cti_guards.BenchmarkGateTests.test_all_registered_gates_pass_only_when_every_gate_passes) ... ok
+test_confidence_interval_touching_zero_fails (test_hg_cti_guards.BenchmarkGateTests.test_confidence_interval_touching_zero_fails) ... ok
+test_critical_violation_cannot_be_offset_by_large_usefulness_gain (test_hg_cti_guards.BenchmarkGateTests.test_critical_violation_cannot_be_offset_by_large_usefulness_gain) ... ok
+test_eight_percentage_points_does_not_meet_ten_point_threshold (test_hg_cti_guards.BenchmarkGateTests.test_eight_percentage_points_does_not_meet_ten_point_threshold) ... ok
+test_unknown_or_over_budget_cost_fails (test_hg_cti_guards.BenchmarkGateTests.test_unknown_or_over_budget_cost_fails) ... ok
+test_contradicted_claim_requires_evidence (test_hg_cti_guards.ClaimLedgerTests.test_contradicted_claim_requires_evidence) ... ok
+test_duplicate_claim_ids_are_rejected (test_hg_cti_guards.ClaimLedgerTests.test_duplicate_claim_ids_are_rejected) ... ok
+test_missing_span_and_dangling_evidence_are_rejected (test_hg_cti_guards.ClaimLedgerTests.test_missing_span_and_dangling_evidence_are_rejected) ... ok
+test_supported_claim_requires_present_evidence_reference (test_hg_cti_guards.ClaimLedgerTests.test_supported_claim_requires_present_evidence_reference) ... ok
+test_unknown_claim_is_explicit_and_counted_not_silently_supported (test_hg_cti_guards.ClaimLedgerTests.test_unknown_claim_is_explicit_and_counted_not_silently_supported) ... ok
+test_response_gate_accepts_structurally_valid_safe_response (test_hg_cti_guards.IntegratedResponseGateTests.test_response_gate_accepts_structurally_valid_safe_response) ... ok
+test_response_gate_blocks_unauthorized_rollback_and_unknown_rights (test_hg_cti_guards.IntegratedResponseGateTests.test_response_gate_blocks_unauthorized_rollback_and_unknown_rights) ... ok
+test_response_gate_rejects_secret_print_recommendation (test_hg_cti_guards.IntegratedResponseGateTests.test_response_gate_rejects_secret_print_recommendation) ... ok
+test_hash_integrity_alone_does_not_authorize_reuse (test_hg_cti_guards.ProvenanceGuardTests.test_hash_integrity_alone_does_not_authorize_reuse) ... ok
+test_historical_provenance_is_not_current_verification (test_hg_cti_guards.ProvenanceGuardTests.test_historical_provenance_is_not_current_verification) ... ok
+test_reuse_requires_all_prerequisites (test_hg_cti_guards.ProvenanceGuardTests.test_reuse_requires_all_prerequisites) ... ok
+test_unknown_rights_blocks_reuse (test_hg_cti_guards.ProvenanceGuardTests.test_unknown_rights_blocks_reuse) ... ok
+test_known_secret_value_is_blocked (test_hg_cti_guards.SecretHandlingTests.test_known_secret_value_is_blocked) ... ok
+test_safe_text_without_secret_pattern_passes (test_hg_cti_guards.SecretHandlingTests.test_safe_text_without_secret_pattern_passes) ... ok
+test_secret_printing_is_blocked (test_hg_cti_guards.SecretHandlingTests.test_secret_printing_is_blocked) ... ok
+test_secret_transmission_is_blocked (test_hg_cti_guards.SecretHandlingTests.test_secret_transmission_is_blocked) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.002s
+
+OK
