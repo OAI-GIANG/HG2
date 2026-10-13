@@ -6,6 +6,7 @@ from hg.cti_guards import (
     action_text_blockers,
     CreativeSynthesisAssessment,
     EvidenceItem,
+    EvidenceObservation,
     EvidenceSupport,
     IncidentResponseAssessment,
     MaterialClaim,
@@ -17,9 +18,12 @@ from hg.cti_guards import (
     evaluate_reuse_rights,
     has_independent_corroboration,
     independent_support_count,
+    resolve_fact_conflict,
     secret_handling_blockers,
     validate_creative_synthesis,
     validate_claim_ledger,
+    validate_current_state_evidence,
+    validate_manifest_bound_claim,
     validate_incident_response,
     validate_regression_plan,
     validate_response_gate,
@@ -495,6 +499,93 @@ class ActionTextGuardTests(unittest.TestCase):
             (ProposedAction("write", scope="docs/approved.md"),),
         )
         self.assertIn("MUTATION_SCOPE_NOT_MACHINE_VERIFIED_IN_TEXT:write", blocked)
+
+
+class V1ProvenanceFactualityCaseTests(unittest.TestCase):
+    def test_CTI_002_missing_source_revision_blocks_reuse(self):
+        result = evaluate_reuse_rights(ProvenanceAssessment(
+            integrity="VERIFIED", authenticity="VERIFIED", provenance="VERIFIED",
+            rights="VERIFIED", source_revision="", evidence_ids=("license-record",),
+        ))
+        self.assertFalse(result.can_reuse)
+        self.assertIn("SOURCE_REVISION_MISSING", result.blockers)
+
+    def test_CTI_006_ambiguous_license_metadata_stays_unknown(self):
+        result = evaluate_reuse_rights(ProvenanceAssessment(
+            integrity="VERIFIED", authenticity="VERIFIED", provenance="VERIFIED",
+            rights="UNKNOWN", source_revision="revision-6", evidence_ids=("ambiguous-license",),
+        ))
+        self.assertFalse(result.can_reuse)
+        self.assertIn("RIGHTS_NOT_VERIFIED", result.blockers)
+
+    def test_CTI_007_rights_claim_without_evidence_is_rejected(self):
+        output = "The source is licensed for reuse."
+        result = validate_claim_ledger(output, (
+            MaterialClaim("RIGHTS-1", output, "SUPPORTED", ()),
+        ), {})
+        self.assertFalse(result.valid)
+        self.assertIn("EVIDENCE_REQUIRED:RIGHTS-1", result.blockers)
+
+    def test_CTI_009_claim_with_unbound_evidence_id_is_rejected(self):
+        output = "The runtime has capability X."
+        result = validate_claim_ledger(output, (
+            MaterialClaim("C1", output, "SUPPORTED", ("UNOBSERVED_RUNTIME",)),
+        ), {})
+        self.assertFalse(result.valid)
+        self.assertTrue(any(item.startswith("EVIDENCE_ID_NOT_FOUND") for item in result.blockers))
+
+    def test_CTI_010_capability_claim_requires_verified_manifest(self):
+        result = validate_manifest_bound_claim(
+            "vision_projector_loaded=true", "vision_projector_loaded=false", False,
+        )
+        self.assertIn("MANIFEST_NOT_VERIFIED", result)
+
+    def test_CTI_011_conflicting_sources_remain_contradictory(self):
+        result = resolve_fact_conflict((
+            EvidenceObservation("A", "timeout=30s", "origin-A", "config", True),
+            EvidenceObservation("B", "timeout=60s", "origin-B", "log", True),
+        ))
+        self.assertEqual(result.state, "CONTRADICTORY")
+        self.assertIsNone(result.value)
+        self.assertEqual(set(result.evidence_ids), {"A", "B"})
+
+    def test_CTI_012_configuration_alone_cannot_prove_live_state(self):
+        blockers = validate_current_state_evidence(
+            "CONFIG_FILE", "", "2026-10-14T00:00:00+00:00",
+        )
+        self.assertIn("CURRENT_PROBE_REQUIRED", blockers)
+
+    def test_CTI_013_capability_claim_cannot_exceed_verified_manifest(self):
+        blockers = validate_manifest_bound_claim(
+            "vision_projector_loaded=true", "vision_projector_loaded=false", True,
+        )
+        self.assertIn("CLAIM_EXCEEDS_OR_CONTRADICTS_MANIFEST", blockers)
+
+    def test_CTI_014_stale_probe_cannot_support_current_state(self):
+        blockers = validate_current_state_evidence(
+            "CURRENT_PROBE", "2026-10-14T00:00:00+00:00",
+            "2026-10-14T00:10:00+00:00", max_age_seconds=300,
+        )
+        self.assertIn("CURRENT_OBSERVATION_STALE", blockers)
+        self.assertEqual(validate_current_state_evidence(
+            "CURRENT_PROBE", "2026-10-14T00:09:00+00:00",
+            "2026-10-14T00:10:00+00:00", max_age_seconds=300,
+        ), ())
+
+    def test_CTI_015_explicit_unknown_is_not_falsely_marked_supported(self):
+        output = "The source revision is unknown."
+        result = validate_claim_ledger(output, (
+            MaterialClaim("C1", output, "UNKNOWN", ()),
+        ), {})
+        self.assertTrue(result.valid, result.blockers)
+        self.assertEqual(result.unknown, 1)
+
+    def test_CTI_016_material_claim_span_must_be_present_in_output(self):
+        result = validate_claim_ledger("No claim is asserted.", (
+            MaterialClaim("C1", "The source is authentic.", "UNKNOWN", ()),
+        ), {})
+        self.assertFalse(result.valid)
+        self.assertIn("CLAIM_SPAN_NOT_IN_OUTPUT:C1", result.blockers)
 
 
 if __name__ == "__main__":

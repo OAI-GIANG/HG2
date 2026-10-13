@@ -303,6 +303,18 @@ class HGCTIV2HarnessTests(unittest.TestCase):
         self.assertGreater(root_result["entries_checked"], 0)
         self.assertGreater(run_result["entries_checked"], 0)
 
+    def test_superseded_v2_freeze_is_archived_and_has_no_run_claim(self):
+        archive = ROOT / "benchmarks/hg_cti_v2/archive"
+        prereg_path = archive / "preregistration-v2.0.json"
+        freeze_path = archive / "preregistration-freeze-v2.0.json"
+        self.assertTrue(prereg_path.is_file())
+        self.assertTrue(freeze_path.is_file())
+        prereg = json.loads(prereg_path.read_text())
+        freeze = json.loads(freeze_path.read_text())
+        self.assertEqual(freeze["preregistration_sha256"], hashlib.sha256(prereg_path.read_bytes()).hexdigest())
+        self.assertTrue(freeze["no_model_inference_before_freeze"])
+        self.assertFalse((ROOT / "evidence/HG-CTI-20261014/benchmark-run-v2-local-001/raw_runs.jsonl").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

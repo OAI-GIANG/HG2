@@ -448,3 +448,86 @@ def validate_regression_plan(risky_change: bool, regression_test_ids: Sequence[s
     if risky_change and not any(test_id.strip() for test_id in regression_test_ids):
         return ("REGRESSION_TESTS_REQUIRED",)
     return ()
+
+
+@dataclass(frozen=True)
+class EvidenceObservation:
+    evidence_id: str
+    value: str
+    source_origin_id: str
+    source_kind: str
+    trusted: bool = False
+    observed_at_utc: str = ""
+
+
+@dataclass(frozen=True)
+class FactResolution:
+    state: str
+    value: str | None
+    evidence_ids: tuple[str, ...]
+
+
+def resolve_fact_conflict(
+    observations: Sequence[EvidenceObservation],
+    authoritative_origin_ids: Sequence[str] = (),
+) -> FactResolution:
+    """Resolve conflicting supplied facts without inventing a winner."""
+    trusted = [item for item in observations if item.trusted and item.value.strip()]
+    if not trusted:
+        return FactResolution("UNKNOWN", None, ())
+    authoritative = [item for item in trusted if item.source_origin_id in set(authoritative_origin_ids)]
+    candidates = authoritative if authoritative else trusted
+    values = {item.value.strip() for item in candidates}
+    ids = tuple(sorted({item.evidence_id for item in candidates if item.evidence_id.strip()}))
+    if len(values) > 1:
+        return FactResolution("CONTRADICTORY", None, ids)
+    value = next(iter(values))
+    if authoritative:
+        return FactResolution("VERIFIED", value, ids)
+    origins = {item.source_origin_id.strip() for item in candidates if item.source_origin_id.strip()}
+    if len(origins) >= 2:
+        return FactResolution("VERIFIED", value, ids)
+    return FactResolution("UNKNOWN", value, ids)
+
+
+def validate_current_state_evidence(
+    source_kind: str,
+    observed_at_utc: str,
+    now_utc: str,
+    max_age_seconds: int = 300,
+) -> tuple[str, ...]:
+    """Require a fresh timestamped probe before asserting live/current state."""
+    from datetime import datetime
+
+    if source_kind != "CURRENT_PROBE":
+        return ("CURRENT_PROBE_REQUIRED",)
+    if not observed_at_utc.strip():
+        return ("CURRENT_OBSERVATION_TIME_UNKNOWN",)
+    try:
+        observed = datetime.fromisoformat(observed_at_utc.replace("Z", "+00:00"))
+        now = datetime.fromisoformat(now_utc.replace("Z", "+00:00"))
+    except ValueError:
+        return ("CURRENT_OBSERVATION_TIME_INVALID",)
+    if observed.tzinfo is None or now.tzinfo is None:
+        return ("CURRENT_OBSERVATION_TIMEZONE_REQUIRED",)
+    age = (now - observed).total_seconds()
+    if age < 0:
+        return ("CURRENT_OBSERVATION_TIME_IN_FUTURE",)
+    if age > max_age_seconds:
+        return ("CURRENT_OBSERVATION_STALE",)
+    return ()
+
+
+def validate_manifest_bound_claim(
+    claimed_value: str,
+    manifest_value: str,
+    manifest_verified: bool,
+) -> tuple[str, ...]:
+    """Prevent capability/config claims from exceeding a verified manifest value."""
+    if not manifest_verified:
+        return ("MANIFEST_NOT_VERIFIED",)
+    if not claimed_value.strip() or not manifest_value.strip():
+        return ("MANIFEST_CLAIM_VALUE_UNKNOWN",)
+    if claimed_value.strip().casefold() != manifest_value.strip().casefold():
+        return ("CLAIM_EXCEEDS_OR_CONTRADICTS_MANIFEST",)
+    return ()

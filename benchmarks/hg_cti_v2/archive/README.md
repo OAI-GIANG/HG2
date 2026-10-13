@@ -1,0 +1,3 @@
+# Superseded HG-CTI V2.0 preregistration freeze
+
+The exact V2.0 `preregistration.json` (SHA-256 `cae3f032e3c91faae311e92600757463c5f7020d3cea703e3124e2401b641e29`) and `preregistration-freeze.json` (SHA-256 `745cc564cdaa79c3d7b3543086dde27bbfceed565c9b72d60fe36834dadd8806`) are retained here as historical records. They were frozen before any model inference, and no V2.0 benchmark run was started. Before any inference, the P0 test matrix was expanded to cover additional provenance, conflicting-source, current-state, and claim-ledger cases. The V2.0 freeze is therefore superseded before run; it is not the active protocol and has no associated benchmark result. V2.1 will use the same dataset and thresholds but updated test/code hashes and a new protocol freeze.
