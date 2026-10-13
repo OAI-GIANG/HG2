@@ -1,105 +1,82 @@
-# T-018 Threat Model V1 — Authenticated Cross-Context Sync
+# T-018 Threat Model V1 — Local Spool Sync (Signature-Free Scope)
 
 **Status:** DESIGN ONLY — REVIEW REQUIRED
-**Design base:** `4d97c34d8bb7c1091265330aef63dd78d0e72c49`
-**Canonical:** `hg-genesis@d11e71ed8b34338b8568664b39bc777c926826d5` — must not change
-**PR #8:** OPEN / DRAFT / NOT MERGED
-**Release:** BLOCKED
+**Canonical boundary:** `hg-genesis` remains unchanged
+**Release:** `BLOCKED`
 
-## 1. Security objective
+## 1. Security objective and scope
 
-Only an enrolled and authorized peer may submit correctly signed events that extend a trusted origin history. The phone remains the sole canonical state owner. An event is reflected in shared memory only after schema, identity, checkpoint, authorization, data-sharing and conflict checks pass, and only as part of a durable all-or-none commit with inbox/deduplication and cursor advancement.
+T-018 is limited to local, same-device/same-user file-spool exchange. The goal is to preserve event consistency, idempotency, replay detection, rollback checks against a previously accepted cursor, fail-closed batch validation, and a single canonical state owner.
+
+Digital signatures, signed envelopes/checkpoints, peer key registries and signature key lifecycle are out of scope and are not acceptance requirements. No substitute authentication mechanism is proposed. Existing host-provided credential handling and the `context_id` / `runtime_id` boundary are preserved. This design does not claim protection against an attacker who can arbitrarily rewrite the spool and recompute unkeyed hashes.
 
 ## 2. Assets and trust boundaries
 
 ### Assets
-- Phone canonical event history, projections and runtime identity.
-- Shared-memory values and their provenance/retention rules.
-- Peer registry, public keys, key statuses and trust-root records.
-- Per-peer epoch, accepted sequence, head hash and signed checkpoint.
-- Inbox/deduplication records, transaction receipts and append-only audit evidence.
+- Phone canonical event history, state projections and runtime identity.
+- Event IDs, origin sequence/predecessor hashes and accepted-event index.
+- Durable cursor/checkpoint state, once its initial policy is approved.
+- Local spool, inbox/outbox/conflict records and audit evidence.
+- Application/shared-memory values, if a future owner-approved integration is designed.
 - Availability and integrity of the phone-primary runtime.
-- Confidential payloads, secrets and any personal/sensitive data carried by events.
 
-### Trust boundaries
-1. Remote peer → transport/relay → phone runtime.
-2. Untrusted raw batch → strict parser/canonicalizer → signature verifier.
-3. Verified identity → authorization/data-sharing policy.
-4. Validated events → conflict planner → canonical storage transaction.
-5. Runtime process → persistent storage and Android key provider.
+### Boundaries
+1. Local producer → spool file → local importer.
+2. Raw batch → parser and schema/hash validation.
+3. Validated batch → replay/cursor/conflict checks.
+4. Planned import → canonical persistence boundary.
+5. Runtime process → durable state and audit files.
 6. Implementation author → independent reviewer and release authority.
 
-VPS1 is a relay, not a trust root or canonical state owner. VPS2 is disaster recovery, not an independent primary. Local spool files are untrusted input unless protected by a verified local boundary and still pass all envelope checks.
+The spool is not a network transport or an authenticated identity channel. The phone remains the sole canonical state owner.
 
-## 3. Adversaries and assumptions
+## 3. Threats, mitigations and proof obligations
 
-Consider: a network attacker; a malicious or compromised peer; a compromised relay; an attacker who can copy/rewrite spool files; a stale/replayed batch; a peer with a revoked/rotated key; local file tampering; process crash/power loss; clock rollback; concurrent import; malformed/oversized JSON; a compromised signing key; and an authorized peer sending data outside its allowed scope.
-
-Do not assume:
-- SHA-256 proves authorship.
-- A claimed `origin_context` identifies a peer.
-- TLS alone proves which event bytes a peer authored after relaying.
-- a signed checkpoint from an unknown key is trusted.
-- a timestamp is reliable without a time policy.
-- two separate files or a sequence of file writes commit atomically.
-- a passing unit test proves runtime integration or independent review.
-
-Residual assumptions to document: phone OS/runtime not fully compromised; trusted enrollment action is protected; cryptographic implementation is correct; storage and key provider satisfy their stated guarantees. If any assumption is outside observed evidence, mark it UNVERIFIED.
-
-## 4. Threats, mitigations and proof obligations
-
-| ID | Threat | Required mitigation | Counterproof / acceptance |
+| ID | Threat | Required control | Acceptance evidence |
 |---|---|---|---|
-| T01 | Forged `peer_id` / spoofed origin | Registry-bound key and signature over canonical envelope | Unknown peer/key rejected; claimed ID alone has no authority |
-| T02 | Payload tampering | Signature covers payload hash and all security-relevant metadata; recompute payload hash | Flip payload/metadata/signature independently; all rejected |
-| T03 | Entire batch rewritten and re-hashed | Asymmetric signature and trusted key binding | Recompute all SHA-256 fields without signing key; rejected |
-| T04 | Replay of a valid event | Persistent unique inbox key + cursor; return prior receipt for exact duplicate | Same event replayed repeatedly; one mutation only |
-| T05 | Event ID reuse with changed content | Unique ID + stored content/provenance hash comparison | Same peer/epoch/event ID, different hash → quarantine and alert |
-| T06 | Checkpoint rollback | Compare signed checkpoint with durable previously accepted cursor/epoch | Lower seq/head or old checkpoint rejected |
-| T07 | Fork / same-sequence conflict | Bind seq to one origin hash and predecessor; detect branch divergence | Two different hashes for same peer/epoch/seq → no apply |
-| T08 | Gap / omitted history | Strict next-sequence policy; separately review any range-proof recovery | Missing sequence blocks until approved recovery proof |
-| T09 | Unknown first checkpoint | Out-of-band/owner-authorized enrollment checkpoint | Self-signed unknown peer checkpoint cannot establish trust |
-| T10 | Key rotation or revocation race | Versioned key status/effective checkpoint, explicit overlap and revocation semantics | Old key after effective revocation rejected; queued events follow documented policy |
-| T11 | Compromised signing key | Revocation, narrow scope, rotation, audit, quarantine and recovery checkpoint | Revoked-key test; no silent trust-root replacement |
-| T12 | Unauthorized data import | Typed principal + action/data-class allowlist; no caller-controlled boolean | Peer with read-only scope cannot import/write; policy default deny |
-| T13 | Memory overwrite/conflict | Explicit owner-approved conflict policy; default quarantine | Divergent values never silently overwrite |
-| T14 | Partial batch apply | One canonical transaction for state + inbox + cursor + receipt | Inject failure at every step; either all commit or none |
-| T15 | Crash between file writes | SQLite transaction or tested durable recovery journal | Process/power-loss fault injection and restart reconstruction |
-| T16 | Concurrent duplicate imports | Transaction isolation, uniqueness constraints, expected-head compare-and-swap | Concurrent same batch yields one mutation/receipt |
-| T17 | Malformed/oversized input | Strict parser, body/count/depth limits, timeouts, resource caps | Fuzz malformed JSON, duplicate keys, huge nesting/body, non-finite numbers |
-| T18 | Canonicalization ambiguity | Versioned RFC 8785 JCS contract; reject duplicate keys and unsupported values | Cross-implementation golden vectors and signature equivalence tests |
-| T19 | Relay compromise / MITM | End-to-end envelope signature; mTLS where available; relay has no signing key | Relay changes/reorders/replays envelope; signature/cursor gate rejects |
-| T20 | Audit forgery or missing evidence | Append-only attributable receipt with exact hashes; protect audit writer; external anchoring only if approved | Tamper test and manifest rehash; missing evidence blocks gate |
-| T21 | Secret leakage | Never log private keys/tokens; redaction and least privilege | Scan logs/fixtures for secrets; test rejection messages |
-| T22 | Split-brain / second primary | Phone is sole canonical owner; relay/DR never accepts canonical writes | Verify no second writer/store is instantiated in integration test |
-| T23 | Dependency compromise | Pinned, reviewed crypto dependency, provenance and update policy | Lockfile/SBOM/hash evidence and clean reproducible install |
-| T24 | Clock rollback/freeze | Sequence/cursor primary; time expiry only with trusted-time policy | Roll clock backward and replay old envelope; cursor still rejects |
-| T25 | Data deletion/retention conflict | Explicit deletion/tombstone/retention semantics and authorization | Deletion replay, restore and retention tests per approved policy |
+| T01 | Malformed or unsupported batch | Strict schema/field validation and fail-closed rejection | Malformed/truncated/unsupported inputs rejected; no foreign event applied |
+| T02 | Payload or origin-record tampering | Recompute payload and origin hashes; compare envelope and origin fields | Independent field mutations rejected |
+| T03 | Full batch rewritten and hashes recomputed | Explicitly recognize this is not prevented by unkeyed hashes; constrain current scope to the local spool trust boundary | Documentation makes no sender-authentication claim; arbitrary spool writer remains a residual risk |
+| T04 | Exact event replay | Durable accepted-event identity and cursor; exact duplicate is idempotent | Repeated replay, including after restart, causes no second effect |
+| T05 | Event ID reused with changed content | Compare stored provenance/content; fail closed on conflict | Same ID with changed payload/hash is rejected/quarantined |
+| T06 | Sequence rollback | Compare against previously accepted durable cursor | Lower sequence/head rejected |
+| T07 | Fork or same-sequence conflict | Bind accepted sequence to one predecessor/head; quarantine divergence | Conflicting head for same origin/sequence is not applied |
+| T08 | Sequence gap or omitted events | Enforce approved sequence policy; do not invent recovery semantics | Gap blocks import unless an owner-approved recovery rule exists |
+| T09 | Untrusted initial cursor | Owner decision required; do not trust a sender-provided first head by default | First-origin import stays blocked while policy is unresolved |
+| T10 | Partial persistence on failure | All-or-none apply boundary across event, dedupe, cursor and receipt | Fault injection proves full commit or no accepted mutation |
+| T11 | Crash/restart | Durable replay state and deterministic recovery | Restart tests preserve cursor and duplicate behavior |
+| T12 | Concurrent duplicate imports | Serialize/coordinate writers and enforce durable uniqueness | Concurrent import causes one mutation only |
+| T13 | Unauthorized state import | Preserve existing authority denial; do not bypass `state.import` | Unauthorized import remains denied |
+| T14 | Memory overwrite or disclosure | No shared-memory merge until schema, sharing and conflict policies are approved | Unresolved conflicts cause no application-state mutation |
+| T15 | Split-brain / second state owner | Phone is sole canonical writer | Integration evidence proves no second canonical `StateStore` |
+| T16 | Audit omission/tampering | Record rejection/acceptance outcomes and verify evidence hashes | Manifest rehash and negative tests pass |
+| T17 | Resource exhaustion | Bound batch size/count/depth and reject malformed structures | Oversized/nested inputs fail safely; exact limits require implementation contract |
+| T18 | Spool path/name manipulation | Constrain import paths to the configured spool and validate resolved file identity | Path traversal/out-of-spool paths rejected |
+| T19 | Storage backend or migration failure | Do not migrate until owner approves; verify recovery properties for selected design | No migration assumed; exact storage design independently reviewed |
+| T20 | Clock rollback/freeze | Cursor/sequence, not wall-clock time alone, drives replay protection | Old sequence remains rejected after clock rollback |
 
-## 5. Security controls required before any implementation is accepted
+## 4. Residual risks and assumptions
 
-- Domain-separated signature over a versioned canonical envelope.
-- Independently enrolled peer trust roots and key lifecycle.
-- Signed checkpoints chained to previously accepted state.
-- Durable event identity and cursor with uniqueness constraints.
-- Explicit peer action/data-class authorization.
-- A defined memory schema and conflict policy; unresolved conflicts quarantine.
-- Single canonical writer and transaction boundary.
-- Crash recovery and exact-SHA test evidence.
-- Append-only, attributable audit evidence with a verifiable manifest.
-- Independent review by a reviewer other than the author.
+- Unkeyed SHA-256 detects inconsistency only when the attacker has not recomputed all dependent hashes; it does not prove authorship.
+- A party able to rewrite the spool can fabricate a new origin record and recompute its hashes. Current scope does not claim to prevent this.
+- The initial origin cursor/checkpoint policy is unresolved. Rollback protection against an already accepted cursor does not solve trust establishment for the first cursor.
+- Atomicity across event history, projections, deduplication and cursor has not been proven by the current sequential file-write implementation.
+- Shared-memory schema, access/data-sharing rules, retention and conflict policy are unresolved.
+- Runtime integration is unproven; `hg/phone_runtime.py` does not currently instantiate or call `SyncContext`.
+- No claim is made that signatures, another authentication mechanism, network sync, or a production key lifecycle exists or is required.
 
-## 6. Residual risks and non-goals
+## 5. Required controls before acceptance
 
-- Cryptography cannot protect against a fully compromised phone OS/process that can use the signing key and alter the canonical database.
-- Signatures prove control of an enrolled key, not that a peer's payload is factually true.
-- Availability can still be denied by withholding messages, disconnecting a peer or corrupting a relay.
-- A Merkle proof demonstrates inclusion/consistency relative to a root; it does not identify who is entitled to set that root.
-- A compromised authorized peer can send malicious but correctly signed payloads within its scope; schema validation, policy and conflict controls remain necessary.
-- This design does not establish compliance certification, deployment readiness, production key custody, or live synchronization.
+- Full-batch preflight and fail-closed validation.
+- Durable idempotency and replay detection across restart.
+- Rollback/fork checks against a previously accepted cursor, with initial-cursor behavior blocked pending owner decision.
+- A proven all-or-none persistence boundary before claiming atomic apply.
+- Explicitly preserved authority and single canonical writer.
+- No application-memory merge until its schema and conflict policy are approved.
+- Exact-commit tests, reproducible evidence hashes and independent review.
 
-## 7. Review decision
+## 6. Review decision
 
-**Current decision: BLOCKED — design review and owner decisions pending.**
+**Current decision: BLOCKED — design and runtime gates remain open.**
 
-No implementation patch, runtime change, audit rewrite, canonical mutation, merge or deployment is authorized by this threat model. A reviewer must assess the threat coverage and exact design-base facts independently before implementation is proposed.
+This threat model is documentation-only. It authorizes no runtime patch, authentication replacement, memory policy, storage migration, canonical mutation, merge or deployment.

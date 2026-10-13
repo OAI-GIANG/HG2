@@ -1,0 +1,31 @@
+{
+  "manifest_schema": "HG_T018_SCOPE_CORRECTION_SHA256_V1",
+  "created_at_utc": "2026-10-13T16:09:09.226904+00:00",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "docs/t018-remove-signature-scope-20261013",
+  "base_commit": "fa90faacb4a47492121480455c1747535ab5817c",
+  "canonical_branch": "hg-genesis",
+  "canonical_remote_head_observed_before_commit": "cdebaeed014371f033f14352f552c6d0d4e69198",
+  "scope": "documentation-only; no source/runtime/canonical changes; no merge/deploy",
+  "checks": {
+    "document_consistency_assertions": "PASS",
+    "signature_feature_acceptance_requirement": "OBSOLETE",
+    "replacement_authentication_mechanism": "NOT_INTRODUCED",
+    "git_diff_check_before_commit": "PASS",
+    "python_unittest_discover_tests": "27/27 PASS",
+    "canonical_branch_mutation": "NONE_BY_THIS_TASK"
+  },
+  "files_sha256": {
+    "docs/T-018-SYNC-V2-CONTRACT.md": "ccc17b0ca3655eb91f76d88c5b0ccfd1d22f50c8feb3ba322212c69cdcd53c07",
+    "docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md": "313cf5674a87d592d1739362e4c55ff1e50a96391bfb668f70304201c3e1f508",
+    "docs/design/T-018-THREAT-MODEL-V1.md": "41852155b44456c56703d363d9b37423ed75f2f46f94a7a17fb603c08eab7325",
+    "docs/design/T-018-ACCEPTANCE-CRITERIA-V2.md": "7d701831612a8ed0dda59863302d353ba82e9fe01cfa2a56fc138eb2a8a3833f"
+  },
+  "blocked_gates": [
+    "owner decision for initial origin cursor/checkpoint",
+    "shared-memory schema/sharing/retention/conflict policy",
+    "storage/apply boundary and proof of all-or-none persistence",
+    "runtime integration through the single canonical state owner",
+    "independent review and exact-commit runtime evidence"
+  ]
+}

@@ -2,51 +2,62 @@
 
 ## Status
 
-`PROTOTYPE_ONLY`; this contract does not certify production readiness, runtime integration, or live cross-context memory synchronization. Release remains blocked until the gates below pass independently.
+`PROTOTYPE_ONLY`; production release remains `BLOCKED`. This contract is scoped to local, same-device/same-user file-spool exchange. It does not certify production readiness, network transport, authenticated cross-device sync, or live shared-memory synchronization.
 
 ## Scope
 
-T-018 V2 transports origin event records through an on-disk spool and records accepted foreign events as local `sync.received` envelopes. It does not, by itself, merge foreign payloads into the receiver's application state or expose a transport endpoint to other runtime contexts.
+T-018 transports origin event records through an on-disk spool and records accepted foreign events as local `sync.received` envelopes. The scope does not add a network endpoint and does not, by itself, merge foreign payloads into application state.
+
+Digital signatures, signed envelopes, signed origin checkpoints, peer key registries, and key lifecycle for signature verification are **out of scope and are not acceptance requirements**. No substitute authentication mechanism is introduced by this contract. Existing host-provided credential handling and the `context_id` / `runtime_id` boundary must not be silently replaced or expanded. The spool is not a trust boundary against an attacker who can arbitrarily rewrite its contents.
 
 ## Event integrity
 
-Each exported event carries the source `origin_record` plus its `origin_hash`, `origin_seq`, `origin_prev_hash`, `event_id`, `event_type`, `payload`, and `payload_hash`. The receiver checks:
+Each exported event carries the source `origin_record` plus `origin_hash`, `origin_seq`, `origin_prev_hash`, `event_id`, `event_type`, `payload`, and `payload_hash`. The receiver validates:
 
-- required envelope and origin-record fields;
-- source-record hash recomputation using the HG canonical serializer;
+- required envelope and origin-record fields and schema;
+- source-record hash recomputation using the existing HG canonical serializer;
 - consistency between envelope fields and the hashed origin record;
 - payload hash and SHA-256 field format;
-- one origin context per batch, where `context_id` is present;
+- one origin context per batch;
 - in-batch `origin_prev_hash` continuity and consecutive `origin_seq` values;
 - duplicate identity/provenance and event-ID conflicts.
 
-The complete batch is preflighted before any foreign event is appended. A semantically invalid later event must not cause an earlier event from that batch to be accepted.
+These hashes establish consistency of the submitted data only. They do not prove who created it.
 
-## Idempotency and failure behavior
+## Idempotency, replay, and failure behavior
 
-An exact repeated event is treated as a duplicate. Reuse of an event ID with different payload or provenance is a conflict. Invalid batches are rejected and recorded; their foreign events are not applied. Local rejection/conflict audit events are expected and are not evidence that the rejected foreign payload was accepted.
+An exact repeated event must not cause a second application of its effects. Reuse of an event ID with different content or provenance is a conflict. Replay detection must use durable accepted-event/cursor state, not timestamps alone. Invalid batches are rejected and recorded; no foreign event from an invalid batch may be applied. Rejection/conflict audit events do not mean the rejected payload was accepted.
 
-## Explicit security limitations
+Rollback protection is required against the last durably accepted origin cursor. The initial cursor/checkpoint trust policy is unresolved; until the owner approves it, first-time origin imports must fail closed rather than treating a sender-provided initial head as independently trusted.
 
-- SHA-256 without a secret or signature proves consistency of the supplied record, not the identity of the sender. A party able to rewrite the entire batch can fabricate a new record and recompute its hashes.
+## Atomicity and state ownership
+
+The complete batch must be validated before mutation. The required apply boundary must prevent a crash or write failure from leaving an accepted prefix with no matching deduplication/cursor state. The current sequence of `StateStore.emit` calls does not by itself prove all-or-none persistence across history, projections, deduplication and cursor. The storage implementation choice is not selected by this contract.
+
+The phone remains the single canonical state owner. T-018 must not instantiate a second independent `StateStore` on the same canonical directory. `sync.received` currently preserves foreign payload and provenance; application/shared-memory merge is not implied by acceptance of a spool batch.
+
+## Explicit limitations and unresolved decisions
+
+- No signature-based or replacement authentication mechanism is required or authorized by this contract.
+- The spool is local-only; network and cross-device transport are outside the current scope.
 - `origin_context` is a claimed context label, not a cryptographically authenticated identity.
-- For the first event received from a context, this prototype does not possess an independently trusted origin checkpoint. Its `origin_prev_hash` is therefore not anchored to a previously trusted source head.
-- The spool transport has no peer authentication or authorization contract in this module.
-- `hg/phone_runtime.py` does not instantiate or call `SyncContext`; T-018 is not connected to the canonical phone runtime by this branch alone.
-- `sync.received` records preserve foreign event payloads and provenance; this module does not merge them into shared memory or application state.
+- A party able to rewrite the entire batch can fabricate records and recompute unkeyed hashes.
+- The initial trusted cursor/checkpoint policy is unresolved and requires an owner decision.
+- Shared-memory schema, data-sharing rules, retention and conflict-resolution semantics are unresolved; do not overwrite or merge conflicting values automatically.
+- Storage migration (including SQLite) is not selected.
+- The current `hg/phone_runtime.py` does not instantiate or call `SyncContext`; runtime integration remains unproven.
+- This contract does not describe T-018 as authenticated cross-device sync or as a production shared-memory backend.
 
-These limitations are blockers for `LIVE_VERIFIED` and production memory synchronization. Do not describe the current module as authenticated cross-device sync or as a shared memory backend.
+## Required gates before release
 
-## Required production gates
-
-1. Define and implement authenticated peer identity (for example, signed origin records or a reviewed MAC/key-management contract).
-2. Define a trusted initial origin checkpoint and per-origin cursor policy; reject gaps and forks against the last accepted origin head.
-3. Define data-classification, sharing permissions, retention and conflict-resolution semantics.
-4. Integrate through the single canonical state owner without opening a second independent `StateStore` on the same directory.
-5. Define a transport/API and failure/retry behavior; do not assume local spool files are a cross-runtime transport.
-6. Test two actual authorized runtime contexts, restart, tamper, replay, sequence gaps, conflicts and offline recovery.
-7. Obtain independent review and provenance for the tested runtime deployment.
+1. Preserve the existing host credential and `context_id` / `runtime_id` contract without adding a signature requirement or substituting another authentication scheme.
+2. Obtain an owner decision for the initial origin cursor/checkpoint policy; prove replay and rollback handling against persisted accepted state.
+3. Define shared-memory schema, sharing permissions, retention and conflict behavior before any application-state merge.
+4. Choose and independently review a storage/apply boundary that satisfies the all-or-none requirement; no storage migration is presumed.
+5. Integrate through the single canonical state owner; do not open a second independent `StateStore` on the canonical directory.
+6. Test duplicate/replay, changed-content ID conflict, sequence gaps/forks, malformed batches, restart, crash/failure points and offline recovery.
+7. Run tests against exact commit, record provenance and obtain independent review.
 
 ## Canonical boundary
 
-This branch is an isolated feature branch. It does not modify `hg-genesis` or establish that the canonical `OAI-GIANG/GO` branch has a runtime implementation. The current canonical GO README states `PRODUCT_IMPLEMENTATION: NOT_STARTED` and `RELEASE: BLOCKED` (README blob SHA `79d9db52df0b341ac5dd091dea851185b7ff72d3`, branch `hg-genesis`, observed head `c6f37fce653d8f7515404829d72c95605b227442`).
+This contract correction is documentation-only on a separate branch. It does not modify `hg-genesis`, merge any branch, or deploy runtime code. Release remains `BLOCKED` until the gates above are independently evidenced.
