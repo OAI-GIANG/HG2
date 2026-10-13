@@ -40,7 +40,7 @@ jobs:
                     raise SystemExit(f'run {i}: suite did not report OK')
                 if 'ResourceWarning:' in text or 'Exception ignored' in text:
                     raise SystemExit(f'run {i}: warning/finalizer failure detected')
-                normalized = re.sub(r'^Ran ([0-9]+) tests in [0-9.]+s$', r'Ran \\1 tests in <TIME>', text, flags=re.M)
+                normalized = re.sub(r'^Ran ([0-9]+) tests in [0-9.]+s$', r'Ran \1 tests in <TIME>', text, flags=re.M)
                 Path(f'/tmp/hg2-suite-{i}.normalized.log').write_text(normalized)
             if Path('/tmp/hg2-suite-1.normalized.log').read_bytes() != Path('/tmp/hg2-suite-2.normalized.log').read_bytes():
                 raise SystemExit('normalized logs differ')
