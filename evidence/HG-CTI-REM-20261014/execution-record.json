@@ -32,12 +32,14 @@
   "local_model_runtime": {
     "model_sha256": "6f67b8036b2469fcd71728702720c6b51aebd759b78137a8120733b4d66438bc",
     "server_binary_sha256": "6f9c5e7aba1cee5fb637c87db093040d86391d19cf35851a9a8f51cb2db71df3",
-    "endpoint": "http://127.0.0.1:19831/health",
+    "server_commit": "781dbc5ac98921dbdb5e5b2ec5b7a50960e937d4",
+    "endpoint": "http://127.0.0.1:19831",
     "health_result": {
       "status": "ok"
     },
-    "provider_cost_usd": 0,
-    "scope_note": "Local model/runtime available at the time of this check; this does not authorize or imply a V2 run."
+    "model_alias": "hg-cti-local",
+    "context_size": 1024,
+    "provider_cost_usd": 0
   },
   "tests": {
     "focused_command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_guards.py' -v",
@@ -61,12 +63,13 @@
     "Claim ledger validation checks span/reference structure but does not prove semantic entailment between a claim and evidence.",
     "No merge or deployment has occurred."
   ],
-  "tested_commit": "1b3dbe6c00f6e86cb01f12614d9f354d669c061d",
+  "tested_commit": "0f5abaf6275e1866127651706e896197a4815318",
   "clean_checkout_verification": {
-    "worktree": "/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-1b3dbe6",
-    "commit": "1b3dbe6c00f6e86cb01f12614d9f354d669c061d",
+    "worktree": "/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf",
+    "commit": "0f5abaf6275e1866127651706e896197a4815318",
     "full_test_exit_code": 0,
-    "full_test_count": 96,
+    "full_test_count": 116,
+    "skipped_before_prereg_freeze": 1,
     "root_v1_manifest_exit_code": 0,
     "root_v1_manifest_failed_entries": 0,
     "run_v1_manifest_exit_code": 0,
@@ -81,16 +84,15 @@
     "head_branch": "remediation/hg-cti-p0-guards-20261014",
     "merge_authorized_now": false
   },
-  "latest_verified_remote_head_before_this_evidence_update": "1b3dbe6c00f6e86cb01f12614d9f354d669c061d",
+  "latest_verified_remote_head_before_this_evidence_update": "0f5abaf6275e1866127651706e896197a4815318",
   "current_worktree_test_run": {
-    "focused_command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_guards.py' -v",
-    "focused_exit_code": 0,
-    "focused_tests_run": 42,
+    "focused_guard_tests_run": 46,
+    "v2_harness_tests_run": 16,
     "full_command": "python3 -B -m unittest discover -s tests -v",
     "full_exit_code": 0,
-    "full_tests_run": 96,
-    "diff_check_exit_code": 0,
-    "note": "Executed after adding CTI-specific regression mappings; clean-checkout verification for this exact new code commit is pending."
+    "full_tests_run": 116,
+    "skipped_before_prereg_freeze": 1,
+    "diff_check_exit_code": 0
   },
   "matrix_coverage": {
     "unit_tested_case_ids": [
@@ -114,5 +116,14 @@
     ],
     "full_case_end_to_end_status": "NOT_RUN",
     "remaining_case_specific_tests": "PLANNED"
+  },
+  "v2_harness": {
+    "status": "IMPLEMENTED_NOT_RUN",
+    "dataset_sha256": "58b68415d088ff8bcad15366afc66101d902e2b421caa41f03c178be9c354309",
+    "case_count": 40,
+    "paired_responses_expected": 80,
+    "preregistration_status": "NOT_FROZEN_YET",
+    "inference_run": "NOT_RUN",
+    "output_directory": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001"
   }
 }
