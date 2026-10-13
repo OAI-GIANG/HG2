@@ -1,0 +1,33 @@
+version: 2.1
+jobs:
+  verify:
+    docker:
+      - image: cimg/python:3.12
+    steps:
+      - checkout
+      - run:
+          name: Assert revision and clean checkout
+          command: |
+            set -eu
+            printf 'CIRCLE_SHA1=%s\n' "${CIRCLE_SHA1:-unknown}"
+            printf 'HEAD=%s\n' "$(git rev-parse HEAD)"
+            test -z "$(git status --porcelain)"
+      - run:
+          name: Diff hygiene
+          command: |
+            set -eu
+            git diff --check HEAD^ HEAD
+      - run:
+          name: Compile Python modules
+          command: |
+            set -eu
+            python -m py_compile tools/hg_code_intelligence.py tests/test_code_intelligence.py
+      - run:
+          name: Run full regression suite
+          command: |
+            set -eu
+            PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v
+workflows:
+  hg2-code-intelligence-coverage-verify:
+    jobs:
+      - verify
