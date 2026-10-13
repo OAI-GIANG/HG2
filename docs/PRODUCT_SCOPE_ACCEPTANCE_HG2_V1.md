@@ -49,3 +49,8 @@ No merge, deployment, canonical mutation, repository/branch archive or deletion,
 ## Exact-SHA evidence snapshot
 
 `evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json` records clean-checkout results for source commit `74ecb9ef310008d07e2799b567e50b2ebd41f271`, 54/54 strict tests, log SHA-256 `d4571599a93253ee562ef70ce5dcca10c2e395070a3cd54851318ff051eb0cd8`, and CircleCI run #17. The evidence-record commit itself must be re-tested on its own exact SHA. This evidence does not close the external-consumer, independent-review, provenance, or production gates.
+
+
+## Updated exact-SHA evidence
+
+`evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json` records clean-checkout results for source commit `46e90fb226e0c434158212a69717025745cad337`, including the read-only ops-repository inventory extension, 54/54 strict tests, log SHA-256 `1b687aeab6800f6d4f5e772793ccf6b1cad4e08d4e31ec63c10bd7ed40cfc1b6`, and CircleCI run #19. The evidence-record commit itself must be re-tested on its own exact SHA.

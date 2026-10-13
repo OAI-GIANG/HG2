@@ -24,7 +24,7 @@
         {
           "id": "AC-API-01",
           "criterion": "Removal is explicit and traceable; endpoints are not silently omitted.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "AC-API-02",
@@ -34,12 +34,12 @@
         {
           "id": "AC-API-03",
           "criterion": "Supported HG2 public interface and removal behavior are documented; no undocumented compatibility shim remains.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "AC-API-04",
           "criterion": "Canonical hg-genesis and source/evidence history remain unchanged.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         }
       ],
       "tests": [
@@ -47,7 +47,7 @@
           "id": "T-API-01",
           "purpose": "Inventory candidate and legacy route definitions and record exact findings.",
           "expected": "Route presence/absence is evidenced from source and actual router, not inferred from one-tree grep.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "T-API-02",
@@ -59,13 +59,13 @@
           "id": "T-API-03",
           "purpose": "Integration-test the actual candidate HTTP server/router.",
           "expected": "Removed endpoints are not served; resulting status/error behavior is documented; remaining routes pass.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "T-API-04",
           "purpose": "Run durable-state/history/identity/authorization regression tests.",
           "expected": "No regression caused by endpoint removal; tests pass on exact candidate SHA.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         }
       ]
     },
@@ -84,7 +84,7 @@
         {
           "id": "AC-BRIDGE-01",
           "criterion": "Exact Bridge 1.1 capabilities and security/authority/evidence responsibilities are inventoried from source and protocol documents.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "AC-BRIDGE-02",
@@ -94,17 +94,17 @@
         {
           "id": "AC-BRIDGE-03",
           "criterion": "Removal is explicitly documented and does not imply the capabilities exist elsewhere.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "AC-BRIDGE-04",
           "criterion": "HG2 phone-primary authority, fail-closed behavior, durable history and evidence integrity remain covered by regression tests.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "AC-BRIDGE-05",
           "criterion": "No repository, branch, tag or historical evidence is deleted or archived as part of this scope decision.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         }
       ],
       "tests": [
@@ -112,7 +112,7 @@
           "id": "T-BRIDGE-01",
           "purpose": "Compare original Bridge 1.1 source/protocol capabilities with HG2 source/tests.",
           "expected": "Every capability is intentionally removed, independently evidenced as replaced, or unresolved; no implicit equivalence.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "T-BRIDGE-02",
@@ -124,13 +124,13 @@
           "id": "T-BRIDGE-03",
           "purpose": "Run fail-closed authority/authentication and history integrity regression tests.",
           "expected": "Security and durability regressions pass on exact candidate SHA.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "T-BRIDGE-04",
           "purpose": "Audit runtime capability declarations and user-facing docs.",
           "expected": "No removed capability is claimed available without separate proof.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         }
       ]
     },
@@ -151,27 +151,27 @@
         {
           "id": "AC-ID-01",
           "criterion": "PRODUCT_ID remains exactly HG in identity and history modules.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "AC-ID-02",
           "criterion": "Formal mapping HG durable/event identity to HG2 product/repository label is consistent across contract, product metadata and operator-facing docs without changing durable ID.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "AC-ID-03",
           "criterion": "Identity tests prove events, projections, replay output and audit exports retain product_id=HG.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "AC-ID-04",
           "criterion": "Existing stores with product_id=HG reopen and verify without migration or history rewrite.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "AC-ID-05",
           "criterion": "No implicit product_id=HG2 conversion; future migration requires a separate decision and contract.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         }
       ],
       "tests": [
@@ -179,25 +179,25 @@
           "id": "T-ID-01",
           "purpose": "Unit-test PRODUCT_ID and formal mapping contract.",
           "expected": "PRODUCT_ID == HG and declared product_name == HG2.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "T-ID-02",
           "purpose": "Create, replay, verify and audit-export a fresh store.",
           "expected": "Durable/event identity remains HG; HG2 is metadata/product label only.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "T-ID-03",
           "purpose": "Reopen and verify a pre-existing HG fixture.",
           "expected": "Verification succeeds without rewriting event bytes or product_id.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         },
         {
           "id": "T-ID-04",
           "purpose": "Static-scan identity-bearing code, metadata and docs.",
           "expected": "No unapproved HG-to-HG2 durable identity conversion.",
-          "status": "PASS_ON_SHA_74ECB9E"
+          "status": "PASS_ON_SHA_46E90FB"
         }
       ]
     }
@@ -206,7 +206,7 @@
     {
       "id": "G-EXACT-SHA",
       "requirement": "All implementation acceptance tests and CI pass on exact candidate SHA.",
-      "status": "PASS_ON_SHA_74ECB9E"
+      "status": "PASS_ON_SHA_46E90FB"
     },
     {
       "id": "G-INDEPENDENT-REVIEW",
@@ -241,9 +241,9 @@
     }
   ],
   "acceptance_evidence": {
-    "evidence_file": "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json",
-    "tested_source_sha": "74ecb9ef310008d07e2799b567e50b2ebd41f271",
-    "test_suite_status": "PASS_ON_SHA_74ECB9E",
+    "evidence_file": "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json",
+    "tested_source_sha": "46e90fb226e0c434158212a69717025745cad337",
+    "test_suite_status": "PASS_ON_SHA_46E90FB",
     "remaining_blockers": [
       "external HTTP API consumers/deployments unknown",
       "external Phone Bridge consumers/deployments unknown",
