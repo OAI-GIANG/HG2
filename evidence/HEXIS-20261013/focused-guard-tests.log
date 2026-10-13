@@ -1,0 +1,16 @@
+test_bounds_and_architecture_are_checked (test_edge_schema_guard.EdgePayloadSchemaTests.test_bounds_and_architecture_are_checked) ... ok
+test_existing_heartbeat_payload_shape_remains_valid (test_edge_schema_guard.EdgePayloadSchemaTests.test_existing_heartbeat_payload_shape_remains_valid) ... ok
+test_existing_register_payload_shapes_remain_valid (test_edge_schema_guard.EdgePayloadSchemaTests.test_existing_register_payload_shapes_remain_valid) ... ok
+test_fields_are_not_coerced (test_edge_schema_guard.EdgePayloadSchemaTests.test_fields_are_not_coerced) ... ok
+test_http_handler_rejects_duplicate_json_keys (test_edge_schema_guard.EdgePayloadSchemaTests.test_http_handler_rejects_duplicate_json_keys) ... ok
+test_http_handler_rejects_invalid_payload_before_state_mutation (test_edge_schema_guard.EdgePayloadSchemaTests.test_http_handler_rejects_invalid_payload_before_state_mutation) ... ok
+test_http_handler_rejects_non_standard_json_constants (test_edge_schema_guard.EdgePayloadSchemaTests.test_http_handler_rejects_non_standard_json_constants) ... ok
+test_model_key_fields_are_rejected_recursively (test_edge_schema_guard.EdgePayloadSchemaTests.test_model_key_fields_are_rejected_recursively) ... ok
+test_non_object_is_rejected (test_edge_schema_guard.EdgePayloadSchemaTests.test_non_object_is_rejected) ... ok
+test_string_values_are_not_scanned_as_field_names (test_edge_schema_guard.EdgePayloadSchemaTests.test_string_values_are_not_scanned_as_field_names) ... ok
+test_unknown_fields_are_rejected (test_edge_schema_guard.EdgePayloadSchemaTests.test_unknown_fields_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.545s
+
+OK
