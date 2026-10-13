@@ -1,0 +1,49 @@
+version: 2.1
+
+jobs:
+  verify:
+    docker:
+      - image: cimg/python:3.14
+    steps:
+      - checkout
+      - run:
+          name: Verify test suite twice with ResourceWarning as errors
+          command: |
+            set -euo pipefail
+            python --version
+            for run in 1 2; do
+              log="/tmp/hg2-suite-${run}.log"
+              if ! PYTHONTRACEMALLOC=10 PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v > "$log" 2>&1; then
+                cat "$log"
+                exit 1
+              fi
+            done
+            python - <<'PY'
+            import re
+            import sys
+            from pathlib import Path
+
+            logs = [Path('/tmp/hg2-suite-1.log').read_text(), Path('/tmp/hg2-suite-2.log').read_text()]
+            for index, text in enumerate(logs, 1):
+                if not re.search(r'^Ran [0-9]+ tests in [0-9.]+s$', text, re.MULTILINE):
+                    raise SystemExit(f'run {index}: missing unittest summary')
+                if not re.search(r'^OK$', text, re.MULTILINE):
+                    raise SystemExit(f'run {index}: unittest did not report OK')
+                if 'ResourceWarning:' in text or 'Exception ignored' in text:
+                    raise SystemExit(f'run {index}: resource warning or ignored finalizer detected')
+                text = re.sub(r'^Ran ([0-9]+) tests in [0-9.]+s$', r'Ran \1 tests in <TIME>', text, flags=re.MULTILINE)
+                Path(f'/tmp/hg2-suite-{index}.normalized.log').write_text(text)
+            if logs[0].replace(re.search(r'^Ran [0-9]+ tests in [0-9.]+s$', logs[0], re.MULTILINE).group(0), 'RAN') != logs[1].replace(re.search(r'^Ran [0-9]+ tests in [0-9.]+s$', logs[1], re.MULTILINE).group(0), 'RAN'):
+                # Timing is the only expected difference; normalized files below are authoritative.
+                if Path('/tmp/hg2-suite-1.normalized.log').read_bytes() != Path('/tmp/hg2-suite-2.normalized.log').read_bytes():
+                    raise SystemExit('normalized test logs differ')
+            print('RUN1:', re.search(r'^Ran .*$', logs[0], re.MULTILINE).group(0), 'OK')
+            print('RUN2:', re.search(r'^Ran .*$', logs[1], re.MULTILINE).group(0), 'OK')
+            print('ResourceWarning=0; Exception ignored=0; normalized_cmp=YES')
+            PY
+            sha256sum /tmp/hg2-suite-1.normalized.log /tmp/hg2-suite-2.normalized.log
+
+workflows:
+  verify:
+    jobs:
+      - verify
