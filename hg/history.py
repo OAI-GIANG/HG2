@@ -60,6 +60,40 @@ def _exclusive_file_lock(path):
             fh.close()
 
 
+def _fsync_directory(directory):
+    """Persist directory-entry changes or fail closed if unsupported."""
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+    try:
+        fd = os.open(directory, flags)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+    except OSError as exc:
+        raise HistoryError("directory fsync unavailable or failed: %s" % directory) from exc
+
+
+def _atomic_write(path, content):
+    """Atomically replace a UTF-8 file after syncing contents and directory entry."""
+    directory = os.path.dirname(path) or "."
+    tmp = path + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as fh:
+            fh.write(content)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, path)
+        _fsync_directory(directory)
+    except Exception:
+        # Cleanup is best-effort; it must not mask the persistence failure.
+        try:
+            if os.path.exists(tmp):
+                os.remove(tmp)
+        except OSError:
+            pass
+        raise
+
+
 class StateStore:
     def __init__(self, directory, *, clock=time.time):
         self.dir = str(directory)
@@ -68,17 +102,20 @@ class StateStore:
         self.head = os.path.join(self.dir, "head.json")
         self.state = os.path.join(self.dir, "state.json")
         self._clock = clock
-        self._preexisting = {"log": os.path.exists(self.log), "head": os.path.exists(self.head),
-                             "state": os.path.exists(self.state),
-                             "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id"))}
-        self.runtime_id = self._runtime_id()
         self._lock = threading.RLock()
         self._poisoned = False
         self._events = []
         self._by_id = {}
         self._sessions = {}
         self._counters = {}
-        self._load()
+        # Loading must share the writer lock: otherwise another process can
+        # observe the append between log fsync and checkpoint replacement.
+        with _exclusive_file_lock(os.path.join(self.dir, ".writer.lock")):
+            self._preexisting = {"log": os.path.exists(self.log), "head": os.path.exists(self.head),
+                                 "state": os.path.exists(self.state),
+                                 "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id"))}
+            self.runtime_id = self._runtime_id()
+            self._load()
         if not self._events:
             self.emit(GENESIS_EVENT, {"product_id": PRODUCT_ID, "schema": SCHEMA}, correlation_id="genesis")
 
@@ -103,8 +140,9 @@ class StateStore:
                 fh.write(value + "\n")
                 fh.flush()
                 os.fsync(fh.fileno())
-        except OSError as exc:
-            raise HistoryError("runtime identity could not be initialized") from exc
+            _fsync_directory(self.dir)
+        except (OSError, HistoryError) as exc:
+            raise HistoryError("runtime identity could not be initialized durably") from exc
         return value
 
     def _head(self):
@@ -224,17 +262,11 @@ class StateStore:
                 "head_hash": h, "sessions": self._sessions, "counters": self._counters}
 
     def _write_state(self):
-        tmp = self.state + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as fh:
-            fh.write(canonical(self._doc()))
-        os.replace(tmp, self.state)
+        _atomic_write(self.state, canonical(self._doc()))
 
     def _write_head(self):
-        tmp = self.head + ".tmp"
         s, h = self._head()
-        with open(tmp, "w", encoding="utf-8") as fh:
-            fh.write(canonical({"seq": s, "head_hash": h}))
-        os.replace(tmp, self.head)
+        _atomic_write(self.head, canonical({"seq": s, "head_hash": h}))
 
     def emit(self, event_type, payload, *, correlation_id=None, causation_id=None, event_id=None):
         with self._lock:

@@ -1,6 +1,7 @@
 """Counter-tests for HG2 history/checkpoint fail-closed policy (P0 remediation)."""
-import json, os, shutil, tempfile, unittest
+import json, multiprocessing, os, shutil, tempfile, unittest
 from pathlib import Path
+from unittest import mock
 from hg.history import ZERO, HistoryError, StateStore
 
 
@@ -10,6 +11,12 @@ def build():
     s.emit("session.created", {"session_id": "a"})
     s.emit("session.created", {"session_id": "b"})
     return s, d
+
+
+
+def _append_from_process(directory, index):
+    StateStore(directory).emit("concurrency.probe", {"writer": index},
+                               event_id="process-%d" % index)
 
 
 class IntegrityPolicyTests(unittest.TestCase):
@@ -188,6 +195,75 @@ class IntegrityPolicyTests(unittest.TestCase):
             self.assertEqual(Path(store.state).read_bytes(), before_state)
             self.assertEqual(Path(store.head).read_bytes(), before_head)
             self.assertFalse(store.verify()["ok"])
+
+    def test_runtime_identity_directory_fsync_failure_fails_initialization(self):
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch("hg.history._fsync_directory",
+                            side_effect=HistoryError("injected runtime directory fsync failure")):
+                with self.assertRaisesRegex(HistoryError, "runtime identity could not be initialized durably"):
+                    StateStore(d)
+
+    def test_state_projection_fsync_failure_poison_store(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            real_fsync = os.fsync
+            calls = {"count": 0}
+
+            def fail_second_fsync(fd):
+                calls["count"] += 1
+                if calls["count"] == 2:
+                    raise OSError("injected file fsync failure")
+                return real_fsync(fd)
+
+            with mock.patch("hg.history.os.fsync", side_effect=fail_second_fsync):
+                with self.assertRaisesRegex(OSError, "injected file fsync failure"):
+                    store.emit("probe.fsync", {"n": 1}, event_id="fsync-failure")
+            with self.assertRaisesRegex(HistoryError, "poisoned"):
+                store.emit("probe.after-fsync-failure", {"n": 2}, event_id="must-not-repair")
+            self.assertFalse(store.verify()["ok"])
+
+    def test_state_replace_failure_poison_store(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            with mock.patch("hg.history.os.replace", side_effect=OSError("injected replace failure")):
+                with self.assertRaisesRegex(OSError, "injected replace failure"):
+                    store.emit("probe.replace", {"n": 1}, event_id="replace-failure")
+            with self.assertRaisesRegex(HistoryError, "poisoned"):
+                store.emit("probe.after-replace-failure", {"n": 2}, event_id="must-not-repair")
+            self.assertFalse(store.verify()["ok"])
+
+    def test_directory_fsync_failure_is_not_reported_as_durable(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            with mock.patch("hg.history._fsync_directory",
+                            side_effect=HistoryError("injected directory fsync failure")):
+                with self.assertRaisesRegex(HistoryError, "injected directory fsync failure"):
+                    store.emit("probe.directory-fsync", {"n": 1},
+                               event_id="directory-fsync-failure")
+            with self.assertRaisesRegex(HistoryError, "poisoned"):
+                store.emit("probe.after-directory-fsync-failure", {"n": 2},
+                           event_id="must-not-repair")
+
+    def test_concurrent_process_writers_preserve_hash_chain(self):
+        with tempfile.TemporaryDirectory() as d:
+            StateStore(d)
+            count = 6
+            workers = [multiprocessing.Process(target=_append_from_process, args=(d, i))
+                       for i in range(count)]
+            for worker in workers:
+                worker.start()
+            for worker in workers:
+                worker.join(20)
+            for worker in workers:
+                if worker.is_alive():
+                    worker.terminate()
+                    worker.join()
+                    self.fail("concurrent writer process timed out")
+                self.assertEqual(worker.exitcode, 0)
+            reopened = StateStore(d)
+            result = reopened.verify()
+            self.assertTrue(result["ok"], result)
+            self.assertEqual(result["events"], count + 1)
 
     def test_checkpoint_wrong_json_type_is_normalized_to_history_error(self):
         store, d = build()
