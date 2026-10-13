@@ -1,0 +1,290 @@
+{
+  "schema": "HG-CTI-ARCHIVE-MANIFEST-V1",
+  "generated_utc": "2026-10-13",
+  "archive_count_expected": 18,
+  "archives": [
+    {
+      "archive": "memXT-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/memXT-main.zip",
+      "size_bytes": 3679727,
+      "sha256": "739315e2ebb6f9af7228f20d6e65b714a9d27fee9993c4d5b9333c1423aff04e",
+      "entries": 113,
+      "uncompressed_bytes": 12043078,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "memXT-main/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "friday-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/friday-main.zip",
+      "size_bytes": 4127440,
+      "sha256": "a3d9bfde7a8fb96d0b140dab36a0488de64c01ea4a90ed5871354a65c30504b1",
+      "entries": 367,
+      "uncompressed_bytes": 7928187,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "friday-main/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "pp-finder-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/pp-finder-main.zip",
+      "size_bytes": 1219987,
+      "sha256": "ff3799681725bc007adcac65b8aca8c906b9547b1200349e648ab447ee15fac0",
+      "entries": 85,
+      "uncompressed_bytes": 3038728,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+    },
+    {
+      "archive": "Dom-Explorer-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/Dom-Explorer-main.zip",
+      "size_bytes": 643964,
+      "sha256": "168da4451a4fcadbc61de9e1a86e16b549c3f4bdb183fe0b176226e32ce1f6f9",
+      "entries": 291,
+      "uncompressed_bytes": 1444706,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "Dom-Explorer-main/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "vulnerable-code-snippets-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/vulnerable-code-snippets-main.zip",
+      "size_bytes": 14821662,
+      "sha256": "3b76472d7faf8b13843e1d2aac6a016f71f2dd07084aaae9684350c1ef4b77c9",
+      "entries": 659,
+      "uncompressed_bytes": 14905050,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+    },
+    {
+      "archive": "PwnFox-master.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/PwnFox-master.zip",
+      "size_bytes": 286667,
+      "sha256": "ca4eff8e11679b61d8781ec3c24856a10c7fe30de120d39ea0f08002e0d1f1c6",
+      "entries": 57,
+      "uncompressed_bytes": 328495,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+    },
+    {
+      "archive": "ywh2bugtracker-master.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/ywh2bugtracker-master.zip",
+      "size_bytes": 2986543,
+      "sha256": "18b43b17764c5388acaa387483320e6ffe94c4dcac44b632bd87ee3b50ce486a",
+      "entries": 364,
+      "uncompressed_bytes": 4413820,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+    },
+    {
+      "archive": "YesWeBurp-master.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/YesWeBurp-master.zip",
+      "size_bytes": 48317,
+      "sha256": "f91b37ce703d421b18aa519ebea16dc3f0314aad959c51f345722f5461de757d",
+      "entries": 71,
+      "uncompressed_bytes": 106685,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "YesWeBurp-master/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "yeswecaido-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/yeswecaido-main.zip",
+      "size_bytes": 38828582,
+      "sha256": "569d8e2234694caca949fdcb4c01e2f7f69a26d6b37ec18bc21b921029cda70a",
+      "entries": 64,
+      "uncompressed_bytes": 40221774,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "yeswecaido-main/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "myopenvdp-master.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/myopenvdp-master.zip",
+      "size_bytes": 724344,
+      "sha256": "964b23fc6e87bbf48cb178e732270984380583ee1e88c9d0f182c6e28aa40f45",
+      "entries": 183,
+      "uncompressed_bytes": 1180692,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "myopenvdp-master/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "xsstools-master.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/xsstools-master.zip",
+      "size_bytes": 2309135,
+      "sha256": "fac66626cdb03203670a5032d88ab6f5271f6321814e76586973602f89a49a0a",
+      "entries": 183,
+      "uncompressed_bytes": 5917999,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "xsstools-master/LICENSE",
+        "xsstools-master/docgen/xsstools-jsdoc-theme/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "burp-addon-tutorial-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/burp-addon-tutorial-main.zip",
+      "size_bytes": 5720,
+      "sha256": "69f8c90e6d1becf359672dae1d00bf9546afd61c820ec38b26682fce27f0659b",
+      "entries": 18,
+      "uncompressed_bytes": 4593,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+    },
+    {
+      "archive": "hoglet-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/hoglet-main.zip",
+      "size_bytes": 2499827,
+      "sha256": "b78ee6df44b7514be390b7041f77c42554651a00d73e085de174fb9fe6aebb68",
+      "entries": 451,
+      "uncompressed_bytes": 8331963,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+    },
+    {
+      "archive": "OpenGTM-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/OpenGTM-main.zip",
+      "size_bytes": 14525565,
+      "sha256": "20de2447ca8e54e8e36c2822ce4cf7fbd84f882bbe510b78f007b32ae4794ff8",
+      "entries": 1250,
+      "uncompressed_bytes": 25266675,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "OpenGTM-main/LICENSE",
+        "OpenGTM-main/apps/docs/src/content/docs/community/license.md",
+        "OpenGTM-main/scripts/vendor/twenty-ui/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "VoiceStudio-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/VoiceStudio-main.zip",
+      "size_bytes": 45960452,
+      "sha256": "ae87b82289bf26d4037231d61d96555ec59c2635aa5a2d99a2c7f883a665b390",
+      "entries": 3504,
+      "uncompressed_bytes": 73610891,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "VoiceStudio-main/LICENSE",
+        "VoiceStudio-main/electron/src/main/fixtures/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "Opal-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/Opal-main.zip",
+      "size_bytes": 40958299,
+      "sha256": "c0a1632db7d87db0d34b4b2021dc2579df5d6c795649e91f5853e40d33a8c5bb",
+      "entries": 1022,
+      "uncompressed_bytes": 57944725,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "Opal-main/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "bootable-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/bootable-main.zip",
+      "size_bytes": 2025771,
+      "sha256": "a87fbb969c46c07672f9930846f43d1df8264476676819d37c99ab29ea38a40e",
+      "entries": 257,
+      "uncompressed_bytes": 4380199,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [
+        "bootable-main/LICENSE"
+      ],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "REQUIRES_REVIEW"
+    },
+    {
+      "archive": "homebrew-memxt-main.zip",
+      "present": true,
+      "path": "/storage/emulated/0/Download/homebrew-memxt-main.zip",
+      "size_bytes": 3438,
+      "sha256": "88c6cf4fd55e2de369738619c2ac91c78d593bb6a82d2247b3e034ca1a063f27",
+      "entries": 5,
+      "uncompressed_bytes": 5304,
+      "zip_crc_check": "PASS",
+      "embedded_git_metadata": false,
+      "license_files_found": [],
+      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+    }
+  ],
+  "limitations": [
+    "Archive SHA-256 identifies local ZIP bytes only.",
+    "No embedded Git metadata was found in these archives.",
+    "ZIP integrity does not establish upstream revision, source authenticity, license compatibility, or semantic validity."
+  ]
+}
