@@ -34,10 +34,12 @@ The runner refuses to use a non-loopback endpoint, a changed dataset, a differen
 
 ## Evidence sequence and current status
 
-1. The inference run completed 40/40 pairs (80/80 responses) with no failed inference requests; raw outputs and blind pairs are hashed.
-2. Automated local-model rubric scoring was attempted but failed to produce reliable complete A/B score records. Evidence: `evidence/HG-CTI-20261013/benchmark-scoring-attempt.json`.
-3. No complete blind score file was saved or frozen. Therefore no benchmark acceptance gates have been evaluated; the inference run alone is not a PASS.
-4. The next required action is a reliable blind rubric-scoring pass over all 40 cases, followed by `freeze_scores.py` before reading `blind_key.json`, then `analyze_scores.py`.
-5. Keep PR in Draft/NO-GO until scoring and all acceptance gates are backed by evidence. Do not add signatures or an independent-review gate.
+1. The inference run completed 40/40 pairs (80/80 responses) with no failed inference requests; provider cost was USD 0. Raw outputs and blind pairs are hashed.
+2. Local-model auto-scoring failed to produce a valid complete score set. That failed attempt is preserved in `evidence/HG-CTI-20261013/benchmark-scoring-attempt.json` and was not used as the final scores.
+3. STT then scored the 40 A/B pairs against the pre-registered case-specific rubric without opening `blind_key.json`. The 40-case score file passed schema/hash validation and was frozen before the analyzer read the A/B-to-arm key. The freeze records `approval_gate: false` and `signature: null`.
+4. Analysis result: **FAIL**. Mean usefulness was 35.0% for baseline and 30.0% for candidate; paired difference was -5.0 percentage points, 95% CI [-13.53, +3.53] points. Unsupported-claim rates were 62.70% baseline and 66.67% candidate. Critical violations were 3 baseline and 6 candidate. Counterexample sensitivity was 48.28% baseline and 24.14% candidate. Twelve of 40 pairs regressed on usefulness.
+5. Failed gates include usefulness gain >=10pp, paired 95% CI excluding zero, unsupported claims <=2% and no worse than baseline, zero governance violations, counterexample sensitivity >=95%, no critical regression, and overall regression <=2%. Diversity non-regression, pair completeness, and zero provider cost passed.
+6. The comparison is limited to a single-call HG-CTI prompt scaffold versus direct prompting of one local 500M model on this project-derived adversarial case set. It does not establish production benefit or prove the standalone metadata evaluator generates content.
+7. Keep PR in Draft/NO-GO. Do not change cases/rubric or selectively rerun an arm to improve the result. No signatures or independent-review gate are used; no merge or deployment is authorized by this benchmark.
 
 No independent-review/signature gate is used. Scoring is a predeclared measurement procedure, not a separate authority that approves the work. Never claim production deployment from this benchmark.
