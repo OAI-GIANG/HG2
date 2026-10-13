@@ -6,6 +6,7 @@
 - Canonical base observed: `cdebaeed014371f033f14352f552c6d0d4e69198`
 - V1 remains immutable and `FAIL / NO-GO`.
 - This protocol is not an independent-review or approval gate. No signatures or reviewer identity are collected.
+- Known pre-existing V1 provenance discrepancy: `benchmarks/hg_cti_v1/README.md` differs from the README hash in the original V1 preregistration. The original hash matched at the recorded V1 run commit `4ac4e2e2e760aae608bb866c9ea1e1a8f75e5639`; the README was edited in later documentation commits `2e164d0` and `250da3e`, after the V1 run ended. The V1 runner verified its frozen README hash before inference. V2 records this drift explicitly and freezes the current README snapshot; it does not rewrite or “repair” the V1 history. The V1 run output manifests continue to verify.
 
 ## 1. Objective and scope
 

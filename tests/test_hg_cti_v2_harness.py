@@ -258,6 +258,9 @@ class HGCTIV2HarnessTests(unittest.TestCase):
         self.assertEqual(prereg["thresholds"]["minimum_counterexample_sensitivity"], 0.95)
         self.assertEqual(prereg["thresholds"]["maximum_overall_regression_rate"], 0.02)
         self.assertFalse(prereg["constraints"]["independent_review_gate"])
+        discrepancy = prereg["known_v1_provenance_discrepancies"][0]
+        self.assertEqual(discrepancy["file"], "benchmarks/hg_cti_v1/README.md")
+        self.assertNotEqual(discrepancy["original_preregistration_sha256"], discrepancy["current_sha256"])
         self.assertEqual(freeze["preregistration_sha256"], hashlib.sha256(prereg_path.read_bytes()).hexdigest())
         protocol = ROOT / prereg["protocol"]
         self.assertEqual(freeze["protocol_sha256"], hashlib.sha256(protocol.read_bytes()).hexdigest())
