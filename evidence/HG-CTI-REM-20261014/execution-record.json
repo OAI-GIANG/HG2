@@ -72,5 +72,14 @@
     "run_v1_manifest_exit_code": 0,
     "run_v1_manifest_failed_entries": 0
   },
-  "cached_diff_check_exit_code": 0
+  "cached_diff_check_exit_code": 0,
+  "pr13": {
+    "url": "https://github.com/OAI-GIANG/HG2/pull/13",
+    "state": "OPEN",
+    "draft": true,
+    "base": "feature/hg-creative-assimilation-v1-20261013",
+    "head_branch": "remediation/hg-cti-p0-guards-20261014",
+    "merge_authorized_now": false
+  },
+  "latest_verified_remote_head_before_this_evidence_update": "9a1fc9b2eae6673702bc1308d5f8cab8df66a207"
 }
