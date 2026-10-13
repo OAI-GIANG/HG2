@@ -65,6 +65,71 @@ class IntegrityPolicyTests(unittest.TestCase):
                 StateStore(d)
             self.assertEqual(path.read_bytes(), tampered)
 
+    def test_emit_rejects_nonfinite_json_values_before_durable_write(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            paths = (Path(store.log), Path(store.state), Path(store.head))
+            original = tuple(path.read_bytes() for path in paths)
+            for name, value in (("nan", float("nan")), ("positive_infinity", float("inf")),
+                                ("negative_infinity", float("-inf"))):
+                with self.subTest(value=name):
+                    with self.assertRaisesRegex(HistoryError, "strict JSON"):
+                        store.emit("probe.nonfinite", {"value": value})
+                    self.assertEqual(tuple(path.read_bytes() for path in paths), original)
+                    self.assertTrue(store.verify()["ok"])
+            reopened = StateStore(d)
+            self.assertTrue(reopened.verify()["ok"])
+
+    def test_emit_rejects_invalid_event_metadata_before_durable_write(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            paths = (Path(store.log), Path(store.state), Path(store.head))
+            original = tuple(path.read_bytes() for path in paths)
+            invalid_metadata = (
+                {"correlation_id": 123}, {"correlation_id": []},
+                {"causation_id": 123}, {"causation_id": ""},
+            )
+            for metadata in invalid_metadata:
+                with self.subTest(metadata=repr(metadata)):
+                    with self.assertRaises(HistoryError):
+                        store.emit("probe.metadata", {}, **metadata)
+                    self.assertEqual(tuple(path.read_bytes() for path in paths), original)
+                    self.assertTrue(store.verify()["ok"])
+            original_clock = store._clock
+            try:
+                for value in ("not-a-timestamp", True, float("nan"), float("inf"), float("-inf")):
+                    with self.subTest(recorded_at=repr(value)):
+                        store._clock = lambda value=value: value
+                        with self.assertRaisesRegex(HistoryError, "recorded_at"):
+                            store.emit("probe.clock", {})
+                        self.assertEqual(tuple(path.read_bytes() for path in paths), original)
+                        self.assertTrue(store.verify()["ok"])
+            finally:
+                store._clock = original_clock
+            self.assertTrue(StateStore(d).verify()["ok"])
+
+    def test_public_event_and_state_snapshots_are_detached(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            payload = {"session_id": "stable-session", "nested": {"items": [1]}}
+            emitted = store.emit("session.created", payload, event_id="stable-event")
+            payload["nested"]["items"].append(2)
+            emitted["payload"]["nested"]["items"].append(3)
+            emitted["event_id"] = "mutated-return"
+            first = store.replay()
+            self.assertEqual(first[1]["event_id"], "stable-event")
+            self.assertEqual(first[1]["payload"]["nested"]["items"], [1])
+            first[1]["payload"]["nested"]["items"].append(4)
+            self.assertEqual(store.replay()[1]["payload"]["nested"]["items"], [1])
+            duplicate = store.emit("session.created", {"session_id": "ignored"}, event_id="stable-event")
+            duplicate["payload"]["nested"]["items"].append(5)
+            self.assertEqual(store.emit("session.created", {}, event_id="stable-event")["payload"]["nested"]["items"], [1])
+            exported = store.audit_export()
+            exported["state"]["sessions"]["stable-session"]["nested"]["items"].append(6)
+            fresh = store.audit_export()
+            self.assertEqual(fresh["state"]["sessions"]["stable-session"]["nested"]["items"], [1])
+            self.assertTrue(fresh["verify"]["ok"])
+
     def test_emit_rejects_invalid_input_before_durable_write(self):
         with tempfile.TemporaryDirectory() as d:
             store = StateStore(d)

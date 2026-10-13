@@ -1,7 +1,7 @@
 """Append-only, hash-chained HG state and history. Fail-closed on any integrity failure."""
 from __future__ import annotations
 
-import hashlib, json, os, threading, time, uuid
+import hashlib, json, math, os, threading, time, uuid
 from contextlib import contextmanager
 
 SCHEMA = "HG_STATE_V1"
@@ -11,7 +11,21 @@ ZERO = "0" * 64
 
 
 def canonical(o):
-    return json.dumps(o, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return json.dumps(o, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
+
+
+def _json_snapshot(value):
+    """Return a detached, strict-JSON copy so caller mutations cannot alter store state."""
+    return json.loads(canonical(value))
+
+
+def _is_finite_number(value):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        return math.isfinite(value)
+    except (OverflowError, TypeError):
+        return False
 
 
 def digest(o):
@@ -213,6 +227,12 @@ class StateStore:
                         raise HistoryError("invalid or duplicate event_id line %d" % line_no)
                     if not isinstance(rec["event_type"], str) or not rec["event_type"]:
                         raise HistoryError("invalid event_type line %d" % line_no)
+                    if not _is_finite_number(rec["recorded_at"]):
+                        raise HistoryError("invalid recorded_at line %d" % line_no)
+                    if not isinstance(rec["correlation_id"], str) or not rec["correlation_id"]:
+                        raise HistoryError("invalid correlation_id line %d" % line_no)
+                    if rec["causation_id"] is not None and (not isinstance(rec["causation_id"], str) or not rec["causation_id"]):
+                        raise HistoryError("invalid causation_id line %d" % line_no)
                     if not isinstance(rec["payload"], dict):
                         raise HistoryError("invalid payload line %d" % line_no)
                     if rec["product_id"] != PRODUCT_ID or rec["schema"] != SCHEMA:
@@ -222,7 +242,11 @@ class StateStore:
                     if rec["prev_hash"] != prev:
                         raise HistoryError("chain break line %d" % line_no)
                     core = {key: value for key, value in rec.items() if key != "record_hash"}
-                    if not isinstance(rec["record_hash"], str) or digest(core) != rec["record_hash"]:
+                    try:
+                        expected_hash = digest(core)
+                    except (TypeError, ValueError) as exc:
+                        raise HistoryError("record is not strict JSON line %d" % line_no) from exc
+                    if not isinstance(rec["record_hash"], str) or expected_hash != rec["record_hash"]:
                         raise HistoryError("record hash mismatch line %d" % line_no)
                     if seq == 0 and (rec["event_type"] != GENESIS_EVENT or
                                      rec["payload"].get("product_id") != PRODUCT_ID or
@@ -248,7 +272,11 @@ class StateStore:
             raise HistoryError("head checkpoint unreadable") from exc
         s, h = self._head()
         expected = {"seq": s, "head_hash": h}
-        if not isinstance(hd, dict) or canonical(hd) != canonical(expected):
+        try:
+            matches = isinstance(hd, dict) and canonical(hd) == canonical(expected)
+        except (TypeError, ValueError) as exc:
+            raise HistoryError("head checkpoint is not strict JSON") from exc
+        if not matches:
             raise HistoryError("log does not match head checkpoint")
 
     def _projection_check(self):
@@ -261,7 +289,11 @@ class StateStore:
         # The projection is a derived cache, but any divergence is an integrity
         # failure. Do not silently repair it during startup: an operator must
         # explicitly investigate the discrepancy before recovery is permitted.
-        if canonical(doc) != canonical(current):
+        try:
+            matches = canonical(doc) == canonical(current)
+        except (TypeError, ValueError) as exc:
+            raise HistoryError("state projection is not strict JSON") from exc
+        if not matches:
             raise HistoryError("state projection does not match history")
 
     def _apply(self, rec):
@@ -288,6 +320,14 @@ class StateStore:
             raise HistoryError("event type must be a non-empty string")
         if not isinstance(payload, dict):
             raise HistoryError("event payload must be an object")
+        try:
+            payload = _json_snapshot(payload)
+        except (TypeError, ValueError, RecursionError) as exc:
+            raise HistoryError("event payload must be strict JSON") from exc
+        if correlation_id is not None and not isinstance(correlation_id, str):
+            raise HistoryError("correlation_id must be a string when provided")
+        if causation_id is not None and (not isinstance(causation_id, str) or not causation_id):
+            raise HistoryError("causation_id must be a non-empty string when provided")
         if event_id is not None and (not isinstance(event_id, str) or not event_id):
             raise HistoryError("event_id must be a non-empty string when provided")
         with self._lock:
@@ -300,15 +340,21 @@ class StateStore:
                 if self._events or os.path.exists(self.log):
                     self._refresh_from_disk()
                 if event_id and event_id in self._by_id:
-                    return self._by_id[event_id]
+                    return _json_snapshot(self._by_id[event_id])
                 seq = (self._events[-1]["seq"] if self._events else 0) + 1
                 prev = self._events[-1]["record_hash"] if self._events else ZERO
+                recorded_at = self._clock()
+                if not _is_finite_number(recorded_at):
+                    raise HistoryError("recorded_at must be a finite number")
                 core = {"seq": seq, "event_id": event_id or uuid.uuid4().hex, "event_type": event_type,
-                        "recorded_at": self._clock(), "correlation_id": correlation_id or uuid.uuid4().hex,
+                        "recorded_at": recorded_at, "correlation_id": correlation_id or uuid.uuid4().hex,
                         "causation_id": causation_id, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
                         "schema": SCHEMA, "payload": payload, "prev_hash": prev}
                 rec = dict(core)
-                rec["record_hash"] = digest(core)
+                try:
+                    rec["record_hash"] = digest(core)
+                except (TypeError, ValueError) as exc:
+                    raise HistoryError("event cannot be represented as strict JSON") from exc
                 try:
                     with open(self.log, "a", encoding="utf-8") as fh:
                         fh.write(canonical(rec) + "\n")
@@ -324,7 +370,7 @@ class StateStore:
                     # committed append/projection/checkpoint sequence.
                     self._poisoned = True
                     raise
-                return rec
+                return _json_snapshot(rec)
 
     def verify(self):
         """Verify all durable artifacts and the replay-derived state, without repairing anything."""
@@ -372,6 +418,12 @@ class StateStore:
                         return {"ok": False, "events": count, "reason": "duplicate_or_invalid_event_id_line_%d" % line_no}
                     if not isinstance(rec["event_type"], str) or not rec["event_type"]:
                         return {"ok": False, "events": count, "reason": "invalid_event_type_line_%d" % line_no}
+                    if not _is_finite_number(rec["recorded_at"]):
+                        return {"ok": False, "events": count, "reason": "invalid_recorded_at_line_%d" % line_no}
+                    if not isinstance(rec["correlation_id"], str) or not rec["correlation_id"]:
+                        return {"ok": False, "events": count, "reason": "invalid_correlation_id_line_%d" % line_no}
+                    if rec["causation_id"] is not None and (not isinstance(rec["causation_id"], str) or not rec["causation_id"]):
+                        return {"ok": False, "events": count, "reason": "invalid_causation_id_line_%d" % line_no}
                     if not isinstance(rec["payload"], dict):
                         return {"ok": False, "events": count, "reason": "invalid_payload_line_%d" % line_no}
                     if rec["product_id"] != PRODUCT_ID or rec["schema"] != SCHEMA:
@@ -400,7 +452,11 @@ class StateStore:
             except (OSError, UnicodeDecodeError, json.JSONDecodeError):
                 return {"ok": False, "events": count, "reason": "checkpoint_unreadable"}
             expected_checkpoint = {"seq": seq, "head_hash": prev}
-            if not isinstance(checkpoint, dict) or canonical(checkpoint) != canonical(expected_checkpoint):
+            try:
+                checkpoint_matches = isinstance(checkpoint, dict) and canonical(checkpoint) == canonical(expected_checkpoint)
+            except (TypeError, ValueError):
+                checkpoint_matches = False
+            if not checkpoint_matches:
                 return {"ok": False, "events": count, "reason": "checkpoint_mismatch"}
             try:
                 with open(self.state, encoding="utf-8") as fh:
@@ -409,17 +465,21 @@ class StateStore:
                 return {"ok": False, "events": count, "reason": "state_projection_unreadable"}
             expected = {"schema": SCHEMA, "product_id": PRODUCT_ID, "runtime_id": stored_runtime_id,
                         "last_seq": seq, "head_hash": prev, "sessions": sessions, "counters": counters}
-            if canonical(projection) != canonical(expected):
+            try:
+                projection_matches = canonical(projection) == canonical(expected)
+            except (TypeError, ValueError):
+                projection_matches = False
+            if not projection_matches:
                 return {"ok": False, "events": count, "reason": "state_projection_mismatch"}
             return {"ok": True, "events": count, "head_hash": prev, "reason": "chain_and_artifacts_ok"}
         except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError, KeyError, AttributeError):
             return {"ok": False, "events": 0, "reason": "artifact_unreadable_or_malformed"}
 
     def replay(self):
-        return [dict(e) for e in self._events]
+        return _json_snapshot(self._events)
 
     def audit_export(self):
         s, h = self._head()
-        return {"schema": SCHEMA, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
-                "events": len(self._events), "last_seq": s, "head_hash": h, "verify": self.verify(),
-                "state": self._doc()}
+        return _json_snapshot({"schema": SCHEMA, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
+                               "events": len(self._events), "last_seq": s, "head_hash": h,
+                               "verify": self.verify(), "state": self._doc()})
