@@ -44,3 +44,8 @@ The test suite is evidence only for the exact source SHA executed. A clean check
 Known limits remain: external consumers are unknown; production authentication, VPS/HTTPS/device E2E and actual power-loss tests have not been performed; independent review is still required; and provenance exception `b5f49770cba13cd995533cd140b7560d999c441e` remains documented without history rewrite. Keep all applicable gates `BLOCKED` and overall status `NO-GO` until evidence and independent review close them.
 
 No merge, deployment, canonical mutation, repository/branch archive or deletion, or history rewrite is authorized.
+
+
+## Exact-SHA evidence snapshot
+
+`evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json` records clean-checkout results for source commit `74ecb9ef310008d07e2799b567e50b2ebd41f271`, 54/54 strict tests, log SHA-256 `d4571599a93253ee562ef70ce5dcca10c2e395070a3cd54851318ff051eb0cd8`, and CircleCI run #17. The evidence-record commit itself must be re-tested on its own exact SHA. This evidence does not close the external-consumer, independent-review, provenance, or production gates.

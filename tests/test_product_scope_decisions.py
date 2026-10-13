@@ -62,8 +62,17 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
 
     def test_acceptance_evidence_is_exact_sha_and_no_go_remains(self):
         evidence = self.record["acceptance_evidence"]
-        self.assertEqual(evidence["tested_source_sha"], "49afbc1013aeb5adcb3b7d5854d458197552525c")
-        self.assertEqual(evidence["test_suite_status"], "PASS_ON_SHA_49AFBC1")
+        self.assertEqual(evidence["tested_source_sha"], "74ecb9ef310008d07e2799b567e50b2ebd41f271")
+        self.assertEqual(evidence["test_suite_status"], "PASS_ON_SHA_74ECB9E")
+        evidence_file = __import__("pathlib").Path(ROOT) / "evidence" / "HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json"
+        self.assertEqual(self.record["acceptance_evidence"]["evidence_file"], "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json")
+        self.assertTrue(evidence_file.is_file())
+        with evidence_file.open(encoding="utf-8") as fh:
+            latest = json.load(fh)
+        self.assertEqual(latest["source_commit"], evidence["tested_source_sha"])
+        self.assertEqual(latest["test_result"], "OK")
+        self.assertEqual(latest["tests_run"], 54)
+        self.assertEqual(latest["log"]["sha256"], "d4571599a93253ee562ef70ce5dcca10c2e395070a3cd54851318ff051eb0cd8")
         self.assertEqual(self.record["overall_gate"], "BLOCKED_NO_GO")
         self.assertTrue(evidence["remaining_blockers"])
 
@@ -75,7 +84,7 @@ class ProductScopeDecisionRecordTests(unittest.TestCase):
         self.assertIn("Do not rewrite or remove history", exceptions[0]["handling"])
 
     def test_global_gates_remain_blocked_and_canonical_is_protected(self):
-        self.assertEqual(next(gate["status"] for gate in self.record["global_gates"] if gate["id"] == "G-EXACT-SHA"), "PASS_ON_SHA_49AFBC1")
+        self.assertEqual(next(gate["status"] for gate in self.record["global_gates"] if gate["id"] == "G-EXACT-SHA"), "PASS_ON_SHA_74ECB9E")
         self.assertTrue(all(gate["status"] == "BLOCKED" for gate in self.record["global_gates"] if gate["id"] != "G-EXACT-SHA"))
         boundaries = self.record["change_boundaries"]
         self.assertEqual(boundaries["canonical_branch_mutation"], "FORBIDDEN")
