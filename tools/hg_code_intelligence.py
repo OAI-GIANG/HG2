@@ -258,9 +258,11 @@ def index_repository(
     all_files, secrets_excluded, symlinks_excluded, files_seen = _discover(root, max_files)
     source_files: list[tuple[Path, Path]] = []
     python_files: list[tuple[Path, Path]] = []
+    recognized_paths: set[str] = set()
     for relative, absolute in all_files:
         if _is_source_file(relative):
             source_files.append((relative, absolute))
+            recognized_paths.add(relative.as_posix())
         if relative.suffix == ".py":
             python_files.append((relative, absolute))
 
@@ -324,6 +326,33 @@ def index_repository(
             else:
                 module_to_path[module] = rel
 
+    # Fail closed for every regular non-secret file not covered by the explicit
+    # source/config allowlist. Unknown extensions can still contain source code;
+    # never claim whole-repository source coverage while silently omitting them.
+    unclassified_count = 0
+    for relative, absolute in all_files:
+        rel = relative.as_posix()
+        if rel in recognized_paths:
+            continue
+        unclassified_count += 1
+        try:
+            size = absolute.stat(follow_symlinks=False).st_size
+        except OSError as exc:
+            raise CodeIntelligenceError("FILE_STAT_FAILED:" + rel) from exc
+        total_source_bytes += size
+        if total_source_bytes > max_total_bytes:
+            raise ResourceLimitError("MAX_TOTAL_SOURCE_BYTES_EXCEEDED; no partial index published")
+        record = {"path": rel, "status": "UNCLASSIFIED_FILE_TYPE", "analysis_support": "UNCLASSIFIED_FILE_TYPE",
+                  "size_bytes": size}
+        if size <= max_file_bytes:
+            try:
+                record["sha256"] = _hash_file(absolute)
+            except OSError as exc:
+                raise CodeIntelligenceError("FILE_READ_FAILED:" + rel) from exc
+        else:
+            record["status"] = "UNCLASSIFIED_FILE_TYPE_SIZE_LIMIT"
+        records.append(record)
+
     module_by_path = {rec["path"]: rec.get("module") for rec in records if rec["status"] == "PARSED"}
     edges: list[dict[str, Any]] = []
     dynamic_import_sites = 0
@@ -359,7 +388,7 @@ def index_repository(
     too_large_count = sum(rec["status"] == "SKIPPED_FILE_SIZE" and rec.get("analysis_support") == "PYTHON_AST" for rec in records)
     source_too_large_count = sum(rec["status"] == "SKIPPED_FILE_SIZE" for rec in records)
     unsupported_count = sum(rec.get("analysis_support") == "UNSUPPORTED_LANGUAGE" for rec in records)
-    coverage_incomplete = bool(syntax_error_count or too_large_count or unsupported_count or source_too_large_count or dynamic_import_sites)
+    coverage_incomplete = bool(syntax_error_count or too_large_count or unsupported_count or source_too_large_count or unclassified_count or dynamic_import_sites or secrets_excluded or symlinks_excluded)
     source_records = [{"path": r["path"], "status": r["status"], "analysis_support": r.get("analysis_support"),
                        "size_bytes": r["size_bytes"], "sha256": r.get("sha256")}
                       for r in records]
@@ -420,12 +449,15 @@ def index_repository(
             "python_files_skipped_file_size": too_large_count,
             "source_files_skipped_file_size": source_too_large_count,
             "unsupported_source_files": unsupported_count,
+            "unclassified_files_count": unclassified_count,
             "dynamic_import_sites": dynamic_import_sites,
             "parsed_python_ratio": _ratio(parsed_count, len(python_files)),
             "coverage_complete_for_all_repository_source": not coverage_incomplete,
             "limitations": [
                 "Python AST import analysis only; no execution, call graph, data flow, or runtime behavior proof.",
-                "Non-Python source files are counted as unsupported and can make impact analysis incomplete.",
+                "Recognized non-Python source files are counted as unsupported and make impact analysis incomplete.",
+                "Regular non-secret files with unrecognized names/extensions are listed as UNCLASSIFIED_FILE_TYPE and make coverage incomplete.",
+                "Excluded secret-shaped files and skipped symlinks also make coverage incomplete because their contents are not analyzed.",
                 "Dynamic import sites make impact analysis incomplete; source aliases/reflection may remain unresolved.",
                 "Hash integrity and a caller-declared revision do not establish source authenticity or correctness.",
             ],

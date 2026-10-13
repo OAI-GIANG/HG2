@@ -23,7 +23,7 @@ Provide a bounded, read-only structural view of Python imports in a repository. 
 - Optional repository-relative changed paths.
 - Explicit file-count, per-file byte, and total-source-byte limits.
 
-Absolute paths are not disclosed in output. Changed paths that are absolute or contain `..` are rejected. Symlinks are not followed. The default limits are 20,000 entries, 4 MiB per Python file, and 128 MiB total Python source bytes.
+Absolute paths are not disclosed in output. Changed paths that are absolute or contain `..` are rejected. Symlinks are not followed. The default limits are 20,000 filesystem entries, 4 MiB per recognized source or hashed unclassified file, and 128 MiB total indexed bytes.
 
 ## 4. Processing
 
@@ -34,8 +34,9 @@ Absolute paths are not disclosed in output. Changed paths that are absolute or c
 5. Record each recognized file's relative path, status, support-kind, size and SHA-256. Source contents are never copied into the report.
 6. Resolve Python imports only against exact names in the repository's parsed Python module map. Resolved edges are labelled `INFERRED_LOCAL_MODULE`; unresolved/external imports are not treated as confirmed local dependencies.
 7. Calculate known transitive reverse dependents for changed paths.
-8. Mark coverage incomplete for syntax/encoding errors, oversize files, unsupported source languages or dynamic import sites.
-9. Produce deterministic snapshot and report hashes. Changes to recognized non-Python sources must change the snapshot hash so a previous report can be detected as stale.
+8. Mark coverage incomplete for syntax/encoding errors, oversize files, unsupported source languages, unclassified regular files, excluded secret-shaped files, skipped symlinks or dynamic import sites.
+9. Report every discovered regular non-secret file not matched by the explicit source/config allowlist as `UNCLASSIFIED_FILE_TYPE`; hash its bytes when within the per-file limit and include it in snapshot identity. For unclassified files exceeding the per-file limit, report `UNCLASSIFIED_FILE_TYPE_SIZE_LIMIT` and never claim complete coverage.
+10. Produce deterministic snapshot and report hashes. Changes to recognized source files and hashed unclassified files must change the snapshot hash so a previous report can be detected as stale.
 
 ## 5. Evidence semantics
 
