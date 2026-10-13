@@ -27,6 +27,12 @@ jobs:
           command: |
             set -eu
             PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v
+      - run:
+          name: Run preregistered code intelligence ground-truth benchmark
+          command: |
+            set -eu
+            PYTHONDONTWRITEBYTECODE=1 python tools/run_code_intelligence_benchmark.py
+            python -c 'import json; r=json.load(open("docs/evidence/HG2_CI_GROUND_TRUTH_RESULT_V2.json", encoding="utf-8")); assert r["summary"]["benchmark_pass"], r["summary"]["thresholds_met"]'
 workflows:
   hg2-code-intelligence-coverage-verify:
     jobs:

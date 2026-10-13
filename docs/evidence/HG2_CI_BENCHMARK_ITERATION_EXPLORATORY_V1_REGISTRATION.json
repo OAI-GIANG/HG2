@@ -1,0 +1,246 @@
+{
+  "acceptance_thresholds": {
+    "all_cases_must_pass_registered_case_expectations": true,
+    "clean_cases_dependent_precision_min": 1.0,
+    "clean_cases_dependent_recall_min": 0.75,
+    "clean_cases_edge_precision_min": 1.0,
+    "clean_cases_edge_recall_min": 0.75,
+    "fail_closed_recall_min": 1.0,
+    "minimum_cases": 8,
+    "overall_coverage_state_accuracy_min": 1.0,
+    "overall_impact_status_accuracy_min": 1.0
+  },
+  "benchmark_id": "HG2-CI-GROUND-TRUTH-20261014-V1",
+  "cases": [
+    {
+      "changed_paths": [
+        "src/core.py"
+      ],
+      "expected_coverage_complete": true,
+      "expected_dependents": [
+        "src/app.py",
+        "src/entry.py"
+      ],
+      "expected_edges": [
+        {
+          "source": "src/app.py",
+          "target": "src/core.py"
+        },
+        {
+          "source": "src/entry.py",
+          "target": "src/app.py"
+        }
+      ],
+      "expected_impact_status": "KNOWN_LOCAL_PYTHON_DEPENDENTS",
+      "id": "case01_basic",
+      "revision": "BENCH-01",
+      "root": "tests/fixtures/code_intelligence_benchmark/case01_basic",
+      "truth_type": "clean_python"
+    },
+    {
+      "changed_paths": [
+        "pkg/base.py"
+      ],
+      "expected_coverage_complete": true,
+      "expected_dependents": [
+        "pkg/__init__.py",
+        "pkg/consumer.py",
+        "pkg/entry.py"
+      ],
+      "expected_edges": [
+        {
+          "source": "pkg/__init__.py",
+          "target": "pkg/base.py"
+        },
+        {
+          "source": "pkg/consumer.py",
+          "target": "pkg/base.py"
+        },
+        {
+          "source": "pkg/entry.py",
+          "target": "pkg/consumer.py"
+        }
+      ],
+      "expected_impact_status": "KNOWN_LOCAL_PYTHON_DEPENDENTS",
+      "id": "case02_package",
+      "revision": "BENCH-02",
+      "root": "tests/fixtures/code_intelligence_benchmark/case02_package",
+      "truth_type": "clean_python_package"
+    },
+    {
+      "changed_paths": [
+        "core.py"
+      ],
+      "expected_coverage_complete": false,
+      "expected_dependents": [],
+      "expected_edges": [
+        {
+          "source": "consumer.py",
+          "target": "loader.py"
+        }
+      ],
+      "expected_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "id": "case03_dynamic",
+      "minimum_dynamic_import_sites": 1,
+      "revision": "BENCH-03",
+      "root": "tests/fixtures/code_intelligence_benchmark/case03_dynamic",
+      "truth_type": "dynamic_import"
+    },
+    {
+      "changed_paths": [
+        "core.py"
+      ],
+      "expected_coverage_complete": false,
+      "expected_dependents": [
+        "consumer.py"
+      ],
+      "expected_edges": [
+        {
+          "source": "consumer.py",
+          "target": "core.py"
+        }
+      ],
+      "expected_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "id": "case04_nonpython",
+      "minimum_unsupported_source_files": 1,
+      "revision": "BENCH-04",
+      "root": "tests/fixtures/code_intelligence_benchmark/case04_nonpython",
+      "truth_type": "unsupported_source_language"
+    },
+    {
+      "changed_paths": [
+        "core.py"
+      ],
+      "expected_coverage_complete": false,
+      "expected_dependents": [
+        "consumer.py"
+      ],
+      "expected_edges": [
+        {
+          "source": "consumer.py",
+          "target": "core.py"
+        }
+      ],
+      "expected_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "id": "case05_unclassified",
+      "minimum_unclassified_files": 1,
+      "revision": "BENCH-05",
+      "root": "tests/fixtures/code_intelligence_benchmark/case05_unclassified",
+      "truth_type": "unclassified_source_like_file"
+    },
+    {
+      "changed_paths": [
+        "good.py"
+      ],
+      "expected_coverage_complete": false,
+      "expected_dependents": [
+        "consumer.py"
+      ],
+      "expected_edges": [
+        {
+          "source": "consumer.py",
+          "target": "good.py"
+        }
+      ],
+      "expected_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "id": "case06_syntax",
+      "minimum_parse_failures": 1,
+      "revision": "BENCH-06",
+      "root": "tests/fixtures/code_intelligence_benchmark/case06_syntax",
+      "truth_type": "python_syntax_error"
+    },
+    {
+      "changed_paths": [
+        "shared.py"
+      ],
+      "expected_coverage_complete": false,
+      "expected_dependents": [],
+      "expected_edges": [],
+      "expected_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "id": "case07_duplicate",
+      "minimum_duplicate_module_names": 1,
+      "revision": "BENCH-07",
+      "root": "tests/fixtures/code_intelligence_benchmark/case07_duplicate",
+      "truth_type": "duplicate_python_module_identity"
+    },
+    {
+      "changed_paths": [
+        "leaf.py"
+      ],
+      "expected_coverage_complete": true,
+      "expected_dependents": [
+        "mid.py",
+        "side.py",
+        "top.py"
+      ],
+      "expected_edges": [
+        {
+          "source": "mid.py",
+          "target": "leaf.py"
+        },
+        {
+          "source": "top.py",
+          "target": "mid.py"
+        },
+        {
+          "source": "side.py",
+          "target": "leaf.py"
+        }
+      ],
+      "expected_impact_status": "KNOWN_LOCAL_PYTHON_DEPENDENTS",
+      "id": "case08_impact",
+      "revision": "BENCH-08",
+      "root": "tests/fixtures/code_intelligence_benchmark/case08_impact",
+      "truth_type": "transitive_reverse_dependents"
+    }
+  ],
+  "fixture_files_sha256": {
+    "case01_basic/src/app.py": "dc1c70db2f7e6155c8b39c306a005ba5bf224c434d0be3fa5557c0750abef139",
+    "case01_basic/src/core.py": "e13df8c44af5dea1e412403910b99cc5a48f2ccbf68a66b3374d6ab9cef9fc65",
+    "case01_basic/src/entry.py": "69c487f68215e95f1d6fa2301ac4d57f4454f46e6c0adcef24bb0a1781d1835c",
+    "case01_basic/src/unused.py": "6502f2b96dc2c003e04d83083dfbd7b1933bbeb8dbee7a9a8b9e36a7ef728616",
+    "case02_package/pkg/__init__.py": "7e9dc76f47e9bb1aa7bf3106d0a701583cd38e3470f27be0ee4b85ffa6b6742e",
+    "case02_package/pkg/base.py": "3da6c4b355804b265ecef19dfe5945fe2790a8cc38dc9d0547fb1634c94cbbe7",
+    "case02_package/pkg/consumer.py": "a0670b7971254d3358a76244498234f6fb1f9b68b7e1bb054ac6644d39924ea2",
+    "case02_package/pkg/entry.py": "48b2ccf9b2c85c82f782849c47b3ec9c2af78307f114d58be6979c6a85583d5b",
+    "case03_dynamic/consumer.py": "e6a2a6e1f1b540a1163a42c4b1538f3011d81119967cbf752377ecb0ed33c7ac",
+    "case03_dynamic/core.py": "b7286676d4708b372b1aa8922455b9070ca83d565120add116ceb6d3a1272314",
+    "case03_dynamic/loader.py": "4b39e9c5e672af7e6b4f0ec4df6389be4c2036bb13daec7235c4f0387f7c8dc0",
+    "case04_nonpython/client.ts": "bc8e60da791a84cbe452e089fc9ac51bfe60f1b65212a1f3220a98de078d345d",
+    "case04_nonpython/consumer.py": "350a1cb535e6d24e7fbc071498ca7c3193c01c4bac00533a13afa7255c12ba78",
+    "case04_nonpython/core.py": "0b7f2af2cefe42be399646e5425f921a34d703504e0720f702f2747eace5ff40",
+    "case05_unclassified/consumer.py": "350a1cb535e6d24e7fbc071498ca7c3193c01c4bac00533a13afa7255c12ba78",
+    "case05_unclassified/core.py": "d732ea776c80bfb7bd33ae016cf3ada47ae1f4775fe63435ad744dd34e054a74",
+    "case05_unclassified/runtime.dart": "12e3f0ab9f3e6b936c95dcfe87f4f506f6b2e3108281ea220ce1e0360cfe739a",
+    "case06_syntax/broken.py": "6b8c8a725c23dc076d9a2c185ce4e02435746bc3b4f99906d13de360e56898c7",
+    "case06_syntax/consumer.py": "0f421fc253ffb81e888a373016eddcbff2de7b281542b3b5aaa563022b191dfd",
+    "case06_syntax/good.py": "39a440e51a2774fc5d5b65a695e631e922762dd4b8e59c457007fd426a1c69a2",
+    "case07_duplicate/consumer.py": "45fd7db6c506033c35b568807331194d34d3605d98e716b15b284e0bf9ea540a",
+    "case07_duplicate/shared.py": "76b26c40fd1de8995c9a5457c2bd4cf363c42d1f88a66f4d583bc10295f2062a",
+    "case07_duplicate/shared/__init__.py": "e7faa5ee5d11631d710fae733219ade28305ad5beb5d5ee607fc586792f744bf",
+    "case08_impact/leaf.py": "382ff38e2f7ae4f5b1ff2773d1d9e3481ca62264bc60061c60142e9ef20a3026",
+    "case08_impact/mid.py": "ac520cba44fb7981704090dd7009e0bb330776d4247c2caea37ae1e1d49323fd",
+    "case08_impact/side.py": "ac520cba44fb7981704090dd7009e0bb330776d4247c2caea37ae1e1d49323fd",
+    "case08_impact/top.py": "0742ab720e27a82ce7ea551e7db2928795044f1874b2bc312a33bc51aba3da4b",
+    "case08_impact/unrelated.py": "8984941397efaf8212eacf25e6298a2efda40345a4e4af059b3ace92743f1324"
+  },
+  "limitations": [
+    "Synthetic, hand-authored toy fixtures only; not representative of large or production repositories.",
+    "No claim about JavaScript/TypeScript/Dart graph analysis; unsupported files are a fail-closed signal only.",
+    "This benchmark does not verify source provenance, package resolution, dynamic import target resolution, runtime call edges, or semantic correctness.",
+    "The current analyzer resolves exact module names only; benchmark fixtures deliberately conform to that model."
+  ],
+  "metrics": {
+    "coverage_state_accuracy": "exact match of coverage_complete_for_all_repository_source against expected boolean.",
+    "dependent_f1": "harmonic mean of precision and recall, 0 when denominator zero.",
+    "dependent_precision": "intersection(predicted, expected)/len(predicted); 1.0 if both sets empty.",
+    "dependent_recall": "intersection(predicted, expected)/len(expected); 1.0 if expected set empty.",
+    "edge_f1": "2*precision*recall/(precision+recall), 0 if denominator zero.",
+    "edge_precision": "TP/(TP+FP); 1.0 if no predicted edges and no expected edges, else 0.0 when denominator zero and expected edges nonzero.",
+    "edge_recall": "TP/(TP+FN); 1.0 if expected edge set is empty, else TP/expected-edge count.",
+    "fail_closed_recall": "among the six intentionally incomplete cases, fraction that report coverage_complete=false and status KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE.",
+    "impact_status_accuracy": "exact match of impact status against expected literal."
+  },
+  "purpose": "Frozen toy repositories with hand-authored graph/coverage truth; measures exact known-local Python dependency recovery and fail-closed incomplete-coverage classifications, not general production quality.",
+  "registration_rule": "All fixture bytes, expected edges/dependents/coverage states, metrics, thresholds, and scorer are committed in this registration before execution. Do not adjust after seeing results; amendments require V2 and a fresh run."
+}
