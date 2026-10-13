@@ -201,6 +201,9 @@ def transition(candidate: SynthesisCandidate, target: str, *, actor_id: str,
             raise ValueError("INDEPENDENT_REVIEWER_REQUIRED")
         if not evidence_refs:
             raise ValueError("ACCEPTANCE_EVIDENCE_REQUIRED")
+        # This pure module has no host-trusted reviewer identity/attestation verifier.
+        # A caller-provided reviewer string is not independent verification.
+        raise ValueError("TRUSTED_REVIEW_AUTHORITY_NOT_CONFIGURED")
     if target in {"REJECTED", "QUARANTINED", "REVOKED"} and not evidence_refs:
         raise ValueError("DECISION_EVIDENCE_REQUIRED")
     return replace(candidate, lifecycle_status=target, revision=candidate.revision + 1)

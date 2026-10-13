@@ -94,6 +94,10 @@ class LifecycleTests(unittest.TestCase):
         c = candidate(lifecycle_status="REVIEW_REQUIRED")
         with self.assertRaisesRegex(ValueError, "INDEPENDENT_REVIEWER_REQUIRED"):
             transition(c, "ACCEPTED", actor_id="author", reviewer_id="author", sources=self.sources, principles=self.principles, evidence_refs=("review:1",))
+    def test_distinct_reviewer_string_cannot_self_certify_acceptance(self):
+        c = candidate(lifecycle_status="REVIEW_REQUIRED")
+        with self.assertRaisesRegex(ValueError, "TRUSTED_REVIEW_AUTHORITY_NOT_CONFIGURED"):
+            transition(c, "ACCEPTED", actor_id="author", reviewer_id="other-name", sources=self.sources, principles=self.principles, evidence_refs=("review:1",))
     def test_revoke_requires_evidence(self):
         with self.assertRaisesRegex(ValueError, "DECISION_EVIDENCE_REQUIRED"):
             transition(candidate(lifecycle_status="ACCEPTED"), "REVOKED", actor_id="governance", sources=self.sources, principles=self.principles)
