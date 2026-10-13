@@ -78,8 +78,16 @@ class SyncTests(unittest.TestCase):
         self.b.import_batch(out["file"])
         with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
             raw = json.loads(fh.read())
-        raw["events"][0]["payload"] = {"note": "changed"}
-        raw["events"][0]["payload_hash"] = digest({"note": "changed"})
+        ev = raw["events"][0]
+        changed_payload = {"note": "changed"}
+        origin_core = dict(ev["origin_record"])
+        origin_core.pop("record_hash")
+        origin_core["payload"] = changed_payload
+        changed_origin_hash = digest(origin_core)
+        ev["origin_record"] = {**origin_core, "record_hash": changed_origin_hash}
+        ev["origin_hash"] = changed_origin_hash
+        ev["payload"] = changed_payload
+        ev["payload_hash"] = digest(changed_payload)
         p = os.path.join(self.b.spool, "inbox", "conflict.json")
         with open(p, "w", encoding="utf-8") as fh:
             fh.write(json.dumps(raw))
@@ -109,23 +117,86 @@ class SyncTests(unittest.TestCase):
         ev = self.a.local_event("note.created", {"note": "m"})
         del ev["origin_hash"]
         with open(os.path.join(self.a.spool, "outbox", "missing.json"), "w", encoding="utf-8") as fh:
-            fh.write(json.dumps({"schema": BATCH_SCHEMA, "events": [ev]}))
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [ev]}))
         self._move(self.a, self.b, "missing.json")
         with self.assertRaises(SyncError):
             self.b.import_batch("missing.json")
+
+    def test_multi_event_batch_preserves_origin_chain(self):
+        first = self.a.local_event("note.created", {"n": 1})
+        second = self.a.local_event("note.created", {"n": 2})
+        p = os.path.join(self.a.spool, "outbox", "two-events.json")
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
+        self._move(self.a, self.b, "two-events.json")
+        result = self.b.import_batch("two-events.json")
+        self.assertEqual(result["accepted"], [first["event_id"], second["event_id"]])
+        received = [r["payload"] for r in self.b.store.replay() if r["event_type"] == "sync.received"]
+        self.assertEqual([r["origin_seq"] for r in received], [first["origin_seq"], second["origin_seq"]])
+        self.assertTrue(self.b.store.verify()["ok"])
+
+    def test_rehashed_payload_without_matching_origin_record_rejected(self):
+        out = self._publish(self.a, {"note": "original"})
+        p = os.path.join(self.a.spool, "outbox", out["file"])
+        with open(p, encoding="utf-8") as fh:
+            raw = json.loads(fh.read())
+        raw["events"][0]["payload"] = {"note": "forged"}
+        raw["events"][0]["payload_hash"] = digest(raw["events"][0]["payload"])
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(raw))
+        self._move(self.a, self.b, out["file"])
+        with self.assertRaises(SyncError):
+            self.b.import_batch(out["file"])
+        self.assertFalse(any(r["event_type"] == "sync.received" for r in self.b.store.replay()))
+
+    def test_origin_sequence_gap_rejected_before_apply(self):
+        first = self.a.local_event("note.created", {"n": 1})
+        second = self.a.local_event("note.created", {"n": 2})
+        second["origin_seq"] += 2
+        origin_core = dict(second["origin_record"])
+        origin_core.pop("record_hash")
+        origin_core["seq"] = second["origin_seq"]
+        second["origin_hash"] = digest(origin_core)
+        second["origin_record"] = {**origin_core, "record_hash": second["origin_hash"]}
+        p = os.path.join(self.a.spool, "outbox", "sequence-gap.json")
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
+        self._move(self.a, self.b, "sequence-gap.json")
+        with self.assertRaises(SyncError):
+            self.b.import_batch("sequence-gap.json")
+        self.assertFalse(any(r["event_type"] == "sync.received" for r in self.b.store.replay()))
+
+    def test_invalid_later_event_does_not_partially_apply_batch(self):
+        first = self.a.local_event("note.created", {"n": 1})
+        second = self.a.local_event("note.created", {"n": 2})
+        del second["origin_hash"]
+        p = os.path.join(self.a.spool, "outbox", "partial-invalid.json")
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
+        self._move(self.a, self.b, "partial-invalid.json")
+        with self.assertRaises(SyncError):
+            self.b.import_batch("partial-invalid.json")
+        received = [r for r in self.b.store.replay() if r["event_type"] == "sync.received"]
+        self.assertEqual(received, [])
+        self.assertTrue(any(r["event_type"] == "sync.rejected" for r in self.b.store.replay()))
 
     def test_stale_in_batch_chain_and_self_origin_rejected(self):
         e1 = self.a.local_event("note.created", {"n": 1})
         e2 = self.a.local_event("note.created", {"n": 2})
         e2["origin_prev_hash"] = "0" * 64
+        origin_core = dict(e2["origin_record"])
+        origin_core.pop("record_hash")
+        origin_core["prev_hash"] = e2["origin_prev_hash"]
+        e2["origin_hash"] = digest(origin_core)
+        e2["origin_record"] = {**origin_core, "record_hash": e2["origin_hash"]}
         with open(os.path.join(self.a.spool, "outbox", "chain.json"), "w", encoding="utf-8") as fh:
-            fh.write(json.dumps({"schema": BATCH_SCHEMA, "events": [e1, e2]}))
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [e1, e2]}))
         self._move(self.a, self.b, "chain.json")
         with self.assertRaises(SyncError):
             self.b.import_batch("chain.json")
         own = self.b.local_event("note.created", {"n": 3})
         with open(os.path.join(self.b.spool, "outbox", "self.json"), "w", encoding="utf-8") as fh:
-            fh.write(json.dumps({"schema": BATCH_SCHEMA, "events": [own]}))
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-b", "events": [own]}))
         os.replace(os.path.join(self.b.spool, "outbox", "self.json"), os.path.join(self.b.spool, "inbox", "self.json"))
         with self.assertRaises(SyncError):
             self.b.import_batch("self.json")
@@ -133,7 +204,7 @@ class SyncTests(unittest.TestCase):
     def test_truncated_batch_rejected_and_audited(self):
         p = os.path.join(self.a.spool, "outbox", "trunc.json")
         with open(p, "w", encoding="utf-8") as fh:
-            fh.write('{"schema": "HG_SYNC_BATCH_V1", "events": [')
+            fh.write('{"schema": "HG_SYNC_BATCH_V2", "events": [')
         self._move(self.a, self.b, "trunc.json")
         with self.assertRaises(SyncError):
             self.b.import_batch("trunc.json")

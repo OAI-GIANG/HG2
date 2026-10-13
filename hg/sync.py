@@ -18,12 +18,20 @@ import os
 import time
 import uuid
 
-from .history import HistoryError, StateStore, canonical, digest
+from .history import PRODUCT_ID, SCHEMA, StateStore, canonical, digest
 
-SYNC_SCHEMA = "HG_SYNC_V1"
-BATCH_SCHEMA = "HG_SYNC_BATCH_V1"
+SYNC_SCHEMA = "HG_SYNC_V2"
+BATCH_SCHEMA = "HG_SYNC_BATCH_V2"
 REQUIRED_EVENT_FIELDS = ("event_id", "event_type", "payload", "payload_hash",
-                         "origin_context", "origin_seq", "origin_prev_hash", "origin_hash")
+                         "origin_context", "origin_seq", "origin_prev_hash", "origin_hash",
+                         "origin_record")
+REQUIRED_ORIGIN_RECORD_FIELDS = ("seq", "event_id", "event_type", "recorded_at", "correlation_id",
+                                 "causation_id", "product_id", "runtime_id", "schema", "payload",
+                                 "prev_hash", "record_hash")
+
+
+def _is_sha256(value: object) -> bool:
+    return isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
 
 
 class SyncError(Exception):
@@ -56,9 +64,11 @@ class SyncContext:
     # --------------------------------------------------------------- export
     def local_event(self, event_type: str, payload: dict) -> dict:
         rec = self.store.emit(event_type, payload)
-        return {"event_id": rec["event_id"], "event_type": rec["event_type"], "payload": rec["payload"],
-                "payload_hash": digest(rec["payload"]), "origin_context": self.context_id,
-                "origin_seq": rec["seq"], "origin_prev_hash": rec["prev_hash"], "origin_hash": rec["record_hash"]}
+        origin_record = json.loads(canonical(rec))
+        return {"event_id": rec["event_id"], "event_type": rec["event_type"], "payload": origin_record["payload"],
+                "payload_hash": digest(origin_record["payload"]), "origin_context": self.context_id,
+                "origin_seq": origin_record["seq"], "origin_prev_hash": origin_record["prev_hash"],
+                "origin_hash": origin_record["record_hash"], "origin_record": origin_record}
 
     def export_batch(self, events: list) -> dict:
         batch = {"schema": BATCH_SCHEMA, "context_id": self.context_id, "created_at": self._clock(),
@@ -84,8 +94,10 @@ class SyncContext:
         index = {}
         for rec in self.store.replay():
             if rec["event_type"] == "sync.received":
-                key = (rec["payload"].get("origin_context"), rec["payload"].get("event_id"))
-                index[key] = rec["payload"].get("payload_hash")
+                payload = rec["payload"]
+                key = (payload.get("origin_context"), payload.get("event_id"))
+                index[key] = {field: payload.get(field) for field in
+                              ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")}
         return index
 
     def import_batch(self, path_or_name: str) -> dict:
@@ -107,36 +119,95 @@ class SyncContext:
         if not isinstance(events, list) or not events:
             self._reject(name, "EMPTY_BATCH", raw)
             raise SyncError("empty batch")
+        batch_origin = batch.get("context_id")
+        if not isinstance(batch_origin, str) or not batch_origin:
+            self._reject(name, "INVALID_BATCH_CONTEXT", raw)
+            raise SyncError("invalid batch context")
         index = self._received_index()
-        accepted, duplicates = [], []
+        accepted, duplicates, pending = [], [], []
         prev_origin_hash = None
+        prev_origin_seq = None
+        observed_origin = None
+
+        # Preflight the entire batch before appending any received event. A malformed later
+        # event must not leave an earlier prefix partially applied.
         for ev in events:
             if not isinstance(ev, dict) or any(f not in ev for f in REQUIRED_EVENT_FIELDS):
                 self._reject(name, "MISSING_REQUIRED_FIELD", raw)
                 raise SyncError("missing required field")
+            if (not isinstance(ev["event_id"], str) or not ev["event_id"]
+                    or not isinstance(ev["event_type"], str) or not ev["event_type"]
+                    or not isinstance(ev["origin_context"], str) or not ev["origin_context"]
+                    or not isinstance(ev["origin_seq"], int) or isinstance(ev["origin_seq"], bool)
+                    or ev["origin_seq"] < 1):
+                self._reject(name, "INVALID_EVENT_METADATA", raw)
+                raise SyncError("invalid event metadata")
             if ev["origin_context"] == self.context_id:
                 self._reject(name, "SELF_ORIGIN_EVENT", raw)
                 raise SyncError("self-origin event")
+            if observed_origin is None:
+                observed_origin = ev["origin_context"]
+                if batch_origin is not None and batch_origin != observed_origin:
+                    self._reject(name, "BATCH_ORIGIN_MISMATCH", raw)
+                    raise SyncError("batch origin mismatch")
+            elif ev["origin_context"] != observed_origin:
+                self._reject(name, "MIXED_ORIGIN_CONTEXTS", raw)
+                raise SyncError("mixed origin contexts")
+            if (not _is_sha256(ev["payload_hash"]) or not _is_sha256(ev["origin_prev_hash"])
+                    or not _is_sha256(ev["origin_hash"])):
+                self._reject(name, "INVALID_HASH_FORMAT", raw)
+                raise SyncError("invalid hash format")
             if digest(ev["payload"]) != ev["payload_hash"]:
                 self._reject(name, "PAYLOAD_HASH_MISMATCH", raw)
                 raise SyncError("payload hash mismatch")
-            if prev_origin_hash is not None and ev["origin_prev_hash"] != prev_origin_hash:
+            origin_record = ev["origin_record"]
+            if not isinstance(origin_record, dict) or any(
+                    field not in origin_record for field in REQUIRED_ORIGIN_RECORD_FIELDS):
+                self._reject(name, "INVALID_ORIGIN_RECORD", raw)
+                raise SyncError("invalid origin record")
+            origin_core = {key: value for key, value in origin_record.items() if key != "record_hash"}
+            if (origin_record.get("record_hash") != ev["origin_hash"]
+                    or digest(origin_core) != ev["origin_hash"]):
+                self._reject(name, "ORIGIN_RECORD_HASH_MISMATCH", raw)
+                raise SyncError("origin record hash mismatch")
+            if origin_record.get("schema") != SCHEMA or origin_record.get("product_id") != PRODUCT_ID:
+                self._reject(name, "UNSUPPORTED_ORIGIN_RECORD_SCHEMA", raw)
+                raise SyncError("unsupported origin record schema")
+            if (origin_record.get("event_id") != ev["event_id"]
+                    or origin_record.get("event_type") != ev["event_type"]
+                    or origin_record.get("payload") != ev["payload"]
+                    or origin_record.get("seq") != ev["origin_seq"]
+                    or origin_record.get("prev_hash") != ev["origin_prev_hash"]):
+                self._reject(name, "ORIGIN_RECORD_ENVELOPE_MISMATCH", raw)
+                raise SyncError("origin record envelope mismatch")
+            if prev_origin_hash is not None and (
+                    ev["origin_prev_hash"] != prev_origin_hash
+                    or ev["origin_seq"] != prev_origin_seq + 1):
                 self._reject(name, "IN_BATCH_CHAIN_BREAK", raw)
                 raise SyncError("in-batch chain break")
             prev_origin_hash = ev["origin_hash"]
+            prev_origin_seq = ev["origin_seq"]
             key = (ev["origin_context"], ev["event_id"])
             if key in index:
-                if index[key] == ev["payload_hash"]:
+                known = index[key]
+                if all(known.get(field) == ev.get(field) for field in
+                       ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")):
                     duplicates.append(ev["event_id"])
                     continue
-                self._conflict(name, "DUPLICATE_EVENT_ID_DIFFERENT_PAYLOAD", raw)
-                raise SyncError("duplicate event id with different payload")
+                self._conflict(name, "DUPLICATE_EVENT_ID_DIFFERENT_PROVENANCE", raw)
+                raise SyncError("duplicate event id with different provenance")
+            index[key] = {field: ev.get(field) for field in
+                          ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")}
+            accepted.append(ev["event_id"])
+            pending.append(ev)
+
+        # Only apply after every event has passed preflight validation.
+        for ev in pending:
             self.store.emit("sync.received", {"event_id": ev["event_id"], "event_type": ev["event_type"],
                                               "payload": ev["payload"], "payload_hash": ev["payload_hash"],
                                               "origin_context": ev["origin_context"], "origin_seq": ev["origin_seq"],
-                                              "origin_prev_hash": ev["origin_prev_hash"], "origin_hash": ev["origin_hash"]})
-            index[key] = ev["payload_hash"]
-            accepted.append(ev["event_id"])
+                                              "origin_prev_hash": ev["origin_prev_hash"], "origin_hash": ev["origin_hash"],
+                                              "origin_record": ev["origin_record"]})
         os.replace(path, os.path.join(self.spool, "inbox", ".consumed-" + name))
         self._audit({"op": "import", "file": name, "accepted": accepted, "duplicates": duplicates,
                      "batch_hash": digest(batch), "at": self._clock()})
