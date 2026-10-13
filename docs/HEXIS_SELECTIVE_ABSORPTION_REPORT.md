@@ -1,6 +1,6 @@
 # HG2 × Hexis — Selective Absorption Report
 
-**Status:** `ABSORBED INTO ISOLATED LOCAL WORK BRANCH / TESTS PASS / NOT COMMITTED OR PUSHED`
+**Status:** `COMMITTED AND PUSHED TO ISOLATED BRANCH / PR #10 OPEN / CI PASS / NOT MERGED`
 **Date:** 2026-10-13
 **Canonical repository:** `OAI-GIANG/HG2`
 **Canonical branch:** `hg-genesis`
@@ -74,9 +74,10 @@ No changes were made to `hg/authority.py`, `hg/history.py`, `hg/identity.py`, or
 
 ## 6. Change boundary and remaining gates
 
-- Candidate branch: `feature/hexis-edge-schema-guard-20261013`
+- Source implementation branch: `feature/hexis-edge-schema-guard-20261013`.
+- Integrated branch: `feat/hexis-edge-schema-guard-20261013`; commit: `dde3ef7b192d0db446d56481d073df150e10da67`; pull request: `https://github.com/OAI-GIANG/HG2/pull/10`; CI `ci/circleci: verify` passed.
 - Canonical `hg-genesis` must remain at `d11e71ed8b34338b8568664b39bc777c926826d5`.
 - No merge, deployment, release, or canonical mutation is authorized or performed.
 - The GitHub commit for the canonical base is unsigned (`verification.verified=false`). This is recorded as a provenance limitation; it is not silently upgraded to signed provenance.
 - Current integration worktree: `governance/simplify-acceptance-policy-20261013`, based on candidate `d1f67a35a70f5a048a8dba725d5d3c24e8f05283`; the HEXIS source implementation and its local evidence were copied with SHA-256 equality checked for the main source, focused tests, report, and original manifest before the manifest was normalized to paths in this evidence directory.
-- The current working tree is uncommitted and local only. The canonical branch and source HEXIS branch were not modified. Runtime/VPS/device end-to-end behavior remains unverified; no deployment or release is claimed.
+- Integration commit and evidence are pushed to the isolated branch and exposed in PR #10. The PR remains open; no merge or deployment was performed. The canonical branch and source branch were not modified. Runtime/VPS/device end-to-end behavior remains unverified; no release readiness is claimed.
