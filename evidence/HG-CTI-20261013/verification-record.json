@@ -8,13 +8,14 @@
   "working_tree_clean_before_tests": true,
   "focused_result": "PASS; 25 tests; ResourceWarning treated as error",
   "full_result": "PASS; 48 tests",
-  "archive_verification": "PASS; 18 archive SHA-256 and ZIP CRC checks",
-  "upstream_snapshot_verification": "PASS; 18/18 ZIP file trees match observed upstream commit trees by path and Git blob SHA-1",
+  "archive_verification": "PASS was recorded in the original source environment for 18 SHA-256/ZIP CRC checks; final checkout recheck is BLOCKED because the external ZIPs are unavailable at their absolute manifest paths.",
+  "upstream_snapshot_verification": "PASS; 18/18 ZIP file trees match observed upstream commit trees by path and Git blob SHA-1.",
   "git_diff_check": "PASS",
   "open_gates": [
     "No runtime integration or production deployment",
     "Creative benefit benchmark cannot execute until an authorized non-paid baseline and candidate generation runner is available.",
-    "xsstools license conflict remains unresolved; missing or metadata-only license indicators do not authorize code reuse."
+    "xsstools license conflict remains unresolved; missing or metadata-only license indicators do not authorize code reuse.",
+    "Fresh archive-byte/CRC recheck from the final clean checkout is blocked because the source ZIPs are external to the repo and currently unavailable at manifest paths; prior captured verification evidence remains recorded."
   ],
   "license_audit": "18 archives: 11 root LICENSE files; 2 metadata-only declarations; 5 no explicit license indicator; xsstools root/package conflict; nested component licenses noted. No code copied.",
   "benchmark_status": "BLOCKED_NOT_RUN; no baseline/candidate generation runner or model-inference tool available. Unit tests are not a creativity benchmark."
