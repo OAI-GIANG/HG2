@@ -1,0 +1,165 @@
+test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
+test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... /data/data/com.termux/files/usr/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 403: 'Forbidden'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+/data/data/com.termux/files/usr/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+/data/data/com.termux/files/usr/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+/data/data/com.termux/files/usr/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 413: 'Content Too Large'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
+test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp4ornz59w/history.jsonl' mode='r' encoding='utf-8'>
+  return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp4ornz59w/history.jsonl' mode='w' encoding='utf-8'>
+  open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:102: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp4ornz59w/head.json' mode='w' encoding='utf-8'>
+  open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpl9mrblgo/history.jsonl' mode='r' encoding='utf-8'>
+  return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
+test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
+test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmppdd8fvcq/history.jsonl' mode='r' encoding='utf-8'>
+  return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmppdd8fvcq/history.jsonl' mode='w' encoding='utf-8'>
+  open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpwa0i2ltn/history.jsonl' mode='r' encoding='utf-8'>
+  return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpwa0i2ltn/history.jsonl' mode='w' encoding='utf-8'>
+  open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp8f2cjczl/history.jsonl' mode='r' encoding='utf-8'>
+  return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp8f2cjczl/history.jsonl' mode='w' encoding='utf-8'>
+  open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp50ssa_v9/history.jsonl' mode='r' encoding='utf-8'>
+  return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp50ssa_v9/history.jsonl' mode='w' encoding='utf-8'>
+  open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpdvjutpii/history.jsonl' mode='r' encoding='utf-8'>
+  return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpdvjutpii/history.jsonl' mode='w' encoding='utf-8'>
+  open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpv20t7wpm/history.jsonl' mode='r' encoding='utf-8'>
+  return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpv20t7wpm/history.jsonl' mode='w' encoding='utf-8'>
+  open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_identity (test_core.IdentityTests.test_identity) ... ok
+test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/hg/__init__.py' mode='r' encoding='utf-8'>
+  text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/hg/authority.py' mode='r' encoding='utf-8'>
+  text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/hg/creative_assimilation.py' mode='r' encoding='utf-8'>
+  text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/hg/cti_guards.py' mode='r' encoding='utf-8'>
+  text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/hg/edge.py' mode='r' encoding='utf-8'>
+  text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/hg/history.py' mode='r' encoding='utf-8'>
+  text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/hg/identity.py' mode='r' encoding='utf-8'>
+  text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-de827b7/hg/phone_runtime.py' mode='r' encoding='utf-8'>
+  text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
+test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
+test_license_unknown_blocks (test_creative_assimilation.CandidateEvaluationTests.test_license_unknown_blocks) ... ok
+test_missing_evidence_blocks (test_creative_assimilation.CandidateEvaluationTests.test_missing_evidence_blocks) ... ok
+test_missing_experiment_blocks (test_creative_assimilation.CandidateEvaluationTests.test_missing_experiment_blocks) ... ok
+test_missing_failure_modes_blocks (test_creative_assimilation.CandidateEvaluationTests.test_missing_failure_modes_blocks) ... ok
+test_missing_principle_record_blocks (test_creative_assimilation.CandidateEvaluationTests.test_missing_principle_record_blocks) ... ok
+test_missing_source_blocks (test_creative_assimilation.CandidateEvaluationTests.test_missing_source_blocks) ... ok
+test_principle_source_binding_mismatch_blocks (test_creative_assimilation.CandidateEvaluationTests.test_principle_source_binding_mismatch_blocks) ... ok
+test_same_source_not_cross_source_synthesis (test_creative_assimilation.CandidateEvaluationTests.test_same_source_not_cross_source_synthesis) ... ok
+test_source_identity_key_mismatch_blocks (test_creative_assimilation.CandidateEvaluationTests.test_source_identity_key_mismatch_blocks) ... ok
+test_unknown_revision_blocks (test_creative_assimilation.CandidateEvaluationTests.test_unknown_revision_blocks) ... ok
+test_unverified_semantics_blocks (test_creative_assimilation.CandidateEvaluationTests.test_unverified_semantics_blocks) ... ok
+test_valid_cross_source_candidate_ready (test_creative_assimilation.CandidateEvaluationTests.test_valid_cross_source_candidate_ready) ... ok
+test_acceptance_uses_existing_trust_assessment_and_evidence (test_creative_assimilation.LifecycleTests.test_acceptance_uses_existing_trust_assessment_and_evidence) ... ok
+test_accepted_transition_needs_complete_provenance_and_trust (test_creative_assimilation.LifecycleTests.test_accepted_transition_needs_complete_provenance_and_trust) ... ok
+test_cannot_skip_review (test_creative_assimilation.LifecycleTests.test_cannot_skip_review) ... ok
+test_draft_to_candidate_structurally_complete (test_creative_assimilation.LifecycleTests.test_draft_to_candidate_structurally_complete) ... ok
+test_rejected_record_cannot_reopen (test_creative_assimilation.LifecycleTests.test_rejected_record_cannot_reopen) ... ok
+test_revoke_requires_evidence (test_creative_assimilation.LifecycleTests.test_revoke_requires_evidence) ... ok
+test_digest_not_source_authenticity (test_creative_assimilation.SourceEvidenceTests.test_digest_not_source_authenticity) ... ok
+test_http_upstream_rejected (test_creative_assimilation.SourceEvidenceTests.test_http_upstream_rejected) ... ok
+test_missing_inspected_path_blocks (test_creative_assimilation.SourceEvidenceTests.test_missing_inspected_path_blocks) ... ok
+test_missing_license_fails_closed (test_creative_assimilation.SourceEvidenceTests.test_missing_license_fails_closed) ... ok
+test_missing_source_evidence_ref_blocks (test_creative_assimilation.SourceEvidenceTests.test_missing_source_evidence_ref_blocks) ... ok
+test_trust_assessment_has_no_independent_verification_axis (test_creative_assimilation.SourceEvidenceTests.test_trust_assessment_has_no_independent_verification_axis) ... ok
+test_verified_source_has_no_blockers (test_creative_assimilation.SourceEvidenceTests.test_verified_source_has_no_blockers) ... ok
+test_bounds_and_architecture_are_checked (test_edge_schema_guard.EdgePayloadSchemaTests.test_bounds_and_architecture_are_checked) ... ok
+test_existing_heartbeat_payload_shape_remains_valid (test_edge_schema_guard.EdgePayloadSchemaTests.test_existing_heartbeat_payload_shape_remains_valid) ... ok
+test_existing_register_payload_shapes_remain_valid (test_edge_schema_guard.EdgePayloadSchemaTests.test_existing_register_payload_shapes_remain_valid) ... ok
+test_fields_are_not_coerced (test_edge_schema_guard.EdgePayloadSchemaTests.test_fields_are_not_coerced) ... ok
+test_http_handler_rejects_duplicate_json_keys (test_edge_schema_guard.EdgePayloadSchemaTests.test_http_handler_rejects_duplicate_json_keys) ... ok
+test_http_handler_rejects_invalid_payload_before_state_mutation (test_edge_schema_guard.EdgePayloadSchemaTests.test_http_handler_rejects_invalid_payload_before_state_mutation) ... ok
+test_http_handler_rejects_non_standard_json_constants (test_edge_schema_guard.EdgePayloadSchemaTests.test_http_handler_rejects_non_standard_json_constants) ... ok
+test_model_key_fields_are_rejected_recursively (test_edge_schema_guard.EdgePayloadSchemaTests.test_model_key_fields_are_rejected_recursively) ... ok
+test_non_object_is_rejected (test_edge_schema_guard.EdgePayloadSchemaTests.test_non_object_is_rejected) ... ok
+test_string_values_are_not_scanned_as_field_names (test_edge_schema_guard.EdgePayloadSchemaTests.test_string_values_are_not_scanned_as_field_names) ... ok
+test_unknown_fields_are_rejected (test_edge_schema_guard.EdgePayloadSchemaTests.test_unknown_fields_are_rejected) ... ok
+test_each_case_has_grounding_reference_and_provenance_type (test_hg_cti_benchmark_harness.HGCTIBenchmarkHarnessTests.test_each_case_has_grounding_reference_and_provenance_type) ... ok
+test_exactly_40_unique_cases_and_four_checks_each (test_hg_cti_benchmark_harness.HGCTIBenchmarkHarnessTests.test_exactly_40_unique_cases_and_four_checks_each) ... ok
+test_frozen_dataset_hash_matches_preregistration (test_hg_cti_benchmark_harness.HGCTIBenchmarkHarnessTests.test_frozen_dataset_hash_matches_preregistration) ... ok
+test_preregistered_counterexample_and_critical_cases_are_valid_ids (test_hg_cti_benchmark_harness.HGCTIBenchmarkHarnessTests.test_preregistered_counterexample_and_critical_cases_are_valid_ids) ... ok
+test_preregistered_single_call_arms_and_no_independent_review_gate (test_hg_cti_benchmark_harness.HGCTIBenchmarkHarnessTests.test_preregistered_single_call_arms_and_no_independent_review_gate) ... ok
+test_runner_refuses_non_loopback_endpoint_and_dataset_change (test_hg_cti_benchmark_harness.HGCTIBenchmarkHarnessTests.test_runner_refuses_non_loopback_endpoint_and_dataset_change) ... ok
+test_missing_capability_and_scope_fail_closed (test_hg_cti_guards.AuthorityGuardTests.test_missing_capability_and_scope_fail_closed) ... ok
+test_no_action_instruction_blocks_read_and_mutation (test_hg_cti_guards.AuthorityGuardTests.test_no_action_instruction_blocks_read_and_mutation) ... ok
+test_read_only_blocks_rollback_even_if_capability_list_contains_it (test_hg_cti_guards.AuthorityGuardTests.test_read_only_blocks_rollback_even_if_capability_list_contains_it) ... ok
+test_spend_requires_explicit_limit_and_stays_within_limit (test_hg_cti_guards.AuthorityGuardTests.test_spend_requires_explicit_limit_and_stays_within_limit) ... ok
+test_unknown_action_is_denied (test_hg_cti_guards.AuthorityGuardTests.test_unknown_action_is_denied) ... ok
+test_all_registered_gates_pass_only_when_every_gate_passes (test_hg_cti_guards.BenchmarkGateTests.test_all_registered_gates_pass_only_when_every_gate_passes) ... ok
+test_confidence_interval_touching_zero_fails (test_hg_cti_guards.BenchmarkGateTests.test_confidence_interval_touching_zero_fails) ... ok
+test_critical_violation_cannot_be_offset_by_large_usefulness_gain (test_hg_cti_guards.BenchmarkGateTests.test_critical_violation_cannot_be_offset_by_large_usefulness_gain) ... ok
+test_eight_percentage_points_does_not_meet_ten_point_threshold (test_hg_cti_guards.BenchmarkGateTests.test_eight_percentage_points_does_not_meet_ten_point_threshold) ... ok
+test_unknown_or_over_budget_cost_fails (test_hg_cti_guards.BenchmarkGateTests.test_unknown_or_over_budget_cost_fails) ... ok
+test_contradicted_claim_requires_evidence (test_hg_cti_guards.ClaimLedgerTests.test_contradicted_claim_requires_evidence) ... ok
+test_duplicate_claim_ids_are_rejected (test_hg_cti_guards.ClaimLedgerTests.test_duplicate_claim_ids_are_rejected) ... ok
+test_missing_span_and_dangling_evidence_are_rejected (test_hg_cti_guards.ClaimLedgerTests.test_missing_span_and_dangling_evidence_are_rejected) ... ok
+test_supported_claim_requires_present_evidence_reference (test_hg_cti_guards.ClaimLedgerTests.test_supported_claim_requires_present_evidence_reference) ... ok
+test_unknown_claim_is_explicit_and_counted_not_silently_supported (test_hg_cti_guards.ClaimLedgerTests.test_unknown_claim_is_explicit_and_counted_not_silently_supported) ... ok
+test_response_gate_accepts_structurally_valid_safe_response (test_hg_cti_guards.IntegratedResponseGateTests.test_response_gate_accepts_structurally_valid_safe_response) ... ok
+test_response_gate_blocks_unauthorized_rollback_and_unknown_rights (test_hg_cti_guards.IntegratedResponseGateTests.test_response_gate_blocks_unauthorized_rollback_and_unknown_rights) ... ok
+test_response_gate_rejects_secret_print_recommendation (test_hg_cti_guards.IntegratedResponseGateTests.test_response_gate_rejects_secret_print_recommendation) ... ok
+test_hash_integrity_alone_does_not_authorize_reuse (test_hg_cti_guards.ProvenanceGuardTests.test_hash_integrity_alone_does_not_authorize_reuse) ... ok
+test_historical_provenance_is_not_current_verification (test_hg_cti_guards.ProvenanceGuardTests.test_historical_provenance_is_not_current_verification) ... ok
+test_reuse_requires_all_prerequisites (test_hg_cti_guards.ProvenanceGuardTests.test_reuse_requires_all_prerequisites) ... ok
+test_unknown_rights_blocks_reuse (test_hg_cti_guards.ProvenanceGuardTests.test_unknown_rights_blocks_reuse) ... ok
+test_known_secret_value_is_blocked (test_hg_cti_guards.SecretHandlingTests.test_known_secret_value_is_blocked) ... ok
+test_safe_text_without_secret_pattern_passes (test_hg_cti_guards.SecretHandlingTests.test_safe_text_without_secret_pattern_passes) ... ok
+test_secret_printing_is_blocked (test_hg_cti_guards.SecretHandlingTests.test_secret_printing_is_blocked) ... ok
+test_secret_transmission_is_blocked (test_hg_cti_guards.SecretHandlingTests.test_secret_transmission_is_blocked) ... ok
+
+----------------------------------------------------------------------
+Ran 80 tests in 3.500s
+
+OK
