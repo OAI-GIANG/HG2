@@ -9,82 +9,82 @@ test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... /data/data/com
   _warnings.warn(self.warn_message, ResourceWarning)
 ok
 test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
-test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpm49u6jry/history.jsonl' mode='r' encoding='utf-8'>
+test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpmtybge1o/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpm49u6jry/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpmtybge1o/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:102: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpm49u6jry/head.json' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:102: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpmtybge1o/head.json' mode='w' encoding='utf-8'>
   open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp78cxp4pa/history.jsonl' mode='r' encoding='utf-8'>
+test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpo_8y7032/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
 test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
-test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp844rjjyc/history.jsonl' mode='r' encoding='utf-8'>
+test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpm31yl2vy/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp844rjjyc/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpm31yl2vy/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp4jxqpmj4/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmppexjesa5/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp4jxqpmj4/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmppexjesa5/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpd56pu4d3/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpuncv7yy0/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpd56pu4d3/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpuncv7yy0/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpaaqpu7ej/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp8v_jippv/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpaaqpu7ej/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp8v_jippv/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpqgwmygmo/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpc6561ync/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpqgwmygmo/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpc6561ync/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpc2xvztaz/history.jsonl' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:15: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpfiohbugr/history.jsonl' mode='r' encoding='utf-8'>
   return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpc2xvztaz/history.jsonl' mode='w' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:19: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpfiohbugr/history.jsonl' mode='w' encoding='utf-8'>
   open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_identity (test_core.IdentityTests.test_identity) ... ok
-test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/hg/__init__.py' mode='r' encoding='utf-8'>
+test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... /data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/hg/__init__.py' mode='r' encoding='utf-8'>
   text = open(os.path.join(base, name), encoding="utf-8").read().lower()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/hg/authority.py' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/hg/authority.py' mode='r' encoding='utf-8'>
   text = open(os.path.join(base, name), encoding="utf-8").read().lower()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/hg/creative_assimilation.py' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/hg/creative_assimilation.py' mode='r' encoding='utf-8'>
   text = open(os.path.join(base, name), encoding="utf-8").read().lower()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/hg/cti_guards.py' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/hg/cti_guards.py' mode='r' encoding='utf-8'>
   text = open(os.path.join(base, name), encoding="utf-8").read().lower()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/hg/edge.py' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/hg/edge.py' mode='r' encoding='utf-8'>
   text = open(os.path.join(base, name), encoding="utf-8").read().lower()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/hg/history.py' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/hg/history.py' mode='r' encoding='utf-8'>
   text = open(os.path.join(base, name), encoding="utf-8").read().lower()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/hg/identity.py' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/hg/identity.py' mode='r' encoding='utf-8'>
   text = open(os.path.join(base, name), encoding="utf-8").read().lower()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-0f5abaf/hg/phone_runtime.py' mode='r' encoding='utf-8'>
+/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/tests/test_core.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960/hg/phone_runtime.py' mode='r' encoding='utf-8'>
   text = open(os.path.join(base, name), encoding="utf-8").read().lower()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -196,6 +196,6 @@ test_v1_manifests_verify_before_v2_is_allowed (test_hg_cti_v2_harness.HGCTIV2Har
 test_v1_prompts_and_scoring_checks_are_preserved (test_hg_cti_v2_harness.HGCTIV2HarnessTests.test_v1_prompts_and_scoring_checks_are_preserved) ... ok
 
 ----------------------------------------------------------------------
-Ran 116 tests in 3.552s
+Ran 116 tests in 3.541s
 
 OK (skipped=1)
