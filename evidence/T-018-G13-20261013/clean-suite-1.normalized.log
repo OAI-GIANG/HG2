@@ -1,0 +1,28 @@
+test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
+test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
+test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
+test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
+test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
+test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
+test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
+test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
+test_identity (test_core.IdentityTests.test_identity) ... ok
+test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
+test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
+test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
+test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
+test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
+test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
+test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
+test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
+test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
+test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
+test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
+test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
+test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
+test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in <TIME>
+
+OK
