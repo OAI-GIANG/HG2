@@ -63,13 +63,13 @@
     "Claim ledger validation checks span/reference structure but does not prove semantic entailment between a claim and evidence.",
     "No merge or deployment has occurred."
   ],
-  "tested_commit": "cb87960bc5ebdb1858c28abb9c55e9c61899f078",
+  "tested_commit": "6dace0e2698a2183140a7760d097b811dc2303ea",
   "clean_checkout_verification": {
-    "worktree": "/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-cb87960",
-    "commit": "cb87960bc5ebdb1858c28abb9c55e9c61899f078",
+    "worktree": "/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-6dace0e",
+    "commit": "6dace0e2698a2183140a7760d097b811dc2303ea",
     "full_test_exit_code": 0,
-    "full_test_count": 116,
-    "skipped_before_prereg_freeze": 1,
+    "full_test_count": 128,
+    "skipped_before_v2_1_freeze": 1,
     "root_v1_manifest_exit_code": 0,
     "root_v1_manifest_failed_entries": 0,
     "run_v1_manifest_exit_code": 0,
@@ -84,7 +84,7 @@
     "head_branch": "remediation/hg-cti-p0-guards-20261014",
     "merge_authorized_now": false
   },
-  "latest_verified_remote_head_before_this_evidence_update": "cb87960bc5ebdb1858c28abb9c55e9c61899f078",
+  "latest_verified_remote_head_before_this_evidence_update": "6dace0e2698a2183140a7760d097b811dc2303ea",
   "current_worktree_test_run": {
     "focused_guard_tests_run": 46,
     "v2_harness_tests_run": 16,
@@ -97,10 +97,21 @@
   "matrix_coverage": {
     "unit_tested_case_ids": [
       "CTI-001",
+      "CTI-002",
       "CTI-003",
       "CTI-004",
       "CTI-005",
+      "CTI-006",
+      "CTI-007",
       "CTI-008",
+      "CTI-009",
+      "CTI-010",
+      "CTI-011",
+      "CTI-012",
+      "CTI-013",
+      "CTI-014",
+      "CTI-015",
+      "CTI-016",
       "CTI-017",
       "CTI-018",
       "CTI-019",
@@ -114,15 +125,18 @@
       "CTI-035",
       "CTI-040"
     ],
-    "full_case_end_to_end_status": "NOT_RUN",
-    "remaining_case_specific_tests": "PLANNED"
+    "case_specific_p0_unit_tests": "PASS",
+    "cross_cutting_gates_over_80_v2_outputs": "PLANNED_UNTIL_BENCHMARK_RUN",
+    "p1_case_specific_tests": "PLANNED"
   },
   "v2_harness": {
-    "status": "IMPLEMENTED_NOT_RUN",
+    "status": "IMPLEMENTED_P0_UNIT_TESTS_PASS_NOT_RUN",
+    "protocol_version": "V2.1",
     "dataset_sha256": "58b68415d088ff8bcad15366afc66101d902e2b421caa41f03c178be9c354309",
     "case_count": 40,
     "paired_responses_expected": 80,
-    "preregistration_status": "NOT_FROZEN_YET",
+    "v2_0_freeze": "SUPERSEDED_BEFORE_RUN_AND_ARCHIVED",
+    "v2_1_preregistration_status": "NOT_FROZEN_YET",
     "inference_run": "NOT_RUN",
     "output_directory": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001"
   },
@@ -145,5 +159,18 @@
       }
     ],
     "classification": "POST_RUN_DOCUMENTATION_DRIFT; V1 runner validated the original README hash before inference; V1 raw/scoring run manifests still verify; do not rewrite V1 history."
+  },
+  "focused_test_runs": {
+    "guard_tests": {
+      "command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_guards.py' -v",
+      "exit_code": 0,
+      "tests_run": 57
+    },
+    "v2_harness_tests": {
+      "command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_v2_harness.py' -v",
+      "exit_code": 0,
+      "tests_run": 17,
+      "skipped_before_v2_1_freeze": 1
+    }
   }
 }
