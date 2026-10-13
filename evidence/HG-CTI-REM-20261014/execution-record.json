@@ -130,7 +130,7 @@
     "p1_case_specific_tests": "PLANNED"
   },
   "v2_harness": {
-    "status": "PREREGISTERED_PRE_RUN_GATES_PASS_NOT_RUN",
+    "status": "BLOCKED_INCOMPLETE_EXECUTION_NO_ACCEPTANCE_RESULT",
     "protocol_version": "V2.2",
     "dataset_sha256": "58b68415d088ff8bcad15366afc66101d902e2b421caa41f03c178be9c354309",
     "preregistration_sha256": "7859f28c2105f0d6bb88cfd7f5267dce9976bb009e5d10e66464964e857debfc",
@@ -155,9 +155,24 @@
     "local_runtime_health": "PASS",
     "model_hash_match": true,
     "server_binary_hash_match": true,
-    "inference_run": "NOT_RUN",
+    "inference_run": "STARTED_TWICE_BUT_BOTH_ATTEMPTS_INCOMPLETE",
     "output_directory_absent": true,
-    "output_directory": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001"
+    "output_directory": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001",
+    "complete_pairs": 0,
+    "incomplete_attempts": [
+      {
+        "path": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-1-incomplete",
+        "rows": 69,
+        "manifest_verified": true
+      },
+      {
+        "path": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-2-incomplete",
+        "rows": 5,
+        "manifest_verified": true
+      }
+    ],
+    "scoring": "NOT_RUN",
+    "blocker": "Runner process terminates before completing all 80 responses; exact process termination cause unverified."
   },
   "v1_provenance_discrepancy": {
     "file": "benchmarks/hg_cti_v1/README.md",
