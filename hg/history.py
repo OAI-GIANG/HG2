@@ -275,6 +275,8 @@ class StateStore:
             raise HistoryError("event type must be a non-empty string")
         if not isinstance(payload, dict):
             raise HistoryError("event payload must be an object")
+        if event_id is not None and (not isinstance(event_id, str) or not event_id):
+            raise HistoryError("event_id must be a non-empty string when provided")
         with self._lock:
             if self._poisoned:
                 raise HistoryError("state store is poisoned after a persistence failure; reopen only after investigation")

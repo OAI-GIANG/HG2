@@ -42,7 +42,16 @@ class IntegrityPolicyTests(unittest.TestCase):
             for event_type, payload in invalid_cases:
                 with self.subTest(event_type=event_type, payload_type=type(payload).__name__):
                     with self.assertRaises(HistoryError):
-                        store.emit(event_type, payload, event_id="invalid-input")
+                        store.emit(event_type, payload, event_id="valid-event-id")
+                    for attr, path in (("log", "history.jsonl"),
+                                       ("state", "state.json"),
+                                       ("head", "head.json")):
+                        self.assertEqual(Path(getattr(store, attr)).read_bytes(), original[path])
+                    self.assertTrue(store.verify()["ok"])
+            for event_id in ("", 123, True, 1.5, [], {}):
+                with self.subTest(event_id=repr(event_id)):
+                    with self.assertRaises(HistoryError):
+                        store.emit("probe.valid", {}, event_id=event_id)
                     for attr, path in (("log", "history.jsonl"),
                                        ("state", "state.json"),
                                        ("head", "head.json")):
