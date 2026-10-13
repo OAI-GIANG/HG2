@@ -61,9 +61,11 @@ class SyncTests(unittest.TestCase):
         out = self._publish(self.a, {"note": "dup"})
         self._move(self.a, self.b, out["file"])
         self.b.import_batch(out["file"])
-        raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
+        with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
+            raw = json.loads(fh.read())
         replay = os.path.join(self.b.spool, "inbox", "again.json")
-        open(replay, "w").write(json.dumps(raw))
+        with open(replay, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(raw))
         before = len(self.b.store.replay())
         res = self.b.import_batch("again.json")
         self.assertEqual(res["accepted"], [])
@@ -74,11 +76,13 @@ class SyncTests(unittest.TestCase):
         out = self._publish(self.a, {"note": "one"})
         self._move(self.a, self.b, out["file"])
         self.b.import_batch(out["file"])
-        raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
+        with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
+            raw = json.loads(fh.read())
         raw["events"][0]["payload"] = {"note": "changed"}
         raw["events"][0]["payload_hash"] = digest({"note": "changed"})
         p = os.path.join(self.b.spool, "inbox", "conflict.json")
-        open(p, "w").write(json.dumps(raw))
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(raw))
         with self.assertRaises(SyncError):
             self.b.import_batch("conflict.json")
         self.assertTrue(os.path.exists(os.path.join(self.b.spool, "conflicts", "conflict.json")))
@@ -86,22 +90,26 @@ class SyncTests(unittest.TestCase):
     def test_tampered_payload_rejected(self):
         out = self._publish(self.a, {"note": "x"})
         p = os.path.join(self.a.spool, "outbox", out["file"])
-        raw = json.loads(open(p).read())
+        with open(p, encoding="utf-8") as fh:
+            raw = json.loads(fh.read())
         raw["events"][0]["payload"] = {"note": "tampered"}
-        open(p, "w").write(json.dumps(raw))
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(raw))
         self._move(self.a, self.b, out["file"])
         with self.assertRaises(SyncError):
             self.b.import_batch(out["file"])
 
     def test_unsupported_schema_and_missing_field_rejected(self):
         p = os.path.join(self.a.spool, "outbox", "bad.json")
-        open(p, "w").write(json.dumps({"schema": "OTHER", "events": [{}]}))
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"schema": "OTHER", "events": [{}]}))
         self._move(self.a, self.b, "bad.json")
         with self.assertRaises(SyncError):
             self.b.import_batch("bad.json")
         ev = self.a.local_event("note.created", {"note": "m"})
         del ev["origin_hash"]
-        open(os.path.join(self.a.spool, "outbox", "missing.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [ev]}))
+        with open(os.path.join(self.a.spool, "outbox", "missing.json"), "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "events": [ev]}))
         self._move(self.a, self.b, "missing.json")
         with self.assertRaises(SyncError):
             self.b.import_batch("missing.json")
@@ -110,19 +118,22 @@ class SyncTests(unittest.TestCase):
         e1 = self.a.local_event("note.created", {"n": 1})
         e2 = self.a.local_event("note.created", {"n": 2})
         e2["origin_prev_hash"] = "0" * 64
-        open(os.path.join(self.a.spool, "outbox", "chain.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [e1, e2]}))
+        with open(os.path.join(self.a.spool, "outbox", "chain.json"), "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "events": [e1, e2]}))
         self._move(self.a, self.b, "chain.json")
         with self.assertRaises(SyncError):
             self.b.import_batch("chain.json")
         own = self.b.local_event("note.created", {"n": 3})
-        open(os.path.join(self.b.spool, "outbox", "self.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [own]}))
+        with open(os.path.join(self.b.spool, "outbox", "self.json"), "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "events": [own]}))
         os.replace(os.path.join(self.b.spool, "outbox", "self.json"), os.path.join(self.b.spool, "inbox", "self.json"))
         with self.assertRaises(SyncError):
             self.b.import_batch("self.json")
 
     def test_truncated_batch_rejected_and_audited(self):
         p = os.path.join(self.a.spool, "outbox", "trunc.json")
-        open(p, "w").write('{"schema": "HG_SYNC_BATCH_V1", "events": [')
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write('{"schema": "HG_SYNC_BATCH_V1", "events": [')
         self._move(self.a, self.b, "trunc.json")
         with self.assertRaises(SyncError):
             self.b.import_batch("trunc.json")
@@ -148,8 +159,10 @@ class SyncTests(unittest.TestCase):
         reopened = ctx("ctx-b", self.tmp)
         self.assertEqual(reopened.store.audit_export()["head_hash"], before)
         self.assertTrue(reopened.store.verify()["ok"])
-        raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
-        open(os.path.join(self.b.spool, "inbox", "again2.json"), "w").write(json.dumps(raw))
+        with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
+            raw = json.loads(fh.read())
+        with open(os.path.join(self.b.spool, "inbox", "again2.json"), "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(raw))
         self.assertEqual(reopened.import_batch("again2.json")["duplicates"], [out and raw["events"][0]["event_id"]])
 
 
