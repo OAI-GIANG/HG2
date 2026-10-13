@@ -16,8 +16,13 @@
       "license_files_found": [
         "memXT-main/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "55b81ce235587722a0611b0ca1754914972fae84",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/Yupcha/memxt",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "friday-main.zip",
@@ -32,8 +37,13 @@
       "license_files_found": [
         "friday-main/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "d731952210a184580318d64fbf55662f239b7313",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/debpalash/friday",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "pp-finder-main.zip",
@@ -46,8 +56,13 @@
       "zip_crc_check": "PASS",
       "embedded_git_metadata": false,
       "license_files_found": [],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+      "upstream_revision": "6e1011ca6bfc0a49ac40f8e6eb3e3e157e649fab",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/yeswehack/pp-finder",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "Dom-Explorer-main.zip",
@@ -62,8 +77,13 @@
       "license_files_found": [
         "Dom-Explorer-main/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "fdde12fa842fd212cf6f864b1f872a07bd1132b0",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/yeswehack/Dom-Explorer",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "vulnerable-code-snippets-main.zip",
@@ -76,8 +96,13 @@
       "zip_crc_check": "PASS",
       "embedded_git_metadata": false,
       "license_files_found": [],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+      "upstream_revision": "90c910e15b9fd2ce7dbc06c7594a050d486b80e8",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/yeswehack/vulnerable-code-snippets",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "PwnFox-master.zip",
@@ -90,8 +115,13 @@
       "zip_crc_check": "PASS",
       "embedded_git_metadata": false,
       "license_files_found": [],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+      "upstream_revision": "74d1688f760413430790ac40db72744e2b4a8dbb",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/B-i-t-K/PwnFox",
+      "upstream_default_branch": "master",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "ywh2bugtracker-master.zip",
@@ -104,8 +134,13 @@
       "zip_crc_check": "PASS",
       "embedded_git_metadata": false,
       "license_files_found": [],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+      "upstream_revision": "9b617f1c349fb3c0e1b0d003552811637f6c47e7",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/yeswehack/ywh2bugtracker",
+      "upstream_default_branch": "master",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "YesWeBurp-master.zip",
@@ -120,8 +155,13 @@
       "license_files_found": [
         "YesWeBurp-master/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "67c9499a8148a4a672a90cce433a073d1472d3c7",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/yeswehack/YesWeBurp",
+      "upstream_default_branch": "master",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "yeswecaido-main.zip",
@@ -136,8 +176,13 @@
       "license_files_found": [
         "yeswecaido-main/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "0fa00adb0bda589ac43938f92023d114878faf68",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/yeswehack/yeswecaido",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "myopenvdp-master.zip",
@@ -152,8 +197,13 @@
       "license_files_found": [
         "myopenvdp-master/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "03e90e225cb8aee90bd36c5684b97b5298dcbbbb",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/yeswehack/my-open-vdp",
+      "upstream_default_branch": "master",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "xsstools-master.zip",
@@ -169,8 +219,13 @@
         "xsstools-master/LICENSE",
         "xsstools-master/docgen/xsstools-jsdoc-theme/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "115ab6d925b87b302c2a5c81899005d59caaaef5",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/yeswehack/xsstools",
+      "upstream_default_branch": "master",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "burp-addon-tutorial-main.zip",
@@ -183,8 +238,13 @@
       "zip_crc_check": "PASS",
       "embedded_git_metadata": false,
       "license_files_found": [],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+      "upstream_revision": "6a8b7a5a0ee3836aa227bc2cd287f3e5c2fea38d",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/yeswehack/burp-addon-tutorial",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "hoglet-main.zip",
@@ -197,8 +257,13 @@
       "zip_crc_check": "PASS",
       "embedded_git_metadata": false,
       "license_files_found": [],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+      "upstream_revision": "ff5db7ad819e32e1890607080f98be8f86033252",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/debpalash/hoglet",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "OpenGTM-main.zip",
@@ -215,8 +280,13 @@
         "OpenGTM-main/apps/docs/src/content/docs/community/license.md",
         "OpenGTM-main/scripts/vendor/twenty-ui/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "9188fc4d040c186f3495902fe77e0d041deba3bd",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/debpalash/OpenGTM",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "VoiceStudio-main.zip",
@@ -232,8 +302,13 @@
         "VoiceStudio-main/LICENSE",
         "VoiceStudio-main/electron/src/main/fixtures/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "c2ef99817fc4f2e0271a223c357e57e8df93cbde",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/debpalash/VoiceStudio",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "Opal-main.zip",
@@ -248,8 +323,13 @@
       "license_files_found": [
         "Opal-main/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "3b708aa2bfc791c8885a26b0339ff6318e7d1355",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/debpalash/Opal",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "bootable-main.zip",
@@ -264,8 +344,13 @@
       "license_files_found": [
         "bootable-main/LICENSE"
       ],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "REQUIRES_REVIEW"
+      "upstream_revision": "f4837882be756cc33fda738890a6e382473f926f",
+      "license_assessment": "REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/debpalash/bootable",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     },
     {
       "archive": "homebrew-memxt-main.zip",
@@ -278,13 +363,18 @@
       "zip_crc_check": "PASS",
       "embedded_git_metadata": false,
       "license_files_found": [],
-      "upstream_revision": "UNKNOWN: ZIP contains no .git metadata",
-      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW"
+      "upstream_revision": "07b8451114302080dcaafc3ae01daa6e2b36a223",
+      "license_assessment": "NO_ROOT_LICENSE_FOUND_REQUIRES_REVIEW",
+      "upstream_repository": "https://github.com/Yupcha/homebrew-memxt",
+      "upstream_default_branch": "main",
+      "upstream_tree_match": true,
+      "source_authenticity": "PASS_FOR_OBSERVED_COMMIT_TREE",
+      "upstream_tree_comparison_evidence": "evidence/HG-CTI-20261013/upstream-snapshot-comparison.json"
     }
   ],
   "limitations": [
-    "Archive SHA-256 identifies local ZIP bytes only.",
-    "No embedded Git metadata was found in these archives.",
-    "ZIP integrity does not establish upstream revision, source authenticity, license compatibility, or semantic validity."
+    "Archive SHA-256 identifies the local ZIP bytes.",
+    "All 18 archive file trees were compared against the listed upstream default-branch commit trees; all file paths and Git blob SHA-1 values matched exactly at observation time.",
+    "Tree match establishes byte equality to the observed commit tree, not license compatibility, legal permission, semantic correctness, or benchmark benefit."
   ]
 }

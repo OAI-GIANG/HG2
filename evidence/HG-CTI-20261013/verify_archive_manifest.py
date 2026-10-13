@@ -22,6 +22,24 @@ for item in manifest["archives"]:
             failures.append(item["archive"] + ":CRC_FAILURE")
 if len(manifest["archives"]) != manifest["archive_count_expected"]:
     failures.append("ARCHIVE_COUNT_MISMATCH")
-print(json.dumps({"archives_checked": len(manifest["archives"]), "failures": failures,
-                  "result": "PASS" if not failures else "FAIL"}, indent=2))
+comparison_path = Path(__file__).with_name("upstream-snapshot-comparison.json")
+if not comparison_path.is_file():
+    failures.append("UPSTREAM_COMPARISON_MISSING")
+else:
+    comparison = json.loads(comparison_path.read_text(encoding="utf-8"))
+    results = {item["archive"]: item for item in comparison.get("results", [])}
+    if len(results) != manifest["archive_count_expected"]:
+        failures.append("UPSTREAM_COMPARISON_COUNT_MISMATCH")
+    for item in manifest["archives"]:
+        observed = results.get(item["archive"])
+        if not observed or observed.get("result") != "TREE_MATCH":
+            failures.append(item["archive"] + ":UPSTREAM_TREE_NOT_MATCHED")
+            continue
+        if observed.get("commit") != item.get("upstream_revision"):
+            failures.append(item["archive"] + ":UPSTREAM_COMMIT_BINDING_MISMATCH")
+        if observed.get("repository") != item.get("upstream_repository", "").removeprefix("https://github.com/"):
+            failures.append(item["archive"] + ":UPSTREAM_REPOSITORY_BINDING_MISMATCH")
+print(json.dumps({"archives_checked": len(manifest["archives"]),
+                  "upstream_tree_matches": sum(x.get("result") == "TREE_MATCH" for x in results.values()) if comparison_path.is_file() else 0,
+                  "failures": failures, "result": "PASS" if not failures else "FAIL"}, indent=2))
 sys.exit(1 if failures else 0)

@@ -71,18 +71,19 @@
     "Creative layer gains authority or mutates canonical state"
   ],
   "trust": {
-    "artifact_integrity": "PASS_FOR_LOCAL_ARCHIVE_BYTES_ONLY",
-    "source_authenticity": "UNKNOWN",
+    "artifact_integrity": "PASS",
+    "source_authenticity": "PASS_FOR_OBSERVED_UPSTREAM_TREE_MATCH",
     "license_status": "UNKNOWN_OR_CONFLICTING_BY_SOURCE",
     "semantic_validity": "NOT_TESTED_ON_BENCHMARK",
     "independent_verification": "NOT_PERFORMED"
   },
   "current_decision": "DRAFT_ONLY",
   "blockers": [
-    "Exact upstream commit-to-archive mapping unresolved for the source set",
+    "License compatibility remains unresolved for archives without a license file and for the xsstools metadata conflict",
     "Some source archives have no license file; xsstools has a license/package-metadata conflict",
     "Benchmark protocol has not been executed",
     "Independent review has not been performed",
-    "No runtime integration or measurable creativity advantage is claimed"
+    "No runtime integration or measurable creativity advantage is claimed",
+    "No trusted reviewer/attestation verifier is integrated; ACCEPTED remains unreachable in V1"
   ]
 }

@@ -56,7 +56,8 @@ compensated for by novelty.
   semantic correctness.
 
 ## Current limitations
-The downloaded ZIPs have no embedded .git metadata. Archive digests and ZIP CRC checks are
-recorded, but exact upstream commit-to-archive mapping and all license conclusions are not yet
-verified. The current archive set is suitable for bounded reference analysis only; it cannot
-support a claim of source-authentic implementation or acceptance.
+The downloaded ZIPs have no embedded .git metadata, but the 18 archive file trees were matched
+against the observed upstream default-branch commit trees by path and Git blob SHA-1. This proves
+tree equality at observation time, not license compatibility, semantic correctness or benefit.
+All license conclusions are not yet verified. The current archive set supports reference analysis;
+it does not authorize code reuse or acceptance.

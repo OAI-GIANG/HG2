@@ -24,7 +24,7 @@ owner, one canonical runtime/state owner, and fail-closed evidence gates.
 - Bootable: staged action/review/execute/verify pattern; HG-CTI itself cannot execute.
 - Homebrew memXT: packaging/distribution reference only.
 
-The source-by-source evidence and unresolved identity/license gates are recorded in
+The source-by-source evidence and remaining license gates are recorded in
 HG_CREATIVE_ASSIMILATION_SOURCE_MATRIX.md. These are bounded abstractions, not claims that every
 upstream revision or implementation detail has been independently verified.
 
@@ -35,9 +35,9 @@ dependency or service was integrated.
 
 ## Acceptance gates
 1. Source inventory: 18 archive SHA-256 values and ZIP CRC checks are recorded in
-   evidence/HG-CTI-20261013/archive-manifest.json. ZIPs lack embedded .git metadata; exact upstream
-   revisions remain unresolved. License files are absent from some archives, so license status is
-   not inferred from project names.
+   evidence/HG-CTI-20261013/archive-manifest.json. ZIPs lack embedded .git metadata, but all 18 archive file trees now match exact observed upstream
+   default-branch commits (evidence includes repository, commit SHA, paths and blob-hash comparison).
+   License files are absent from some archives, so license status is not inferred from project names.
 2. Capability gap: canonical HG had no creative-assimilation candidate contract/evaluator. This
    branch adds a bounded pure module; it does not claim a production intelligence advantage.
 3. Semantic safety: tests cover missing source, unverified revision/license, unknown trust,
@@ -49,5 +49,4 @@ dependency or service was integrated.
 6. Runtime/production: no runtime wiring or deployment is included or claimed.
 
 ## Verdict
-Implementation candidate on isolated branch. No production/release certification. Source provenance,
-benchmark advantage and independent review remain open gates.
+Implementation candidate on isolated branch. No production/release certification. License compatibility, benchmark advantage and independent review remain open gates.
