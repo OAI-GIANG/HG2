@@ -18,6 +18,18 @@ def digest(o):
     return hashlib.sha256(canonical(o).encode("utf-8")).hexdigest()
 
 
+def _decode_runtime_id(raw):
+    """Decode the one-line runtime identity without normalizing tampering."""
+    value = raw
+    if value.endswith("\r\n"):
+        value = value[:-2]
+    elif value.endswith("\n"):
+        value = value[:-1]
+    if not value or value != value.strip() or "\n" in value or "\r" in value:
+        raise ValueError("runtime identity malformed")
+    return value
+
+
 class HistoryError(Exception):
     pass
 
@@ -124,11 +136,11 @@ class StateStore:
         if self._preexisting["runtime_id"]:
             try:
                 with open(p, encoding="utf-8") as fh:
-                    value = fh.read().strip()
+                    value = _decode_runtime_id(fh.read())
             except OSError as exc:
                 raise HistoryError("runtime identity unreadable") from exc
-            if not value:
-                raise HistoryError("runtime identity empty")
+            except ValueError as exc:
+                raise HistoryError("runtime identity malformed") from exc
             return value
         # A runtime identity may only be minted for a genuinely new store.
         # Never replace a missing identity when any durable state remains.
@@ -235,7 +247,8 @@ class StateStore:
         except (OSError, json.JSONDecodeError) as exc:
             raise HistoryError("head checkpoint unreadable") from exc
         s, h = self._head()
-        if not isinstance(hd, dict) or hd.get("seq") != s or hd.get("head_hash") != h:
+        expected = {"seq": s, "head_hash": h}
+        if not isinstance(hd, dict) or canonical(hd) != canonical(expected):
             raise HistoryError("log does not match head checkpoint")
 
     def _projection_check(self):
@@ -248,7 +261,7 @@ class StateStore:
         # The projection is a derived cache, but any divergence is an integrity
         # failure. Do not silently repair it during startup: an operator must
         # explicitly investigate the discrepancy before recovery is permitted.
-        if doc != current:
+        if canonical(doc) != canonical(current):
             raise HistoryError("state projection does not match history")
 
     def _apply(self, rec):
@@ -331,9 +344,12 @@ class StateStore:
         if not rid_exists:
             return {"ok": False, "events": 0, "reason": "runtime_identity_missing"}
         try:
-            with open(rid_path, encoding="utf-8") as fh:
-                stored_runtime_id = fh.read().strip()
-            if not stored_runtime_id or stored_runtime_id != self.runtime_id:
+            try:
+                with open(rid_path, encoding="utf-8") as fh:
+                    stored_runtime_id = _decode_runtime_id(fh.read())
+            except ValueError:
+                return {"ok": False, "events": 0, "reason": "runtime_identity_malformed"}
+            if stored_runtime_id != self.runtime_id:
                 return {"ok": False, "events": 0, "reason": "runtime_identity_mismatch"}
             prev, seq, seen, count = ZERO, 0, set(), 0
             sessions, counters = {}, {}
@@ -383,7 +399,8 @@ class StateStore:
                     checkpoint = json.load(fh)
             except (OSError, UnicodeDecodeError, json.JSONDecodeError):
                 return {"ok": False, "events": count, "reason": "checkpoint_unreadable"}
-            if not isinstance(checkpoint, dict) or checkpoint.get("seq") != seq or checkpoint.get("head_hash") != prev:
+            expected_checkpoint = {"seq": seq, "head_hash": prev}
+            if not isinstance(checkpoint, dict) or canonical(checkpoint) != canonical(expected_checkpoint):
                 return {"ok": False, "events": count, "reason": "checkpoint_mismatch"}
             try:
                 with open(self.state, encoding="utf-8") as fh:
@@ -392,7 +409,7 @@ class StateStore:
                 return {"ok": False, "events": count, "reason": "state_projection_unreadable"}
             expected = {"schema": SCHEMA, "product_id": PRODUCT_ID, "runtime_id": stored_runtime_id,
                         "last_seq": seq, "head_hash": prev, "sessions": sessions, "counters": counters}
-            if projection != expected:
+            if canonical(projection) != canonical(expected):
                 return {"ok": False, "events": count, "reason": "state_projection_mismatch"}
             return {"ok": True, "events": count, "head_hash": prev, "reason": "chain_and_artifacts_ok"}
         except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError, KeyError, AttributeError):

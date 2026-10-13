@@ -30,6 +30,41 @@ class IntegrityPolicyTests(unittest.TestCase):
         self.assertEqual(len(s.replay()), 1)
         self.assertTrue(s.verify()["ok"])
 
+    def test_json_numeric_type_substitution_is_detected(self):
+        cases = (
+            ("head-bool-seq", "head.json", lambda doc: doc.__setitem__("seq", True), "checkpoint_mismatch"),
+            ("head-float-seq", "head.json", lambda doc: doc.__setitem__("seq", 1.0), "checkpoint_mismatch"),
+            ("head-extra-field", "head.json", lambda doc: doc.__setitem__("unexpected", True), "checkpoint_mismatch"),
+            ("projection-bool-last-seq", "state.json", lambda doc: doc.__setitem__("last_seq", True), "state_projection_mismatch"),
+            ("projection-float-last-seq", "state.json", lambda doc: doc.__setitem__("last_seq", 1.0), "state_projection_mismatch"),
+            ("projection-bool-counter", "state.json", lambda doc: doc["counters"].__setitem__("hg.genesis", True), "state_projection_mismatch"),
+            ("projection-float-counter", "state.json", lambda doc: doc["counters"].__setitem__("hg.genesis", 1.0), "state_projection_mismatch"),
+            ("projection-extra-field", "state.json", lambda doc: doc.__setitem__("unexpected", True), "state_projection_mismatch"),
+        )
+        for name, filename, mutate, reason in cases:
+            with self.subTest(case=name), tempfile.TemporaryDirectory() as d:
+                store = StateStore(d)
+                path = Path(d) / filename
+                doc = json.loads(path.read_text(encoding="utf-8"))
+                mutate(doc)
+                path.write_text(json.dumps(doc), encoding="utf-8")
+                tampered = path.read_bytes()
+                self.assertEqual(store.verify()["reason"], reason)
+                with self.assertRaises(HistoryError):
+                    StateStore(d)
+                self.assertEqual(path.read_bytes(), tampered)
+
+    def test_runtime_identity_whitespace_tampering_is_detected(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            path = Path(d) / "runtime_id"
+            path.write_text(" " + store.runtime_id + "  \n", encoding="utf-8")
+            tampered = path.read_bytes()
+            self.assertEqual(store.verify()["reason"], "runtime_identity_malformed")
+            with self.assertRaisesRegex(HistoryError, "runtime identity malformed"):
+                StateStore(d)
+            self.assertEqual(path.read_bytes(), tampered)
+
     def test_emit_rejects_invalid_input_before_durable_write(self):
         with tempfile.TemporaryDirectory() as d:
             store = StateStore(d)
