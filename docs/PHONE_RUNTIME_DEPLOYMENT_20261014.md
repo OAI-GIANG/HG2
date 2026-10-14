@@ -28,6 +28,12 @@ Eight negative/method tests passed: wrong repo/ref, missing/duplicate query, POS
 
 Before adding the narrow grant, the same live route correctly returned HTTP 403 `CAPABILITY_NOT_AUTHORIZED`. After grant, it returned real GitHub metadata. Health after the controlled restart returned HTTP 200 and runit reported service running.
 
+## Current status update — credential rejected / grant blocked (2026-10-14T03:29Z)
+
+After earlier successful E2E requests, two subsequent calls returned HTTP 502 with safe error `GITHUB_CREDENTIAL_REJECTED` (03:28:32Z and 03:28:41Z). The live health endpoint continued to return HTTP 200. No further upstream retries were made after that determination. The narrow grant was locally set to `credential_state=UPSTREAM_REJECTED_401` and `runtime_state=BLOCKED`; the legacy broad `github_access` record remained `REVOKED` and unchanged. A local request after blocking returned HTTP 403 `CAPABILITY_NOT_AUTHORIZED`, and did not call upstream. The state hash remained unchanged. Registry after the fail-closed update SHA-256: `3275baf0a0d45c1ac0ba7a49cc8277af3df7fa5b7212bc1690b0f9ea1125dfa0`.
+
+Therefore the successful E2E result above is a historical observed PASS, but current operational status is `BLOCKED_CREDENTIAL`, not currently functional. The upstream rejection reason and remote credential revocation status are not independently known. Do not restore the grant to READY/ACTIVE until an authorized valid credential is installed and verified without exposing its value. Secret-free evidence: `docs/evidence/20261014/PHONE_RUNTIME_AUTH_BLOCK_20261014.json`.
+
 ## Scope limitations / gates not closed
 - This proves the new read-only endpoint in the running PHONE HG service, not full HG product/release readiness.
 - The source SHA endpoint records the source-file hash at process startup; it is not a hardware-backed or cryptographic attestation of bytecode actually loaded.
