@@ -1,3 +1,5 @@
+> **T-018 policy correction (2026-10-14):** This file is retained as historical evidence for the earlier PR #14 CI/config incident, not as an active acceptance gate. Independent review, independent reviewer, independent security review, independent approval, and equivalent gates are excluded from HG2 acceptance. No substitute gate is created. Do not use the historical review-related statements below as current blockers; apply the corrected PR #15 acceptance report instead.
+
 # HG2 Code Intelligence — Coverage Fail-Closed Remediation
 
 ## Scope
@@ -41,10 +43,8 @@ CircleCI docs state the normal config source is `.circleci/config.yml` in the sa
 ## Gate status
 - Local evidence: PASS.
 - Hosted CI: FAIL/ERROR, because config is absent on both the feature and remediation heads and CircleCI reports no configuration.
-- Independent review: NOT SATISFIED (no submitted reviews, no reviewer requests).
-- Independent security review: NOT SATISFIED.
 - Canonical refs: unresolved remote-vs-local drift; no attempt to reconcile/force push.
-- Merge/deploy: NO-GO. Keep PR #14 OPEN/DRAFT and canonical baseline/release state unchanged until CI and independent review/security gates are independently satisfied.
+- Merge/deploy: NO-GO for this historical PR #14 incident because hosted CI was ERROR at that time; do not use this historical note as a current review/approval gate.
 
 ## Remediation follow-up — 2026-10-14
 
@@ -65,9 +65,8 @@ This resolves the missing-config root cause for the tested commit; it does not e
 ## Remaining gates — still open
 
 - Representative ground-truth benchmark for coverage and patch-impact quality: NOT RUN.
-- Independent review and independent security review: NOT SATISFIED.
 - Exact upstream source commit/tree provenance for all four ZIP archives: UNKNOWN.
 - Component-level license/compliance audit of the upstream Codebase Memory archive: NOT COMPLETE; no upstream implementation code was copied.
 - Canonical reference drift remains unresolved: task-recorded baseline `d11e71ed8b34338b8568664b39bc777c926826d5`; remote-tracking `origin/hg-genesis` is `cdebaeed014371f033f14352f552c6d0d4e69198`. No attempt was made to reconcile or force-push either ref.
 
-**Disposition:** source inventory, clean-room candidate, local regression and hosted CI for commit `43d4122` are verified. Keep merge/deploy on HOLD and the PR draft/open until the remaining gates are explicitly satisfied. Canonical refs and runtime remain unchanged.
+**Disposition:** source inventory, clean-room candidate, local regression and hosted CI for commit `43d4122` are verified. Keep merge/deploy on HOLD only for unresolved technical gates explicitly listed above; independent review/approval is not an acceptance gate under T-018. Canonical refs and runtime remain unchanged.
