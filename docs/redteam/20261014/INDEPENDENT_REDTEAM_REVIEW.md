@@ -199,3 +199,27 @@ All must be evidenced:
 - NIST Secure Software Development Framework SP 800-218: https://csrc.nist.gov/pubs/sp/800/218/final
 - OWASP Logging Cheat Sheet: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
 - GitHub REST repository contents API: https://docs.github.com/en/rest/repos/contents
+
+
+## Final status update — 2026-10-14T03:40Z
+
+- Local endpoint hardening is deployed: separate phone-local bearer token (0600), loopback caller check, constant-time comparison, and six-read/minute rate limit.
+- After controlled restart the service is alive (PID 24729, health HTTP 200). Unauthenticated /api/hg2/read returns HTTP 401 LOCAL_CAPABILITY_AUTH_REQUIRED.
+- Valid local-bearer check after the final restart is NOT_RUN because the safe tool path to provide it was blocked. It must not be marked PASS.
+- The narrow grant remains runtime_state=BLOCKED, credential_state=UPSTREAM_REJECTED_401; no further upstream call was made. State SHA remains 392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc.
+- PR #17 head f852bc768290fb2606586b1946a7016140a9371b has CircleCI run 85 success. PR #16 and #17 remain draft; there are no requested reviewers.
+- Remote canonical hg-genesis remains cdebaeed014371f033f14352f552c6d0d4e69198; local clone hg2-phone HEAD 4d97c34d8bb7c1091265330aef63dd78d0e72c49 differs. No canonical branch push was made.
+
+Final gate: HG runtime health = PASS; HG -> HG2 = BLOCKED_CREDENTIAL / REVIEW_PENDING; RELEASE = BLOCKED.
+
+
+## Final status update - 2026-10-14T03:40Z
+
+- Local endpoint hardening is deployed: separate phone-local bearer token (0600), loopback caller check, constant-time comparison, and six-read/minute rate limit.
+- After controlled restart the service is alive (PID 24729, health HTTP 200). Unauthenticated /api/hg2/read returns HTTP 401 LOCAL_CAPABILITY_AUTH_REQUIRED.
+- Valid local-bearer check after the final restart is NOT_RUN because the safe tool path to provide it was blocked. It must not be marked PASS.
+- The narrow grant remains runtime_state=BLOCKED, credential_state=UPSTREAM_REJECTED_401; no further upstream call was made. State SHA remains 392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc.
+- PR #17 head f852bc768290fb2606586b1946a7016140a9371b has CircleCI run 85 success. PR #16 and #17 remain draft; there are no requested reviewers.
+- Remote canonical hg-genesis remains cdebaeed014371f033f14352f552c6d0d4e69198; local clone hg2-phone HEAD 4d97c34d8bb7c1091265330aef63dd78d0e72c49 differs. No canonical branch push was made.
+
+Final gate: HG runtime health = PASS; HG -> HG2 = BLOCKED_CREDENTIAL / REVIEW_PENDING; RELEASE = BLOCKED.

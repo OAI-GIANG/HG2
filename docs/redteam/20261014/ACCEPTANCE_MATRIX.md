@@ -18,3 +18,5 @@
 | CAP-14 | Historical `.pth` bootstrap remains quarantined | Active site-packages hook absent; quarantine hash matches original | PASS: hook absent, quarantine hash matches |
 | CAP-15 | Reboot/power-loss recovery | Connector and grant survive safe recovery; no data corruption | NOT_RUN |
 | CAP-16 | Upstream credential rejection | Fail closed and prevent further upstream calls | PASS: two 502/GITHUB_CREDENTIAL_REJECTED observations, then local 403/CAPABILITY_NOT_AUTHORIZED after grant blocked |
+| CAP-17 | Local caller authentication after final restart | Anonymous request denied; correct bearer reaches narrow grant check without upstream retry | PARTIAL: anonymous 401 PASS; correct-bearer request NOT_RUN after safety block |
+| CAP-18 | CI for exact PR head | CI green for latest head SHA | PASS: f852bc768290fb2606586b1946a7016140a9371b, CircleCI run 85 success |
