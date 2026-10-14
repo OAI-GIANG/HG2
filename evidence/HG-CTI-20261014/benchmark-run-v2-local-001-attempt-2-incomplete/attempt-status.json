@@ -1,0 +1,61 @@
+{
+  "acceptance_result": "NOT_EVALUATED",
+  "baseline_rows": 2,
+  "candidate_rows": 3,
+  "disposition": "Preserved the partial raw outputs and their order. No missing cases were selectively rerun. Benchmark acceptance is BLOCKED until a stable execution session can complete the full preregistered 40-pair run.",
+  "distinct_cases": 3,
+  "expected_rows": 80,
+  "failure_observation": "Runner process was no longer present after partial JSONL writes; no runner-failure.json was emitted. Exact termination cause remains UNVERIFIED.",
+  "inference_error_rows": 0,
+  "observed_outputs": [
+    [
+      "CTI-001",
+      "baseline",
+      "length",
+      [
+        "RESPONSE_JSON_INVALID"
+      ]
+    ],
+    [
+      "CTI-001",
+      "candidate",
+      "length",
+      [
+        "RESPONSE_JSON_INVALID"
+      ]
+    ],
+    [
+      "CTI-002",
+      "baseline",
+      "stop",
+      [
+        "RESPONSE_JSON_INVALID"
+      ]
+    ],
+    [
+      "CTI-002",
+      "candidate",
+      "length",
+      [
+        "RESPONSE_JSON_INVALID"
+      ]
+    ],
+    [
+      "CTI-003",
+      "candidate",
+      "stop",
+      [
+        "RESPONSE_JSON_INVALID"
+      ]
+    ]
+  ],
+  "observed_utc": "2026-10-13T18:26:22.947785+00:00",
+  "protocol_version": "V2.2",
+  "raw_rows_preserved": 5,
+  "schema": "HG-CTI-V2.2-INCOMPLETE-ATTEMPT",
+  "scoring_performed": false,
+  "selective_rerun_performed": false,
+  "server_health_after_termination": "PASS at the last direct check; local llama-server process remained present, endpoint responded to /health.",
+  "status": "INVALID_INCOMPLETE_INFRASTRUCTURE_FAILURE",
+  "valid_acceptance_run": false
+}

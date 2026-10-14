@@ -1,0 +1,13 @@
+HG-CTI V2.2 runner-session incident observation, 2026-10-14 local time.
+
+Observed process command (PID 7387):
+python3 -B benchmarks/hg_cti_v2/run_benchmark.py --repo . --model-path /data/data/com.termux/files/home/.cache/hg-local-vision-20261010/models/SmolVLM2-500M-Video-Instruct-Q8_0.gguf --server-binary /data/data/com.termux/files/home/.cache/hg-local-vision-20261010/build-termux-arm64/bin/llama-server --out-dir evidence/HG-CTI-20261014/benchmark-run-v2-local-001
+
+Observed /proc/7387/fd/3 target:
+.../evidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-2-incomplete/raw_runs.jsonl
+
+At the same observation, the preregistered output directory existed but was empty; the run log had progressed through CTI-017 (17/40). This proves a live runner's output was directed into the preserved attempt-2 path at observation time. It does not establish who moved/renamed the directory or why prior process/session observations were inconsistent.
+
+The runner was terminated after discovery. The tracked attempt-2 raw_runs.jsonl was restored from HEAD because its HEAD content SHA-256 matched the pre-existing attempt manifest (1434b1a2bcdbd16cef8c892d6947785fa238ade14f4f60eb28ece42d29698c7e). Manifest verification then passed for attempt-status.json and raw_runs.jsonl. The active partial output was not scored or accepted.
+
+Device-side logcat scan found no matching low-memory-killer/OOM termination record in the scanned window. dmesg and /sys/fs/pstore access were denied. Therefore the exact termination cause remains UNVERIFIED; no OOM or tool failure is asserted.
