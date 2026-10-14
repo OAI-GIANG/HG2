@@ -55,3 +55,15 @@ Therefore the successful E2E result above is a historical observed PASS, but cur
 
 ## Rollback
 The pre-deploy runtime, capability registry and run script are preserved in the backup directory. `ROLLBACK.sh` restores the pre-deploy runtime and registry, removes the new connector module and restarts only `hg-runtime`. Rollback has been authored but not executed.
+
+## Final deployed source and rollback hash inventory (2026-10-14T03:38Z)
+
+- Runtime source: `c9ce1337373007950b05c353bea14d2f2888d08ee5e7f34c5ca4003967c053ae`
+- Read-only connector: `913f23f4ecc41cf730cfa0484427c717ae9c3c1cefb55bc3ffa980ad11c6425d`
+- Audit verifier: `9d1ff9cb744cab3d0257e59c1cf95fdfbf23e8af7bcf9dc5c0d70ea823ed217c`
+- Rollback script: `5bf023d9f73d440b464715c4cdb6c03a9c46ad232274032a59f4e4132747cf5b`
+- Capability registry: `3275baf0a0d45c1ac0ba7a49cc8277af3df7fa5b7212bc1690b0f9ea1125dfa0`
+- HG state: `392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc` (unchanged)
+- Service: `hg-runtime`, PID 24729, health HTTP 200 at `2026-10-14T03:38:10Z`.
+- Local route token file metadata: mode 0600, 44 bytes, owner UID 10460. Its value is not part of the evidence package.
+- No code or state was changed by this inventory read.
