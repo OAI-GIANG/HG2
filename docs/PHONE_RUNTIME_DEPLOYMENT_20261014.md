@@ -34,7 +34,7 @@ Before adding the narrow grant, the same live route correctly returned HTTP 403 
 - No reboot/power-loss or long-duration recovery test has been run.
 - The previously broad `github_access` registry entry remains `REVOKED` with no evidence. It was not reactivated.
 - Historical containment report says the old `.pth` bootstrap exposed unauthenticated file read/write routes. The hook is now absent and remains quarantined; remote revocation of the historically potentially exposed credential is not independently proven by this deployment.
-- `audit_tail` previously reported hash-chain mismatch from line 1; this deployment did not rewrite the audit log or close the integrity investigation.
+- Audit verifier was corrected separately in the live toolplane source. The existing log was not edited. Read-only revalidation found 2,179 records: the first 669 are legacy unchained records and remain unverifiable for tamper evidence; the chained suffix starts at line 670 with `prev=GENESIS` and all 1,510 records validate with no hash/prev errors. The verifier now reports `chain_ok=true`, `bad=[]`, `legacy_prefix_records=669`, and `ok=false` for the whole file to avoid overstating integrity. Patch: `integration/hg_toolplane_audit_verifier.patch`; source SHA-256 before `2a6ac30caedc1e7edbefe3d2e5451993e1aef0464a21b97a42b732c98c678c2d`; after `9d1ff9cb744cab3d0257e59c1cf95fdfbf23e8af7bcf9dc5c0d70ea823ed217c`. Original audit log SHA-256 remains `6701cfa9d1bfeabe3ae538c3e1d2127d3c1695528ded2913b220abc8e346d88a` at the captured snapshot. The 669 legacy records are still not tamper-evident.
 - Independent human security review is not obtained. Both PRs remain drafts; no canonical merge or release was performed.
 
 ## Rollback
