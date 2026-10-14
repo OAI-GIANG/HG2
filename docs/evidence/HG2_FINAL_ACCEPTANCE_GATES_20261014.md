@@ -6,9 +6,9 @@ Branch: fix/hg2-code-intelligence-coverage-failclosed-20261014
 
 ## Current disposition
 
-**BLOCKED_SOURCE_PROVENANCE / MERGE_DEPLOY_HOLD.**
+**SOURCE_PROVENANCE_VERIFIED / MERGE_DEPLOY_HOLD.**
 
-The only remaining acceptance blocker evidenced by this review is the unresolved exact source-revision provenance of the four supplied ZIP archives. This is a source-evidence limitation, not a reviewer/approval dependency. PR #15 remains OPEN/DRAFT. No merge, deploy, release, or canonical-ref mutation is authorized.
+The four supplied ZIP archives have now been mapped to immutable upstream commits and tree IDs by checking each ZIP comment, resolving that exact commit through GitHub's API, and comparing all included paths and Git blob IDs against the commit tree. The one partial archive (Public APIs) omits only paths matched by the upstream .gitattributes export-ignore rules. No source-provenance blocker remains on the evidence recorded below. PR #15 remains OPEN/DRAFT by instruction; no merge, deploy, release, or canonical-ref mutation is authorized. This finding does not claim overall product acceptance.
 
 ## Runtime reconnection and state recovery
 
@@ -54,13 +54,10 @@ Both corpora correctly reported incomplete repository-wide coverage. iniconfig: 
 
 ## Latest hosted CI and branch state
 
-- Final evidence HEAD: f312aed0c4bd07c55e99f8848f8dd31b35f5d5be
-- Git tree: 2e5b8716fe8ec7fda9e5a99f1be8dcaa5bde56ba
-- Local HEAD matched the remote PR branch; working tree was clean.
-- CircleCI ci/circleci: verify on that exact HEAD: SUCCESS, run #91 — https://circleci.com/gh/OAI-GIANG/HG2/91.
-- git diff --check: PASS.
-- PR #15 state: OPEN/DRAFT.
-- This report correction is documentation-only; its new commit must receive a fresh hosted CI status check before the corrected report is considered CI-verified.
+- Last candidate HEAD verified before this provenance-evidence-only change: f77bfb33101a6121203505b55e7707bbb7893849.
+- CircleCI ci/circleci: verify on that exact HEAD: SUCCESS, run #93 — https://circleci.com/gh/OAI-GIANG/HG2/93.
+- The provenance verifier and this report/evidence are documentation-only additions. The resulting new HEAD must be checked separately; do not transfer the prior CI result to a later commit.
+- PR #15 was observed OPEN/DRAFT; no merge/deploy action was taken.
 
 ## Archive integrity and source provenance
 
@@ -73,7 +70,25 @@ All four supplied ZIP files were rehashed and passed unzip -tq CRC checks withou
 | public-apis-master.zip | e4cfb5a7593bcde80448c72f4cab7d1366bc87bc16a19e9f32732f805d202127 | PASS |
 | myopenvdp-master.zip | 964b23fc6e87bbf48cb178e732270984380583ee1e88c9d0f182c6e28aa40f45 | PASS |
 
-**Remaining technical blocker — exact source provenance: UNKNOWN.** None of the four ZIP files includes Git metadata or authoritative provenance tying the exact archive bytes to an immutable upstream commit/tree. Branch names, filenames, and current upstream tips do not prove source revision. The supplied public-apis-master.zip has no README/populated API catalog and is not established as equivalent to the intended full upstream catalog. Codebase Memory's third-party component license closure has not been exhaustively audited; no implementation or dependency from any supplied archive was copied into the candidate. These are source-evidence limitations; archive byte integrity itself passes.
+**Source provenance result: VERIFIED for all four supplied archives.** The ZIP comment in each file contained a 40-character commit SHA-1. That exact SHA was resolved via GitHub's commit API, and the immutable tree was fetched through the Git Trees API. The verifier compared every included archive path and computed Git blob SHA-1 against that tree. No included file had a blob mismatch; there were no unexplained missing or extra paths.
+
+| Archive | Upstream repository | Exact commit | Tree SHA-1 | Included files / tracked blobs | Result |
+|---|---|---|---|---:|---|
+| codebase-memory-mcp-main.zip | DeusData/codebase-memory-mcp | bb636d1ff7a47f70bccfc6d6e5d0e43e92ce7a0c | 3c9cfb82f2125bf0ebe32d2a0c6485272bee91ce | 3537 / 3537 | PASS |
+| awesome-mcp-servers-3-main.zip | appcypher/awesome-mcp-servers | 70acc2194806cd47878737bb41a958f6958b388c | 76ee292e2fa651083c65a6f7f23bd924e463ab40 | 11 / 11 | PASS |
+| public-apis-master.zip | public-apis/public-apis | 73035eafdb7e15a078afb7d8b8487f53d5104e9a | d4ab700098d9417c77d490b79a861e09d5352d01 | 12 / 23 | PASS — export-ignore |
+| myopenvdp-master.zip | yeswehack/myopenvdp | 03e90e225cb8aee90bd36c5684b97b5298dcbbbb | 13a0c8cbd312feb11d21aaec2025f14d709428e8 | 141 / 141 | PASS |
+
+The Public APIs tree has 11 paths intentionally absent from the archive: nine under .github plus README.md and scripts/README.md. The archived .gitattributes contains the rules /.github export-ignore and README.md export-ignore; the missing paths match those rules exactly. The archive therefore matches the commit's Git-archive export, rather than being evidence of a wrong or incomplete upstream revision.
+
+Reproducible evidence:
+- Verifier: docs/evidence/scripts/verify_hg2_source_archive_provenance.py; SHA-256 2402fe9288b00dddd5919cb431ab33625e256cc2ddf0aebccaa56c298f2d81dc
+- Result JSON: docs/evidence/HG2_SOURCE_PROVENANCE_RESULT_20261014.json; SHA-256 6f254a59dd18e86ba721fd7b08923214921a4df038e48477386e5edc7598cebb
+- Captured run log: docs/evidence/HG2_SOURCE_PROVENANCE_VERIFICATION_LOG_20261014.txt; SHA-256 1c78bc6b276a7cdcc8b86f7ec0804564feb69b1f174fa47851a9c93a99523266
+- Hash receipt: docs/evidence/HG2_SOURCE_PROVENANCE_RECEIPT_20261014.json (binds the report, verifier, result/log and unchanged benchmark registration/result hashes).
+- The verifier reads ZIP members in place; it does not extract or execute archive content. Each archive member was read successfully, triggering ZIP CRC validation.
+- All four original archive SHA-256 values remain unchanged and are recorded in the result JSON.
+- Codebase Memory's third-party component license closure has not been exhaustively audited. No implementation or dependency from any supplied archive was copied into the candidate; this is a separate license-scope limitation, not an unresolved source-commit identity.
 
 ## Canonical invariants
 
@@ -90,10 +105,10 @@ All four supplied ZIP files were rehashed and passed unzip -tq CRC checks withou
 | Real-repository benchmark V2 | PASS, limited scope | 2/2 pinned repositories, all registered thresholds met |
 | Synthetic benchmark V2 | PASS, limited scope | 8/8 registered cases |
 | Regression | PASS | 35 tests, exit 0 |
-| Hosted CI | PASS for final evidence HEAD f312aed… | CircleCI run #91 |
+| Hosted CI | PASS on pre-provenance-evidence HEAD f77bfb3… | CircleCI run #93; latest evidence commit checked separately |
 | Archive SHA-256 and ZIP CRC | PASS | Four local archives rehashed and CRC-tested |
 | Canonical manifest/ref non-mutation | PASS | Manifest hash unchanged; no canonical ref mutation |
-| Exact archive source commit/tree provenance | BLOCKED / UNKNOWN | No immutable archive-to-upstream attestation; Public APIs archive also appears incomplete |
+| Exact archive source commit/tree provenance | PASS for all four archives | ZIP comment commit resolved through GitHub API; included paths/blob IDs match immutable trees; Public APIs exclusions explained by export-ignore |
 | Merge/deploy | HOLD | Preserve user instruction; PR #15 remains OPEN/DRAFT |
 
-**Disposition: BLOCKED_SOURCE_PROVENANCE / MERGE_DEPLOY_HOLD.** Keep PR #15 OPEN/DRAFT. Do not merge, deploy, alter canonical refs, or claim overall acceptance until the specific source-provenance blocker is resolved or formally dispositioned under the project's applicable technical policy.
+**Disposition: SOURCE_PROVENANCE_VERIFIED / MERGE_DEPLOY_HOLD.** The source-provenance blocker is cleared by the recorded commit/tree and blob-level evidence. Keep PR #15 OPEN/DRAFT under the user's explicit instruction. Do not merge, deploy, alter canonical refs, or claim overall product acceptance from source provenance alone.

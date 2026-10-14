@@ -1,0 +1,74 @@
+{
+  "actions": {
+    "benchmark_expected_result_change": false,
+    "canonical_ref_change": false,
+    "deploy": false,
+    "merge": false
+  },
+  "archive_integrity": "All archive member reads completed successfully; zipfile CRC validation passed; original archive SHA-256 values retained in result JSON.",
+  "benchmark_registrations_and_results_unchanged": [
+    {
+      "bytes": 10684,
+      "path": "docs/evidence/HG2_CI_GROUND_TRUTH_REGISTRATION_V2.json",
+      "sha256": "f0b0ba7ab1b4c176149ad0f72f08b0e9ab2582acc2a839b79a9d65d01874940b"
+    },
+    {
+      "bytes": 11836,
+      "path": "docs/evidence/HG2_CI_GROUND_TRUTH_RESULT_V2.json",
+      "sha256": "658645faa6a67f8b6eab02c01d55cdb7911d2304b61ced4dd9ba8875fc363bd5"
+    },
+    {
+      "bytes": 5093,
+      "path": "docs/evidence/HG2_CI_REAL_REPO_REGISTRATION_V1.json",
+      "sha256": "fa8739c0a6664acad1cfa6af3f66fd8d394e84c18c8911c10a956147eaee1606"
+    },
+    {
+      "bytes": 6272,
+      "path": "docs/evidence/HG2_CI_REAL_REPO_REGISTRATION_V2.json",
+      "sha256": "3a45021fb91d21b3ee371b0296e1138e7c36100d81a8fd66a4e6750731b62109"
+    }
+  ],
+  "branch": "fix/hg2-code-intelligence-coverage-failclosed-20261014",
+  "canonical_invariants": {
+    "canonical_ref_mutation": false,
+    "manifest_diff_empty": true,
+    "manifest_sha256": "748649af5d45e10d7df322e430aa01240a6f303c5f2bcb6a363aa5cf8c221abf"
+  },
+  "created_at_local": "2026-10-14T16:13:58.571152+07:00",
+  "decision": "SOURCE_PROVENANCE_VERIFIED / MERGE_DEPLOY_HOLD",
+  "evidence_artifacts": [
+    {
+      "bytes": 10467,
+      "path": "docs/evidence/HG2_FINAL_ACCEPTANCE_GATES_20261014.md",
+      "sha256": "8f8aa8e6c6774fda239a30c61735c7b87be05c19168e1bf63279e63b2427a386"
+    },
+    {
+      "bytes": 8131,
+      "path": "docs/evidence/HG2_SOURCE_PROVENANCE_RESULT_20261014.json",
+      "sha256": "6f254a59dd18e86ba721fd7b08923214921a4df038e48477386e5edc7598cebb"
+    },
+    {
+      "bytes": 1345,
+      "path": "docs/evidence/HG2_SOURCE_PROVENANCE_VERIFICATION_LOG_20261014.txt",
+      "sha256": "1c78bc6b276a7cdcc8b86f7ec0804564feb69b1f174fa47851a9c93a99523266"
+    },
+    {
+      "bytes": 8749,
+      "path": "docs/evidence/scripts/verify_hg2_source_archive_provenance.py",
+      "sha256": "2402fe9288b00dddd5919cb431ab33625e256cc2ddf0aebccaa56c298f2d81dc"
+    }
+  ],
+  "head_before_evidence_commit": "f77bfb33101a6121203505b55e7707bbb7893849",
+  "limitations": [
+    "This result proves archive content correspondence to the specified immutable commits/tree snapshots, with declared export-ignore omissions. It does not constitute overall product acceptance.",
+    "Codebase Memory third-party license closure has not been exhaustively audited; no implementation or dependency from these archives was copied into the candidate."
+  ],
+  "method": "ZIP comment commit SHA verified through GitHub API; immutable tree fetched; all archive member Git blob SHA-1 values compared to the tree; missing paths allowed only when exactly explained by archived .gitattributes export-ignore rules.",
+  "pr": {
+    "number": 15,
+    "required_state": "OPEN/DRAFT",
+    "url": "https://github.com/OAI-GIANG/HG2/pull/15"
+  },
+  "result": "PASS_ALL_FOUR_ARCHIVES_PROVEN_TO_EXACT_COMMIT_CONTENT",
+  "schema": "HG2_SOURCE_PROVENANCE_RECEIPT_V1"
+}
