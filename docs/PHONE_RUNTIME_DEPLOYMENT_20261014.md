@@ -10,8 +10,8 @@ Target: Android/Termux PHONE, local HG runtime on loopback only.
 - Capability registry: `/data/data/com.termux/files/home/.config/hg/capabilities/registry.json`.
 - Backup/rollback directory: `/data/data/com.termux/files/home/hg/quarantine/hg2-readonly-20261014/` (mode 0700; backup files mode 0600; `ROLLBACK.sh` mode 0700).
 - Original runtime source SHA-256: `697b3d03f523d70b4a83e9adff346d31045a8876c1ed9717a2afcbe37366fcd9`.
-- Current runtime source SHA-256: `29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253`.
-- Current connector source SHA-256: `96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1`.
+- Current runtime source SHA-256 before local-route auth hardening: `29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253`; current hardened runtime source SHA-256: `c9ce1337373007950b05c353bea14d2f2888d08ee5e7f34c5ca4003967c053ae`.
+- Current connector source SHA-256 before rate limiting: `96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1`; current hardened connector source SHA-256: `913f23f4ecc41cf730cfa0484427c717ae9c3c1cefb55bc3ffa980ad11c6425d`.
 - Current capability registry SHA-256: `cd6ab3ba4d74266fc923cdcb3ad8dde9beb0e9a5df0e106bab30f0da049addf1`.
 - Existing HG runtime state SHA-256 before and after all read tests: `392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc` (unchanged).
 - Active process observed during E2E: PID `7449`; the runtime reports module source SHA at startup and connector module SHA at import in the response.
@@ -27,6 +27,16 @@ Three repeated E2E requests succeeded through the same PID with identical commit
 Eight negative/method tests passed: wrong repo/ref, missing/duplicate query, POST/PATCH/DELETE (405) and PUT (501); relevant state SHA before/after was identical. Detailed results are in `PHONE_RUNTIME_NEGATIVE_GATES.json`.
 
 Before adding the narrow grant, the same live route correctly returned HTTP 403 `CAPABILITY_NOT_AUTHORIZED`. After grant, it returned real GitHub metadata. Health after the controlled restart returned HTTP 200 and runit reported service running.
+
+## Local endpoint hardening update (2026-10-14)
+
+The route now requires a separate phone-local bearer token stored at `~/.config/hg/capabilities/github_hg2_public_read.route_token` (private mode 0600, generated locally; its value is never printed or put in evidence). The handler verifies a loopback client address, safely opens the token file without following symlinks, checks current UID and private permissions, and compares the bearer token in constant time. It still does not expose the token in responses/logs. The connector also limits approved scoped reads to six per minute per process and fails with HTTP 429 after the limit. The new connector tests pass 10/10; audit verifier contract tests pass 4/4 with ResourceWarnings treated as errors.
+
+The credential grant remains `runtime_state=BLOCKED`. These hardening changes do not retry upstream and do not re-enable the grant. After controlled restart, unauthenticated local callers must receive 401; an authenticated local request must then receive 403 from the blocked grant without an upstream request.
+
+## Local route authentication/rate-limit hardening (2026-10-14T03:37Z)
+
+The endpoint now requires a PHONE-local bearer token stored privately with mode 0600. The runtime checks loopback client address, safely opens the local token file, validates owner/permissions, and compares the supplied bearer token in constant time. The connector limits successfully authorized calls to six reads per minute per process. The actual runtime was restarted into PID 24729; health returned HTTP 200. An unauthenticated request returned HTTP 401 LOCAL_CAPABILITY_AUTH_REQUIRED, made no upstream call, and did not change state. Testing with the correct local bearer after this last restart was not performed because the safe tool path was blocked; the authenticated-local 403 assertion remains NOT_RUN. The GitHub capability remains blocked and no further upstream request was made. Current hashes are recorded in final evidence.
 
 ## Current status update — credential rejected / grant blocked (2026-10-14T03:29Z)
 

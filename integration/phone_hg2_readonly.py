@@ -5,6 +5,8 @@ import hashlib
 import json
 import os
 import stat
+import threading
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -22,6 +24,25 @@ SOURCE_SHA256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 MAX_RESPONSE_BYTES = 1_000_000
 MAX_TOKEN_BYTES = 4096
 USER_AGENT = "HG2-Phone-ReadOnly-Connector/1.0"
+READ_RATE_LIMIT = 6
+READ_RATE_WINDOW_SECONDS = 60.0
+_RATE_LOCK = threading.Lock()
+_RATE_WINDOW_STARTED = 0.0
+_RATE_COUNT = 0
+
+
+def _consume_read_rate_limit() -> bool:
+    """Limit approved, correctly scoped reads to six calls per minute per process."""
+    global _RATE_WINDOW_STARTED, _RATE_COUNT
+    now = time.monotonic()
+    with _RATE_LOCK:
+        if now - _RATE_WINDOW_STARTED >= READ_RATE_WINDOW_SECONDS:
+            _RATE_WINDOW_STARTED = now
+            _RATE_COUNT = 0
+        if _RATE_COUNT >= READ_RATE_LIMIT:
+            return False
+        _RATE_COUNT += 1
+        return True
 
 
 class ConnectorError(Exception):
@@ -164,6 +185,8 @@ def read_hg2_ref(repository: str, ref: str, *, token_path=DEFAULT_TOKEN_PATH,
         raise ConnectorError("REF_SCOPE_MISMATCH", 403)
 
     _read_grant(registry_path)
+    if not _consume_read_rate_limit():
+        raise ConnectorError("READ_RATE_LIMITED", 429)
     token = _read_private_token(token_path)
     commit_url = f"{API_BASE}/repos/{OWNER}/{REPO}/commits/{REF}"
     manifest_url = (

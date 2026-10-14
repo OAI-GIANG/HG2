@@ -1,21 +1,57 @@
 --- a/hg_runtime.py
 +++ b/hg_runtime.py
-@@ -341,6 +341,10 @@
+@@ -1,6 +1,6 @@
+ """HG Runtime V1: HTTP adapter around HG Core primitives."""
+ from __future__ import annotations
+-import json, os, re, secrets, base64, threading, time, hashlib, binascii
++import json, os, re, secrets, base64, threading, time, hashlib, binascii, hmac, ipaddress
+ from datetime import datetime, timezone
+ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+ from pathlib import Path
+@@ -341,6 +341,36 @@
      threading.Thread(target=loop,daemon=True).start()
 
 
 +_HG_RUNTIME_PROCESS_STARTED_EPOCH = time.time()
 +_HG_RUNTIME_SOURCE_SHA256_AT_START = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
++_HG2_ROUTE_TOKEN_PATH = Path.home() / ".config" / "hg" / "capabilities" / "github_hg2_public_read.route_token"
++
++
++def _hg2_route_authorized(handler):
++    """Require a PHONE-local bearer token for the loopback connector endpoint."""
++    try:
++        if not ipaddress.ip_address(str(handler.client_address[0])).is_loopback:
++            return False
++        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
++        fd = os.open(_HG2_ROUTE_TOKEN_PATH, flags)
++        try:
++            info = os.fstat(fd)
++            if not __import__("stat").S_ISREG(info.st_mode) or info.st_uid != os.getuid():
++                return False
++            if (info.st_mode & 0o077) or info.st_size > 512:
++                return False
++            expected = os.read(fd, 513).decode("utf-8").strip()
++        finally:
++            os.close(fd)
++        supplied = str(handler.headers.get("Authorization", ""))
++        if not supplied.startswith("Bearer "):
++            return False
++        provided = supplied[7:]
++        return bool(expected) and hmac.compare_digest(expected, provided)
++    except Exception:
++        return False
 +
 +
  class Handler(BaseHTTPRequestHandler):
      server_version="HG-Runtime/1.0"
      def log_message(self,fmt,*args):print("HG",fmt%args)
-@@ -406,6 +410,27 @@
+@@ -406,6 +436,29 @@
                  regen_summary(s); save(s); summ=s.get("memory_summary")
              active=[m for m in s.get("memory",[]) if str(m.get("status","active"))!="superseded"]
              return self.send_json(200,{"ok":True,"summary":summ or {"text":"Chưa có bộ nhớ nào.","updated_at":None},"memory":active,"count":len(active)})
 +        if path=="/api/hg2/read":
++            if not _hg2_route_authorized(self):
++                return self.send_json(401,{"ok":False,"error":{"code":"LOCAL_CAPABILITY_AUTH_REQUIRED"}})
 +            repo_values=q.get("repo",[]); ref_values=q.get("ref",[])
 +            if len(repo_values)!=1 or len(ref_values)!=1:
 +                return self.send_json(400,{"ok":False,"error":{"code":"REPO_AND_REF_REQUIRED"}})
@@ -39,7 +75,7 @@
          if path=="/api/github/status":
              token=bool(os.getenv("GITHUB_TOKEN","")); d={"configured":token,"mode":"authenticated" if token else "public-read"}
              if token:
-@@ -421,7 +446,9 @@
+@@ -421,7 +474,9 @@
              r=gh(f"/repos/{m.group(1)}/{m.group(2)}");return self.send_json(200 if r["ok"] else 502,{"ok":r["ok"],"repo":r.get("data"),"error":r.get("error")})
          return self.send_json(404,{"ok":False,"error":{"code":"NOT_FOUND","message":"Unknown endpoint"}})
      def do_POST(self):
@@ -50,7 +86,7 @@
          if path=="/api/phone/register": return self.send_json(*self.server.phone_bridge.register(b))
          if path=="/api/phone/heartbeat": return self.send_json(*self.server.phone_bridge.heartbeat(str(b.get("device_id","")),str(b.get("device_token",""))))
          if path=="/api/phone/command": return self.send_json(*self.server.phone_bridge.command(b))
-@@ -609,7 +636,9 @@
+@@ -609,7 +664,9 @@
              return self.send_json(200,{"ok":True,"reply":reply,"model":model,"memory_ops":applied,"memory":s.get("memory",[])})
          return self.send_json(404,{"ok":False,"error":{"code":"NOT_FOUND","message":"Unknown endpoint"}})
      def do_PATCH(self):
@@ -61,7 +97,7 @@
          if m:
              c=next((x for x in s["context"] if x["id"]==m.group(1)),None)
              if not c:return self.send_json(*err("CONTEXT_NOT_FOUND","context not found",404))
-@@ -617,7 +646,9 @@
+@@ -617,7 +674,9 @@
              save(s);return self.send_json(200,{"ok":True,"context":c})
          return self.send_json(404,{"ok":False,"error":{"code":"NOT_FOUND","message":"Unknown endpoint"}})
      def do_DELETE(self):

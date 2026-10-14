@@ -7,6 +7,7 @@ import urllib.error
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "integration"))
+import phone_hg2_readonly as connector
 from phone_hg2_readonly import API_BASE, CAPABILITY_ID, ConnectorError, FULL_REPO, REF, read_hg2_ref
 
 
@@ -23,6 +24,10 @@ class FakeResponse:
 
 class ConnectorTests(unittest.TestCase):
     def setUp(self):
+        # Isolate per-test state for the process-local rate limiter.
+        with connector._RATE_LOCK:
+            connector._RATE_WINDOW_STARTED = 0.0
+            connector._RATE_COUNT = 0
         self.tmp = tempfile.TemporaryDirectory()
         root = Path(self.tmp.name)
         self.token = root / "token"
@@ -136,6 +141,14 @@ class ConnectorTests(unittest.TestCase):
         with self.assertRaises(ConnectorError) as caught:
             read_hg2_ref(FULL_REPO, REF, token_path=self.token, registry_path=self.registry, opener=wrong)
         self.assertEqual(caught.exception.code, "GITHUB_RESPONSE_SCHEMA_INVALID")
+
+    def test_rate_limit_fails_closed(self):
+        for _ in range(connector.READ_RATE_LIMIT):
+            self.call_read()
+        with self.assertRaises(ConnectorError) as caught:
+            self.call_read()
+        self.assertEqual(caught.exception.code, "READ_RATE_LIMITED")
+        self.assertEqual(caught.exception.status, 429)
 
     def test_result_contains_no_credential_or_authorization_header(self):
         result = self.call_read()

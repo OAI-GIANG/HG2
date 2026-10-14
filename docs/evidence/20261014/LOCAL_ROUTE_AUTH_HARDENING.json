@@ -1,0 +1,15 @@
+{
+  "anonymous_error_code": "LOCAL_CAPABILITY_AUTH_REQUIRED",
+  "anonymous_http_status": 401,
+  "narrow_grant": {
+    "credential_state": "UPSTREAM_REJECTED_401",
+    "revocation_state": "ACTIVE",
+    "runtime_state": "BLOCKED"
+  },
+  "observed_at_utc": "2026-10-14T03:37:32.425785+00:00",
+  "secret_read": false,
+  "state_sha256_after": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc",
+  "state_sha256_before": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc",
+  "state_unchanged": true,
+  "upstream_called": false
+}
