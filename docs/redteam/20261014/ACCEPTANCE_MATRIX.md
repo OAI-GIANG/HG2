@@ -14,3 +14,5 @@
 | CAP-10 | Strict Android test suite | Exact-SHA tests pass, no ResourceWarning | Warning cleanliness FAIL: 32 assertions passed but ResourceWarnings observed |
 | CAP-11 | Audit chain verified | Hash/prev chain valid or original warning separately handled | BLOCKED; reported mismatch from line 1 |
 | CAP-12 | Independent review | Reviewer other than author signs exact SHA | NOT_OBTAINED |
+| CAP-13 | Old potentially exposed credential is revoked at GitHub | Verifiable non-secret revocation evidence | BLOCKED / NOT_VERIFIED |
+| CAP-14 | Historical `.pth` bootstrap remains quarantined | Active site-packages hook absent; quarantine hash matches original | PASS: hook absent, quarantine hash matches |
