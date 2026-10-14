@@ -223,3 +223,14 @@ Final gate: HG runtime health = PASS; HG -> HG2 = BLOCKED_CREDENTIAL / REVIEW_PE
 - Remote canonical hg-genesis remains cdebaeed014371f033f14352f552c6d0d4e69198; local clone hg2-phone HEAD 4d97c34d8bb7c1091265330aef63dd78d0e72c49 differs. No canonical branch push was made.
 
 Final gate: HG runtime health = PASS; HG -> HG2 = BLOCKED_CREDENTIAL / REVIEW_PENDING; RELEASE = BLOCKED.
+
+
+## Closure execution re-check — 2026-10-14T04:00Z
+
+Latest PHONE observation: `hg-runtime` remains running and `/api/health` returns HTTP 200. Unauthenticated `/api/hg2/read` returns HTTP 401 `LOCAL_CAPABILITY_AUTH_REQUIRED`. The narrow capability remains `runtime_state=BLOCKED`, `credential_state=UPSTREAM_REJECTED_401`, exact target `OAI-GIANG/HG2@hg-genesis`, actions `commit.read` and `manifest.read`, writes disabled. The broader `github_access` remains `REVOKED`. Current registry SHA-256 `3275baf0a0d45c1ac0ba7a49cc8277af3df7fa5b7212bc1690b0f9ea1125dfa0`; application state SHA-256 remains `392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc`. No GitHub upstream retry was performed.
+
+Connector tests are 10/10 PASS and audit-verifier contract tests 4/4 PASS under `-W error::ResourceWarning`. However, the current automated suite does not include the live HTTP handler's correct-local-bearer integration check. That check remains `NOT_RUN` after the last restart, not PASS. Upstream credential recovery, historical credential revocation evidence, reboot/power-loss recovery and independent reviewer approval are still unresolved.
+
+Both PRs remain open and draft; current heads have CircleCI success as last queried, but no external reviewer is assigned. Canonical remote `hg-genesis` remains `cdebaeed014371f033f14352f552c6d0d4e69198`. Local clone HEAD differs and must not be assumed canonical.
+
+**Closure decision:** `BLOCKED` — not `CLOSED_VERIFIED`.

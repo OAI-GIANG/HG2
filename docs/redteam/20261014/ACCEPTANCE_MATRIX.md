@@ -20,3 +20,6 @@
 | CAP-16 | Upstream credential rejection | Fail closed and prevent further upstream calls | PASS: two 502/GITHUB_CREDENTIAL_REJECTED observations, then local 403/CAPABILITY_NOT_AUTHORIZED after grant blocked |
 | CAP-17 | Local caller authentication after final restart | Anonymous request denied; correct bearer reaches narrow grant check without upstream retry | PARTIAL: anonymous 401 PASS; correct-bearer request NOT_RUN after safety block |
 | CAP-18 | CI for exact PR head | CI green for latest head SHA | PASS: f852bc768290fb2606586b1946a7016140a9371b, CircleCI run 85 success |
+| CAP-19 | Actual HTTP route bearer integration | Correct local bearer on the live server passes caller authentication, then denied by BLOCKED grant without upstream call | NOT_RUN: safe tool path to provide local bearer blocked; anonymous 401 PASS |
+| CAP-20 | Credential recovery | Verify cause/status of upstream 401 without secret disclosure or repeated blind retries | BLOCKED: requires authorized credential/account path |
+| CAP-21 | Reboot/power-loss recovery | Reboot and recovery tests pass with source/registry/state revalidation | NOT_RUN |
