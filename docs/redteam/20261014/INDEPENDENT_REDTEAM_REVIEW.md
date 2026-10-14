@@ -32,7 +32,9 @@ Gate status:
 - `GET /api/github/repo/OAI-GIANG/HG2/branches` and `.../contents/manifest.json` return 404 (routes not implemented).
 - The `hg2-runtime` run script starts `hg2-service/entry.py`; that file constructs `PhoneRuntime` from `hg2-phone/hg/phone_runtime.py` then sleeps. It does not expose HTTP endpoints or invoke GitHub.
 - Local capability registry reports `runtime_state=READY`, `revocation_state=REVOKED`, and empty evidence list. This local snapshot is not an authoritative proof of the external authority provider’s state.
-- `~/.config/hg/github_token` metadata shows mode 0600 and 40 bytes. Token contents were not read. File presence is not proof it is valid or used by either runtime.
+- `~/.config/hg/github_token` metadata shows mode 0600 and 40 bytes. Token contents were not emitted. A separate in-process GET-only probe verified the current file credential against GitHub as `OAI-GIANG` with `public_repo` scope; this does not prove the HG service consumes it.
+- Historical containment evidence states a Python `.pth` startup hook previously executed `~/hg/hgcap-.py`; its `/api/capability/readfile` and `/api/capability/writefile` paths did not call `_need_token` before operating. The hook is now absent from site-packages and its quarantined copy matches recorded original SHA-256 `ca78ce8e1aaf4d86f5a229e74b3f4f48a62a2e50f06146647730c24072cf7dd1`. The payload remains preserved but inert via that hook. The old token may have been exposed; remote revocation of that credential has not been independently verified.
+- The local registry still records old credential fingerprint prefix `c480e1745d8549e1`, while the current file credential's SHA-256 prefix differs; registry state has `revocation_state=REVOKED` and no evidence entries. Do not rewrite registry to make this appear resolved.
 - A read-only probe instantiated `PhoneRuntime(state_dir=~/hg2-state)`, returned runtime ID `8577fe1012cc4182a8e7c5ab755cb4ce` and integrity true for one event. This was an in-process diagnostic against the local checkout/state; it is not proof that the service process loaded that module or that a production GitHub request succeeded.
 - Source hashes from the `hg2-phone` working tree:
   - `hg/phone_runtime.py`: `4a788efdbe0427ca36f8d497073dcdbab55b87c70b418dafa7a8373345751b22`
@@ -58,6 +60,7 @@ Gate status:
 - An attestation tying source/build identity to the live service process.
 - Successful read of commit/ref/content through the HG runtime (as distinct from GitHub direct access or public repository metadata).
 - Authoritative capability-revocation reason or fresh active grant from the authority provider.
+- Remote revocation status of the old potentially exposed credential. Current token GET success is a separate credential and does not prove the old token/app is revoked.
 - Clean audit integrity. Previous reports indicate hash/prev mismatch from line 1; this task did not repair or rewrite that log.
 - Independent external reviewer approval.
 
@@ -98,6 +101,12 @@ The isolated `hg/github_authority.py` is a pure policy gate: exact repository, a
 
 **Severity:** P1 auditability issue.
 **Remediation:** preserve the original log; acquire a byte-identical forensic copy; hash it; independently validate hash algorithm, genesis rule and schema; publish a new report, never rewrite old events.
+
+### RT-08 — Historical unauthenticated capability bootstrap exposed file access
+A previously active Python `.pth` startup hook executed a separate payload. The saved security-containment report records that the payload's file read/write routes failed to authenticate before operating. The original hook is currently absent and a hash-matching copy remains quarantined. The old token may have been exposed; remote revocation is not verified. The current file credential successfully authenticates for public repository GETs, but that alone does not prove the old credential is revoked or that the runtime is using the current token.
+
+**Severity:** P0 credential and capability-lifecycle risk.
+**Remediation:** keep the `.pth` hook disabled and payload inert; do not reinstall it. Confirm/revoke the old credential at GitHub through a supported account-authority path, record non-secret evidence, and keep registry state fail-closed until the authority source and credential lifecycle are reconciled. Use explicit, reviewed integration code instead of a broad startup hook.
 
 ### RT-07 — Canonical/branch drift and open PR accumulation
 Remote `hg-genesis` is `cdebaeed014371f033f14352f552c6d0d4e69198`; historic reports refer to `d11e71e…`. Multiple open PRs contain distinct work. Merging any one PR does not prove capability activation or stable production operation.
@@ -144,7 +153,7 @@ Remote `hg-genesis` is `cdebaeed014371f033f14352f552c6d0d4e69198`; historic repo
 ## 5. Owner/operator decisions required
 
 1. Approve the exact in-phone capability installation/reboot mechanism if an authorized activation path is absent. Broad repository write authority alone is not the same as device-level installation authorization.
-2. Restore/confirm external GitHub authority and reconcile the `REVOKED` registry state through the actual authority provider.
+2. Revoke/confirm status of the historical potentially exposed credential through GitHub account controls; separately restore/confirm external GitHub authority and reconcile the `REVOKED` registry state through the actual authority provider. Do not treat the newly verified public-read credential as proof the old credential is revoked.
 3. Arrange an independent reviewer or acknowledge that the independent-review gate remains blocked.
 4. Any production service restart/deletion requires a verified target, dependency assessment and rollback path. Device access alone does not prove destructive changes are safe.
 
