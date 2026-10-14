@@ -1,6 +1,6 @@
 # HG/HG2 Independent Red-Team Review & Plan Revision
 
-**Status:** design/evidence handoff only; production remains BLOCKED.
+**Status:** red-team review and integration evidence updated 2026-10-14; narrow PHONE → HG2 read-only route is live-verified. Full release remains BLOCKED by unresolved security, audit and independent-review gates.
 **Canonical repository:** `OAI-GIANG/HG2`
 **Canonical branch:** `hg-genesis`
 **Baseline used for this review branch:** `cdebaeed014371f033f14352f552c6d0d4e69198`
@@ -14,7 +14,10 @@ Gate status:
 - `HG → HG2 = BLOCKED`
 - `RELEASE = BLOCKED`
 - `PHONE_IDENTITY_SOURCE = PARTIALLY_OBSERVED`
-- `GITHUB_CAPABILITY = NOT_LOADED / REVOKED_IN_LOCAL_REGISTRY`
+- `GITHUB_HG2_PUBLIC_READ = LIVE_E2E_PASS (separate narrow grant)`
+- `LEGACY_GITHUB_ACCESS = REVOKED (unchanged)`
+- `PHONE_RUNTIME_NEGATIVE_GATES = 8/8 PASS`
+- `PHONE_RUNTIME_STABILITY = 3/3 repeated E2E requests PASS`
 - `AUDIT_INTEGRITY = WARNING / NOT_RESOLVED`
 - `INDEPENDENT_EXTERNAL_REVIEW = NOT_OBTAINED`
 
@@ -29,7 +32,7 @@ Gate status:
 - Service `hg-runtime` is supervised and `127.0.0.1:8787/api/health` returns HTTP 200.
 - Legacy runtime `/api/github/status` returns `configured=false, mode=public-read`.
 - Legacy runtime `GET /api/github/repo/OAI-GIANG/HG2` succeeds for public repository metadata; this is not authenticated private-scope proof and does not fetch arbitrary ref content.
-- `GET /api/github/repo/OAI-GIANG/HG2/branches` and `.../contents/manifest.json` return 404 (routes not implemented).
+- Legacy route `GET /api/github/repo/OAI-GIANG/HG2/contents/manifest.json` remains absent. A separate narrow `/api/hg2/read` endpoint was added to the live legacy HG process and now reads commit + manifest metadata for the exact allowlisted ref.
 - The `hg2-runtime` run script starts `hg2-service/entry.py`; that file constructs `PhoneRuntime` from `hg2-phone/hg/phone_runtime.py` then sleeps. It does not expose HTTP endpoints or invoke GitHub.
 - Local capability registry reports `runtime_state=READY`, `revocation_state=REVOKED`, and empty evidence list. This local snapshot is not an authoritative proof of the external authority provider’s state.
 - `~/.config/hg/github_token` metadata shows mode 0600 and 40 bytes. Token contents were not emitted. A separate in-process GET-only probe verified the current file credential against GitHub as `OAI-GIANG` with `public_repo` scope; this does not prove the HG service consumes it.
@@ -54,11 +57,21 @@ Gate status:
 - Open PR #11 remains a candidate, not release certification; its description leaves production credential verifier, VPS/HTTPS/device E2E, power-loss recovery, external consumer inventory and global runtime identity/build attribution unresolved.
 - Open PR #15 remains draft and says its static import-analysis tool is not integrated into the phone runtime; independent review, representative production-repository ground-truth benchmark and provenance gates remain blocked.
 
+### NEW OBSERVED — Live PHONE runtime E2E after narrow integration
+
+- Active `hg-runtime` process PID `7449` returned `GET /api/hg2/read?repo=OAI-GIANG/HG2&ref=hg-genesis` with HTTP 200.
+- Both upstream GitHub GETs returned HTTP 200. Commit SHA `cdebaeed014371f033f14352f552c6d0d4e69198`; tree SHA `fa986a20e8c5c091f930f66a653f4a41611c76b2`; manifest blob SHA `f30da194e246dba2773125d074488a30912635eb`.
+- Three repeated requests returned identical commit/manifest SHA values through the same PID, with identical reported runtime and connector source hashes.
+- Eight negative/method gates passed; invalid repo/ref rejected; POST/PATCH/DELETE returned 405; PUT returned 501. HG application state hash remained `392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc` before and after.
+- A separate capability record `github_hg2_public_read` now permits only `commit.read` and `manifest.read` for `OAI-GIANG/HG2@hg-genesis`; `write_enabled=false`. The previous broad `github_access` record remains `REVOKED` and unchanged.
+- Runtime source SHA-256: `29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253`; connector SHA-256: `96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1`.
+- Detailed evidence is recorded in PR #17 under `docs/evidence/20261014/` and `docs/PHONE_RUNTIME_DEPLOYMENT_20261014.md`.
+
 ### NOT_EXPOSED / NOT_VERIFIED
 
 - Whether the running `hg-runtime` service has any GitHub connector module injected.
 - An attestation tying source/build identity to the live service process.
-- Successful read of commit/ref/content through the HG runtime (as distinct from GitHub direct access or public repository metadata).
+- Reboot/power-loss recovery and long-duration stability of the new route.
 - Authoritative capability-revocation reason or fresh active grant from the authority provider.
 - Remote revocation status of the old potentially exposed credential. Current token GET success is a separate credential and does not prove the old token/app is revoked.
 - Clean audit integrity. Previous reports indicate hash/prev mismatch from line 1; this task did not repair or rewrite that log.
@@ -66,11 +79,11 @@ Gate status:
 
 ## 3. Red-team findings
 
-### RT-01 — False equivalence between health and capability
-A successful `/api/health` establishes liveness of the legacy runtime only. It does not establish that GitHub capability code is installed and authorized.
+### RT-01 — False equivalence between health and capability (mitigated for narrow read path)
+A successful `/api/health` establishes liveness only. This risk is partly mitigated for the exact narrow GitHub read because the running HG process now exposes `/api/hg2/read`, returns process/source metadata and passed live E2E checks. It does not establish overall HG release readiness.
 
-**Severity:** P0 blocker.
-**Remediation:** verify the exact capability endpoint in runtime code/build, then test the actual endpoint. If the loader is absent, request a minimal owner-authorized installation process. Do not simulate on VPS.
+**Status:** MITIGATED FOR NARROW READ PATH; broader capabilities remain unverified.
+**Residual action:** keep capability grants separate; never infer capability from health alone.
 
 ### RT-02 — Contradictory capability state
 The local registry says `runtime_state=READY` while `revocation_state=REVOKED` and `evidence=[]`. The live runtime reports GitHub `configured=false`.
@@ -78,11 +91,11 @@ The local registry says `runtime_state=READY` while `revocation_state=REVOKED` a
 **Severity:** P0 blocker.
 **Remediation:** fail closed. Reconcile through the actual authority provider with fresh evidence; never edit the local registry merely to claim ACTIVE. Treat registry metadata as advisory until reconciled.
 
-### RT-03 — Capability lifecycle is not closed
-The existence of a token file is not proof the runtime uses it. The current phone runtime reads `GITHUB_TOKEN` from process environment; the documented private token file is not loaded by this code. The public repository metadata route does not fetch a branch's commit/content.
+### RT-03 — Capability lifecycle (partly mitigated)
+A separate phone-local adapter now reads the private token in-process, checks ownership/permissions, validates a narrow scoped grant and performs fixed HTTPS GETs. The actual HG runtime uses the adapter.
 
-**Severity:** P0 blocker.
-**Remediation:** use an explicit authorized phone-side activation process. Add only the required read-only adapter and bind it to a separate grant and explicit repository/ref allowlist. No arbitrary URL, unrestricted owner, write, push, merge or delete.
+**Status:** PARTIALLY MITIGATED for public read of one repository/ref only.
+**Residual action:** the old broad `github_access` record remains REVOKED; do not broaden the new grant without a separate review.
 
 ### RT-04 — Source hash is not runtime attestation
 Hashing a file on disk and calling a new `PhoneRuntime` verifies the checkout/diagnostic instance, not the module loaded into a long-running process.
@@ -103,10 +116,10 @@ The isolated `hg/github_authority.py` is a pure policy gate: exact repository, a
 **Remediation:** preserve the original log; acquire a byte-identical forensic copy; hash it; independently validate hash algorithm, genesis rule and schema; publish a new report, never rewrite old events.
 
 ### RT-08 — Historical unauthenticated capability bootstrap exposed file access
-A previously active Python `.pth` startup hook executed a separate payload. The saved security-containment report records that the payload's file read/write routes failed to authenticate before operating. The original hook is currently absent and a hash-matching copy remains quarantined. The old token may have been exposed; remote revocation is not verified. The current file credential successfully authenticates for public repository GETs, but that alone does not prove the old credential is revoked or that the runtime is using the current token.
+A previously active Python `.pth` startup hook executed a separate payload. The saved security-containment report records that the payload's file read/write routes failed to authenticate before operating. The original hook is absent and a hash-matching copy remains quarantined. The historical credential may have been exposed; remote revocation is not independently verified. The current credential and current HG adapter working do not prove the old credential has been revoked.
 
 **Severity:** P0 credential and capability-lifecycle risk.
-**Remediation:** keep the `.pth` hook disabled and payload inert; do not reinstall it. Confirm/revoke the old credential at GitHub through a supported account-authority path, record non-secret evidence, and keep registry state fail-closed until the authority source and credential lifecycle are reconciled. Use explicit, reviewed integration code instead of a broad startup hook.
+**Remediation:** keep the `.pth` hook disabled and payload inert; do not reinstall it. Confirm/revoke the historical credential at GitHub through supported account controls; record non-secret evidence and keep the broad registry grant fail-closed. Use explicit, reviewed integration code instead of a broad startup hook.
 
 ### RT-07 — Canonical/branch drift and open PR accumulation
 Remote `hg-genesis` is `cdebaeed014371f033f14352f552c6d0d4e69198`; historic reports refer to `d11e71e…`. Multiple open PRs contain distinct work. Merging any one PR does not prove capability activation or stable production operation.
@@ -153,7 +166,7 @@ Remote `hg-genesis` is `cdebaeed014371f033f14352f552c6d0d4e69198`; historic repo
 ## 5. Owner/operator decisions required
 
 1. Approve the exact in-phone capability installation/reboot mechanism if an authorized activation path is absent. Broad repository write authority alone is not the same as device-level installation authorization.
-2. Revoke/confirm status of the historical potentially exposed credential through GitHub account controls; separately restore/confirm external GitHub authority and reconcile the `REVOKED` registry state through the actual authority provider. Do not treat the newly verified public-read credential as proof the old credential is revoked.
+2. Revoke/confirm the status of the historical potentially exposed credential through GitHub account controls. The current public-read credential and narrow grant are not proof the old credential is revoked. Keep legacy broad `github_access` REVOKED.
 3. Arrange an independent reviewer or acknowledge that the independent-review gate remains blocked.
 4. Any production service restart/deletion requires a verified target, dependency assessment and rollback path. Device access alone does not prove destructive changes are safe.
 
@@ -162,14 +175,14 @@ Remote `hg-genesis` is `cdebaeed014371f033f14352f552c6d0d4e69198`; historic repo
 All must be evidenced:
 - Runtime identity is derived from the real PHONE service process, not a separate diagnostic instance.
 - Fresh external authority is active and bound to exact repository/action scope.
-- One real read-only request traverses the running PHONE HG runtime to GitHub and retrieves the expected ref/commit/content.
+- One real read-only request traverses the running PHONE HG runtime to GitHub and retrieves the expected ref/commit/manifest metadata. **This criterion now passes for the narrow read path.**
 - Source/provenance and evidence hashes are reproducible and secret-free.
 - Negative gates deny out-of-scope access and mutations.
 - Audit/history warnings are addressed or formally bounded so release evidence remains trustworthy.
 - Independent review records the exact SHA reviewed.
 - Exact-SHA tests pass with no warnings and relevant operational recovery checks pass.
 
-**Until then:** `HG → HG2 = BLOCKED`; `RELEASE = BLOCKED`.
+**Current distinction:** `HG → HG2 public-read path = FUNCTIONALLY VERIFIED`; broader `HG → HG2 = BLOCKED_PENDING_SECURITY_AND_REVIEW_GATES`; `RELEASE = BLOCKED`.
 
 ## 7. References
 - SLSA Provenance v1.2: https://slsa.dev/spec/v1.2/provenance
