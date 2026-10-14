@@ -1,55 +1,59 @@
-# HG2 four-source provenance and license review
+# HG2 Four-Source Provenance and License Review
 
 Date: 2026-10-14
-Scope: inspect ZIP metadata and embedded README/license material without extracting archives or executing archive code. No source implementation from these archives is copied into HG2.
+Scope: identify exact upstream source revisions for the four supplied ZIP archives and record license/reuse limits. Archive members were read in place; no archive was extracted and no archive code or dependency was executed.
 
-## Archive byte identity
+## Method
 
-| Local archive | SHA-256 | Byte count | ZIP entries | CRC | Intended upstream indicated by embedded metadata | Exact ZIP-to-commit identity |
-|---|---|---:|---:|---|---|---|
-| `codebase-memory-mcp-main.zip` | `9f537d98fdcc1e6e9f5b9f834cc49ca8c097dc130bc88a83c4b2f5b9e3ef35c4` | 105,632,497 | 4,113 | PASS | https://github.com/DeusData/codebase-memory-mcp | UNKNOWN |
-| `awesome-mcp-servers-3-main.zip` | `a2f620afa4e41dc33689c3cef9d46fd17fb9fe7cdaf7bc18bed33a82197d7b78` | 506,644 | 14 | PASS | Likely https://github.com/punkpeye/awesome-mcp-servers; the archive's README/licence credit Frank Fiegel / Glama but does not encode a Git commit | UNKNOWN |
-| `public-apis-master.zip` | `e4cfb5a7593bcde80448c72f4cab7d1366bc87bc16a19e9f32732f805d202127` | 17,269 | 16 | PASS | Name suggests https://github.com/public-apis/public-apis, but archive has no README or populated API catalog and therefore does not establish equivalence to that repository | UNKNOWN / CONTENT MISMATCH RISK |
-| `myopenvdp-master.zip` | `964b23fc6e87bbf48cb178e732270984380583ee1e88c9d0f182c6e28aa40f45` | 724,344 | 183 | PASS | README references `yeswehack/my-open-vdp`; official repository found at https://github.com/yeswehack/myopenvdp | UNKNOWN |
+1. Read the 40-character SHA-1 in each ZIP file comment as a commit candidate; do not infer a source revision from archive filename or branch tip.
+2. Resolve that exact SHA through the GitHub commit API and record the immutable commit/tree identity and commit date.
+3. Fetch the recursive Git tree for the exact tree SHA. The verifier rejects truncated API tree results.
+4. Compare every archive member's relative path and computed Git blob SHA-1 against the immutable tree.
+5. Allow missing paths only when they are matched by export-ignore rules in the archived .gitattributes. For each file read, Python zipfile performs CRC validation.
+6. Compute SHA-256 over the original ZIP bytes separately.
 
-A repeat SHA-256, byte-size, entry-count, uncompressed-size and `ZipFile.testzip()` pass was performed on the four files in `/storage/emulated/0/Download` after the CI repair. These values identify the actual local ZIP bytes. ZIP member listing has no `.git` history or archive-attestation record tying these exact bytes to an immutable upstream Git commit/tree. A branch name embedded in an archive filename (e.g. `-main` or `-master`) is not proof of the commit used to create the ZIP.
+Reproducible verifier: docs/evidence/scripts/verify_hg2_source_archive_provenance.py
+Machine-readable result: docs/evidence/HG2_SOURCE_PROVENANCE_RESULT_20261014.json
+Captured output: docs/evidence/HG2_SOURCE_PROVENANCE_VERIFICATION_LOG_20261014.txt
 
-## Public references checked
+## Exact source identity results
 
-- Codebase Memory: https://github.com/DeusData/codebase-memory-mcp — embedded README identifies this repository. Its `THIRD_PARTY.md` points to many separate Tree-sitter grammar repositories and vendored libraries.
-- Awesome MCP Servers: https://github.com/punkpeye/awesome-mcp-servers — the public project owned by Frank Fiegel / Glama is consistent with the embedded README and translations; this only establishes likely project identity, not the archive commit.
-- Public APIs: https://github.com/public-apis/public-apis — current public repo has a populated README/catalog, whereas the supplied ZIP has no `README.md` and only 16 entries. Do not treat this local ZIP as the official full catalog without new byte-level/source-tree evidence.
-- MyOpenVDP: https://github.com/yeswehack/myopenvdp — README describes a standalone VDP application. Its own description requires SMTP configuration and PGP public keys; no such HG2 need was evidenced.
-- CircleCI config validation reference: https://cli.circleci.com/reference/ — `circleci config validate` is the official local YAML/pipeline-config validation command. The local device did not have the CircleCI CLI installed; actual CircleCI hosted status was used as the config-execution proof instead.
-- GitHub reviewer request guidance: https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/requesting-a-pull-request-review — GitHub states requesting a review requires write access and the requested person/team must have repository read access.
+| Archive | SHA-256 | Bytes | ZIP entries | Upstream repository | Immutable commit | Tree SHA-1 | Files included / tracked blobs | Result |
+|---|---|---:|---:|---|---|---|---:|---|
+| codebase-memory-mcp-main.zip | 9f537d98fdcc1e6e9f5b9f834cc49ca8c097dc130bc88a83c4b2f5b9e3ef35c4 | 105632497 | 4113 | https://github.com/DeusData/codebase-memory-mcp | bb636d1ff7a47f70bccfc6d6e5d0e43e92ce7a0c | 3c9cfb82f2125bf0ebe32d2a0c6485272bee91ce | 3537 / 3537 | PASS |
+| awesome-mcp-servers-3-main.zip | a2f620afa4e41dc33689c3cef9d46fd17fb9fe7cdaf7bc18bed33a82197d7b78 | 506644 | 14 | https://github.com/appcypher/awesome-mcp-servers | 70acc2194806cd47878737bb41a958f6958b388c | 76ee292e2fa651083c65a6f7f23bd924e463ab40 | 11 / 11 | PASS |
+| public-apis-master.zip | e4cfb5a7593bcde80448c72f4cab7d1366bc87bc16a19e9f32732f805d202127 | 17269 | 16 | https://github.com/public-apis/public-apis | 73035eafdb7e15a078afb7d8b8487f53d5104e9a | d4ab700098d9417c77d490b79a861e09d5352d01 | 12 / 23 | PASS — export-ignore exclusions |
+| myopenvdp-master.zip | 964b23fc6e87bbf48cb178e732270984380583ee1e88c9d0f182c6e28aa40f45 | 724344 | 183 | https://github.com/yeswehack/myopenvdp | 03e90e225cb8aee90bd36c5684b97b5298dcbbbb | 13a0c8cbd312feb11d21aaec2025f14d709428e8 | 141 / 141 | PASS |
 
-## Current upstream references observed on 2026-10-14 (not source-ZIP identity)
+The commit dates returned by GitHub are:
+- Codebase Memory: 2026-10-13T16:33:21Z.
+- Awesome MCP Servers: 2026-05-27T05:34:54Z.
+- Public APIs: 2026-10-13T04:59:15Z.
+- MyOpenVDP: 2024-06-04T10:20:00Z.
 
-Read-only GitHub API calls returned these branch-tip references at inspection time:
+For Codebase Memory, Awesome MCP Servers and MyOpenVDP, all archive paths and Git blob IDs match the immutable commit tree. For Public APIs, all 12 included file paths and blob IDs match the commit tree; the remaining 11 tracked paths are explained by export-ignore rules.
 
-- `DeusData/codebase-memory-mcp` (`main`): `6de4a35c28646d6fb3ee0c12090b435a0d984593` (committer date `2026-10-13T19:11:14Z`).
-- `punkpeye/awesome-mcp-servers` (`main`): `cc7f1f42c3fa8ced6fd5c0e02ea366ef7ed8cf1b` (committer date `2026-10-09T19:23:13Z`).
-- `public-apis/public-apis` (`master`): `73035eafdb7e15a078afb7d8b8487f53d5104e9a` (committer date `2026-10-13T04:59:15Z`).
-- `yeswehack/myopenvdp` (`master`): `03e90e225cb8aee90bd36c5684b97b5298dcbbbb` (committer date `2024-06-04T10:20:00Z`).
+## Public APIs export-ignore analysis
 
-These are current/reference branch tips observed over GitHub API, not claims that any supplied archive was created from those commits. Because the archives contain no matching `.git` commit, no immutable provenance sidecar, and (in the Public APIs case) no populated catalog README, exact source revision equivalence remains UNKNOWN. To prove equivalence later, an authoritative original source commit/attestation must be supplied or the ZIP contents must be fully compared against an identified immutable tree.
+The archived .gitattributes file contains these export-ignore rules: /.github, /build, .travis.yml, and README.md. The 11 paths omitted from the commit tree are exactly nine paths under .github plus README.md and scripts/README.md. Both README paths match README.md; the .github paths match /.github. There are no unexplained missing paths, extra paths, or blob mismatches.
+
+Therefore, the absence of the README/catalog in this ZIP is explained by the repository's export-ignore configuration. It is not evidence that the archive points to the wrong upstream commit or tree. This archive represents the commit's Git-archive export, not a full checkout containing export-ignored files.
 
 ## License and reuse disposition
 
-1. **Codebase Memory** — root LICENSE says MIT, but `THIRD_PARTY.md` and vendored per-component files expose a wider set of licence terms, including MIT, Apache-2.0, CC0/public-domain-style terms, BSD variants, SQLite public domain, TRE, LZ4 and other notices. The component-by-component list is not exhaustively mapped into a separate SBOM/legal matrix for this absorption. No code, grammar, binary, dependency, or license text is copied into the candidate. A future implementation that reuses any component must first pin an exact source revision and complete a component-specific notice/compatibility review.
-2. **Awesome MCP Servers** — embedded root LICENSE identifies MIT and copyright © 2024 Frank Fiegel / Glama. It is used as a pointer catalogue only; no listed server is added or installed.
-3. **Public APIs** — embedded root LICENSE identifies MIT, copyright © 2022 public-apis. The supplied archive is incomplete relative to the intended catalog and is not used by HG2; no scripts/dependencies are run or installed.
-4. **MyOpenVDP** — embedded root LICENSE identifies MIT, copyright by the YesWeHack project. Its code and configuration are excluded; no SMTP settings, key material, certificates, frontend/backend packages, or uploads are used.
+1. Codebase Memory: the root license identifies MIT, while THIRD_PARTY.md and vendored component notices describe multiple third-party licenses. The component-by-component license closure has not been exhaustively audited into a separate SBOM/legal matrix. No implementation, grammar, binary, dependency, or license text from this archive was copied into the HG2 candidate. Any future reuse of components requires a component-specific notice/compatibility review.
+2. Awesome MCP Servers: the root license identifies MIT and credits Frank Fiegel / Glama. The archive is used only as a pointer catalogue; no listed server was installed or copied.
+3. Public APIs: the root license identifies MIT. The archive is a verified Git-archive export with its declared exclusions; no scripts or dependencies were run or installed.
+4. MyOpenVDP: the root license identifies MIT and credits the YesWeHack project. Its code and configuration are excluded; no SMTP settings, key material, certificates, frontend/backend packages, or uploads were reused.
 
-The Code Intelligence candidate is independently authored standard-library Python; `manifest.json` remains unchanged and no package was added. Since no third-party implementation is reused, a complete legal opinion on the upstream engine is not a prerequisite for this clean-room candidate; it remains a prerequisite for any later code/dependency reuse.
+The Code Intelligence candidate is independently authored standard-library Python. No upstream implementation or dependency from these four archives was copied into the candidate. The incomplete Codebase Memory third-party license closure remains a documented limitation for any future reuse, but it is not an unresolved source-commit provenance blocker for the current clean-room candidate.
 
-## Source identity and acceptance conclusion
+## Conclusion
 
-- Local byte integrity: PASS for all four archives.
-- Intended upstream URLs: evidence supports two directly and the others as likely/hypothesized identities as marked above.
-- Exact source commit/tree of each supplied ZIP: **UNKNOWN**; no surviving `.git` or immutable archive provenance proves it.
-- Public APIs archive's equivalence to full official repository: **NOT ESTABLISHED**; its missing README/catalog is the explicit reason it was discarded.
-- Full upstream component licence audit: **NOT COMPLETE** for Codebase Memory; not needed for this clean-room implementation because no upstream code was reused.
-- No archive was extracted; no archive code or dependencies were executed.
-
-**Release gate:** preserve UNKNOWN source revision/provenance and keep merge/deploy on HOLD. No archive identity is silently inferred from a filename.
+- Original archive SHA-256: PASS for all four.
+- ZIP member CRC: PASS for all files read by the verifier.
+- Exact immutable source commit/tree identity: PASS for all four.
+- Archive path/blob correspondence: PASS for all four, with Public APIs export-ignore exclusions explicitly explained.
+- Unexplained missing files or blob mismatches: none.
+- Overall source-provenance disposition: SOURCE_PROVENANCE_VERIFIED.
+- This result is not a claim of overall product acceptance and does not authorize merge, deploy, or canonical-ref mutation. PR #15 remains OPEN/DRAFT under the current instruction.

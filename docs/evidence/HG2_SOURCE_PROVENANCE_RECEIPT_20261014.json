@@ -38,9 +38,9 @@
   "decision": "SOURCE_PROVENANCE_VERIFIED / MERGE_DEPLOY_HOLD",
   "evidence_artifacts": [
     {
-      "bytes": 10467,
+      "bytes": 10632,
       "path": "docs/evidence/HG2_FINAL_ACCEPTANCE_GATES_20261014.md",
-      "sha256": "8f8aa8e6c6774fda239a30c61735c7b87be05c19168e1bf63279e63b2427a386"
+      "sha256": "ab56e80248a3b82dd6f6606ecda8c969f364af3ea55f288d5e1fd9d46d90750d"
     },
     {
       "bytes": 8131,
@@ -56,6 +56,11 @@
       "bytes": 8749,
       "path": "docs/evidence/scripts/verify_hg2_source_archive_provenance.py",
       "sha256": "2402fe9288b00dddd5919cb431ab33625e256cc2ddf0aebccaa56c298f2d81dc"
+    },
+    {
+      "bytes": 5828,
+      "path": "docs/evidence/HG2_SOURCE_PROVENANCE_LICENSE_AUDIT.md",
+      "sha256": "19d8274d031b75678fa8076fc28c271ffcb29907592c6b963ff2a6d5dd4afd94"
     }
   ],
   "head_before_evidence_commit": "f77bfb33101a6121203505b55e7707bbb7893849",

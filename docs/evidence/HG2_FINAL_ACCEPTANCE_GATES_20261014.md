@@ -86,6 +86,7 @@ Reproducible evidence:
 - Result JSON: docs/evidence/HG2_SOURCE_PROVENANCE_RESULT_20261014.json; SHA-256 6f254a59dd18e86ba721fd7b08923214921a4df038e48477386e5edc7598cebb
 - Captured run log: docs/evidence/HG2_SOURCE_PROVENANCE_VERIFICATION_LOG_20261014.txt; SHA-256 1c78bc6b276a7cdcc8b86f7ec0804564feb69b1f174fa47851a9c93a99523266
 - Hash receipt: docs/evidence/HG2_SOURCE_PROVENANCE_RECEIPT_20261014.json (binds the report, verifier, result/log and unchanged benchmark registration/result hashes).
+- Detailed provenance/license audit: docs/evidence/HG2_SOURCE_PROVENANCE_LICENSE_AUDIT.md; SHA-256 19d8274d031b75678fa8076fc28c271ffcb29907592c6b963ff2a6d5dd4afd94.
 - The verifier reads ZIP members in place; it does not extract or execute archive content. Each archive member was read successfully, triggering ZIP CRC validation.
 - All four original archive SHA-256 values remain unchanged and are recorded in the result JSON.
 - Codebase Memory's third-party component license closure has not been exhaustively audited. No implementation or dependency from any supplied archive was copied into the candidate; this is a separate license-scope limitation, not an unresolved source-commit identity.
