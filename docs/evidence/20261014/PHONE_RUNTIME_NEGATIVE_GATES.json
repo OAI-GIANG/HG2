@@ -1,0 +1,81 @@
+{
+  "all_pass": true,
+  "observed_at_utc": "2026-10-14T03:18:21.608316+00:00",
+  "state_sha256_after": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc",
+  "state_sha256_before": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc",
+  "state_unchanged": true,
+  "tests": [
+    {
+      "error_code": "REPOSITORY_SCOPE_MISMATCH",
+      "expected_error_code": "REPOSITORY_SCOPE_MISMATCH",
+      "expected_status": 403,
+      "method": "GET",
+      "pass": true,
+      "status": 403,
+      "test": "wrong_repo"
+    },
+    {
+      "error_code": "REF_SCOPE_MISMATCH",
+      "expected_error_code": "REF_SCOPE_MISMATCH",
+      "expected_status": 403,
+      "method": "GET",
+      "pass": true,
+      "status": 403,
+      "test": "wrong_ref"
+    },
+    {
+      "error_code": "REPO_AND_REF_REQUIRED",
+      "expected_error_code": "REPO_AND_REF_REQUIRED",
+      "expected_status": 400,
+      "method": "GET",
+      "pass": true,
+      "status": 400,
+      "test": "missing_query"
+    },
+    {
+      "error_code": "REPO_AND_REF_REQUIRED",
+      "expected_error_code": "REPO_AND_REF_REQUIRED",
+      "expected_status": 400,
+      "method": "GET",
+      "pass": true,
+      "status": 400,
+      "test": "duplicate_repo"
+    },
+    {
+      "error_code": "METHOD_NOT_ALLOWED",
+      "expected_error_code": "METHOD_NOT_ALLOWED",
+      "expected_status": 405,
+      "method": "POST",
+      "pass": true,
+      "status": 405,
+      "test": "post_denied"
+    },
+    {
+      "error_code": "METHOD_NOT_ALLOWED",
+      "expected_error_code": "METHOD_NOT_ALLOWED",
+      "expected_status": 405,
+      "method": "PATCH",
+      "pass": true,
+      "status": 405,
+      "test": "patch_denied"
+    },
+    {
+      "error_code": "METHOD_NOT_ALLOWED",
+      "expected_error_code": "METHOD_NOT_ALLOWED",
+      "expected_status": 405,
+      "method": "DELETE",
+      "pass": true,
+      "status": 405,
+      "test": "delete_denied"
+    },
+    {
+      "error_code": null,
+      "expected_error_code": null,
+      "expected_status": 501,
+      "method": "PUT",
+      "pass": true,
+      "status": 501,
+      "test": "put_denied"
+    }
+  ]
+}

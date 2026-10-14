@@ -1,6 +1,7 @@
 """Least-privilege HG -> HG2 public-read adapter. Python standard library only."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import stat
@@ -17,6 +18,7 @@ API_BASE = "https://api.github.com"
 CAPABILITY_ID = "github_hg2_public_read"
 DEFAULT_TOKEN_PATH = Path.home() / ".config" / "hg" / "github_token"
 DEFAULT_REGISTRY_PATH = Path.home() / ".config" / "hg" / "capabilities" / "registry.json"
+SOURCE_SHA256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 MAX_RESPONSE_BYTES = 1_000_000
 MAX_TOKEN_BYTES = 4096
 USER_AGENT = "HG2-Phone-ReadOnly-Connector/1.0"

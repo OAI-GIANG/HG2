@@ -1,0 +1,74 @@
+--- a/hg_runtime.py
++++ b/hg_runtime.py
+@@ -341,6 +341,10 @@
+     threading.Thread(target=loop,daemon=True).start()
+
+
++_HG_RUNTIME_PROCESS_STARTED_EPOCH = time.time()
++_HG_RUNTIME_SOURCE_SHA256_AT_START = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
++
++
+ class Handler(BaseHTTPRequestHandler):
+     server_version="HG-Runtime/1.0"
+     def log_message(self,fmt,*args):print("HG",fmt%args)
+@@ -406,6 +410,27 @@
+                 regen_summary(s); save(s); summ=s.get("memory_summary")
+             active=[m for m in s.get("memory",[]) if str(m.get("status","active"))!="superseded"]
+             return self.send_json(200,{"ok":True,"summary":summ or {"text":"Chưa có bộ nhớ nào.","updated_at":None},"memory":active,"count":len(active)})
++        if path=="/api/hg2/read":
++            repo_values=q.get("repo",[]); ref_values=q.get("ref",[])
++            if len(repo_values)!=1 or len(ref_values)!=1:
++                return self.send_json(400,{"ok":False,"error":{"code":"REPO_AND_REF_REQUIRED"}})
++            try:
++                import github_hg2_readonly as connector
++            except ImportError:
++                return self.send_json(503,{"ok":False,"error":{"code":"CONNECTOR_NOT_INSTALLED"}})
++            try:
++                result=connector.read_hg2_ref(repo_values[0],ref_values[0])
++            except connector.ConnectorError as e:
++                return self.send_json(e.status,{"ok":False,"error":{"code":e.code}})
++            except Exception:
++                return self.send_json(502,{"ok":False,"error":{"code":"CONNECTOR_INTERNAL_ERROR"}})
++            return self.send_json(200,{"ok":True,"result":result,"runtime":{
++                "pid":os.getpid(),"process_started_epoch":_HG_RUNTIME_PROCESS_STARTED_EPOCH,
++                "runtime_source_path":str(Path(__file__).resolve()),
++                "runtime_source_file_sha256_at_start":_HG_RUNTIME_SOURCE_SHA256_AT_START,
++                "connector_source_path":str(Path(connector.__file__).resolve()),
++                "connector_source_sha256_at_import":connector.SOURCE_SHA256,
++                "bind_address":str(self.server.server_address[0]),"bind_port":int(self.server.server_address[1])}})
+         if path=="/api/github/status":
+             token=bool(os.getenv("GITHUB_TOKEN","")); d={"configured":token,"mode":"authenticated" if token else "public-read"}
+             if token:
+@@ -421,7 +446,9 @@
+             r=gh(f"/repos/{m.group(1)}/{m.group(2)}");return self.send_json(200 if r["ok"] else 502,{"ok":r["ok"],"repo":r.get("data"),"error":r.get("error")})
+         return self.send_json(404,{"ok":False,"error":{"code":"NOT_FOUND","message":"Unknown endpoint"}})
+     def do_POST(self):
+-        path=urlparse(self.path).path;b=self.body();s=load()
++        path=urlparse(self.path).path
++        if path=="/api/hg2/read": return self.send_json(405,{"ok":False,"error":{"code":"METHOD_NOT_ALLOWED"}})
++        b=self.body();s=load()
+         if path=="/api/phone/register": return self.send_json(*self.server.phone_bridge.register(b))
+         if path=="/api/phone/heartbeat": return self.send_json(*self.server.phone_bridge.heartbeat(str(b.get("device_id","")),str(b.get("device_token",""))))
+         if path=="/api/phone/command": return self.send_json(*self.server.phone_bridge.command(b))
+@@ -609,7 +636,9 @@
+             return self.send_json(200,{"ok":True,"reply":reply,"model":model,"memory_ops":applied,"memory":s.get("memory",[])})
+         return self.send_json(404,{"ok":False,"error":{"code":"NOT_FOUND","message":"Unknown endpoint"}})
+     def do_PATCH(self):
+-        path=urlparse(self.path).path;b=self.body();s=load();m=re.fullmatch(r"/api/context/([^/]+)",path)
++        path=urlparse(self.path).path
++        if path=="/api/hg2/read": return self.send_json(405,{"ok":False,"error":{"code":"METHOD_NOT_ALLOWED"}})
++        b=self.body();s=load();m=re.fullmatch(r"/api/context/([^/]+)",path)
+         if m:
+             c=next((x for x in s["context"] if x["id"]==m.group(1)),None)
+             if not c:return self.send_json(*err("CONTEXT_NOT_FOUND","context not found",404))
+@@ -617,7 +646,9 @@
+             save(s);return self.send_json(200,{"ok":True,"context":c})
+         return self.send_json(404,{"ok":False,"error":{"code":"NOT_FOUND","message":"Unknown endpoint"}})
+     def do_DELETE(self):
+-        path=urlparse(self.path).path;s=load()
++        path=urlparse(self.path).path
++        if path=="/api/hg2/read": return self.send_json(405,{"ok":False,"error":{"code":"METHOD_NOT_ALLOWED"}})
++        s=load()
+         mcv=re.fullmatch(r"/api/conversations/([^/]+)",path)
+         if mcv:
+             cid=mcv.group(1); s["conversations"]=[c for c in s.get("conversations",[]) if c.get("id")!=cid]

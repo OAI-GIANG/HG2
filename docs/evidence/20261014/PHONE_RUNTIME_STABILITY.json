@@ -1,0 +1,47 @@
+{
+  "all_ok": true,
+  "count": 3,
+  "created_at_utc": "2026-10-14T03:18:54.079064+00:00",
+  "endpoint": "127.0.0.1:8787/api/hg2/read",
+  "results": [
+    {
+      "commit_sha": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "connector_sha256": "96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1",
+      "http_status": 200,
+      "iteration": 1,
+      "manifest_blob_sha": "f30da194e246dba2773125d074488a30912635eb",
+      "observed_at_utc": "2026-10-14T03:18:45.557092+00:00",
+      "ok": true,
+      "runtime_pid": 7449,
+      "runtime_source_sha256": "29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253"
+    },
+    {
+      "commit_sha": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "connector_sha256": "96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1",
+      "http_status": 200,
+      "iteration": 2,
+      "manifest_blob_sha": "f30da194e246dba2773125d074488a30912635eb",
+      "observed_at_utc": "2026-10-14T03:18:49.198505+00:00",
+      "ok": true,
+      "runtime_pid": 7449,
+      "runtime_source_sha256": "29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253"
+    },
+    {
+      "commit_sha": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "connector_sha256": "96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1",
+      "http_status": 200,
+      "iteration": 3,
+      "manifest_blob_sha": "f30da194e246dba2773125d074488a30912635eb",
+      "observed_at_utc": "2026-10-14T03:18:52.482367+00:00",
+      "ok": true,
+      "runtime_pid": 7449,
+      "runtime_source_sha256": "29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253"
+    }
+  ],
+  "stable_commit": true,
+  "stable_manifest_blob": true,
+  "stable_process_pid": true,
+  "state_sha256_after": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc",
+  "state_sha256_before": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc",
+  "state_unchanged": true
+}
