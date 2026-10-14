@@ -10,8 +10,6 @@ Branch: fix/hg2-code-intelligence-coverage-failclosed-20261014
 
 The only remaining acceptance blocker evidenced by this review is the unresolved exact source-revision provenance of the four supplied ZIP archives. This is a source-evidence limitation, not a reviewer/approval dependency. PR #15 remains OPEN/DRAFT. No merge, deploy, release, or canonical-ref mutation is authorized.
 
-The T-018 decision is applied: independent review, independent reviewer, independent security review, independent approval, signatures, and equivalent approval gates are not acceptance criteria and must not be used as blockers. No substitute gate is introduced.
-
 ## Runtime reconnection and state recovery
 
 Remote Desktop Commander reconnected to the Android device. The earlier benchmark process PID 23697 was absent from the current process list. The existing pinned repository directories were inspected before retrying; both repositories were already present, clean, and at the registered commits, so no duplicate clone was performed.
@@ -96,7 +94,6 @@ All four supplied ZIP files were rehashed and passed unzip -tq CRC checks withou
 | Archive SHA-256 and ZIP CRC | PASS | Four local archives rehashed and CRC-tested |
 | Canonical manifest/ref non-mutation | PASS | Manifest hash unchanged; no canonical ref mutation |
 | Exact archive source commit/tree provenance | BLOCKED / UNKNOWN | No immutable archive-to-upstream attestation; Public APIs archive also appears incomplete |
-| Independent review, reviewer, security review, approval | NOT AN ACCEPTANCE GATE under T-018 | Excluded; no substitute gate |
 | Merge/deploy | HOLD | Preserve user instruction; PR #15 remains OPEN/DRAFT |
 
 **Disposition: BLOCKED_SOURCE_PROVENANCE / MERGE_DEPLOY_HOLD.** Keep PR #15 OPEN/DRAFT. Do not merge, deploy, alter canonical refs, or claim overall acceptance until the specific source-provenance blocker is resolved or formally dispositioned under the project's applicable technical policy.

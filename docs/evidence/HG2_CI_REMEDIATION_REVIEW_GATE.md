@@ -1,4 +1,4 @@
-> **T-018 policy correction (2026-10-14):** This file is retained as historical evidence for the earlier PR #14 CI/config incident, not as an active acceptance gate. Independent review, independent reviewer, independent security review, independent approval, and equivalent gates are excluded from HG2 acceptance. No substitute gate is created. Do not use the historical review-related statements below as current blockers; apply the corrected PR #15 acceptance report instead.
+> **T-018 policy correction (2026-10-14):** This file is historical evidence for the earlier PR #14 CI/config incident, not an active acceptance gate. Use the corrected PR #15 acceptance report for the current decision. No additional approval conditions are introduced.
 
 # HG2 Code Intelligence — Coverage Fail-Closed Remediation
 
@@ -69,4 +69,4 @@ This resolves the missing-config root cause for the tested commit; it does not e
 - Component-level license/compliance audit of the upstream Codebase Memory archive: NOT COMPLETE; no upstream implementation code was copied.
 - Canonical reference drift remains unresolved: task-recorded baseline `d11e71ed8b34338b8568664b39bc777c926826d5`; remote-tracking `origin/hg-genesis` is `cdebaeed014371f033f14352f552c6d0d4e69198`. No attempt was made to reconcile or force-push either ref.
 
-**Disposition:** source inventory, clean-room candidate, local regression and hosted CI for commit `43d4122` are verified. Keep merge/deploy on HOLD only for unresolved technical gates explicitly listed above; independent review/approval is not an acceptance gate under T-018. Canonical refs and runtime remain unchanged.
+**Disposition:** source inventory, clean-room candidate, local regression and hosted CI for commit `43d4122` are verified. Keep merge/deploy on HOLD only for unresolved technical gates explicitly listed above. Canonical refs and runtime remain unchanged.
