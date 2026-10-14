@@ -54,9 +54,9 @@ Both corpora correctly reported incomplete repository-wide coverage. iniconfig: 
 
 ## Latest hosted CI and branch state
 
-- Last candidate HEAD verified before this provenance-evidence-only change: f77bfb33101a6121203505b55e7707bbb7893849.
-- CircleCI ci/circleci: verify on that exact HEAD: SUCCESS, run #93 — https://circleci.com/gh/OAI-GIANG/HG2/93.
-- The provenance verifier and this report/evidence are documentation-only additions. The resulting new HEAD must be checked separately; do not transfer the prior CI result to a later commit.
+- Final provenance-evidence HEAD verified: 9966be2556b76bd10bc52d0742053ffe14106b59.
+- CircleCI ci/circleci: verify on that exact HEAD: SUCCESS, run #95 — https://circleci.com/gh/OAI-GIANG/HG2/95.
+- The latest evidence HEAD was checked separately; this CI result applies to that exact commit only.
 - PR #15 was observed OPEN/DRAFT; no merge/deploy action was taken.
 
 ## Archive integrity and source provenance
@@ -106,7 +106,7 @@ Reproducible evidence:
 | Real-repository benchmark V2 | PASS, limited scope | 2/2 pinned repositories, all registered thresholds met |
 | Synthetic benchmark V2 | PASS, limited scope | 8/8 registered cases |
 | Regression | PASS | 35 tests, exit 0 |
-| Hosted CI | PASS on pre-provenance-evidence HEAD f77bfb3… | CircleCI run #93; latest evidence commit checked separately |
+| Hosted CI | PASS on evidence HEAD 9966be2… | CircleCI run #95 on the exact HEAD |
 | Archive SHA-256 and ZIP CRC | PASS | Four local archives rehashed and CRC-tested |
 | Canonical manifest/ref non-mutation | PASS | Manifest hash unchanged; no canonical ref mutation |
 | Exact archive source commit/tree provenance | PASS for all four archives | ZIP comment commit resolved through GitHub API; included paths/blob IDs match immutable trees; Public APIs exclusions explained by export-ignore |

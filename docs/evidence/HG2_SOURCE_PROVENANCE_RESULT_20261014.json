@@ -141,7 +141,7 @@
       "zip_comment_commit_candidate": "03e90e225cb8aee90bd36c5684b97b5298dcbbbb"
     }
   ],
-  "verified_at_local": "2026-10-14T16:13:23.296207+07:00",
+  "verified_at_local": "2026-10-14T18:01:38.890182+07:00",
   "verifier": {
     "executes_archive_content": false,
     "path": "/data/data/com.termux/files/home/hg2-absorption-candidate-20261014/docs/evidence/scripts/verify_hg2_source_archive_provenance.py",

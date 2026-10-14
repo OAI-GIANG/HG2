@@ -35,35 +35,50 @@
     "manifest_sha256": "748649af5d45e10d7df322e430aa01240a6f303c5f2bcb6a363aa5cf8c221abf"
   },
   "created_at_local": "2026-10-14T16:13:58.571152+07:00",
-  "decision": "SOURCE_PROVENANCE_VERIFIED / MERGE_DEPLOY_HOLD",
+  "decision": "FOUR_SOURCE_INVESTIGATION_CLOSED / SOURCE_PROVENANCE_VERIFIED / SELECTIVE_DESIGN_ABSORPTION_VERIFIED_WITHIN_BOUNDED_CONTRACT / PRODUCT_INTEGRATION_NOT_CLAIMED / PR_OPEN_DRAFT",
   "evidence_artifacts": [
     {
-      "bytes": 10632,
       "path": "docs/evidence/HG2_FINAL_ACCEPTANCE_GATES_20261014.md",
-      "sha256": "ab56e80248a3b82dd6f6606ecda8c969f364af3ea55f288d5e1fd9d46d90750d"
+      "bytes": 10469,
+      "sha256": "1dda1e9693df54cb9f7f656a1126c8d708222aa354a837960cec8a3eaabbbea5"
     },
     {
-      "bytes": 8131,
       "path": "docs/evidence/HG2_SOURCE_PROVENANCE_RESULT_20261014.json",
-      "sha256": "6f254a59dd18e86ba721fd7b08923214921a4df038e48477386e5edc7598cebb"
+      "bytes": 8131,
+      "sha256": "4e247d661638c064d7ddfde09f01d49ef7c79470fb5a7c280a90b1cd0fd63dfc"
     },
     {
-      "bytes": 1345,
       "path": "docs/evidence/HG2_SOURCE_PROVENANCE_VERIFICATION_LOG_20261014.txt",
+      "bytes": 1345,
       "sha256": "1c78bc6b276a7cdcc8b86f7ec0804564feb69b1f174fa47851a9c93a99523266"
     },
     {
-      "bytes": 8749,
       "path": "docs/evidence/scripts/verify_hg2_source_archive_provenance.py",
+      "bytes": 8749,
       "sha256": "2402fe9288b00dddd5919cb431ab33625e256cc2ddf0aebccaa56c298f2d81dc"
     },
     {
-      "bytes": 5828,
       "path": "docs/evidence/HG2_SOURCE_PROVENANCE_LICENSE_AUDIT.md",
+      "bytes": 5828,
       "sha256": "19d8274d031b75678fa8076fc28c271ffcb29907592c6b963ff2a6d5dd4afd94"
+    },
+    {
+      "path": "docs/ABSORPTION_SOURCE_DECISIONS.md",
+      "bytes": 6713,
+      "sha256": "e9af0fa5138e76ca405af5ef281aee9da1159c79f2aabc8e452b1e5548fc1b2e"
+    },
+    {
+      "path": "docs/ABSORPTION_GATE_REPORT.md",
+      "bytes": 12545,
+      "sha256": "ec1601a6d5f4d5974e3aee029aad672901772cd8d4bed730cc54384771bad4aa"
+    },
+    {
+      "path": "docs/evidence/HG2_FOUR_SOURCE_ABSORPTION_CLOSURE_20261014.md",
+      "bytes": 7005,
+      "sha256": "8db770b585e8fe7aea3a8682af92adcc670425c2e7223ce855e97d0e8d139b7f"
     }
   ],
-  "head_before_evidence_commit": "f77bfb33101a6121203505b55e7707bbb7893849",
+  "head_before_evidence_commit": "9966be2556b76bd10bc52d0742053ffe14106b59",
   "limitations": [
     "This result proves archive content correspondence to the specified immutable commits/tree snapshots, with declared export-ignore omissions. It does not constitute overall product acceptance.",
     "Codebase Memory third-party license closure has not been exhaustively audited; no implementation or dependency from these archives was copied into the candidate."
@@ -75,5 +90,33 @@
     "url": "https://github.com/OAI-GIANG/HG2/pull/15"
   },
   "result": "PASS_ALL_FOUR_ARCHIVES_PROVEN_TO_EXACT_COMMIT_CONTENT",
-  "schema": "HG2_SOURCE_PROVENANCE_RECEIPT_V1"
+  "schema": "HG2_SOURCE_PROVENANCE_RECEIPT_V1",
+  "ci": {
+    "head": "9966be2556b76bd10bc52d0742053ffe14106b59",
+    "provider": "CircleCI",
+    "run": 95,
+    "state": "SUCCESS",
+    "url": "https://circleci.com/gh/OAI-GIANG/HG2/95"
+  },
+  "scope": {
+    "closed": [
+      "four-source investigation",
+      "archive integrity and immutable provenance",
+      "source disposition",
+      "selective clean-room design absorption",
+      "bounded regression and benchmark verification"
+    ],
+    "not_claimed": [
+      "upstream source code reuse",
+      "full feature parity",
+      "all-language or semantic/runtime code intelligence",
+      "phone-runtime integration",
+      "product/release acceptance"
+    ],
+    "independent_review_gate": "NOT_REQUIRED; no equivalent substitute gate introduced",
+    "canonical_manifest_sha256": "748649af5d45e10d7df322e430aa01240a6f303c5f2bcb6a363aa5cf8c221abf",
+    "canonical_manifest_changed": false,
+    "merge": false,
+    "deploy": false
+  }
 }

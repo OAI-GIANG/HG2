@@ -129,3 +129,10 @@ No broad product-performance gap is treated as release-certified. The code-index
 `ABSORPTION CANDIDATE CREATED / LOCAL TESTS PASS / EVIDENCE RECORDED / CANONICAL UNCHANGED / MERGE-DEPLOY HOLD`.
 
 This closes the source-selection and candidate-construction phase. It does not certify general code intelligence or authorize merge/deployment. The canonical `hg-genesis` ref remains at `d11e71ed8b34338b8568664b39bc777c926826d5` in the inspected local repository.
+
+
+## Final evidence correction — 2026-10-14
+
+This addendum supersedes earlier statements in this report that upstream provenance was UNKNOWN and that representative benchmarks were still unrun. The four archive commit/tree/blob comparisons are now verified in docs/evidence/HG2_SOURCE_PROVENANCE_RESULT_20261014.json; the bounded real-repository benchmark V2 passed 2/2 pinned repositories and synthetic benchmark V2 passed 8/8 cases. The full current regression suite passed 35 tests, and CircleCI run #95 passed on final evidence HEAD 9966be2556b76bd10bc52d0742053ffe14106b59.
+
+The benchmark evidence remains deliberately limited: the V1 real-repository run failed and is preserved as failed; V2's expected edges were manually re-audited after that failure; broad multi-language, semantic, runtime, and repository-wide impact completeness are not established. No upstream code or dependency was copied. See docs/evidence/HG2_FOUR_SOURCE_ABSORPTION_CLOSURE_20261014.md for the authoritative scoped closure decision.
