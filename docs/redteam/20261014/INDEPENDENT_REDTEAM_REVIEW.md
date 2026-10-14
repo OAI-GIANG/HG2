@@ -14,10 +14,10 @@ Gate status:
 - `HG → HG2 = BLOCKED`
 - `RELEASE = BLOCKED`
 - `PHONE_IDENTITY_SOURCE = PARTIALLY_OBSERVED`
-- `GITHUB_HG2_PUBLIC_READ = LIVE_E2E_PASS (separate narrow grant)`
+- `GITHUB_HG2_PUBLIC_READ = HISTORICAL_E2E_PASS; CURRENT_BLOCKED_CREDENTIAL`
 - `LEGACY_GITHUB_ACCESS = REVOKED (unchanged)`
 - `PHONE_RUNTIME_NEGATIVE_GATES = 8/8 PASS`
-- `PHONE_RUNTIME_STABILITY = 3/3 repeated E2E requests PASS`
+- `PHONE_RUNTIME_STABILITY = 3/3 repeated requests passed during earlier window; later upstream credential rejection means current E2E is blocked`
 - `AUDIT_INTEGRITY = WARNING / NOT_RESOLVED`
 - `INDEPENDENT_EXTERNAL_REVIEW = NOT_OBTAINED`
 
@@ -61,9 +61,10 @@ Gate status:
 
 - Active `hg-runtime` process PID `7449` returned `GET /api/hg2/read?repo=OAI-GIANG/HG2&ref=hg-genesis` with HTTP 200.
 - Both upstream GitHub GETs returned HTTP 200. Commit SHA `cdebaeed014371f033f14352f552c6d0d4e69198`; tree SHA `fa986a20e8c5c091f930f66a653f4a41611c76b2`; manifest blob SHA `f30da194e246dba2773125d074488a30912635eb`.
-- Three repeated requests returned identical commit/manifest SHA values through the same PID, with identical reported runtime and connector source hashes.
-- Eight negative/method gates passed; invalid repo/ref rejected; POST/PATCH/DELETE returned 405; PUT returned 501. HG application state hash remained `392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc` before and after.
-- A separate capability record `github_hg2_public_read` now permits only `commit.read` and `manifest.read` for `OAI-GIANG/HG2@hg-genesis`; `write_enabled=false`. The previous broad `github_access` record remains `REVOKED` and unchanged.
+- Three repeated requests in the initial verification window returned identical commit/manifest SHA values through one PID; eight negative/method gates passed; state hash stayed unchanged.
+- After the audit verifier restart, one more E2E request passed at `03:25:25Z`. However, two later requests at `03:28:32Z` and `03:28:41Z` returned HTTP 502 / `GITHUB_CREDENTIAL_REJECTED` while runtime health stayed 200.
+- Fail-closed response: the narrow local grant was changed to `credential_state=UPSTREAM_REJECTED_401`, `runtime_state=BLOCKED`; route then returned HTTP 403 `CAPABILITY_NOT_AUTHORIZED` without an upstream call. Registry SHA-256 after block: `3275baf0a0d45c1ac0ba7a49cc8277af3df7fa5b7212bc1690b0f9ea1125dfa0`.
+- The separate `github_hg2_public_read` grant is currently BLOCKED, and allows only `commit.read` and `manifest.read` when reauthorized; `write_enabled=false`. The previous broad `github_access` record remains `REVOKED` and unchanged.
 - Runtime source SHA-256: `29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253`; connector SHA-256: `96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1`.
 - Detailed evidence is recorded in PR #17 under `docs/evidence/20261014/` and `docs/PHONE_RUNTIME_DEPLOYMENT_20261014.md`.
 
@@ -79,6 +80,7 @@ Gate status:
 
 - Whether the running `hg-runtime` service has any GitHub connector module injected.
 - An attestation tying source/build identity to the live service process.
+- Current accepted GitHub credential and recovery/reauthorization path; later upstream requests received 401.
 - Reboot/power-loss recovery and long-duration stability of the new route.
 - Authoritative capability-revocation reason or fresh active grant from the authority provider.
 - Remote revocation status of the old potentially exposed credential. Current token GET success is a separate credential and does not prove the old token/app is revoked.
@@ -93,17 +95,17 @@ A successful `/api/health` establishes liveness only. This risk is partly mitiga
 **Status:** MITIGATED FOR NARROW READ PATH; broader capabilities remain unverified.
 **Residual action:** keep capability grants separate; never infer capability from health alone.
 
-### RT-02 — Contradictory capability state
-The local registry says `runtime_state=READY` while `revocation_state=REVOKED` and `evidence=[]`. The live runtime reports GitHub `configured=false`.
+### RT-02 — Capability state conflict and upstream credential rejection
+At initial deployment the registry's broader `github_access` was `REVOKED` while the runtime lacked the route. A new narrow grant enabled successful E2E, but the upstream later returned `GITHUB_CREDENTIAL_REJECTED`. The narrow grant has now been locally fail-closed as `runtime_state=BLOCKED`, `credential_state=UPSTREAM_REJECTED_401`; the broad grant remains `REVOKED`.
 
-**Severity:** P0 blocker.
-**Remediation:** fail closed. Reconcile through the actual authority provider with fresh evidence; never edit the local registry merely to claim ACTIVE. Treat registry metadata as advisory until reconciled.
+**Severity:** P0 current operational blocker.
+**Remediation:** do not retry upstream or set the grant back to READY until an authorized valid credential/authority state is provided. The exact remote cause/revocation status remains unverified.
 
-### RT-03 — Capability lifecycle (partly mitigated)
-A separate phone-local adapter now reads the private token in-process, checks ownership/permissions, validates a narrow scoped grant and performs fixed HTTPS GETs. The actual HG runtime uses the adapter.
+### RT-03 — Capability lifecycle (implemented, currently blocked)
+The phone-local adapter reads the private token in-process, validates file ownership/permissions, and accepts only a separate narrow repo/ref grant. It succeeded through the actual HG runtime, then GitHub rejected the credential on later requests. The narrow grant is now locally blocked, and further upstream requests cease until credential recovery.
 
-**Status:** PARTIALLY MITIGATED for public read of one repository/ref only.
-**Residual action:** the old broad `github_access` record remains REVOKED; do not broaden the new grant without a separate review.
+**Status:** IMPLEMENTED and historically E2E-verified; CURRENTLY BLOCKED_CREDENTIAL.
+**Residual action:** reconcile credential state without exposing token contents; keep the old broad `github_access` record REVOKED.
 
 ### RT-04 — Source hash is not runtime attestation
 Hashing a file on disk and calling a new `PhoneRuntime` verifies the checkout/diagnostic instance, not the module loaded into a long-running process.
@@ -124,7 +126,7 @@ Read-only forensic analysis observed 2,179 records. Lines 1–669 use a legacy s
 **Remediation/status:** the active verifier now reports `chain_ok=true`, `bad=[]`, `legacy_prefix_records=669`, `chained_records=1510`, `chain_start_line=670`, while keeping whole-file `ok=false`. Original audit data was not rewritten. Current snapshot SHA-256: `6701cfa9d1bfeabe3ae538c3e1d2127d3c1695528ded2913b220abc8e346d88a` (2,179 records). The legacy prefix still lacks tamper evidence and remains a release caveat. Four verifier contract tests pass, covering valid chained suffix after legacy prefix and corruption/prev/missing-hash failure cases.
 
 ### RT-08 — Historical unauthenticated capability bootstrap exposed file access
-A previously active Python `.pth` startup hook executed a separate payload. The saved security-containment report records that the payload's file read/write routes failed to authenticate before operating. The original hook is absent and a hash-matching copy remains quarantined. The historical credential may have been exposed; remote revocation is not independently verified. The current credential and current HG adapter working do not prove the old credential has been revoked.
+A previously active Python `.pth` startup hook executed a separate payload. The saved security-containment report records that the payload's file read/write routes failed to authenticate before operating. The original hook is absent and a hash-matching copy remains quarantined. Historical credential exposure remains plausible; remote revocation is not independently verified. The latest upstream 401 further means current credential validity is also not established.
 
 **Severity:** P0 credential and capability-lifecycle risk.
 **Remediation:** keep the `.pth` hook disabled and payload inert; do not reinstall it. Confirm/revoke the historical credential at GitHub through supported account controls; record non-secret evidence and keep the broad registry grant fail-closed. Use explicit, reviewed integration code instead of a broad startup hook.
@@ -190,7 +192,7 @@ All must be evidenced:
 - Independent review records the exact SHA reviewed.
 - Exact-SHA tests pass with no warnings and relevant operational recovery checks pass.
 
-**Current distinction:** `HG → HG2 public-read path = FUNCTIONALLY VERIFIED`; broader `HG → HG2 = BLOCKED_PENDING_SECURITY_AND_REVIEW_GATES`; `RELEASE = BLOCKED`.
+**Current distinction:** `HG → HG2 public-read path = HISTORICALLY E2E-VERIFIED, CURRENTLY BLOCKED_CREDENTIAL`; broader `HG → HG2 = BLOCKED_PENDING_SECURITY_AND_REVIEW_GATES`; `RELEASE = BLOCKED`.
 
 ## 7. References
 - SLSA Provenance v1.2: https://slsa.dev/spec/v1.2/provenance

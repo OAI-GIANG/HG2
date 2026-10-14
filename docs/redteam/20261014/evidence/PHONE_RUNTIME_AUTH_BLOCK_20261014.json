@@ -1,0 +1,55 @@
+{
+  "connector_source_sha256": "96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1",
+  "credential_rejection_events": [
+    {
+      "observed_at_utc": "2026-10-14T03:28:32Z",
+      "runtime_http_status": 502,
+      "safe_error_code": "GITHUB_CREDENTIAL_REJECTED"
+    },
+    {
+      "observed_at_utc": "2026-10-14T03:28:41Z",
+      "runtime_http_status": 502,
+      "safe_error_code": "GITHUB_CREDENTIAL_REJECTED"
+    }
+  ],
+  "credential_value_recorded": false,
+  "current_operational_status": "BLOCKED_CREDENTIAL",
+  "interpretation": "Previously successful authenticated E2E is historical evidence only. The upstream credential was later rejected; narrow capability is now locally blocked and will not retry upstream until an authorized credential/authority reconciliation occurs. Cause of rejection is not independently known.",
+  "last_known_successful_commit_sha": "cdebaeed014371f033f14352f552c6d0d4e69198",
+  "last_known_successful_manifest_blob_sha": "f30da194e246dba2773125d074488a30912635eb",
+  "last_known_successful_runtime_e2e_utc": "2026-10-14T03:25:25.629301Z",
+  "legacy_github_access_revocation_state": "REVOKED",
+  "local_fail_closed_check": {
+    "http_status": 403,
+    "observed_at_utc": "2026-10-14T03:29:23Z",
+    "runtime_health_http_status": 200,
+    "safe_error_code": "CAPABILITY_NOT_AUTHORIZED",
+    "upstream_called": false
+  },
+  "narrow_capability_state": {
+    "actions": [
+      "commit.read",
+      "manifest.read"
+    ],
+    "credential_state": "UPSTREAM_REJECTED_401",
+    "id": "github_hg2_public_read",
+    "revocation_state": "ACTIVE",
+    "runtime_state": "BLOCKED",
+    "target": {
+      "ref": "hg-genesis",
+      "repository": "OAI-GIANG/HG2"
+    },
+    "write_enabled": false
+  },
+  "observed_at_utc": "2026-10-14T03:29:59.092792+00:00",
+  "registry_sha256": "3275baf0a0d45c1ac0ba7a49cc8277af3df7fa5b7212bc1690b0f9ea1125dfa0",
+  "remote_credential_recovery": "NOT_ATTEMPTED; do not read, print, or transfer credential. Requires a valid authorized PHONE-local public-repository read credential.",
+  "runtime_source_sha256": "29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253",
+  "service": {
+    "health_http_status": 200,
+    "health_runtime": "READY",
+    "name": "hg-runtime",
+    "pid": 13230
+  },
+  "state_sha256": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc"
+}
