@@ -2,83 +2,77 @@
 
 Date: 2026-10-14
 PR: https://github.com/OAI-GIANG/HG2/pull/15
-Branch: `fix/hg2-code-intelligence-coverage-failclosed-20261014`
-Current upstream head before this evidence commit: `252f0c4d58db8d83646ad85f6a3e8bc774cbf296`.
+Branch: fix/hg2-code-intelligence-coverage-failclosed-20261014
 
-## Executive disposition
+## Disposition
 
-**`TECHNICALLY_VERIFIED_FOR_BOUNDED_SYNTHETIC_SCOPE / BLOCKED_EXTERNAL_REVIEW / MERGE_DEPLOY_HOLD`.** The isolated clean-room candidate passes unit tests, the V2 preregistered synthetic ground-truth suite passes all registered thresholds, four archive integrity checks pass, and canonical manifest/runtime paths are unchanged. This is not production certification and the whole task is not eligible for closure while independent review/security review and exact archive provenance remain unsatisfied/unknown.
+**BLOCKED_EXTERNAL_REVIEW / MERGE_DEPLOY_HOLD.** PR #15 must remain OPEN/DRAFT. No merge, deploy, release, canonical-ref mutation, or closure is authorized by these results.
 
-PR #15 must remain OPEN/DRAFT. No merge, deployment, release or canonical ref mutation is authorized by this evidence.
+The Android Remote Desktop Commander reconnected successfully. The previously launched benchmark PID 23697 was absent from the process list; the existing pinned corpus directory was inspected before any benchmark retry. Both checkouts were already present, clean, and at the preregistered commits; no duplicate clone was performed.
 
-## Preregistered V2 ground-truth benchmark
+## Real-repository ground-truth benchmark
 
-V2 is distinct from V1. V1's expected values and recall threshold were amended during development after seeing results; therefore V1 is preserved only as an exploratory trail and is explicitly not acceptance evidence (`HG2_CI_BENCHMARK_V1_RELIABILITY_NOTE.md`). V2 expected static edges/dependents, coverage/impact states, all 28 fixture-file hashes, scoring formulas and 1.0 acceptance thresholds were committed to the registration artifact before the first V2 scorer run. The scorer verifies the fixture hashes before analyzing them. No V2 expected results or thresholds were edited after the V2 run.
+### V1 — failed and preserved
 
-- Registration: `HG2_CI_GROUND_TRUTH_REGISTRATION_V2.json`; SHA-256 `f0b0ba7ab1b4c176149ad0f72f08b0e9ab2582acc2a839b79a9d65d01874940b`.
-- Result: `HG2_CI_GROUND_TRUTH_RESULT_V2.json`; SHA-256 `658645faa6a67f8b6eab02c01d55cdb7911d2304b61ced4dd9ba8875fc363bd5`.
-- Scorer: `tools/run_code_intelligence_benchmark.py`; SHA-256 `e32bc8be0e658923aceab7dcfd9986b1f2de351bacbaf81be113ba8c41c03046`.
-- Candidate analyzer: `tools/hg_code_intelligence.py`; SHA-256 `bee7216245f01491c111d43e1c11efae131a0be5757e6f9e910b5e263eb92342`.
-- Receipt binding all four identities and environment: `HG2_CI_GROUND_TRUTH_RECEIPT_V2.json`; SHA-256 `f7dd26298a226fa34792e6de7e7fa0498623aa8fa0541bbf88694e9bee527d49`.
-- Command: `PYTHONDONTWRITEBYTECODE=1 python tools/run_code_intelligence_benchmark.py`.
-- Environment: Android/ARM64 Termux, Python 3.14.6 (see machine-generated V2 result for full platform text).
+- Registration SHA-256: fa8739c0a6664acad1cfa6af3f66fd8d394e84c18c8911c10a956147eaee1606
+- Result SHA-256: 99e65e5fbc18b047213520b5f3aa388111b2a929389f804381169786abbd99a2
+- Result: 2/2 cases failed exact edge-set checks; overall edge precision 0.50, edge recall 1.00. Dependent sets and coverage/impact states matched. V1 is retained as a failed run; it is not overwritten or counted as passing.
 
-| Metric | Observed | Registered threshold | Result |
+### V2 — preregistered and passing
+
+V2 is a separate registration committed before its execution. It followed a manual re-audit of the pinned source import statements after V1 exposed omissions in the initial expected graph. This is not represented as a blind benchmark; V1 remains failed and unchanged. The V2 thresholds were not lowered.
+
+- Registration commit: 457519cf7df6ac5a0ca576e60f2dea544b0710b2
+- Registration SHA-256: 3a45021fb91d21b3ee371b0296e1138e7c36100d81a8fd66a4e6750731b62109
+- Result SHA-256: c14daf21499347017c8b7403f563a9321fc7657979ebf9086efe6bd9a474a2af
+- Runner SHA-256: 66c72f47f85666dc07fcbf21f6e488d0b72d1d010b9a2886584cfeb1473e5c19
+- Analyzer SHA-256: bee7216245f01491c111d43e1c11efae131a0be5757e6f9e910b5e263eb92342
+- Command: PYTHONDONTWRITEBYTECODE=1 python tools/run_real_repo_benchmark_v2.py
+- Environment: Android/ARM64 Termux, Python 3.14.6.
+- Corpus A: pytest-dev/iniconfig, commit 316fbfaf2752d89326e1e75b45cd070f5b5ace9a, tree aa54aaecaf1b811eb342ec0ca68ce3b71756d26c, archive SHA-256 c4e96b4921aeebcd2b590c2645017ae7c8873104db4d7f228197f89f94249306.
+- Corpus B: hukkin/tomli, commit 43a86ade8b795c6ef9b4ec53372a607cd1ed426f, tree 45107c0973cfef7355190d03de3dd44a7a02fac0, archive SHA-256 52b135977f2d7a94058232d53466674d3e8b0163326c9cd67bde61d82a995110.
+
+| Metric | Observed | Threshold | Result |
 |---|---:|---:|---|
-| Registered cases | 8/8 | At least 8 | PASS |
-| Case expectations passed | 8/8 | All cases | PASS |
-| Overall static edge precision / recall | 1.00 / 1.00 | 1.00 / 1.00 | PASS |
-| Overall known-dependent precision / recall | 1.00 / 1.00 | 1.00 / 1.00 | PASS |
-| Clean-case edge precision / recall | 1.00 / 1.00 | 1.00 / 1.00 | PASS |
-| Clean-case known-dependent precision / recall | 1.00 / 1.00 | 1.00 / 1.00 | PASS |
+| Cases passed | 2/2 | 2/2 | PASS |
+| Static edge precision / recall | 1.00 / 1.00 | 1.00 / 1.00 | PASS |
+| Known-dependent precision / recall | 1.00 / 1.00 | 1.00 / 1.00 | PASS |
 | Coverage-state accuracy | 1.00 | 1.00 | PASS |
 | Impact-status accuracy | 1.00 | 1.00 | PASS |
-| Fail-closed recall over five incomplete cases | 1.00 | 1.00 | PASS |
 
-Scope limit: eight small synthetic fixtures with 28 files, hand-authored to test the bounded static-import contract. A pass is not evidence of broad real-world repository quality, language-complete dependency discovery or production safety. A representative real-repository ground-truth corpus remains unrun.
+Both corpora correctly reported incomplete repository-wide coverage. iniconfig: 5/5 Python files parsed, 5 unsupported source/config files and 6 unclassified files. tomli: 14/14 Python files parsed, 982 unsupported source/config files and 14 unclassified files; one dynamic import site was observed. The benchmark confirms bounded static import and known-impact behavior on these two pinned repositories only; it does not prove runtime call graphs, semantic correctness, broad repository coverage, or all-language support.
 
-## Regression, archive, and baseline verification
+## Regression, archives, diff, and manifest
 
-- Python compilation: PASS for candidate, unit tests and benchmark scorer.
-- Full repository regression suite: **35 tests PASS**, exit 0 (Android/ARM64 Termux, Python 3.14.6). Existing `ResourceWarning` messages arise from unmodified baseline tests/error-handling paths and did not fail the run.
-- `git diff --check origin/hg-genesis...HEAD`: PASS at the inspected candidate revision.
-- All four supplied ZIPs were rehashed and their ZIP CRC checked in-place without extraction or code execution. SHA-256, byte count, entry count, uncompressed totals and CRC all matched the existing inventory in `ABSORPTION_SOURCE_DECISIONS.md`.
-- `manifest.json` SHA-256 remains `748649af5d45e10d7df322e430aa01240a6f303c5f2bcb6a363aa5cf8c221abf`.
-- Canonical runtime/authority/history/identity/edge paths and manifest remain unchanged in the scoped candidate diff. No dependency added, no third-party source implementation reused, no production wiring or deployment.
+- Full regression: PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests — 35 tests PASS, exit 0. Existing ResourceWarning output from baseline test paths remains visible; it did not fail the suite.
+- git diff --check: PASS at inspection.
+- manifest.json SHA-256: 748649af5d45e10d7df322e430aa01240a6f303c5f2bcb6a363aa5cf8c221abf; identical to hg-genesis:manifest.json, and git diff hg-genesis...HEAD -- manifest.json is empty.
+- All four ZIP files were rehashed and passed unzip -tq CRC checks without extraction or execution:
+  - codebase-memory-mcp-main.zip: 9f537d98fdcc1e6e9f5b9f834cc49ca8c097dc130bc88a83c4b2f5b9e3ef35c4
+  - awesome-mcp-servers-3-main.zip: a2f620afa4e41dc33689c3cef9d46fd17fb9fe7cdaf7bc18bed33a82197d7b78
+  - public-apis-master.zip: e4cfb5a7593bcde80448c72f4cab7d1366bc87bc16a19e9f32732f805d202127
+  - myopenvdp-master.zip: 964b23fc6e87bbf48cb178e732270984380583ee1e88c9d0f182c6e28aa40f45
+- The local archive bytes are intact. Exact archive-to-upstream commit/tree provenance remains UNKNOWN for all four; ZIP filenames/current branch tips are not proof of immutable source revision. The supplied Public APIs ZIP remains incomplete/mismatched to the intended full catalog. Codebase Memory's third-party license closure has not been exhaustively audited, but no implementation or dependency from the supplied archives was copied.
 
-The next commit modifies only isolated benchmark/evidence material and the existing remediation-branch CircleCI config. The config now runs the full test suite, then runs this V2 benchmark and asserts the recorded `benchmark_pass` boolean; the new commit's exact hosted CircleCI result must be checked after push.
+## Hosted CI and review gates
 
-## Upstream provenance / license review
+CircleCI ci/circleci: verify was SUCCESS on the preregistration commit 457519cf7df6ac5a0ca576e60f2dea544b0710b2, run #90: https://circleci.com/gh/OAI-GIANG/HG2/90. This is not proof of CI on any later evidence commit; the final pushed HEAD must be queried separately.
 
-`HG2_SOURCE_PROVENANCE_LICENSE_AUDIT.md` records the observed archive content metadata, source URLs and current branch tips where available. Current branch tips are references only; they do not prove which immutable commits generated the four ZIP files.
+Read-only GitHub inspection returned only OAI-GIANG in the repository collaborator list, zero requested reviewers/teams, and zero submitted reviews. No independent reviewer or independent security reviewer is presently established in the accessible collaborator/request list. The owner/PR author and STT cannot count as independent. No arbitrary users were invited. Both external review gates remain BLOCKED pending an authorized owner identifying and granting suitable repository read access to independent reviewers.
 
-- All four local ZIP byte identities/CRCs: PASS.
-- Exact ZIP-to-upstream commit/tree equivalence: UNKNOWN for all four; no `.git` commit or authoritative archive-attestation record was present.
-- `public-apis-master.zip`: no README/populated catalog, unlike the intended public-apis repository; full catalog equivalence is not established and the archive is not used.
-- Codebase Memory upstream license closure: not exhaustively audited because its `THIRD_PARTY.md` and vendored component licenses cover numerous distinct terms. No Codebase Memory implementation, dependency, grammar or binary was copied. Component-level review becomes mandatory before any future reuse.
-- Current source adoption remains clean-room concepts only; archive URL similarity or MIT root LICENSE is not treated as proof of entire archive license/provenance.
+## Canonical reference and final decision
 
-## Independent review and security review gate
+Task-recorded baseline: d11e71ed8b34338b8568664b39bc777c926826d5. Remote hg-genesis observed: cdebaeed014371f033f14352f552c6d0d4e69198. This discrepancy remains a preserved blocker; neither ref was force-pushed or reconciled.
 
-Current read-only PR inspection reports `OPEN`, `DRAFT`, no review requests, and no submitted reviews. `gh api repos/OAI-GIANG/HG2/collaborators` returned only `OAI-GIANG` (the repository owner/PR author) as a collaborator. No other user or team with repository read access is available in the returned collaborator list, so a legitimate independent human reviewer cannot currently be selected/requested from the known access list. The PR author cannot count as independent; STT's own assessment is not independent review. No arbitrary user was invited or requested.
+- Real repository benchmark V2: PASS for its registered two-repository scope.
+- Synthetic benchmark V2: PASS for its registered eight-fixture scope.
+- Regression suite: PASS, 35 tests.
+- Archive byte integrity / CRC: PASS.
+- Canonical manifest invariant: PASS.
+- Final-head hosted CI: must be verified against the final pushed commit.
+- Independent human review: BLOCKED.
+- Independent security review: BLOCKED.
+- Exact upstream archive provenance: UNKNOWN.
+- Merge/deploy/closure: HOLD.
 
-GitHub's documented prerequisites for reviewer requests include repository write access for the requester and read access for the requested person/team: https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/requesting-a-pull-request-review. An authorized repository owner must add/identify an independent reviewer and security reviewer with appropriate access before those gates can be satisfied.
-
-## Canonical reference drift
-
-Task-recorded baseline: `d11e71ed8b34338b8568664b39bc777c926826d5`.
-Remote-tracking / GitHub `hg-genesis` observed during this work: `cdebaeed014371f033f14352f552c6d0d4e69198`.
-
-The discrepancy is preserved as a blocker. Neither ref was force-pushed or reconciled. PR #15 targets the current GitHub `hg-genesis` ref, while review evidence retains the original task-recorded baseline and explains the difference.
-
-## Closure decision
-
-- Candidate and limited synthetic benchmark: technically verified.
-- Hosted CI: prior current head `252f0c4d58db8d83646ad85f6a3e8bc774cbf296` was SUCCESS at https://circleci.com/gh/OAI-GIANG/HG2/69; final acceptance commit must be checked separately.
-- External human independent review: BLOCKED.
-- External independent security review: BLOCKED.
-- Exact upstream ZIP provenance: UNKNOWN.
-- Production-representative ground-truth benchmark: NOT RUN.
-- Merge/deploy: HOLD.
-
-**Final status remains `BLOCKED_EXTERNAL_REVIEW / MERGE_DEPLOY_HOLD`; do not mark task closed.**
+**Do not mark the task closed. Keep PR #15 OPEN/DRAFT and retain BLOCKED_EXTERNAL_REVIEW / MERGE_DEPLOY_HOLD until all external gates are evidenced.**
