@@ -12,7 +12,7 @@
 | CAP-08 | Runtime identity derived from live process | Bind PID/start time/module/build to evidence | PARTIAL PASS: live PID/starttime/source hashes reported; not bytecode attestation |
 | CAP-09 | Evidence/log secret scrub | No credential material appears | Spot checks only; full scan NOT_RUN |
 | CAP-10 | Narrow connector tests | Exact-SHA tests pass with warnings treated as errors | PASS: 9/9; broader unrelated suite still emitted ResourceWarnings |
-| CAP-11 | Audit chain verified | Hash/prev chain valid or original warning separately handled | BLOCKED; reported mismatch from line 1 |
+| CAP-11 | Audit chain verified | Legacy prefix and chained suffix accurately distinguished | PARTIAL: 1,510-record suffix verifies; 669 legacy records are unchained and whole-file `ok=false` remains |
 | CAP-12 | Independent review | Reviewer other than author signs exact SHA | NOT_OBTAINED; PR #16/#17 remain draft, no reviewer requested/assigned |
 | CAP-13 | Old potentially exposed credential is revoked at GitHub | Verifiable non-secret revocation evidence | BLOCKED / NOT_VERIFIED |
 | CAP-14 | Historical `.pth` bootstrap remains quarantined | Active site-packages hook absent; quarantine hash matches original | PASS: hook absent, quarantine hash matches |

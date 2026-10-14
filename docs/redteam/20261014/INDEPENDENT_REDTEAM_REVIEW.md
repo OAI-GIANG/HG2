@@ -67,6 +67,14 @@ Gate status:
 - Runtime source SHA-256: `29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253`; connector SHA-256: `96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1`.
 - Detailed evidence is recorded in PR #17 under `docs/evidence/20261014/` and `docs/PHONE_RUNTIME_DEPLOYMENT_20261014.md`.
 
+### NEW OBSERVED — Audit chain verifier forensic correction
+
+- Audit file snapshot SHA-256: `6701cfa9d1bfeabe3ae538c3e1d2127d3c1695528ded2913b220abc8e346d88a`; 2,179 records.
+- Lines 1–669 are legacy records without `h`/`prev`, so they are not tamper-evident.
+- Hash chain starts line 670 (`prev=GENESIS`); all 1,510 chained records verify under the writer's exact serialization rule, with `bad=[]`.
+- Verifier was patched to distinguish this prefix from the chain. Whole-file `ok` remains `false`; `chain_ok=true`; no audit records were edited.
+- The change and four tests are in PR #17 (`integration/hg_toolplane_audit_verifier.patch`, `tests/test_audit_chain_legacy_prefix.py`).
+
 ### NOT_EXPOSED / NOT_VERIFIED
 
 - Whether the running `hg-runtime` service has any GitHub connector module injected.
@@ -109,11 +117,11 @@ The isolated `hg/github_authority.py` is a pure policy gate: exact repository, a
 **Severity:** P0 integration gap.
 **Remediation:** keep this as design/test evidence until external authority is freshly verified and a separate reviewer approves any integration. Local tests must never mutate runtime grants.
 
-### RT-06 — Audit integrity warning
-`audit_tail` reported hash/prev mismatch from line 1, and record counts differed between observations. Current conclusions do not rely on that log as a sole source of truth.
+### RT-06 — Legacy audit prefix is not tamper-evident; chained suffix now verifies
+Read-only forensic analysis observed 2,179 records. Lines 1–669 use a legacy schema without `h`/`prev`; they cannot be proven tamper-evident. Line 670 starts the hash chain with `prev=GENESIS`. Recomputing hashes using the writer's `json.dumps(record, sort_keys=True)` rule verified all 1,510 chained records through line 2,179 with zero hash/prev mismatches. The earlier verifier incorrectly applied the chained schema to the unchained legacy prefix, causing a misleading mismatch-from-line-1 report.
 
-**Severity:** P1 auditability issue.
-**Remediation:** preserve the original log; acquire a byte-identical forensic copy; hash it; independently validate hash algorithm, genesis rule and schema; publish a new report, never rewrite old events.
+**Severity:** P1 historical auditability gap; verifier behavior corrected on PHONE.
+**Remediation/status:** the active verifier now reports `chain_ok=true`, `bad=[]`, `legacy_prefix_records=669`, `chained_records=1510`, `chain_start_line=670`, while keeping whole-file `ok=false`. Original audit data was not rewritten. Current snapshot SHA-256: `6701cfa9d1bfeabe3ae538c3e1d2127d3c1695528ded2913b220abc8e346d88a` (2,179 records). The legacy prefix still lacks tamper evidence and remains a release caveat. Four verifier contract tests pass, covering valid chained suffix after legacy prefix and corruption/prev/missing-hash failure cases.
 
 ### RT-08 — Historical unauthenticated capability bootstrap exposed file access
 A previously active Python `.pth` startup hook executed a separate payload. The saved security-containment report records that the payload's file read/write routes failed to authenticate before operating. The original hook is absent and a hash-matching copy remains quarantined. The historical credential may have been exposed; remote revocation is not independently verified. The current credential and current HG adapter working do not prove the old credential has been revoked.
