@@ -12,11 +12,13 @@ TOKEN = "edge-token-x"
 
 
 def lines(d):
-    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+    with open(os.path.join(d, "history.jsonl"), encoding="utf-8") as stream:
+        return [line for line in stream.read().splitlines() if line.strip()]
 
 
 def put(d, ls):
-    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+    with open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8") as stream:
+        stream.write("\n".join(ls) + "\n")
 
 
 class IdentityTests(unittest.TestCase):
@@ -29,7 +31,8 @@ class IdentityTests(unittest.TestCase):
         for base, _dirs, files in os.walk(os.path.join(ROOT, "hg")):
             for name in files:
                 if name.endswith(".py"):
-                    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+                    with open(os.path.join(base, name), encoding="utf-8") as stream:
+                        text = stream.read().lower()
                     for m in ("go_runtime", "paradise", "love", "hg_ops", "governance_engine"):
                         if m in text:
                             found.append((name, m))
@@ -99,7 +102,8 @@ class HistoryTests(unittest.TestCase):
 
     def test_checkpoint_mismatch(self):
         s, d = self._case(lambda L: L)
-        open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
+        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as stream:
+            stream.write(json.dumps({"seq": 99, "head_hash": ZERO}))
         self.assertEqual(s.verify()["reason"], "checkpoint_mismatch")
         with self.assertRaises(HistoryError):
             StateStore(d)
@@ -145,7 +149,8 @@ class EdgeTests(unittest.TestCase):
             with urllib.request.urlopen(req, timeout=4) as r:
                 return r.status, r.read().decode()
         except urllib.error.HTTPError as e:
-            return e.code, e.read().decode()
+            with e:
+                return e.code, e.read().decode()
 
     def test_edge_behaviour(self):
         self.assertEqual(self.call("/health")[0], 200)
