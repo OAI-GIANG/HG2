@@ -67,6 +67,18 @@ class StateStore:
                     rec = json.loads(line)
                 except json.JSONDecodeError as exc:
                     raise HistoryError("malformed record line %d" % n) from exc
+                if not isinstance(rec, dict):
+                    raise HistoryError("record is not an object line %d" % n)
+                required = {"seq", "event_id", "event_type", "payload", "prev_hash", "record_hash"}
+                if not required.issubset(rec):
+                    raise HistoryError("record missing required fields line %d" % n)
+                if (isinstance(rec["seq"], bool) or not isinstance(rec["seq"], int)
+                        or not isinstance(rec["event_id"], str) or not rec["event_id"]
+                        or not isinstance(rec["event_type"], str)
+                        or not isinstance(rec["payload"], dict)
+                        or not isinstance(rec["prev_hash"], str)
+                        or not isinstance(rec["record_hash"], str)):
+                    raise HistoryError("record has invalid field types line %d" % n)
                 rh = rec.get("record_hash")
                 core = {k: v for k, v in rec.items() if k != "record_hash"}
                 if not rh or digest(core) != rh:
@@ -148,6 +160,18 @@ class StateStore:
                     if not line:
                         continue
                     rec = json.loads(line)
+                    if not isinstance(rec, dict):
+                        return {"ok": False, "events": n, "reason": "record_not_object_line_%d" % lineno}
+                    required = {"seq", "event_id", "event_type", "payload", "prev_hash", "record_hash"}
+                    if not required.issubset(rec):
+                        return {"ok": False, "events": n, "reason": "record_missing_fields_line_%d" % lineno}
+                    if (isinstance(rec["seq"], bool) or not isinstance(rec["seq"], int)
+                            or not isinstance(rec["event_id"], str) or not rec["event_id"]
+                            or not isinstance(rec["event_type"], str)
+                            or not isinstance(rec["payload"], dict)
+                            or not isinstance(rec["prev_hash"], str)
+                            or not isinstance(rec["record_hash"], str)):
+                        return {"ok": False, "events": n, "reason": "record_invalid_field_types_line_%d" % lineno}
                     rh = rec.get("record_hash")
                     core = {k: v for k, v in rec.items() if k != "record_hash"}
                     if not rh or digest(core) != rh:
