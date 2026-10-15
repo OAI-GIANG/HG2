@@ -1,0 +1,77 @@
+{
+  "schema": "HG-CTI-LOCAL-INFERENCE-SMOKE-V1",
+  "observed_utc": "2026-10-13T16:39:57Z",
+  "status": "PASS",
+  "device": {
+    "os": "Android 16 / Termux",
+    "kernel": "Linux Android 6.6.118",
+    "architecture": "aarch64 / arm64-v8a",
+    "memory_total_kib": 15749476,
+    "memory_available_kib": 5234136,
+    "storage_available_bytes_approx": 321000000000
+  },
+  "runtime": {
+    "implementation": "llama.cpp",
+    "source_commit": "781dbc5ac98921dbdb5e5b2ec5b7a50960e937d4",
+    "version": "0.6.0-dev (build 1, commit 781dbc5)",
+    "server_binary": "$HOME/.cache/hg-local-vision-20261010/build-termux-arm64/bin/llama-server",
+    "server_binary_sha256": "6f9c5e7aba1cee5fb637c87db093040d86391d19cf35851a9a8f51cb2db71df3",
+    "source_license": "MIT",
+    "source_license_file_sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+    "listen_address": "127.0.0.1",
+    "port": 19831,
+    "context_size": 1024,
+    "threads": 4,
+    "model_alias": "hg-cti-local",
+    "model_loaded": true,
+    "model_file": "$HOME/.cache/hg-local-vision-20261010/models/SmolVLM2-500M-Video-Instruct-Q8_0.gguf",
+    "model_sha256": "6f67b8036b2469fcd71728702720c6b51aebd759b78137a8120733b4d66438bc",
+    "model_metadata_license": "apache-2.0",
+    "projector_loaded": false,
+    "gpu_used": false,
+    "provider_cost_usd": 0
+  },
+  "checks": [
+    {
+      "name": "health",
+      "endpoint": "GET /health",
+      "http_status": 200,
+      "response": {
+        "status": "ok"
+      }
+    },
+    {
+      "name": "model listing",
+      "endpoint": "GET /v1/models",
+      "http_status": 200,
+      "model_alias": "hg-cti-local",
+      "context_size": 1024,
+      "parameter_count": 409252800,
+      "model_file_size_bytes": 435014400
+    },
+    {
+      "name": "text generation smoke",
+      "endpoint": "POST /v1/chat/completions",
+      "http_status": 200,
+      "elapsed_seconds": 0.913,
+      "seed": 42,
+      "temperature": 0,
+      "max_tokens": 48,
+      "prompt_tokens": 26,
+      "completion_tokens": 37,
+      "total_tokens": 63,
+      "prompt_tokens_per_second": 92.68567435857766,
+      "completion_tokens_per_second": 57.29318354348792
+    }
+  ],
+  "smoke_prompt": "Answer in one sentence: Why must a benchmark compare baseline and candidate under the same conditions?",
+  "smoke_output": "A benchmark must compare baseline and candidate under the same conditions to ensure that the results are reliable and valid, and to provide a basis for comparison and evaluation of the candidate's performance.",
+  "provenance": {
+    "model_repository": "https://huggingface.co/ggml-org/SmolVLM2-500M-Video-Instruct-GGUF",
+    "original_model_repository": "https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+    "llama_cpp_android_documentation": "https://github.com/ggml-org/llama.cpp/blob/master/docs/android.md",
+    "llama_cpp_server_api_documentation": "https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md",
+    "source_note": "Local GGUF metadata names apache-2.0. The official model repository model card declares Apache-2.0. The local llama.cpp source checkout contains its MIT LICENSE. Hashes are recorded for the binary, model, and source license file."
+  },
+  "limitation": "This is only a smoke test demonstrating that local inference is available. It is not a creativity benefit benchmark and does not show that HG-CTI improves task outcomes."
+}

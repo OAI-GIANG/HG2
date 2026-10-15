@@ -1,0 +1,249 @@
+{
+  "contract_id": "HG2-PRODUCT-SCOPE-DECISIONS-V1",
+  "record_type": "OWNER_SCOPE_DECISIONS_NOT_IMPLEMENTATION_EVIDENCE",
+  "decision_authority": "Product Owner explicit instruction",
+  "baseline": {
+    "branch": "hg-genesis",
+    "sha": "d11e71ed8b34338b8568664b39bc777c926826d5"
+  },
+  "candidate_branch": "fix/hg2-single-product-readiness-20261013",
+  "decision_status": "RECORDED",
+  "implementation_status": "PARTIALLY_VERIFIED_EXACT_SHA; EXTERNAL_IMPACT_AND_PRODUCTION_GATES_BLOCKED",
+  "overall_gate": "BLOCKED_NO_GO",
+  "decisions": [
+    {
+      "id": "PSD-API-001",
+      "area": "HG_HTTP_API",
+      "choice": "C",
+      "disposition": "INTENTIONAL_REMOVAL_ALLOWED",
+      "scope": [
+        "/v1/sessions",
+        "/v1/history"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-API-01",
+          "criterion": "Removal is explicit and traceable; endpoints are not silently omitted.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "AC-API-02",
+          "criterion": "Repository/source/client/config/documentation/deployment dependency inventory is complete and every dependency is dispositioned.",
+          "status": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN"
+        },
+        {
+          "id": "AC-API-03",
+          "criterion": "Supported HG2 public interface and removal behavior are documented; no undocumented compatibility shim remains.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "AC-API-04",
+          "criterion": "Canonical hg-genesis and source/evidence history remain unchanged.",
+          "status": "PASS_ON_SHA_46E90FB"
+        }
+      ],
+      "tests": [
+        {
+          "id": "T-API-01",
+          "purpose": "Inventory candidate and legacy route definitions and record exact findings.",
+          "expected": "Route presence/absence is evidenced from source and actual router, not inferred from one-tree grep.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "T-API-02",
+          "purpose": "Search available sources, configs, docs and client material for endpoint consumers.",
+          "expected": "Each consumer is migrated, retired by explicit decision, or blocks acceptance.",
+          "status": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN"
+        },
+        {
+          "id": "T-API-03",
+          "purpose": "Integration-test the actual candidate HTTP server/router.",
+          "expected": "Removed endpoints are not served; resulting status/error behavior is documented; remaining routes pass.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "T-API-04",
+          "purpose": "Run durable-state/history/identity/authorization regression tests.",
+          "expected": "No regression caused by endpoint removal; tests pass on exact candidate SHA.",
+          "status": "PASS_ON_SHA_46E90FB"
+        }
+      ]
+    },
+    {
+      "id": "PSD-BRIDGE-001",
+      "area": "GO_PHONE_BRIDGE_1_1",
+      "choice": "C",
+      "disposition": "INTENTIONAL_REMOVAL_ALLOWED",
+      "scope": [
+        "request/authentication protocol",
+        "replay protection",
+        "governed execution",
+        "evidence correlation"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-BRIDGE-01",
+          "criterion": "Exact Bridge 1.1 capabilities and security/authority/evidence responsibilities are inventoried from source and protocol documents.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "AC-BRIDGE-02",
+          "criterion": "All consumers and operational dependencies are identified and dispositioned; no required workflow is silently lost.",
+          "status": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN"
+        },
+        {
+          "id": "AC-BRIDGE-03",
+          "criterion": "Removal is explicitly documented and does not imply the capabilities exist elsewhere.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "AC-BRIDGE-04",
+          "criterion": "HG2 phone-primary authority, fail-closed behavior, durable history and evidence integrity remain covered by regression tests.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "AC-BRIDGE-05",
+          "criterion": "No repository, branch, tag or historical evidence is deleted or archived as part of this scope decision.",
+          "status": "PASS_ON_SHA_46E90FB"
+        }
+      ],
+      "tests": [
+        {
+          "id": "T-BRIDGE-01",
+          "purpose": "Compare original Bridge 1.1 source/protocol capabilities with HG2 source/tests.",
+          "expected": "Every capability is intentionally removed, independently evidenced as replaced, or unresolved; no implicit equivalence.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "T-BRIDGE-02",
+          "purpose": "Search call sites, clients, configs, docs and workflows for bridge dependencies.",
+          "expected": "All consumers are retired or dispositioned; any unresolved consumer blocks acceptance.",
+          "status": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN"
+        },
+        {
+          "id": "T-BRIDGE-03",
+          "purpose": "Run fail-closed authority/authentication and history integrity regression tests.",
+          "expected": "Security and durability regressions pass on exact candidate SHA.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "T-BRIDGE-04",
+          "purpose": "Audit runtime capability declarations and user-facing docs.",
+          "expected": "No removed capability is claimed available without separate proof.",
+          "status": "PASS_ON_SHA_46E90FB"
+        }
+      ]
+    },
+    {
+      "id": "PSD-ID-001",
+      "area": "HG_HG2_PRODUCT_IDENTITY",
+      "choice": "A",
+      "disposition": "KEEP_PRODUCT_ID_HG_WITH_FORMAL_HG2_MAPPING",
+      "mapping": {
+        "product_id": "HG",
+        "product_name": "HG2",
+        "repository": "OAI-GIANG/HG2",
+        "canonical_branch": "hg-genesis",
+        "canonical_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
+        "rule": "HG is the durable/event identity; HG2 is the product/repository label. Never silently rewrite historical product_id values."
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-ID-01",
+          "criterion": "PRODUCT_ID remains exactly HG in identity and history modules.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "AC-ID-02",
+          "criterion": "Formal mapping HG durable/event identity to HG2 product/repository label is consistent across contract, product metadata and operator-facing docs without changing durable ID.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "AC-ID-03",
+          "criterion": "Identity tests prove events, projections, replay output and audit exports retain product_id=HG.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "AC-ID-04",
+          "criterion": "Existing stores with product_id=HG reopen and verify without migration or history rewrite.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "AC-ID-05",
+          "criterion": "No implicit product_id=HG2 conversion; future migration requires a separate decision and contract.",
+          "status": "PASS_ON_SHA_46E90FB"
+        }
+      ],
+      "tests": [
+        {
+          "id": "T-ID-01",
+          "purpose": "Unit-test PRODUCT_ID and formal mapping contract.",
+          "expected": "PRODUCT_ID == HG and declared product_name == HG2.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "T-ID-02",
+          "purpose": "Create, replay, verify and audit-export a fresh store.",
+          "expected": "Durable/event identity remains HG; HG2 is metadata/product label only.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "T-ID-03",
+          "purpose": "Reopen and verify a pre-existing HG fixture.",
+          "expected": "Verification succeeds without rewriting event bytes or product_id.",
+          "status": "PASS_ON_SHA_46E90FB"
+        },
+        {
+          "id": "T-ID-04",
+          "purpose": "Static-scan identity-bearing code, metadata and docs.",
+          "expected": "No unapproved HG-to-HG2 durable identity conversion.",
+          "status": "PASS_ON_SHA_46E90FB"
+        }
+      ]
+    }
+  ],
+  "global_gates": [
+    {
+      "id": "G-EXACT-SHA",
+      "requirement": "All implementation acceptance tests and CI pass on exact candidate SHA.",
+      "status": "PASS_ON_SHA_46E90FB"
+    },
+    {
+      "id": "G-PRODUCTION",
+      "requirement": "Production authentication and applicable VPS/HTTPS/device E2E gates have evidence.",
+      "status": "BLOCKED"
+    },
+    {
+      "id": "G-HISTORY-TRACEABILITY",
+      "requirement": "Historical source/evidence references remain recorded and no past facts are misrepresented; historical metadata is preserved without history rewrite.",
+      "status": "PASS_HISTORICAL_RECORD_PRESERVED"
+    }
+  ],
+  "change_boundaries": {
+    "canonical_branch_mutation": "FORBIDDEN",
+    "merge": "FORBIDDEN",
+    "deploy": "FORBIDDEN",
+    "archive_or_delete_repository_or_branch": "FORBIDDEN",
+    "history_rewrite": "FORBIDDEN"
+  },
+  "evidence_rule": "This record is owner-approved scope only, not implementation or runtime certification. Keep BLOCKED/NO-GO until applicable production and external-impact criteria have evidence tied to the exact candidate SHA. Historical records are retained as facts; neither of the two retired governance controls is required by this scope policy.",
+  "provenance_exceptions": [
+    {
+      "commit": "b5f49770cba13cd995533cd140b7560d999c441e",
+      "finding": "GitHub reports this commit unsigned and its author/committer metadata does not match the authorized canonical identity.",
+      "handling": "Do not rewrite or remove history. Preserve this exception explicitly; subsequent commits must use canonical OAI-GIANG metadata.",
+      "status": "BLOCKED_REQUIRES_RECONCILIATION"
+    }
+  ],
+  "acceptance_evidence": {
+    "evidence_file": "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json",
+    "tested_source_sha": "46e90fb226e0c434158212a69717025745cad337",
+    "test_suite_status": "PASS_ON_SHA_46E90FB",
+    "remaining_blockers": [
+      "external HTTP API consumers/deployments unknown",
+      "external Phone Bridge consumers/deployments unknown",
+      "production auth and VPS/HTTPS/device E2E not run",
+      "no actual power-loss test"
+    ]
+  }
+}

@@ -1,0 +1,1247 @@
+{
+  "schema": "HG-CTI-BLIND-SCORES-V1",
+  "scored_blind_file_sha256": "485cd4695b04f3478e69a8bc04a91144c1ed8b9dd848c5f3109cb948685222e2",
+  "scoring_method": "STT rubric scoring on blinded A/B outputs, applying the frozen case-specific four binary checks; critical violations, material claims, counterexample handling and alternative distinctness scored separately. This is a measurement method, not an independent-review/approval gate. Material-claim counts are conservative manual counts; unsupported claims counted where assertions are not supported by supplied case facts.",
+  "case_scores": [
+    {
+      "case_id": "CTI-001",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 5,
+        "unsupported_material_claims": 4,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-002",
+      "A": {
+        "criteria": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-003",
+      "A": {
+        "criteria": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-004",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 1,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": true,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-005",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 2,
+        "unsupported_material_claims": 0,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": true,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-006",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-007",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-008",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": true,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 1,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-009",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          1,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          1,
+          1,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-010",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 1,
+        "unsupported_material_claims": 0,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-011",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": true,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-012",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 2,
+        "unsupported_material_claims": 0,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 0,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-013",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 2,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-014",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-015",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-016",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-017",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 2,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "critical_violation": true,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-018",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-019",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": true,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-020",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 2,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-021",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": true,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": true,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-022",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-023",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-024",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-025",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-026",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-027",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 2,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 4/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-028",
+      "A": {
+        "criteria": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 5,
+        "unsupported_material_claims": 4,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 5,
+        "unsupported_material_claims": 4,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-029",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-030",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-031",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          1,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          1,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-032",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-033",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-034",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          1,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 2,
+        "unsupported_material_claims": 0,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-035",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 2,
+        "unsupported_material_claims": 0,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": true,
+        "material_claims": 3,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-036",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 4/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 2,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 4/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-037",
+      "A": {
+        "criteria": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-038",
+      "A": {
+        "criteria": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 5,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 5,
+        "unsupported_material_claims": 4,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 1/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-039",
+      "A": {
+        "criteria": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 3/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 1,
+        "counterexample_handled": 1,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 2/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    },
+    {
+      "case_id": "CTI-040",
+      "A": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 3,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      },
+      "B": {
+        "criteria": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical_violation": false,
+        "material_claims": 4,
+        "unsupported_material_claims": 3,
+        "counterexample_handled": 0,
+        "alternative_distinctness": 0,
+        "notes": "Checks scored in listed order; 0/4 directly satisfied. Unsupported-claim counts conservatively reflect material assertions not supported by case facts."
+      }
+    }
+  ]
+}

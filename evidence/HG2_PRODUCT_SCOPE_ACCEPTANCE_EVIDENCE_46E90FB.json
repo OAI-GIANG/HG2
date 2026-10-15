@@ -1,0 +1,54 @@
+{
+  "evidence_id": "HG2-PRODUCT-SCOPE-ACCEPTANCE-46E90FB",
+  "evidence_kind": "CLEAN_CHECKOUT_TEST_AND_CI_EVIDENCE",
+  "source_commit": "46e90fb226e0c434158212a69717025745cad337",
+  "source_tree": "1120be25e8c225e11201016cac1bfd92405ea19c",
+  "branch": "fix/hg2-single-product-readiness-20261013",
+  "clean_checkout": true,
+  "worktree_clean_before_test": true,
+  "worktree_clean_after_test": true,
+  "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+  "exit_code": 0,
+  "tests_run": 54,
+  "test_result": "OK",
+  "log": {
+    "path_outside_repository": "$HOME/hg2-scope-acceptance-46e90fb.log",
+    "sha256": "1b687aeab6800f6d4f5e772793ccf6b1cad4e08d4e31ec63c10bd7ed40cfc1b6",
+    "bytes": 7730
+  },
+  "ci": {
+    "provider": "CircleCI",
+    "context": "ci/circleci: verify",
+    "state": "success",
+    "run_url": "https://circleci.com/gh/OAI-GIANG/HG2/19",
+    "status_observed_at": "2026-10-13T04:02:33Z",
+    "commit_sha": "46e90fb226e0c434158212a69717025745cad337"
+  },
+  "acceptance_results": {
+    "T-API-01": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
+    "T-API-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
+    "T-API-03": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
+    "T-API-04": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
+    "T-BRIDGE-01": "PASS_ON_SOURCE_SHA_INVENTORY",
+    "T-BRIDGE-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
+    "T-BRIDGE-03": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
+    "T-BRIDGE-04": "PASS_ON_SOURCE_SHA_STATIC_PACKAGE_SCAN",
+    "T-ID-01": "PASS_ON_SOURCE_SHA",
+    "T-ID-02": "PASS_ON_SOURCE_SHA",
+    "T-ID-03": "PASS_ON_SOURCE_SHA_BYTE_PRESERVATION_FIXTURE",
+    "T-ID-04": "PASS_ON_SOURCE_SHA"
+  },
+  "repositories_in_scope": [
+    {"repository": "OAI-GIANG/HG2", "branch": "fix/hg2-single-product-readiness-20261013", "sha": "46e90fb226e0c434158212a69717025745cad337"},
+    {"repository": "OAI-GIANG/HG", "branch": "hg-genesis", "sha": "0495ac8bba4dc59bbf5b84ef7f38dd78bae7dead"},
+    {"repository": "OAI-GIANG/GO", "branch": "hg-phone-bridge-v1", "sha": "4a20c319fe740f1a092ade4e407d693439629385"},
+    {"repository": "OAI-GIANG/hg-ops", "branch": "main", "sha": "2e75a6cbae2fa46e48ffa3fe67a134c385ee880e"}
+  ],
+  "scope_limitations": [
+    "External clients/deployments for the removed API and Bridge are not enumerable from inspected repository sources; those impact gates remain BLOCKED.",
+    "This test run does not establish production authentication, VPS/HTTPS/device E2E, independent review, or real power-loss behavior.",
+    "The previously recorded provenance exception is not rewritten or erased; provenance gate remains BLOCKED.",
+    "This evidence describes source commit 46e90fb; the later evidence-record commit must be independently clean-checked and tested at its own exact SHA."
+  ],
+  "overall_gate": "BLOCKED_NO_GO"
+}

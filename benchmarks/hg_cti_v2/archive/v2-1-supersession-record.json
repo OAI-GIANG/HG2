@@ -1,0 +1,13 @@
+{
+  "freeze_sha256": "4a8f5c8ad06269593f9223e20b3367d340fd65658ba1ed67fc1ae1aa2b5cc0ae",
+  "freeze_status_at_supersession": "FROZEN_BEFORE_EVALUATION",
+  "inference_started_under_this_protocol": false,
+  "preregistration_sha256": "27e07fd5214c8fbfd0493d8fc33bc5d8c477303a7a3f5a9674bc13c2d54425f9",
+  "protocol_version": "V2.1",
+  "raw_run_existed_at_supersession": false,
+  "raw_run_path": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001/raw_runs.jsonl",
+  "reason": "Corrected a test that asserted the future V2 run directory must remain absent; the historical supersession record is used instead so the full test suite remains valid after a benchmark run.",
+  "recorded_at_utc": "2026-10-13T17:54:12.458481+00:00",
+  "schema": "HG-CTI-PRE-RUN-PROTOCOL-SUPERSESSION-RECORD",
+  "scoring_started_under_this_protocol": false
+}

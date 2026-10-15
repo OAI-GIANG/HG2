@@ -1,14 +1,24 @@
 {
- "name": "hg",
- "version": "1.0.0",
- "runtime": "python>=3.10",
- "dependencies": {},
- "modules": [
-  "hg.identity",
-  "hg.authority",
-  "hg.history",
-  "hg.phone_runtime",
-  "hg.edge"
- ],
- "origin": "clean_room"
+  "name": "hg2",
+  "version": "1.0.0",
+  "runtime": "python>=3.10",
+  "dependencies": {},
+  "modules": [
+    "hg.authority",
+    "hg.history",
+    "hg.identity",
+    "hg.phone_runtime",
+    "hg.sync"
+  ],
+  "origin": "clean_room",
+  "developer_tools": [
+    "tools.hg_code_intelligence"
+  ],
+  "optional_modules": [
+    "hg.creative_assimilation",
+    "hg.cti_guards",
+    "hg.sync"
+  ],
+  "product_id": "HG",
+  "product_name": "HG2"
 }

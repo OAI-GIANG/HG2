@@ -1,0 +1,16 @@
+{
+  "blind_key_opened_before_score_freeze": false,
+  "frozen_artifact_count": 46,
+  "frozen_artifact_hashes_sha256": "4c4b23d7758e5b41e39a96343aa3b1080db2c0f2b30338458306e12b91a62495",
+  "frozen_at_utc": "2026-10-13T17:55:28.747963+00:00",
+  "independent_review_or_signature_gate": false,
+  "no_model_inference_before_freeze": true,
+  "note": "This freeze fixes protocol and artifacts only. It is not a benchmark result, release approval, merge authorization, or deploy authorization.",
+  "preregistration_sha256": "7859f28c2105f0d6bb88cfd7f5267dce9976bb009e5d10e66464964e857debfc",
+  "protocol_sha256": "34d7ef99ae1698189472d6df8d7d561f99a78abd6f8f6e69b9233ce5a08756f3",
+  "schema": "HG-CTI-V2.2-PREREGISTRATION-FREEZE",
+  "scoring_started_before_freeze": false,
+  "status": "FROZEN_BEFORE_EVALUATION",
+  "supersedes_v2_0_and_v2_1_before_run": true,
+  "v1_mutation_performed_by_this_freeze": false
+}

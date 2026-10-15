@@ -1,0 +1,84 @@
+{
+  "schema": "HG-CTI-BENCHMARK-RUN-METADATA-V1",
+  "status": "RUN_COMPLETE_PENDING_BLIND_SCORING",
+  "started_utc": "2026-10-13T16:47:11.703190+00:00",
+  "ended_utc": "2026-10-13T16:51:48.169889+00:00",
+  "elapsed_total_seconds": 276.465126,
+  "repository_head_before_run": "4ac4e2e2e760aae608bb866c9ea1e1a8f75e5639",
+  "worktree_status_before_run": "",
+  "branch": "feature/hg-creative-assimilation-v1-20261013",
+  "frozen_artifact_hashes": {
+    "docs/HG_CTI_BENCHMARK_PROTOCOL_V1.md": "810c0450c34fcf6561250c51a65e52d78d44623bfa0c1e578f81681652c944f4",
+    "benchmarks/hg_cti_v1/cases.json": "748670044763f4dce9604c0d3e0ddebe1ea62dfbfc87bdcd6a04eace8b1b90d6",
+    "benchmarks/hg_cti_v1/run_benchmark.py": "c7f0062dd0a44d492f21c8fe91a00b918637d151001f246aba18b2f03ffef6fa",
+    "benchmarks/hg_cti_v1/analyze_scores.py": "0faf0d6105731fc6b33875ca00fa7a4c57e0588e22265f17bd23b29bf9d64dea",
+    "benchmarks/hg_cti_v1/freeze_scores.py": "d3e6d37d86e06924b9b4d6a6b1ae2cf8a3bdcca8533da5aa78bae21a01d6a588",
+    "benchmarks/hg_cti_v1/scoring-rubric.md": "5440bffedf43144d12f2d03ed2bd76a3ed4a63ed35fd04104b532bc2d1b9b30a",
+    "benchmarks/hg_cti_v1/README.md": "d12c54ea2573296750d2940b33ce5723b099d7ba9bcf8a02d010b214621bb4f8",
+    "benchmarks/hg_cti_v1/model-provenance.json": "a0539895f9f85101d2e543cb673c8062e9ecbd23da176d2202d1c400588c237e",
+    "evidence/HG-CTI-20261013/local-inference-smoke-20261013.json": "466e8f31c507da05e91da2dc71d1835741f549fe44146e2e410b141953ba7c11",
+    "tests/test_hg_cti_benchmark_harness.py": "38fca6a66d0af3a9425385d28e0f845729f20d6da8ccd117f9021cb47a16675d"
+  },
+  "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "architecture": "aarch64",
+  "hostname_scope": "local Android/Termux; loopback-only model endpoint",
+  "endpoint": "http://127.0.0.1:19831",
+  "health_check": {
+    "status": "ok"
+  },
+  "model_api_row": {
+    "id": "hg-cti-local",
+    "aliases": [
+      "hg-cti-local"
+    ],
+    "tags": [],
+    "object": "model",
+    "architecture": {
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "created": 1791910031,
+    "owned_by": "llamacpp",
+    "meta": {
+      "vocab_type": 2,
+      "n_vocab": 49280,
+      "n_ctx": 1024,
+      "n_ctx_train": 8192,
+      "n_embd": 960,
+      "n_params": 409252800,
+      "size": 435014400,
+      "ftype": "Q8_0"
+    }
+  },
+  "model_path": "/data/data/com.termux/files/home/.cache/hg-local-vision-20261010/models/SmolVLM2-500M-Video-Instruct-Q8_0.gguf",
+  "model_sha256": "6f67b8036b2469fcd71728702720c6b51aebd759b78137a8120733b4d66438bc",
+  "model_license": "apache-2.0 (GGUF metadata; official model card also declares Apache 2.0)",
+  "server_binary": "/data/data/com.termux/files/home/.cache/hg-local-vision-20261010/build-termux-arm64/bin/llama-server",
+  "server_binary_sha256": "6f9c5e7aba1cee5fb637c87db093040d86391d19cf35851a9a8f51cb2db71df3",
+  "llama_cpp_source_commit": "781dbc5ac98921dbdb5e5b2ec5b7a50960e937d4",
+  "dataset_sha256": "748670044763f4dce9604c0d3e0ddebe1ea62dfbfc87bdcd6a04eace8b1b90d6",
+  "preregistration_sha256": "c5eef07d85ab59f51959e051588c9b153c34133f641d4114eb87f2a956a39afe",
+  "protocol_sha256": "810c0450c34fcf6561250c51a65e52d78d44623bfa0c1e578f81681652c944f4",
+  "case_count": 40,
+  "response_count": 80,
+  "expected_response_count": 80,
+  "paired_case_count": 40,
+  "failed_responses": 0,
+  "max_output_tokens": 160,
+  "temperature": 0.2,
+  "top_p": 0.9,
+  "base_seed": 20261013,
+  "context_size": 1024,
+  "per_provider_cost_usd": 0,
+  "provider": "local llama.cpp; no remote API",
+  "raw_runs_sha256": "f2dba0ca145374645265fe22558050edc5b4944a598b8abbadd5bd98c28fe59d",
+  "blind_pairs_sha256": "485cd4695b04f3478e69a8bc04a91144c1ed8b9dd848c5f3109cb948685222e2",
+  "blind_key_sha256": "80387d111cbfa34b41bdb6daed9620cfb421e7afe3e159f825505724582a39a9",
+  "evaluation_caveat": "Scoring is pending. This run evaluates a single-call prompt scaffold vs direct prompting, not the metadata evaluator in isolation and not production integration.",
+  "acceptance_result": "NOT_EVALUATED"
+}

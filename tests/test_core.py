@@ -1,22 +1,20 @@
-import json, os, shutil, subprocess, sys, tempfile, threading, unittest, urllib.error, urllib.request
-from unittest.mock import patch
-from http.server import ThreadingHTTPServer
-from hg import edge
+import json, os, shutil, subprocess, sys, tempfile, unittest
 from hg.authority import ALLOWED, FORBIDDEN, authorize
 from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest
 from hg.identity import PRODUCT_ID, identity
 from hg.phone_runtime import PhoneRuntime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TOKEN = "edge-token-x"
 
 
 def lines(d):
-    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
+    with open(os.path.join(d, "history.jsonl"), encoding="utf-8") as fh:
+        return [line for line in fh.read().splitlines() if line.strip()]
 
 
 def put(d, ls):
-    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
+    with open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8") as fh:
+        fh.write("\n".join(ls) + "\n")
 
 
 class IdentityTests(unittest.TestCase):
@@ -29,7 +27,8 @@ class IdentityTests(unittest.TestCase):
         for base, _dirs, files in os.walk(os.path.join(ROOT, "hg")):
             for name in files:
                 if name.endswith(".py"):
-                    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
+                    with open(os.path.join(base, name), encoding="utf-8") as fh:
+                        text = fh.read().lower()
                     for m in ("go_runtime", "paradise", "love", "hg_ops", "governance_engine"):
                         if m in text:
                             found.append((name, m))
@@ -42,6 +41,28 @@ class AuthorityTests(unittest.TestCase):
         self.assertFalse(authorize("shell.exec", authenticated=True).allowed)
         self.assertEqual(authorize("session.create").reason, "AUTHENTICATION_REQUIRED")
         self.assertTrue(authorize("session.create", authenticated=True).allowed)
+
+    def test_every_forbidden_and_unknown_action_fails_closed(self):
+        self.assertTrue(FORBIDDEN)
+        for action in FORBIDDEN:
+            with self.subTest(action=action):
+                decision = authorize(action, authenticated=True)
+                self.assertFalse(decision.allowed)
+                self.assertEqual(decision.reason, "EXPLICITLY_FORBIDDEN")
+        for action in ("", "unknown.action", "shell.exec ", None, 7):
+            with self.subTest(action=action):
+                self.assertFalse(authorize(action, authenticated=True).allowed)
+
+    def test_allowlist_requires_auth_for_every_sensitive_action(self):
+        for action in ALLOWED:
+            with self.subTest(action=action):
+                decision = authorize(action, authenticated=False)
+                if action == "health.read":
+                    self.assertTrue(decision.allowed)
+                else:
+                    self.assertFalse(decision.allowed)
+                    self.assertEqual(decision.reason, "AUTHENTICATION_REQUIRED")
+                self.assertEqual(authorize(action, authenticated=True).allowed, True)
 
 
 class HistoryTests(unittest.TestCase):
@@ -99,7 +120,8 @@ class HistoryTests(unittest.TestCase):
 
     def test_checkpoint_mismatch(self):
         s, d = self._case(lambda L: L)
-        open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
+        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"seq": 99, "head_hash": ZERO}))
         self.assertEqual(s.verify()["reason"], "checkpoint_mismatch")
         with self.assertRaises(HistoryError):
             StateStore(d)
@@ -119,79 +141,34 @@ class HistoryTests(unittest.TestCase):
             self.assertEqual(r2.stdout.strip(), "True ['p']")
 
 
-class EdgeTests(unittest.TestCase):
-    def setUp(self):
-        self.p = patch.dict(os.environ, {"HG_EDGE_TOKEN": TOKEN}, clear=False)
-        self.p.start()
-        self.addCleanup(self.p.stop)
-        self.srv = ThreadingHTTPServer(("127.0.0.1", 0), edge.Handler)
-        self.th = threading.Thread(target=self.srv.serve_forever, daemon=True)
-        self.th.start()
-        self.addCleanup(self._stop)
-        self.base = "http://127.0.0.1:%d" % self.srv.server_port
-
-    def _stop(self):
-        self.srv.shutdown()
-        self.srv.server_close()
-        self.th.join(timeout=2)
-
-    def call(self, path, method="GET", body=None, token=None):
-        req = urllib.request.Request(self.base + path, data=body, method=method)
-        if body is not None:
-            req.add_header("Content-Type", "application/json")
-        if token:
-            req.add_header("Authorization", "Bearer " + token)
-        try:
-            with urllib.request.urlopen(req, timeout=4) as r:
-                return r.status, r.read().decode()
-        except urllib.error.HTTPError as e:
-            return e.code, e.read().decode()
-
-    def test_edge_behaviour(self):
-        self.assertEqual(self.call("/health")[0], 200)
-        self.assertEqual(self.call("/edge/register", "POST", b'{"device_id":"d1"}')[0], 403)
-        self.assertEqual(self.call("/edge/register", "POST", json.dumps({"device_id": "d1"}).encode(), TOKEN)[0], 201)
-        self.assertEqual(self.call("/edge/heartbeat", "POST", json.dumps({"device_id": "d1", "seq": 5}).encode(), TOKEN)[0], 201)
-        self.assertEqual(edge.DEVICES["d1"]["seq"], 5)
-        self.assertEqual(self.call("/edge/register", "POST", b"{", TOKEN)[0], 400)
-        self.assertEqual(self.call("/edge/register", "POST", b'{"x":1}', TOKEN)[0], 400)
-        self.assertEqual(self.call("/nope")[0], 404)
-        self.assertEqual(self.call("/edge/register", "POST", b"a" * 9000, TOKEN)[0], 413)
-        status, body = self.call("/edge/status", "GET", None, TOKEN)
-        self.assertEqual(status, 200)
-        self.assertNotIn(TOKEN, body)
-        payload = json.dumps({"device_id": "d2", "model_api_key": "x"}).encode()
-        self.assertEqual(self.call("/edge/register", "POST", payload, TOKEN)[0], 400)
-
-    def test_fail_closed_without_token(self):
-        with patch.dict(os.environ, {"HG_EDGE_TOKEN": ""}, clear=False):
-            self.assertFalse(edge.authenticated("Bearer anything"))
-
-
 class PhoneTests(unittest.TestCase):
-    def test_local_and_offline(self):
+    def test_local_only_runtime_has_no_network_integration(self):
         with tempfile.TemporaryDirectory() as d:
-            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4)
-            self.assertTrue(rt.health()["ok"])
-            self.assertFalse(rt.heartbeat())
-            s = rt.start_session()
-            self.assertEqual(s["product"], "HG")
+            rt = PhoneRuntime(state_dir=d, session_authenticator=lambda credential: credential == "test-credential")
+            health = rt.health()
+            self.assertTrue(health["ok"])
+            self.assertFalse(health["network_integration"])
+            session = rt.start_session(credential="test-credential")
+            self.assertEqual(session["product"], "HG")
             self.assertEqual(rt.store.audit_export()["events"], 2)
 
-    def test_edge_roundtrip(self):
-        p = patch.dict(os.environ, {"HG_EDGE_TOKEN": TOKEN}, clear=False)
-        p.start()
-        self.addCleanup(p.stop)
-        srv = ThreadingHTTPServer(("127.0.0.1", 0), edge.Handler)
-        th = threading.Thread(target=srv.serve_forever, daemon=True)
-        th.start()
-        try:
+    def test_session_creation_fails_closed_for_absent_or_invalid_verifier(self):
+        with tempfile.TemporaryDirectory() as d:
+            rt = PhoneRuntime(state_dir=d)
+            before = open(os.path.join(d, "history.jsonl"), "rb").read()
+            with self.assertRaises(PermissionError):
+                rt.start_session(credential="not-a-verified-credential")
+            self.assertEqual(open(os.path.join(d, "history.jsonl"), "rb").read(), before)
+
+        for verifier in (lambda credential: False, lambda credential: "true",
+                         lambda credential: (_ for _ in ()).throw(RuntimeError("verifier unavailable"))):
             with tempfile.TemporaryDirectory() as d:
-                rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:%d" % srv.server_port, edge_token=TOKEN, device_id="phone-t")
-                self.assertTrue(rt.register())
-                self.assertTrue(rt.heartbeat())
-                self.assertIn("phone-t", edge.DEVICES)
-        finally:
-            srv.shutdown()
-            srv.server_close()
-            th.join(timeout=2)
+                rt = PhoneRuntime(state_dir=d, session_authenticator=verifier)
+                before = open(os.path.join(d, "history.jsonl"), "rb").read()
+                with self.subTest(verifier=verifier), self.assertRaises(PermissionError):
+                    rt.start_session(credential="not-a-verified-credential")
+                self.assertEqual(open(os.path.join(d, "history.jsonl"), "rb").read(), before)
+
+
+if __name__ == "__main__":
+    unittest.main()

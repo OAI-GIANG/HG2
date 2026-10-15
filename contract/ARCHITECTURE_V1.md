@@ -1,8 +1,8 @@
-# HG canonical architecture V1
+# HG Phone-only Architecture V2
 
-1. Exactly one canonical runtime: the phone runtime (`hg/phone_runtime.py`); it owns state and history.
-2. VPS1 runs only `hg/edge.py`: /health, /edge/register, /edge/heartbeat, /edge/status behind `HG_EDGE_TOKEN`.
-   It stores device identity + last-seen + seq only, and rejects any payload carrying a model key.
-3. VPS2 may mirror the edge for standby/worker/failover; it must never own canonical state.
-4. The phone dials outbound over HTTPS; it needs no inbound port and works offline.
-5. Two primaries or implicit failover that forks history are prohibited.
+1. The phone is the sole runtime and sole authority for local durable state and history.
+2. The core runtime has no remote edge client, server listener, host endpoint configuration, or external-host integration.
+3. Session creation requires an explicit credential verifier; absence, rejection, or verifier failure denies the operation.
+4. The runtime functions offline and does not require a PC or remote server to read or verify local state.
+5. Event exchange, if used, is local filesystem spool only. It is not a network transport, remote replica, second primary, or automatic failover.
+6. Do not add host connectivity or remote administration to the core product without a separately authorized scope change.

@@ -1,0 +1,210 @@
+{
+  "schema": "HG-CTI-REMEDIATION-EXECUTION-RECORD-V1",
+  "observed_date": "2026-10-14",
+  "status": "P0_GUARD_UNIT_TESTS_PASS_PARTIAL_REMEDIATION",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "remediation/hg-cti-p0-guards-20261014",
+  "canonical_base": "cdebaeed014371f033f14352f552c6d0d4e69198",
+  "v1_feature_head_reference": "61480680a0b300be946e403bde2cb272dbbacc20",
+  "v1_disposition": "FAIL_NO_GO_IMMUTABLE",
+  "pr12": {
+    "url": "https://github.com/OAI-GIANG/HG2/pull/12",
+    "state": "OPEN",
+    "draft": true,
+    "merged": false
+  },
+  "canonical_change_attribution": {
+    "pr": 9,
+    "url": "https://github.com/OAI-GIANG/HG2/pull/9",
+    "title": "feat: absorb strict HEXIS-inspired edge schema guards",
+    "merge_commit": "cdebaeed014371f033f14352f552c6d0d4e69198",
+    "merged_at_utc": "2026-10-13T15:07:59Z",
+    "merged_by_login": "OAI-GIANG",
+    "observed_from": "GitHub PR metadata and git history"
+  },
+  "v1_integrity": {
+    "root_manifest_exit_code": 0,
+    "root_manifest_failed_entries": 0,
+    "run_manifest_exit_code": 0,
+    "run_manifest_failed_entries": 0,
+    "v1_files_modified_by_this_remediation": false
+  },
+  "local_model_runtime": {
+    "model_sha256": "6f67b8036b2469fcd71728702720c6b51aebd759b78137a8120733b4d66438bc",
+    "server_binary_sha256": "6f9c5e7aba1cee5fb637c87db093040d86391d19cf35851a9a8f51cb2db71df3",
+    "server_commit": "781dbc5ac98921dbdb5e5b2ec5b7a50960e937d4",
+    "endpoint": "http://127.0.0.1:19831",
+    "health_result": {
+      "status": "ok"
+    },
+    "model_alias": "hg-cti-local",
+    "context_size": 1024,
+    "provider_cost_usd": 0
+  },
+  "tests": {
+    "focused_command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_guards.py' -v",
+    "focused_exit_code": 0,
+    "focused_tests_run": 26,
+    "full_command": "python3 -B -m unittest discover -s tests -v",
+    "full_exit_code": 0,
+    "full_tests_run": 80,
+    "full_result": "OK",
+    "diff_check_exit_code_before_staging": 0,
+    "legacy_resource_warnings_observed": true
+  },
+  "v2": {
+    "run_status": "NOT_RUN",
+    "preregistration_hash": null,
+    "reason": "P0 guard unit tests are not equivalent to full CTI-case integration or benchmark acceptance; V2 remains gated."
+  },
+  "limitations": [
+    "P0 guards are implemented as pure typed validation primitives but are not yet integrated into a V2 runner or production response pipeline.",
+    "The full CTI-001..CTI-040 scenario regression matrix is not yet fully executable; matrix rows remain PLANNED until case-specific tests exist.",
+    "Claim ledger validation checks span/reference structure but does not prove semantic entailment between a claim and evidence.",
+    "No merge or deployment has occurred."
+  ],
+  "tested_commit": "d95dc183ada190921453d020e6fd9b7abfcf0e59",
+  "clean_checkout_verification": {
+    "worktree": "/data/data/com.termux/files/usr/tmp/hg-cti-remediation-clean-checkout-d95dc18",
+    "commit": "d95dc183ada190921453d020e6fd9b7abfcf0e59",
+    "full_test_exit_code": 0,
+    "full_test_count": 128,
+    "skipped": 0,
+    "root_v1_manifest_exit_code": 0,
+    "root_v1_manifest_failed_entries": 0,
+    "run_v1_manifest_exit_code": 0,
+    "run_v1_manifest_failed_entries": 0
+  },
+  "cached_diff_check_exit_code": 0,
+  "pr13": {
+    "url": "https://github.com/OAI-GIANG/HG2/pull/13",
+    "state": "OPEN",
+    "draft": true,
+    "base": "feature/hg-creative-assimilation-v1-20261013",
+    "head_branch": "remediation/hg-cti-p0-guards-20261014",
+    "merge_authorized_now": false
+  },
+  "latest_verified_remote_head_before_this_evidence_update": "d95dc183ada190921453d020e6fd9b7abfcf0e59",
+  "current_worktree_test_run": {
+    "focused_guard_tests_run": 46,
+    "v2_harness_tests_run": 16,
+    "full_command": "python3 -B -m unittest discover -s tests -v",
+    "full_exit_code": 0,
+    "full_tests_run": 116,
+    "skipped_before_prereg_freeze": 1,
+    "diff_check_exit_code": 0
+  },
+  "matrix_coverage": {
+    "unit_tested_case_ids": [
+      "CTI-001",
+      "CTI-002",
+      "CTI-003",
+      "CTI-004",
+      "CTI-005",
+      "CTI-006",
+      "CTI-007",
+      "CTI-008",
+      "CTI-009",
+      "CTI-010",
+      "CTI-011",
+      "CTI-012",
+      "CTI-013",
+      "CTI-014",
+      "CTI-015",
+      "CTI-016",
+      "CTI-017",
+      "CTI-018",
+      "CTI-019",
+      "CTI-020",
+      "CTI-021",
+      "CTI-023",
+      "CTI-026",
+      "CTI-027",
+      "CTI-029",
+      "CTI-034",
+      "CTI-035",
+      "CTI-040"
+    ],
+    "case_specific_p0_unit_tests": "PASS",
+    "cross_cutting_gates_over_80_v2_outputs": "PLANNED_UNTIL_BENCHMARK_RUN",
+    "p1_case_specific_tests": "PLANNED"
+  },
+  "v2_harness": {
+    "status": "BLOCKED_INCOMPLETE_EXECUTION_NO_ACCEPTANCE_RESULT",
+    "protocol_version": "V2.2",
+    "dataset_sha256": "58b68415d088ff8bcad15366afc66101d902e2b421caa41f03c178be9c354309",
+    "preregistration_sha256": "7859f28c2105f0d6bb88cfd7f5267dce9976bb009e5d10e66464964e857debfc",
+    "preregistration_freeze_sha256": "8631ef84cc7970c63ab4a4e6834b2a78f24fd7d31a71e2b17f0cd18377b85faf",
+    "protocol_sha256": "34d7ef99ae1698189472d6df8d7d561f99a78abd6f8f6e69b9233ce5a08756f3",
+    "frozen_artifact_count": 46,
+    "case_count": 40,
+    "paired_responses_expected": 80,
+    "v2_0_freeze": "SUPERSEDED_BEFORE_RUN_AND_ARCHIVED",
+    "v2_1_freeze": "SUPERSEDED_BEFORE_RUN_AND_ARCHIVED",
+    "pre_run_verification": "evidence/HG-CTI-V2-PREREG-20261014/pre-run-verification.json",
+    "token_budget_preflight": {
+      "prompt_count": 80,
+      "max_input_tokens": 502,
+      "max_output_tokens": 320,
+      "max_input_plus_output": 822,
+      "context_size": 1024,
+      "remaining_context_tokens_min": 202,
+      "over_budget_prompts": 0,
+      "pass": true
+    },
+    "local_runtime_health": "PASS",
+    "model_hash_match": true,
+    "server_binary_hash_match": true,
+    "inference_run": "STARTED_TWICE_BUT_BOTH_ATTEMPTS_INCOMPLETE",
+    "output_directory_absent": true,
+    "output_directory": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001",
+    "complete_pairs": 0,
+    "incomplete_attempts": [
+      {
+        "path": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-1-incomplete",
+        "rows": 69,
+        "manifest_verified": true
+      },
+      {
+        "path": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-2-incomplete",
+        "rows": 5,
+        "manifest_verified": true
+      }
+    ],
+    "scoring": "NOT_RUN",
+    "blocker": "Runner process terminates before completing all 80 responses; exact process termination cause unverified."
+  },
+  "v1_provenance_discrepancy": {
+    "file": "benchmarks/hg_cti_v1/README.md",
+    "original_preregistration_sha256": "d12c54ea2573296750d2940b33ce5723b099d7ba9bcf8a02d010b214621bb4f8",
+    "current_sha256": "f0e506a8b9488424702ca310fe69758f3bfdd6606c045e6af2d1a2d67ebca690",
+    "run_commit": "4ac4e2e2e760aae608bb866c9ea1e1a8f75e5639",
+    "run_commit_readme_sha256": "d12c54ea2573296750d2940b33ce5723b099d7ba9bcf8a02d010b214621bb4f8",
+    "run_started_utc": "2026-10-13T16:47:11.703190+00:00",
+    "run_ended_utc": "2026-10-13T16:51:48.169889+00:00",
+    "post_run_documentation_commits": [
+      {
+        "commit": "2e164d064e8f8ceb65c3e753c3003b52d0b3898c",
+        "committed_at": "2026-10-14T00:08:13+07:00"
+      },
+      {
+        "commit": "250da3ef65fa51de4996da2e76ee7953ca282744",
+        "committed_at": "2026-10-14T00:12:49+07:00"
+      }
+    ],
+    "classification": "POST_RUN_DOCUMENTATION_DRIFT; V1 runner validated the original README hash before inference; V1 raw/scoring run manifests still verify; do not rewrite V1 history."
+  },
+  "focused_test_runs": {
+    "guard_tests": {
+      "command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_guards.py' -v",
+      "exit_code": 0,
+      "tests_run": 57
+    },
+    "v2_harness_tests": {
+      "command": "python3 -B -m unittest discover -s tests -p 'test_hg_cti_v2_harness.py' -v",
+      "exit_code": 0,
+      "tests_run": 17,
+      "skipped_before_v2_1_freeze": 1
+    }
+  }
+}

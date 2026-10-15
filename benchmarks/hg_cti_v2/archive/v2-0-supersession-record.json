@@ -1,0 +1,13 @@
+{
+  "freeze_sha256": "745cc564cdaa79c3d7b3543086dde27bbfceed565c9b72d60fe36834dadd8806",
+  "freeze_status_at_supersession": "FROZEN_BEFORE_EVALUATION",
+  "inference_started_under_this_protocol": false,
+  "preregistration_sha256": "cae3f032e3c91faae311e92600757463c5f7020d3cea703e3124e2401b641e29",
+  "protocol_version": "V2.0",
+  "raw_run_existed_at_supersession": false,
+  "raw_run_path": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001/raw_runs.jsonl",
+  "reason": "Expanded P0 regression coverage before any inference.",
+  "recorded_at_utc": "2026-10-13T17:54:12.458189+00:00",
+  "schema": "HG-CTI-PRE-RUN-PROTOCOL-SUPERSESSION-RECORD",
+  "scoring_started_under_this_protocol": false
+}

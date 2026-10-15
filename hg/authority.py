@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-ALLOWED = frozenset({"health.read", "session.create", "edge.register", "edge.heartbeat", "edge.status"})
-NEEDS_AUTH = frozenset({"session.create", "edge.register", "edge.heartbeat", "edge.status"})
+ALLOWED = frozenset({"health.read", "session.create"})
+NEEDS_AUTH = frozenset({"session.create"})
 FORBIDDEN = frozenset({"file.read", "file.write", "shell.exec", "network.fetch", "deploy", "identity.change", "state.import", "provider.invoke"})
 
 
