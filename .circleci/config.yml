@@ -18,6 +18,17 @@ jobs:
             set -eu
             git diff --check HEAD^ HEAD
       - run:
+          name: Build allowlisted HG2 distribution
+          command: |
+            set -eu
+            DIST_DIR="/tmp/hg2-distribution"
+            mkdir -p "$DIST_DIR"
+            PYTHONDONTWRITEBYTECODE=1 python tools/build_distribution.py \
+              --output "$DIST_DIR/hg2.zip"
+      - store_artifacts:
+          path: /tmp/hg2-distribution
+          destination: hg2-distribution
+      - run:
           name: Bind exact candidate, test run, and local evidence
           command: |
             set -eu
