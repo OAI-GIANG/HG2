@@ -27,7 +27,7 @@ class CreativeAssimilationVersioningTests(unittest.TestCase):
         contract = (ROOT / "contract/CREATIVE_ASSIMILATION_V2.md").read_text(encoding="utf-8")
         tests = (ROOT / "tests/test_creative_assimilation_v2.py").read_text(encoding="utf-8")
         for source in (implementation, contract, tests):
-            for retired in ("REVIEW_REQUIRED", "REVIEW_GATE_BLOCKED", "REVIEW_EVIDENCE_REQUIRED", "ready_for_review"):
+            for retired in ("REVIEW_REQUIRED", "REVIEW_GATE_BLOCKED", "REVIEW_EVIDENCE_REQUIRED", "ready_for_review", "independent review", "independent verification", "independent approval", "reviewer identity"):
                 with self.subTest(retired=retired):
                     self.assertNotIn(retired, source)
 

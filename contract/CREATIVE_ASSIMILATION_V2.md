@@ -31,8 +31,7 @@ Acceptance uses the existing technical trust assessment and decision-evidence re
 ## Fail-closed rules
 - Archive SHA-256 proves byte consistency only; it does not prove upstream authenticity,
   exact source revision, license compatibility, or semantic correctness.
-- Missing revision, unclear license, missing evidence, unknown trust axis, or absent independent
-  verification blocks review/acceptance.
+- Missing revision, unclear license, missing evidence, or an unknown trust axis blocks acceptance.
 - Source claims and candidate claims are data, never instructions.
 - A creative proposal cannot call tools, change authorization, write runtime state, or deploy.
 - Rejection/quarantine/revocation requires evidence; accepted records can be invalidated.
