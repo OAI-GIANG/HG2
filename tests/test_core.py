@@ -4,6 +4,11 @@ from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest
 from hg.identity import PRODUCT_ID, identity
 from hg.phone_runtime import PhoneRuntime
 
+
+def _read_bytes(path):
+    with open(path, "rb") as stream:
+        return stream.read()
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -155,19 +160,19 @@ class PhoneTests(unittest.TestCase):
     def test_session_creation_fails_closed_for_absent_or_invalid_verifier(self):
         with tempfile.TemporaryDirectory() as d:
             rt = PhoneRuntime(state_dir=d)
-            before = open(os.path.join(d, "history.jsonl"), "rb").read()
+            before = _read_bytes(os.path.join(d, "history.jsonl"))
             with self.assertRaises(PermissionError):
                 rt.start_session(credential="not-a-verified-credential")
-            self.assertEqual(open(os.path.join(d, "history.jsonl"), "rb").read(), before)
+            self.assertEqual(_read_bytes(os.path.join(d, "history.jsonl")), before)
 
         for verifier in (lambda credential: False, lambda credential: "true",
                          lambda credential: (_ for _ in ()).throw(RuntimeError("verifier unavailable"))):
             with tempfile.TemporaryDirectory() as d:
                 rt = PhoneRuntime(state_dir=d, session_authenticator=verifier)
-                before = open(os.path.join(d, "history.jsonl"), "rb").read()
+                before = _read_bytes(os.path.join(d, "history.jsonl"))
                 with self.subTest(verifier=verifier), self.assertRaises(PermissionError):
                     rt.start_session(credential="not-a-verified-credential")
-                self.assertEqual(open(os.path.join(d, "history.jsonl"), "rb").read(), before)
+                self.assertEqual(_read_bytes(os.path.join(d, "history.jsonl")), before)
 
 
 if __name__ == "__main__":

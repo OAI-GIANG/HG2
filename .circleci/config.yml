@@ -18,10 +18,25 @@ jobs:
             set -eu
             git diff --check HEAD^ HEAD
       - run:
-          name: Run unittest suite with ResourceWarning as ERROR (strict)
+          name: Bind exact candidate inventory and strict test run
           command: |
             set -eu
-            PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v
+            EVIDENCE_DIR="/tmp/hg2-provenance"
+            mkdir -p "$EVIDENCE_DIR"
+            PYTHONDONTWRITEBYTECODE=1 python tools/hg_provenance.py snapshot \
+              --repo . --repository-identity OAI-GIANG/HG2 \
+              --output "$EVIDENCE_DIR/candidate-manifest.json"
+            PYTHONDONTWRITEBYTECODE=1 python tools/hg_provenance.py verify \
+              --repo . --manifest "$EVIDENCE_DIR/candidate-manifest.json"
+            PYTHONDONTWRITEBYTECODE=1 python tools/hg_provenance.py run \
+              --repo . --manifest "$EVIDENCE_DIR/candidate-manifest.json" \
+              --out-dir "$EVIDENCE_DIR/test-run" -- \
+              env PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning \
+              -m unittest discover -s tests -v
+          teardown:
+            - store_artifacts:
+                path: /tmp/hg2-provenance
+                destination: hg2-provenance
 workflows:
   hg2-p0-strict-verify:
     jobs:

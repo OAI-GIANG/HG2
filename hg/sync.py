@@ -53,14 +53,20 @@ class SyncError(Exception):
 
 
 class SyncContext:
-    def __init__(self, context_id: str, state_dir: str, spool_dir: str, clock=time.time) -> None:
+    def __init__(self, context_id: str, state_dir: str, spool_dir: str, clock=time.time, *,
+                 store: StateStore | None = None) -> None:
         self.context_id = context_id
         self.spool = spool_dir
         self._clock = clock
         for sub in ("inbox", "outbox", "conflicts"):
             os.makedirs(os.path.join(spool_dir, sub), exist_ok=True)
         self.audit_path = os.path.join(spool_dir, "sync-audit.jsonl")
-        self.store = StateStore(state_dir)  # fail-closed on corrupt history
+        # Runtime integration must inject the canonical owner's existing store.
+        # Constructing another StateStore for the same state_dir can replay and
+        # rewrite durable projections concurrently with the canonical owner.
+        self.store = store if store is not None else StateStore(state_dir)
+        if store is not None and os.path.realpath(store.dir) != os.path.realpath(state_dir):
+            raise ValueError("injected StateStore directory mismatch")
 
     # ---------------------------------------------------------------- audit
     def _audit(self, record: dict) -> None:
@@ -114,7 +120,7 @@ class SyncContext:
                               ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")}
         return index
 
-    def import_batch(self, path_or_name: str) -> dict:
+    def import_batch(self, path_or_name: str, *, _authenticated_batch=None, _authenticated_raw=None) -> dict:
         # Imports are restricted to a simple filename already staged in this context's inbox.
         # Never read/move an arbitrary caller-supplied path or follow an inbox symlink.
         if (not isinstance(path_or_name, str) or not path_or_name
@@ -126,14 +132,21 @@ class SyncContext:
         path = os.path.join(inbox, name)
         if os.path.islink(path) or not os.path.isfile(path) or os.path.realpath(path) != path:
             raise SyncError("batch file missing or unsafe")
-        with open(path, "rb") as fh:
-            raw = fh.read()
-        try:
-            batch = json.loads(raw.decode("utf-8"), object_pairs_hook=_object_without_duplicate_keys,
-                               parse_constant=_reject_json_constant)
-        except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
-            self._reject(name, "MALFORMED_OR_TRUNCATED_BATCH", raw)
-            raise SyncError("malformed batch") from exc
+        if _authenticated_batch is not None:
+            # Authenticated path passes the exact parsed object whose signature was
+            # verified; do not reopen the inbox file and create a verify/import TOCTOU.
+            batch, raw = _authenticated_batch, _authenticated_raw
+            if not isinstance(raw, bytes):
+                raise SyncError("authenticated raw bytes required")
+        else:
+            with open(path, "rb") as fh:
+                raw = fh.read()
+            try:
+                batch = json.loads(raw.decode("utf-8"), object_pairs_hook=_object_without_duplicate_keys,
+                                   parse_constant=_reject_json_constant)
+            except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+                self._reject(name, "MALFORMED_OR_TRUNCATED_BATCH", raw)
+                raise SyncError("malformed batch") from exc
         if not isinstance(batch, dict) or batch.get("schema") != BATCH_SCHEMA:
             self._reject(name, "UNSUPPORTED_BATCH_SCHEMA", raw)
             raise SyncError("unsupported batch schema")
@@ -234,6 +247,42 @@ class SyncContext:
         self._audit({"op": "import", "file": name, "accepted": accepted, "duplicates": duplicates,
                      "batch_hash": digest(batch), "at": self._clock()})
         return {"accepted": accepted, "duplicates": duplicates}
+
+    # ------------------------------------------ authenticated transactional import
+    def import_authenticated_batch(self, path_or_name: str, gate) -> dict:
+        """Authenticate and validate a whole batch, idempotently import, then commit cursor.
+
+        Crash semantics: import writes idempotent per-event envelopes before cursor commit.
+        If the process dies after any append but before cursor persistence, retrying the same
+        signed batch revalidates from the old cursor; already-imported event IDs are skipped,
+        remaining events are appended, and only then is the cursor advanced. The caller must
+        supply a gate with a receiver-owned cursor path distinct from the StateStore directory.
+        """
+        if not isinstance(path_or_name, str) or os.path.basename(path_or_name) != path_or_name:
+            raise SyncError("invalid inbox filename")
+        path = os.path.join(os.path.realpath(os.path.join(self.spool, "inbox")), path_or_name)
+        if os.path.islink(path) or not os.path.isfile(path) or os.path.realpath(path) != path:
+            raise SyncError("batch file missing or unsafe")
+        try:
+            with open(path, "rb") as fh:
+                raw = fh.read()
+            batch = json.loads(raw.decode("utf-8"), object_pairs_hook=_object_without_duplicate_keys,
+                               parse_constant=_reject_json_constant)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+            raise SyncError("malformed authenticated batch") from exc
+        # Gate checks peer authentication and trusted origin sequence/hash before import.
+        state_dir = os.path.realpath(self.store.dir)
+        cursor_path = os.path.realpath(gate.cursor_path)
+        if os.path.commonpath((state_dir, cursor_path)) == state_dir:
+            raise SyncError("authenticated cursor must be outside StateStore directory")
+        proposal = gate.verify(batch)
+        # Validate/import the exact same parsed object whose signature was checked.
+        # import_batch validates every envelope before first write and is idempotent.
+        result = self.import_batch(path_or_name, _authenticated_batch=batch, _authenticated_raw=raw)
+        # Cursor is durable only after every event has been imported or confirmed duplicate.
+        gate.commit(proposal)
+        return {**result, "cursor": {"peer_id": proposal["peer_id"], "seq": proposal["seq"],
+                                     "hash": proposal["hash"]}}
 
     # ------------------------------------------------------------ rejection
     def _reject(self, name: str, reason: str, raw: bytes) -> None:

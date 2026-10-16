@@ -7,17 +7,20 @@
     "hg.authority",
     "hg.history",
     "hg.identity",
+    "hg.provenance",
     "hg.phone_runtime",
-    "hg.sync"
+    "hg.sync",
+    "hg.sync_auth",
+    "hg.sync_bootstrap"
   ],
   "origin": "clean_room",
   "developer_tools": [
-    "tools.hg_code_intelligence"
+    "tools.hg_code_intelligence",
+    "tools.hg_provenance"
   ],
   "optional_modules": [
     "hg.creative_assimilation",
-    "hg.cti_guards",
-    "hg.sync"
+    "hg.cti_guards"
   ],
   "product_id": "HG",
   "product_name": "HG2"
