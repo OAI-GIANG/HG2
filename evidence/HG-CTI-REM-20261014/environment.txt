@@ -1,0 +1,6 @@
+2026-10-13T17:31:29Z
+branch=remediation/hg-cti-p0-guards-20261014
+head_before_commit=61480680a0b300be946e403bde2cb272dbbacc20
+canonical=cdebaeed014371f033f14352f552c6d0d4e69198
+Python 3.14.6
+Linux localhost 6.6.118-android15-8-gebdfad32d749-ab15099304-4k #1 SMP PREEMPT Thu Mar 26 19:01:13 UTC 2026 aarch64 Android

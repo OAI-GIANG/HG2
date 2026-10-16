@@ -1,6 +1,0 @@
-timestamp_utc=2026-10-13T14:20:52Z
-python=Python 3.14.6
-platform=Linux aarch64
-candidate_base_commit=d11e71ed8b34338b8568664b39bc777c926826d5
-candidate_base_tree=1a2ee9b52b39feabd50a9a86f66140a85b1b38a6
-baseline_export=/data/data/com.termux/files/home/.cache/hg2-hexis-baseline.GutMFT
