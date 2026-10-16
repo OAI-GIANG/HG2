@@ -27,6 +27,7 @@ DEFAULT_BASE_URL = "https://api.deepseek.com"
 SUPPORTED_MODELS = frozenset({"deepseek-flash", "deepseek-v4-pro"})
 MAX_REQUEST_BYTES = 16_384
 MAX_RESPONSE_BYTES = MAX_CONTRACT_BYTES
+MAX_PROVIDER_CONFIG_BYTES = 65_536
 DEFAULT_TIMEOUT_SECONDS = 20
 DEFAULT_MAX_TOKENS = 2048
 
@@ -102,17 +103,35 @@ class DeepSeekTaskDraftProvider:
         config_path = os.fspath(path) if path is not None else os.path.join(
             os.path.expanduser("~"), ".config", "hg", "secret.env"
         )
+        fd = None
         try:
-            st = os.lstat(config_path)
-            if (stat.S_ISLNK(st.st_mode) or not stat.S_ISREG(st.st_mode)
-                    or (st.st_mode & 0o077) != 0 or st.st_uid != os.getuid()):
+            initial = os.lstat(config_path)
+            if stat.S_ISLNK(initial.st_mode) or not stat.S_ISREG(initial.st_mode):
                 raise ModelProviderError("MODEL_PROVIDER_CONFIG_PERMISSIONS")
-            with open(config_path, "r", encoding="utf-8") as stream:
-                raw = stream.read()
+            flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+            if hasattr(os, "O_CLOEXEC"):
+                flags |= os.O_CLOEXEC
+            fd = os.open(config_path, flags)
+            opened = os.fstat(fd)
+            if (not stat.S_ISREG(opened.st_mode) or opened.st_uid != os.getuid()
+                    or (opened.st_mode & 0o077) != 0):
+                raise ModelProviderError("MODEL_PROVIDER_CONFIG_PERMISSIONS")
+            if opened.st_size > MAX_PROVIDER_CONFIG_BYTES:
+                raise ModelProviderError("MODEL_PROVIDER_CONFIG_TOO_LARGE")
+            data = os.read(fd, MAX_PROVIDER_CONFIG_BYTES + 1)
+            if len(data) > MAX_PROVIDER_CONFIG_BYTES:
+                raise ModelProviderError("MODEL_PROVIDER_CONFIG_TOO_LARGE")
+            raw = data.decode("utf-8", errors="strict")
         except ModelProviderError:
             raise
         except (OSError, UnicodeError):
             raise ModelProviderError("MODEL_PROVIDER_CONFIG_UNAVAILABLE") from None
+        finally:
+            if fd is not None:
+                try:
+                    os.close(fd)
+                except OSError:
+                    pass
         values: dict[str, str] = {}
         for line in raw.splitlines():
             stripped = line.strip()

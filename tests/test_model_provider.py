@@ -102,6 +102,32 @@ class ProviderConfigTests(unittest.TestCase):
             self.assertEqual(draft_provider.model_id, "deepseek-flash")
             self.assertEqual(draft_provider.timeout_seconds, 20)
 
+    def test_env_file_symlink_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="hg-model-config-") as directory:
+            root = Path(directory)
+            target = root / "real.env"
+            target.write_text(
+                "HG_MODEL_API_KEY=TEST-ONLY\n"
+                "HG_MODEL_BASE_URL=https://api.deepseek.com\n"
+                "HG_MODEL_ID=deepseek-flash\n",
+                encoding="utf-8",
+            )
+            os.chmod(target, 0o600)
+            link = root / "secret.env"
+            link.symlink_to(target)
+            with self.assertRaises(ModelProviderError) as ctx:
+                DeepSeekTaskDraftProvider.from_env_file(link)
+            self.assertEqual(ctx.exception.code, "MODEL_PROVIDER_CONFIG_PERMISSIONS")
+
+    def test_env_file_oversize_rejected_before_parse(self):
+        with tempfile.TemporaryDirectory(prefix="hg-model-config-") as directory:
+            path = Path(directory) / "secret.env"
+            path.write_text("X=" + "x" * 70_000, encoding="utf-8")
+            os.chmod(path, 0o600)
+            with self.assertRaises(ModelProviderError) as ctx:
+                DeepSeekTaskDraftProvider.from_env_file(path)
+            self.assertEqual(ctx.exception.code, "MODEL_PROVIDER_CONFIG_TOO_LARGE")
+
     def test_env_file_with_loose_permissions_rejected(self):
         with tempfile.TemporaryDirectory(prefix="hg-model-config-") as directory:
             path = Path(directory) / "secret.env"
