@@ -19,16 +19,11 @@ curl -fsSL --retry 3 \
 printf '%s  %s\n' "$COSIGN_SHA256" "$EVIDENCE_DIR/cosign" | sha256sum -c -
 chmod 700 "$EVIDENCE_DIR/cosign"
 
-CIRCLECI_CLI_SHA256="20296c88505342996693b657e7bd7fc7862e1779fc000b869fcc5b9870f4417e"
-curl -fsSL --retry 3 \
-  "https://github.com/CircleCI-Public/circleci-cli/releases/download/v1.6.0/circleci-cli_1.6.0_linux_amd64.tar.gz" \
-  -o "$EVIDENCE_DIR/circleci-cli.tar.gz"
-printf '%s  %s\n' "$CIRCLECI_CLI_SHA256" "$EVIDENCE_DIR/circleci-cli.tar.gz" | sha256sum -c -
-mkdir -p "$EVIDENCE_DIR/circleci-cli"
-tar -xzf "$EVIDENCE_DIR/circleci-cli.tar.gz" -C "$EVIDENCE_DIR/circleci-cli"
-CIRCLECI_BIN="$(find "$EVIDENCE_DIR/circleci-cli" -type f -name circleci -perm -u+x | head -n 1)"
-test -n "$CIRCLECI_BIN"
-"$CIRCLECI_BIN" version
+CIRCLECI_BIN="$(command -v circleci || true)"
+if [ -z "$CIRCLECI_BIN" ]; then
+  echo "PROV_UNVERIFIABLE: CircleCI environment CLI is not available in this executor" >&2
+  exit 1
+fi
 
 # Token is deliberately never printed or persisted to the evidence directory.
 SIGSTORE_ID_TOKEN="$("$CIRCLECI_BIN" run oidc get --claims '{"aud":"sigstore"}' --root-issuer)"
