@@ -36,6 +36,16 @@ Version is `hg.task-contract.v1`. Unknown/missing fields, unsupported types, dup
 
 These are **local database tests**, not a power-loss certification. SQLite's WAL documentation distinguishes `synchronous=FULL` from `NORMAL`: FULL adds a WAL sync at commit to improve power-loss durability, but device storage/filesystem and hardware behavior still require testing on the actual target. Local event hashes provide tamper detection relative to the stored chain; without an externally anchored checkpoint/signature, an attacker who can rewrite the entire database may be able to recompute it. Transaction state `COMMITTED` means the coordinator accepted its protocol gates; the candidate does not execute task steps or prove exactly-once external side effects. Missing prepare/evidence/commit verifier adapters block. On process restart, unresolved `RUNNING`/`EVIDENCE_PENDING` records become `IN_DOUBT` rather than being promoted to success.
 
+## Configured natural-language compiler entrypoint
+
+The explicit CLI is scripts/hg-agentic-compile. It reads the task request from stdin, loads the operator-managed provider configuration only from a regular file owned by the current user with no group/other permissions, pins the provider to HTTPS host api.deepseek.com, and emits a locally validated Task Contract plus declaration plan. It does not send shell commands or invoke task tools. Using it sends the supplied request to the configured API and may incur token usage.
+
+Example, once live JSON-output acceptance is confirmed:
+
+    printf '%s' 'Draft a read-only task contract to summarize a local health result.' | ./scripts/hg-agentic-compile
+
+The request/output from the model is untrusted. A 200 HTTP response alone is not an acceptance result; finish reason, JSON parse, full contract schema, policy reference, action allowlist and digest all require success. The local smoke call mentioned above did not pass output validation, so do not claim a successful live NL compiler E2E yet.
+
 ## Strict verification performed on Android/Termux
 
 Environment observed: Android/ARM64, Python 3.14.6, SQLite 3.53.4. No extra Python package was installed for this work.
@@ -47,12 +57,13 @@ PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest -v tests.
 PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest -v tests.test_agentic_primitives
 PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest -v tests.test_durable_transactions
 PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest -v tests.test_agentic_integration
+PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest -v tests.test_model_provider
 PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v
 ```
 
-Most recent complete suite run during this working session: **136 tests PASS, exit 0**, with `ResourceWarning` treated as an error; all changed candidate modules and test files also passed in-memory Python syntax compilation. Re-run against the exact final commit and check the hosted CI result before relying on this count for that SHA.
+Most recent complete suite run during this working session: **151 tests PASS, exit 0**, with `ResourceWarning` treated as an error; all changed candidate modules and test files also passed in-memory Python syntax compilation. Re-run against the exact final commit and check the hosted CI result before relying on this count for that SHA.
 
-The integration test connects all six layers using callbacks named `TEST_ONLY_*`. Its success confirms test wiring, not production trust or runtime execution. An attestation or provenance callback may report that its check passed, but the evidence/memory helpers retain `UNVERIFIED` unless the hosting trust boundary is independently established; no callback in these tests is a configured production trust root. The natural-language compiler has an injected draft-provider seam only; no live model/provider is configured here. HNI V2.1 package tests deliberately assert that the 26 synthetic fixture records remain `NOT_RUN`; those fixtures are not an authenticated source for the historical CP0 criteria.
+The integration test connects all six layers using callbacks named `TEST_ONLY_*`. Its success confirms test wiring, not production trust or runtime execution. An attestation or provenance callback may report that its check passed, but the evidence/memory helpers retain `UNVERIFIED` unless the hosting trust boundary is independently established; no callback in these tests is a configured production trust root. The configured model endpoint was checked without displaying credentials: the read-only model-list request returned HTTP 200 and listed deepseek-flash and deepseek-v4-pro, but not the previous deepseek-chat identifier. The only changed non-secret provider setting in the phone-local mode-0600 configuration is HG_MODEL_ID=deepseek-flash; the API key and all other tokens were left unchanged and never printed. One minimal live request to deepseek-flash returned HTTP 200 but did not yield parseable JSON under a 24-token output cap. A follow-up live generation was not completed, so live model compilation remains NOT_RUN; only mocked adapter tests establish local request shaping/validation. The code now uses a 2048-token default, JSON mode and rejects any non-stop finish reason. HNI V2.1 package tests deliberately assert that the 26 synthetic fixture records remain `NOT_RUN`; those fixtures are not an authenticated source for the historical CP0 criteria.
 
 ## External design references
 
@@ -61,6 +72,8 @@ The integration test connects all six layers using callbacks named `TEST_ONLY_*`
 - SLSA Provenance v1.2: https://slsa.dev/spec/v1.2/provenance. Reference for source/build provenance; does not substitute for an HG trust policy or prove this candidate's runtime origin.
 - SQLite WAL: https://www.sqlite.org/wal.html and PRAGMA `synchronous`: https://www.sqlite.org/pragma.html. Reference for WAL/sync semantics; not device-specific durability evidence.
 - Python graphlib: https://docs.python.org/3/library/graphlib.html. Reference for directed acyclic graph/topological-order concepts; our stable order is implemented with Kahn's algorithm and a lexical heap tie-break.
+- DeepSeek Chat Completions API: https://api-docs.deepseek.com/api/create-chat-completion/ and JSON Output: https://api-docs.deepseek.com/guides/json_mode/. These document the HTTPS chat-completions endpoint and JSON response mode. They do not replace local validation, prove live endpoint output acceptance, or make model output trusted.
+- DeepSeek model catalog/pricing: https://api-docs.deepseek.com/quick_start/pricing/. It identifies currently advertised model IDs and states that model use is billed by token count; prices may change.
 
 ## Remaining mandatory acceptance gates
 

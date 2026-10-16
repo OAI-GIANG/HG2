@@ -1,0 +1,52 @@
+{
+  "evidence_id": "HG-AI-STRICT-UNITTEST-20261016-2EDD3E2",
+  "execution": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "device": "Remote Desktop Commander localhost / Android phone Termux",
+    "exit_code": 0,
+    "finished_at_utc": "2026-10-16T19:14:29Z",
+    "machine": "aarch64",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6",
+    "resource_warning_policy": "warnings treated as errors",
+    "sqlite": "3.53.4",
+    "tests_failed": 0,
+    "tests_passed": 136,
+    "tests_run": 136
+  },
+  "hosted_ci": {
+    "context": "ci/circleci: verify",
+    "job_url": "https://circleci.com/gh/OAI-GIANG/HG2/132",
+    "observed_on_pr_head": "2edd3e29b0d3d0a7d1ed91e2e704e5fdf9abeaee",
+    "provider": "CircleCI",
+    "status": "success"
+  },
+  "log_artifact": {
+    "bytes": 18890,
+    "path": "evidence/HG-AGENTIC-INTELLIGENCE-20261017/strict-unittest-2edd3e2.log",
+    "sha256": "e57e65575030e4f017f30d0d9f62d9ab5ab81165c122c8e0a4ada53427fe2050"
+  },
+  "release": {
+    "canonical_unchanged": true,
+    "status": "NOT_RELEASED",
+    "technical_acceptance": "BLOCKED"
+  },
+  "schema_version": "hg.test-run-evidence.v1",
+  "task": "HG Agentic Intelligence Evolution",
+  "test_subject": {
+    "branch": "stt/hg-agentic-intelligence-g1-20261017",
+    "commit": "2edd3e29b0d3d0a7d1ed91e2e704e5fdf9abeaee",
+    "repository": "OAI-GIANG/HG2",
+    "tree": "2eb1f7f96b5cda03a30d506495ea5a75a7db6c0c"
+  },
+  "trust_boundary": {
+    "capture_attestation": "LOCAL_UNATTESTED",
+    "evidence_trust_state": "UNVERIFIED",
+    "notes": [
+      "Local digest binds the log bytes, not an authenticated external test runner.",
+      "CircleCI check reports success for the same candidate commit.",
+      "Synthetic TEST_ONLY callbacks are not production trust roots.",
+      "HNI V2.1 historical CP0 fixture set remains synthetic and NOT_RUN."
+    ]
+  }
+}

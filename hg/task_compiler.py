@@ -99,14 +99,27 @@ def compile_natural_language(
     try:
         proposed_contract = draft_provider(request)
     except Exception as exc:
-        raise CompileError("TASK_DRAFT_PROVIDER_ERROR", "$.draft_provider", type(exc).__name__) from exc
+        safe_code = getattr(exc, "code", type(exc).__name__)
+        if not isinstance(safe_code, str) or not safe_code.isascii() or len(safe_code) > 96:
+            safe_code = "PROVIDER_ERROR"
+        raise CompileError("TASK_DRAFT_PROVIDER_ERROR", "$.draft_provider", safe_code) from None
     try:
-        plan = compile_contract(proposed_contract)
+        if isinstance(proposed_contract, (str, bytes)):
+            validated_contract = parse_json_strict(proposed_contract)
+        elif type(proposed_contract) is dict:
+            validated_contract = proposed_contract
+        else:
+            raise CompileError("TASK_DRAFT_INVALID", "$.draft_provider", "expected JSON object")
+        validate_contract(validated_contract)
+        plan = compile_contract(validated_contract)
     except CompileError:
         raise
+    except ContractError as exc:
+        raise CompileError(exc.code, exc.path, exc.detail) from None
     except Exception as exc:
-        raise CompileError("TASK_DRAFT_INVALID", "$.draft_provider", type(exc).__name__) from exc
+        raise CompileError("TASK_DRAFT_INVALID", "$.draft_provider", type(exc).__name__) from None
     plan.pop("plan_digest", None)
+    plan["task_contract"] = validated_contract
     plan["source_request_digest"] = hashlib.sha256(encoded).hexdigest()
     plan["draft_provider_state"] = "UNTRUSTED_PROPOSAL_VALIDATED"
     plan["executable"] = False
