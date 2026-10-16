@@ -7,12 +7,12 @@ from __future__ import annotations
 
 import hashlib
 import heapq
-from collections import deque
+from itertools import islice
 from typing import Any, Iterable
 
 from .task_contract import (
     ContractError, MAX_DEPENDENCIES_PER_TASK, MAX_TASKS, TERMINAL_STATUSES,
-    _id, canonical_json, contract_digest, parse_json_strict, validate_contract,
+    canonical_json, contract_digest, parse_json_strict, validate_contract,
 )
 
 
@@ -72,7 +72,11 @@ def compile_task_graph(tasks: Iterable[dict[str, Any]]) -> dict[str, Any]:
     Every referenced dependency must occur in this input set. Edges are dependency ->
     dependent. This function checks graph structure only; it does not schedule work.
     """
-    task_list = list(tasks)
+    try:
+        iterator = iter(tasks)
+        task_list = list(islice(iterator, MAX_TASKS + 1))
+    except (TypeError, RuntimeError) as exc:
+        raise CompileError("CONTRACT_SCHEMA_INVALID", "$", "tasks must be an iterable") from exc
     if len(task_list) > MAX_TASKS:
         raise CompileError("CONTRACT_RESOURCE_LIMIT", "$", "too many tasks")
     nodes: dict[str, dict[str, Any]] = {}
@@ -86,8 +90,8 @@ def compile_task_graph(tasks: Iterable[dict[str, Any]]) -> dict[str, Any]:
             raise CompileError("CONTRACT_DUPLICATE_ID", f"$[{index}].task_id", task_id)
         nodes[task_id] = contract
 
-    if sum(len(c["dependencies"]) for c in nodes.values()) > MAX_DEPENDENCIES_PER_TASK * max(1, len(nodes)):
-        raise CompileError("CONTRACT_RESOURCE_LIMIT", "$.dependencies", "too many dependency edges")
+    if any(len(c["dependencies"]) > MAX_DEPENDENCIES_PER_TASK for c in nodes.values()):
+        raise CompileError("CONTRACT_RESOURCE_LIMIT", "$.dependencies", "too many dependency edges for one task")
 
     predecessors: dict[str, set[str]] = {task_id: set() for task_id in nodes}
     successors: dict[str, set[str]] = {task_id: set() for task_id in nodes}

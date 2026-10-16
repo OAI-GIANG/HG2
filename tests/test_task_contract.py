@@ -188,6 +188,14 @@ class ContractP0Tests(unittest.TestCase):
             validate_contract(value)
         self.assertEqual(ctx.exception.code, "AUTHORIZATION_DENIED")
 
+    def test_unknown_action_not_implicitly_authorized(self):
+        value = make_contract()
+        value["authorization_requirement"]["action"] = "custom.unlisted.action"
+        value["contract_digest"] = contract_digest(value)
+        with self.assertRaises(ContractError) as ctx:
+            validate_contract(value)
+        self.assertEqual(ctx.exception.code, "AUTHORIZATION_UNRESOLVED")
+
     def test_approval_required_without_reference_rejected(self):
         value = make_contract()
         value["authorization_requirement"]["approval_required"] = True

@@ -59,6 +59,10 @@ FORBIDDEN_DECLARED_ACTIONS = frozenset({
     "file.read", "file.write", "shell.exec", "network.fetch", "deploy",
     "identity.change", "state.import", "provider.invoke",
 })
+# Must remain in sync with the current HG authority policy; this does not itself grant access.
+DECLARED_ACTION_ALLOWLIST = frozenset({
+    "health.read", "session.create", "edge.register", "edge.heartbeat", "edge.status",
+})
 
 
 class ContractError(ValueError):
@@ -295,6 +299,8 @@ def validate_contract(contract: dict[str, Any], *, check_digest: bool = True) ->
     _str(auth["scope_ref"], "$.authorization_requirement.scope_ref", maximum=512)
     if action in FORBIDDEN_DECLARED_ACTIONS:
         raise ContractError("AUTHORIZATION_DENIED", "$.authorization_requirement.action", "action explicitly forbidden by current policy")
+    if action not in DECLARED_ACTION_ALLOWLIST:
+        raise ContractError("AUTHORIZATION_UNRESOLVED", "$.authorization_requirement.action", "action is not in the current HG allowlist")
     if auth["approval_required"]:
         _require(contract["approval_ref"] is not None, "APPROVAL_REQUIRED", "$.approval_ref")
 

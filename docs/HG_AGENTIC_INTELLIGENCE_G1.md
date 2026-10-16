@@ -1,6 +1,6 @@
 # HG Agentic Intelligence Evolution — G1 Contract/Compiler
 
-Status: implementation candidate; local test evidence only; not release approval.
+Status: implementation candidate spanning G1-G6 primitives; local test evidence only; not release approval.
 
 ## Scope
 
@@ -20,9 +20,22 @@ The compiler can output only `VALIDATED` or an error. `VALIDATED` means structur
 
 Input is bounded by `MAX_TASKS`; all IDs must be unique, every hard/soft reference must resolve to a task in the input graph, and self-dependencies/cycles fail closed. Kahn's algorithm with a min-heap and sorted successor iteration produces deterministic topological order independent of input insertion order. An unsatisfied dependency status causes a pure gate result `BLOCKED`; it never executes work.
 
+## Agentic capability matrix (design/implementation boundary)
+
+| Capability | Candidate primitive | Current proof | Not established |
+|---|---|---|---|
+| Task Compiler | `hg/task_contract.py`, `hg/task_compiler.py` | Strict schema, bounded JSON, digest, graph validation; unit tests | Authorization/execution adapter, approved schema compatibility |
+| Capability-aware routing | `hg/capabilities.py` | Shape validation and deterministic blocked routing | Trusted source, signature, revocation, live provider registry |
+| Evidence-carrying claims | `hg/evidence.py` | Envelope integrity and revision/oracle consistency tests | Trusted capture, external attestation, trust promotion |
+| Transactional execution | `hg/transactions.py` | In-memory state transition/idempotency model tests | Durable journal, multi-process CAS, rollback or exactly-once side effects |
+| Provenance-aware memory | `hg/provenance_memory.py` | Missing provenance, caller promotion and conflict tests | Trusted memory authority, expiry verifier, persisted state integration |
+| Adaptive verification budget | `hg/verification_budget.py` | Mandatory floor, critical fail precedence and budget exhaustion tests | Calibrated production risk model, real cost telemetry |
+
+None of these G2-G6 primitives is wired into `phone_runtime.py`; no provider or external operation is invoked. This is deliberate because capability trust, evidence authentication and durable transaction semantics are not yet established.
+
 ## Test matrix
 
-`tests/test_task_contract.py` covers strict JSON, absent/unknown fields, wrong types, digest mismatch, scope conflict, approval prerequirement, forbidden action, capability-not-assumed, missing criteria/evidence, DAG order, cycles, self-cycle, missing dependency, duplicate IDs, determinism, shared dependency, resource ceiling, and fail-closed observed status. Expected error codes are explicitly asserted.
+`tests/test_task_contract.py` covers strict JSON, absent/unknown fields, wrong types, digest mismatch, scope conflict, approval prerequirement, allowlist enforcement, capability-not-assumed, missing criteria/evidence, DAG order, cycles, self-cycle, missing dependency, duplicate IDs, determinism, shared dependency, resource ceiling, and fail-closed observed status. `tests/test_agentic_primitives.py` covers capability provenance, evidence trust boundaries, transaction idempotency/recovery, provenance memory conflicts, and risk-adaptive verification budget. Expected error codes and state boundaries are explicitly asserted.
 
 Run on Android/Termux with Python 3.14.6:
 
