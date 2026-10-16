@@ -32,7 +32,7 @@ def _sha(value: object) -> bool:
 
 def authenticate_batch(batch: dict, *, peer_id: str, key_id: str,
                key_provider: KeyManagementInterface) -> dict:
-    """Return a signed copy using key material obtained only via the key interface."""
+    """Return an authenticated copy using key material obtained only via the key interface."""
     if not callable(getattr(key_provider, "get_peer_key", None)):
         raise PeerAuthError("key management interface required")
     key = key_provider.get_peer_key(peer_id, key_id)
@@ -40,10 +40,10 @@ def authenticate_batch(batch: dict, *, peer_id: str, key_id: str,
         raise PeerAuthError("peer key must contain at least 256 bits")
     if not peer_id or not key_id:
         raise PeerAuthError("peer and key identifiers are required")
-    unsigned = dict(batch)
-    unsigned.pop("auth", None)
-    mac = hmac.new(key, canonical(unsigned).encode("utf-8"), hashlib.sha256).hexdigest()
-    return {**unsigned, "auth": {"schema": AUTH_SCHEMA, "peer_id": peer_id,
+    batch_body = dict(batch)
+    batch_body.pop("auth", None)
+    mac = hmac.new(key, canonical(batch_body).encode("utf-8"), hashlib.sha256).hexdigest()
+    return {**batch_body, "auth": {"schema": AUTH_SCHEMA, "peer_id": peer_id,
                                 "key_id": key_id, "algorithm": "HMAC-SHA256", "mac": mac}}
 
 class AuthenticatedBatchGate:
@@ -152,21 +152,21 @@ class AuthenticatedBatchGate:
             raise PeerAuthError("untrusted peer or key")
         if not isinstance(key, bytes) or len(key) < 32:
             raise PeerAuthError("trusted peer key is invalid")
-        unsigned = dict(batch)
-        unsigned.pop("auth", None)
-        expected = hmac.new(key, canonical(unsigned).encode("utf-8"), hashlib.sha256).hexdigest()
+        batch_body = dict(batch)
+        batch_body.pop("auth", None)
+        expected = hmac.new(key, canonical(batch_body).encode("utf-8"), hashlib.sha256).hexdigest()
         if not isinstance(mac, str) or not hmac.compare_digest(mac, expected):
             raise PeerAuthError("authentication failed")
-        if unsigned.get("schema") != "HG_SYNC_BATCH_V2" or unsigned.get("context_id") != peer:
-            raise PeerAuthError("signed peer does not match batch origin")
-        events = unsigned.get("events")
+        if batch_body.get("schema") != "HG_SYNC_BATCH_V2" or batch_body.get("context_id") != peer:
+            raise PeerAuthError("authenticated peer does not match batch origin")
+        events = batch_body.get("events")
         if not isinstance(events, list) or not events:
             raise PeerAuthError("empty event batch")
         cp = self.checkpoints.get(peer)
         if cp is None:
             raise PeerAuthError("peer has no trusted origin checkpoint")
         cur = self._cursors.get(peer, cp)
-        # Idempotent re-delivery is accepted only when the signed batch ends at the
+        # Idempotent re-delivery is accepted only when the authenticated batch ends at the
         # exact already-committed cursor. SyncContext still checks every event against
         # the receiver's durable event index and rejects conflicting provenance.
         last = events[-1] if events else None

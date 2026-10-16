@@ -1,8 +1,7 @@
-"""Fail-closed candidate, test-run, artifact, and live-module provenance.
+"""Candidate, test-run, artifact, and live-module integrity evidence.
 
-This module records deterministic identity and linkage. Hashes establish byte
-integrity, not identity or authorization; an external trusted builder/attestor is
-required for authenticated provenance.
+This module records deterministic local identity and linkage. Hashes establish
+byte integrity only; they do not prove who produced or authorized an artifact.
 """
 from __future__ import annotations
 
@@ -257,10 +256,9 @@ def snapshot_candidate(
         "excluded_entries": excluded,
         "policy_sha256": policy_sha,
         "hash_semantics": "SHA-256 binds observed bytes; it does not authenticate identity or authority",
-        "trust_status": "LOCAL_UNATTESTED",
+        "evidence_scope": "LOCAL_ONLY",
         "limitations": [
-            "Git commit/tree metadata and local inventory are local observations, not independently authenticated.",
-            "An external trusted builder/attestor must bind this candidate identity to an authenticated run.",
+            "Git commit/tree metadata and local inventory are observations from this environment.",
             "Excluded generated directories follow the fixed versioned exclusion policy above."
         ],
     }
@@ -291,7 +289,7 @@ def verify_manifest(repo: str | os.PathLike[str], manifest: Mapping[str, Any]) -
         "manifest_id": actual["manifest_id"],
         "inventory_sha256": actual["inventory_sha256"],
         "working_tree_clean": actual["working_tree_clean"],
-        "trust_status": "LOCAL_UNATTESTED",
+        "evidence_scope": "LOCAL_ONLY",
         "reason_codes": [],
     }
 
@@ -390,23 +388,13 @@ def run_test_command(
             "machine": platform.machine(),
         },
         "status": result_status,
-        "external_build_binding": {
-            "provider": "circleci" if os.environ.get("CIRCLE_BUILD_NUM") else None,
-            "build_number": os.environ.get("CIRCLE_BUILD_NUM"),
-            "workflow_id": os.environ.get("CIRCLE_WORKFLOW_ID"),
-            "pipeline_id": os.environ.get("CIRCLE_PIPELINE_ID"),
-            "job": os.environ.get("CIRCLE_JOB"),
-            "commit_sha": os.environ.get("CIRCLE_SHA1"),
-            "project_reponame": os.environ.get("CIRCLE_PROJECT_REPONAME"),
-            "verification": "PROVIDER_ATTESTATION_NOT_CHECKED",
-        },
-        "trust_status": "LOCAL_UNATTESTED",
+        "evidence_scope": "LOCAL_ONLY",
         "reason_codes": [] if result_status == "PASS" else (
             ["PROV_TEST_COMMAND_FAILED"] if return_code != 0 and stable else ["PROV_CHAIN_BROKEN"]
         ),
         "limitations": [
-            "This local runner records linkage but does not cryptographically authenticate its own execution.",
-            "External CI or a trusted attestor must bind the run to its immutable builder identity and commit."
+            "This record binds local source, command, process result, and log bytes only.",
+            "It does not establish remote runtime state or who authorized the run."
         ],
     }
     run_path = out / "test-run.json"
@@ -417,7 +405,7 @@ def run_test_command(
 
 
 def verify_test_run(run_path: str | os.PathLike[str], *, manifest_path: str | os.PathLike[str] | None = None) -> dict[str, Any]:
-    """Verify a saved run record and every referenced artifact; this is not attestation."""
+    """Verify a saved run record and every referenced artifact; local integrity only."""
     raw_path = Path(run_path).expanduser()
     if raw_path.is_symlink():
         raise ProvenanceError(REASON_CODES["UNVERIFIABLE"], "test-run path must not be a symlink")
@@ -475,9 +463,8 @@ def verify_test_run(run_path: str | os.PathLike[str], *, manifest_path: str | os
         "test_run_sha256": actual_hash,
         "artifacts": artifact_results,
         "candidate_binding_status": "PASS" if manifest_path is not None else "UNVERIFIED_NO_MANIFEST",
-        "trust_status": doc.get("trust_status", "UNVERIFIABLE"),
-        "external_build_binding": doc.get("external_build_binding"),
-        "note": "Artifact bytes/linkage verified only; this result does not authenticate the run or prevent replay across registries.",
+        "evidence_scope": doc.get("evidence_scope", "UNKNOWN"),
+        "note": "Artifact bytes and local linkage verified only; this result does not establish remote runtime state or authorization.",
     }
 
 
@@ -587,10 +574,10 @@ def loaded_module_identity(module_names: Sequence[str] | None = None) -> dict[st
     core["module_identity_sha256"] = sha256_bytes(canonical_json(core))
     core["status"] = "OBSERVED_UNMATCHED" if not missing and all(m["disk_sha256"] for m in modules) else "BLOCKED"
     core["source_comparison_status"] = "NOT_RUN_NO_EXPECTED_CODE_FINGERPRINT"
-    core["trust_status"] = "PROCESS_LOCAL_OBSERVATION_UNATTESTED"
+    core["evidence_scope"] = "PROCESS_LOCAL_OBSERVATION"
     core["limitations"] = [
         "Loaded code fingerprint covers Python code objects and selected metadata, not mutable globals, native extensions, or all interpreter state.",
         "disk_sha256 describes the path currently on disk and is not equivalent to loaded_code_inventory_sha256.",
-        "The report is a process-local observation, not a cryptographically authenticated remote attestation."
+        "The report is a process-local observation and does not establish remote process state."
     ]
     return core

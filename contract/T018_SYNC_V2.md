@@ -2,7 +2,7 @@
 
 ## Status
 
-`PROTOTYPE_ONLY`; this contract does not certify production readiness, runtime integration, or live cross-context memory synchronization. Release remains blocked only by applicable technical gates below. Signature, external-attestation, and independent-review gates are out of scope.
+`PROTOTYPE_ONLY`; this contract does not certify production readiness, runtime integration, or live cross-context memory synchronization. Release remains blocked only by applicable technical gates below.
 
 ## Scope
 
@@ -39,7 +39,7 @@ These limitations are blockers for `LIVE_VERIFIED` and production memory synchro
 
 ## Required production gates
 
-1. Define and implement authenticated peer identity and key provisioning (for example, an approved MAC/key-management contract); no digital-signature or reviewer gate is required.
+1. Define and implement authenticated peer identity and key provisioning (for example, an approved MAC/key-management contract).
 2. Define a trusted initial origin checkpoint and per-origin cursor policy; reject gaps and forks against the last accepted origin head.
 3. Define data-classification, sharing permissions, retention and conflict-resolution semantics.
 4. Integrate through the single canonical state owner without opening a second independent `StateStore` on the same directory.

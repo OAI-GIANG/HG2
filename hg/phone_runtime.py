@@ -51,7 +51,7 @@ class PhoneRuntime:
 
     def health(self):
         # Report the Python code objects loaded in this process separately from the
-        # current on-disk hashes. This is diagnostic evidence, not remote attestation.
+        # current on-disk hashes. This is diagnostic evidence from the current process only.
         return {"ok": True, "product": "HG", "runtime_id": self.store.runtime_id,
                 "integrity": self.store.verify(), "network_integration": False,
                 "runtime_identity": loaded_module_identity()}

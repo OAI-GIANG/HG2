@@ -26,7 +26,7 @@ explicit lineage, not rewriting history.
 
 CANDIDATE means a structurally complete proposal, not approved knowledge.
 ACCEPTED depends only on the already-existing trust assessment and decision-evidence reference.
-Acceptance uses the existing technical trust assessment and decision-evidence reference. No additional review state or approval authority is introduced. No transition grants tool-execution rights or mutates HG memory.
+Acceptance uses the technical trust assessment and decision-evidence reference. No transition grants tool-execution rights or mutates HG memory.
 
 ## Fail-closed rules
 - Archive SHA-256 proves byte consistency only; it does not prove upstream authenticity,

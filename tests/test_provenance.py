@@ -123,7 +123,7 @@ class ProvenanceTests(unittest.TestCase):
         self.assertEqual(run_doc["stdout"]["sha256"], sha256_bytes((out / "stdout.log").read_bytes()))
         self.assertEqual(run_doc["stderr"]["sha256"], sha256_bytes((out / "stderr.log").read_bytes()))
         self.assertTrue((out / "test-run.json.sha256").is_file())
-        self.assertEqual(run_doc["trust_status"], "LOCAL_UNATTESTED")
+        self.assertEqual(run_doc["evidence_scope"], "LOCAL_ONLY")
         verified = verify_test_run(out / "test-run.json", manifest_path=manifest_path)
         self.assertEqual(verified["evidence_integrity_status"], "PASS")
         self.assertEqual(verified["candidate_binding_status"], "PASS")
@@ -212,7 +212,7 @@ class ProvenanceTests(unittest.TestCase):
         result = loaded_module_identity(("hg.provenance", "hg.history"))
         self.assertEqual(result["status"], "OBSERVED_UNMATCHED")
         self.assertEqual(result["source_comparison_status"], "NOT_RUN_NO_EXPECTED_CODE_FINGERPRINT")
-        self.assertEqual(result["trust_status"], "PROCESS_LOCAL_OBSERVATION_UNATTESTED")
+        self.assertEqual(result["evidence_scope"], "PROCESS_LOCAL_OBSERVATION")
         for module in result["modules"]:
             self.assertRegex(module["disk_sha256"], r"^[0-9a-f]{64}$")
             self.assertRegex(module["loaded_code_inventory_sha256"], r"^[0-9a-f]{64}$")
@@ -225,7 +225,7 @@ class ProvenanceTests(unittest.TestCase):
         identity = health["runtime_identity"]
         self.assertEqual(identity["status"], "OBSERVED_UNMATCHED")
         self.assertEqual(identity["pid"], os.getpid())
-        self.assertEqual(identity["trust_status"], "PROCESS_LOCAL_OBSERVATION_UNATTESTED")
+        self.assertEqual(identity["evidence_scope"], "PROCESS_LOCAL_OBSERVATION")
         self.assertFalse(identity["missing_modules"])
         self.assertTrue(all(row["disk_sha256"] for row in identity["modules"]))
 

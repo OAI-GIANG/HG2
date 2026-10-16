@@ -133,7 +133,7 @@ class SyncContext:
         if os.path.islink(path) or not os.path.isfile(path) or os.path.realpath(path) != path:
             raise SyncError("batch file missing or unsafe")
         if _authenticated_batch is not None:
-            # Authenticated path passes the exact parsed object whose signature was
+            # Authenticated path passes the exact parsed object whose authentication tag was
             # verified; do not reopen the inbox file and create a verify/import TOCTOU.
             batch, raw = _authenticated_batch, _authenticated_raw
             if not isinstance(raw, bytes):
@@ -254,7 +254,7 @@ class SyncContext:
 
         Crash semantics: import writes idempotent per-event envelopes before cursor commit.
         If the process dies after any append but before cursor persistence, retrying the same
-        signed batch revalidates from the old cursor; already-imported event IDs are skipped,
+        authenticated batch revalidates from the old cursor; already-imported event IDs are skipped,
         remaining events are appended, and only then is the cursor advanced. The caller must
         supply a gate with a receiver-owned cursor path distinct from the StateStore directory.
         """

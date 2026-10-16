@@ -48,7 +48,7 @@ def command_snapshot(args) -> int:
         "manifest_file_sha256": sha256_bytes(raw),
         "inventory_entries": manifest["inventory_entry_count"],
         "working_tree_clean": manifest["working_tree_clean"],
-        "trust_status": manifest["trust_status"],
+        "evidence_scope": manifest["evidence_scope"],
         "output": str(output),
     }
     print(json.dumps(receipt, sort_keys=True, indent=2))
