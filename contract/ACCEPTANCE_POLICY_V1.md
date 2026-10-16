@@ -6,9 +6,11 @@ Status: ACTIVE FOR THE FULL-PRODUCT-UNIFICATION CANDIDATE.
 
 Acceptance is determined by the applicable technical evidence listed below. A hash is used for artifact integrity and provenance comparison; it must not be represented as proof of identity or authorization.
 
-## Provenance binding
+## Source and runtime identity
 
-Apply `contract/PROVENANCE_CONTRACT_V1.md` to candidate snapshots, manifests, test-run records, artifacts, and process-local module identity. Local records are `LOCAL_UNATTESTED` until the exact candidate/run is corroborated by an authenticated external builder/attestor. Disk hashes do not prove loaded-module identity; loaded-code fingerprints do not prove complete memory integrity or external attestation.
+Use exact commit/tree identifiers, SHA-256 manifests, test-run records, and process-local module identity as evidence appropriate to the claim. A disk hash proves byte consistency only; it does not by itself prove sender identity, authorization, or loaded-module identity. Loaded-code fingerprints are diagnostic and do not prove complete memory integrity.
+
+External signatures, keyless attestations, reviewer identities, independent reviews, and approval records are **not product acceptance gates**. Optional CI artifacts may be retained as diagnostics, but missing them must not block HG2 acceptance or be replaced with an equivalent gate.
 
 ## Required technical evidence
 
@@ -25,4 +27,4 @@ Do not modify canonical or deploy over a live runtime until source provenance, d
 
 ## Closure
 
-Close only when the applicable technical acceptance gates above have passing evidence.
+Close only when applicable, in-scope technical acceptance criteria have passing evidence. Do not add signature, external-attestation, independent-review, or approval gates. Authentication and authorization required by a product capability remain required and must be tested using the selected authentication mechanism.

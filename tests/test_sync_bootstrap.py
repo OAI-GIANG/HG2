@@ -4,7 +4,7 @@ from pathlib import Path
 
 from hg.history import StateStore
 from hg.phone_runtime import PhoneRuntime
-from hg.sync_auth import KeyManagementInterface, PeerAuthError, sign_batch
+from hg.sync_auth import KeyManagementInterface, PeerAuthError, authenticate_batch
 from hg.sync_bootstrap import create_authenticated_runtime
 
 ZERO='0'*64
@@ -27,13 +27,13 @@ class EphemeralProvider(KeyManagementInterface):
 def peer_config(context_id, peer_id, key_id, checkpoint):
     return {'context_id':context_id,'trusted_peers':[{'peer_id':peer_id,'key_id':key_id,'checkpoint':checkpoint}]}
 
-def signed_transfer(sender, receiver, origin, key_id, key, provider, name):
+def authenticated_transfer(sender, receiver, origin, key_id, key, provider, name):
     published=sender.publish_sync_event('bootstrap.probe', {'from':origin,'nonce':secrets.token_hex(8)})
     src=Path(sender.sync_context.spool)/'outbox'/published['file']
     batch=json.loads(src.read_text())
-    signed=sign_batch(batch,peer_id=origin,key_id=key_id,key_provider=provider)
+    authenticated=authenticate_batch(batch,peer_id=origin,key_id=key_id,key_provider=provider)
     inbox=Path(receiver.sync_context.spool)/'inbox'/name
-    inbox.write_text(json.dumps(signed,separators=(',',':')))
+    inbox.write_text(json.dumps(authenticated,separators=(',',':')))
     return receiver.import_authenticated_batch(name)
 
 class BootstrapTests(unittest.TestCase):
@@ -81,8 +81,8 @@ class BootstrapTests(unittest.TestCase):
             out_b=b.publish_sync_event('bootstrap.probe',{'origin':'b'})
             def stage(sender,receiver,out,origin,keyid,key,provider,name):
                 batch=json.loads((Path(sender.sync_context.spool)/'outbox'/out['file']).read_text())
-                signed=sign_batch(batch,peer_id=origin,key_id=keyid,key_provider=provider)
-                (Path(receiver.sync_context.spool)/'inbox'/name).write_text(json.dumps(signed,separators=(',',':')))
+                authenticated=authenticate_batch(batch,peer_id=origin,key_id=keyid,key_provider=provider)
+                (Path(receiver.sync_context.spool)/'inbox'/name).write_text(json.dumps(authenticated,separators=(',',':')))
                 return receiver.import_authenticated_batch(name)
             rb=stage(a,b,out_a,'a','ka',ka,pa,'a-to-b.json')
             ra=stage(b,a,out_b,'b','kb',kb,pb,'b-to-a.json')
@@ -105,8 +105,8 @@ class BootstrapTests(unittest.TestCase):
             receiver=create_authenticated_runtime(state_dir=d+'/receiver',spool_dir=d+'/receiver-spool',cursor_path=d+'/receiver-cursor/c.json',config=config,key_provider=provider,cursor_anchor=anchor)
             out=sender.publish_sync_event('bootstrap.crash',{'n':1})
             batch=json.loads((Path(sender.sync_context.spool)/'outbox'/out['file']).read_text())
-            signed=sign_batch(batch,peer_id='a',key_id='ka',key_provider=EphemeralProvider({('a','ka'):key}))
-            name='crash.json'; (Path(receiver.sync_context.spool)/'inbox'/name).write_text(json.dumps(signed,separators=(',',':')))
+            authenticated=authenticate_batch(batch,peer_id='a',key_id='ka',key_provider=EphemeralProvider({('a','ka'):key}))
+            name='crash.json'; (Path(receiver.sync_context.spool)/'inbox'/name).write_text(json.dumps(authenticated,separators=(',',':')))
             gate=receiver.authenticated_sync_gate; original=gate.commit
             def crash(_): raise OSError('injected crash before cursor commit')
             gate.commit=crash
@@ -116,7 +116,7 @@ class BootstrapTests(unittest.TestCase):
             self.assertTrue(receiver.store.verify()['ok'])
             # Re-create runtime against same isolated store/cursor; re-delivery is idempotent.
             receiver2=create_authenticated_runtime(state_dir=d+'/receiver',spool_dir=d+'/receiver-spool',cursor_path=d+'/receiver-cursor/c.json',config=config,key_provider=provider,cursor_anchor=anchor)
-            (Path(receiver2.sync_context.spool)/'inbox'/name).write_text(json.dumps(signed,separators=(',',':')))
+            (Path(receiver2.sync_context.spool)/'inbox'/name).write_text(json.dumps(authenticated,separators=(',',':')))
             result=receiver2.import_authenticated_batch(name)
             self.assertEqual(len(result['duplicates']),1)
             self.assertEqual(len([r for r in receiver2.store.replay() if r['event_type']=='sync.received']),1)

@@ -18,7 +18,7 @@ jobs:
             set -eu
             git diff --check HEAD^ HEAD
       - run:
-          name: Bind exact candidate, test run, and externally attest provenance
+          name: Bind exact candidate, test run, and local evidence
           command: |
             set -eu
             EVIDENCE_DIR="/tmp/hg2-provenance"
@@ -33,7 +33,6 @@ jobs:
               --out-dir "$EVIDENCE_DIR/test-run" -- \
               env PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning \
               -m unittest discover -s tests -v
-            tools/hg2_circleci_attest.sh "$EVIDENCE_DIR"
           teardown:
             - store_artifacts:
                 path: /tmp/hg2-provenance

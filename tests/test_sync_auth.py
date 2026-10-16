@@ -1,6 +1,6 @@
 import os, tempfile, unittest
 from hg.history import StateStore, digest
-from hg.sync_auth import AuthenticatedBatchGate, PeerAuthError, sign_batch
+from hg.sync_auth import AuthenticatedBatchGate, PeerAuthError, authenticate_batch
 
 KEY = os.urandom(32)  # ephemeral test credential; never persisted
 ZERO = "0" * 64
@@ -42,38 +42,38 @@ class AuthGateTests(unittest.TestCase):
         self.anchor = TestMonotonicAnchor()
         self.gate = AuthenticatedBatchGate(key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}),
             checkpoints={"peer-a":self.checkpoint}, cursor_path=self.cursor, cursor_anchor=self.anchor)
-    def signed(self):
-        return sign_batch(self.batch, peer_id="peer-a", key_id="k1", key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}))
-    def test_valid_signature_and_checkpoint_chain(self):
-        p=self.gate.verify(self.signed()); self.assertEqual(p["seq"],self.batch["events"][0]["origin_seq"]); self.gate.commit(p)
+    def authenticated(self):
+        return authenticate_batch(self.batch, peer_id="peer-a", key_id="k1", key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}))
+    def test_valid_authenticated_batch_and_checkpoint_chain(self):
+        p=self.gate.verify(self.authenticated()); self.assertEqual(p["seq"],self.batch["events"][0]["origin_seq"]); self.gate.commit(p)
         restarted=AuthenticatedBatchGate(key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}),
             checkpoints={"peer-a":self.checkpoint},cursor_path=self.cursor,cursor_anchor=self.anchor)
         self.assertEqual(restarted._cursors["peer-a"]["seq"],self.batch["events"][0]["origin_seq"])
     def test_unknown_peer_rejected(self):
         with self.assertRaisesRegex(PeerAuthError,"untrusted peer"):
-            self.gate.verify(sign_batch(make_batch(),peer_id="stranger",key_id="k1",key_provider=EphemeralTestKeyProvider({"stranger":{"k1":KEY}})))
+            self.gate.verify(authenticate_batch(make_batch(),peer_id="stranger",key_id="k1",key_provider=EphemeralTestKeyProvider({"stranger":{"k1":KEY}})))
     def test_tamper_rejected(self):
-        b=self.signed(); b["events"][0]["payload"]["note"]="tampered"
+        b=self.authenticated(); b["events"][0]["payload"]["note"]="tampered"
         with self.assertRaisesRegex(PeerAuthError,"authentication failed"): self.gate.verify(b)
     def test_replay_rejected_after_commit(self):
-        b=self.signed(); self.gate.commit(self.gate.verify(b))
+        b=self.authenticated(); self.gate.commit(self.gate.verify(b))
         proposal=self.gate.verify(b)
         self.assertTrue(proposal["duplicate"])
     def test_fork_rejected(self):
         b=make_batch(); b["events"][0]["origin_prev_hash"]="1"*64
-        b=sign_batch(b,peer_id="peer-a",key_id="k1",key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}))
+        b=authenticate_batch(b,peer_id="peer-a",key_id="k1",key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}))
         with self.assertRaisesRegex(PeerAuthError,"origin fork"): self.gate.verify(b)
     def test_gap_rejected(self):
         b=make_batch(); b["events"][0]["origin_seq"] += 1
-        b=sign_batch(b,peer_id="peer-a",key_id="k1",key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}))
+        b=authenticate_batch(b,peer_id="peer-a",key_id="k1",key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}))
         with self.assertRaisesRegex(PeerAuthError,"sequence gap"): self.gate.verify(b)
     def test_missing_checkpoint_rejected(self):
         gate=AuthenticatedBatchGate(key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}),checkpoints={},cursor_path=os.path.join(self.td.name,"empty-checkpoint.json"),cursor_anchor=TestMonotonicAnchor())
-        with self.assertRaisesRegex(PeerAuthError,"no trusted origin checkpoint"): gate.verify(self.signed())
+        with self.assertRaisesRegex(PeerAuthError,"no trusted origin checkpoint"): gate.verify(self.authenticated())
     def test_short_key_rejected(self):
-        with self.assertRaisesRegex(PeerAuthError,"256 bits"): sign_batch(make_batch(),peer_id="peer-a",key_id="k1",key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":b"short"}}))
+        with self.assertRaisesRegex(PeerAuthError,"256 bits"): authenticate_batch(make_batch(),peer_id="peer-a",key_id="k1",key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":b"short"}}))
     def test_cursor_restart_rejects_replay(self):
-        b=self.signed(); self.gate.commit(self.gate.verify(b))
+        b=self.authenticated(); self.gate.commit(self.gate.verify(b))
         restarted=AuthenticatedBatchGate(key_provider=EphemeralTestKeyProvider({"peer-a":{"k1":KEY}}),
             checkpoints={"peer-a":self.checkpoint},cursor_path=self.cursor,cursor_anchor=self.anchor)
         self.assertTrue(restarted.verify(b)["duplicate"])
@@ -110,7 +110,7 @@ class AuthGateTests(unittest.TestCase):
             checkpoints={"peer-a":self.checkpoint},cursor_path=self.cursor,cursor_anchor=self.anchor)
         self.assertEqual(gate._cursors["peer-a"],self.checkpoint)
     def test_rollback_to_older_valid_cursor_is_detected_and_repaired_from_anchor(self):
-        proposal=self.gate.verify(self.signed()); self.gate.commit(proposal)
+        proposal=self.gate.verify(self.authenticated()); self.gate.commit(proposal)
         committed=dict(self.gate._cursors["peer-a"])
         # Restore the old, internally valid checkpoint cursor while independent anchor stays advanced.
         with open(self.cursor, "w", encoding="utf-8") as f:
@@ -121,7 +121,7 @@ class AuthGateTests(unittest.TestCase):
         self.assertTrue(restarted.cursor_recovered_from_anchor)
         self.assertEqual(restarted._cursors["peer-a"],committed)
     def test_crash_after_anchor_advance_before_cursor_write_recovers_on_restart(self):
-        proposal=self.gate.verify(self.signed())
+        proposal=self.gate.verify(self.authenticated())
         original_persist=self.gate._persist
         self.gate._persist=lambda _data: (_ for _ in ()).throw(OSError("injected cursor write failure"))
         with self.assertRaisesRegex(OSError,"cursor write failure"):

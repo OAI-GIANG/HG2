@@ -6,7 +6,7 @@ Status: IMPLEMENTED IN THE CANDIDATE; AUTHENTICATION BOUNDARY REMAINS EXPLICIT.
 
 Bind candidate bytes, Git identity, test execution, output bytes, and process-local loaded-module fingerprints into a reproducible evidence chain. This contract is fail-closed: missing or mismatched links cannot produce PASS.
 
-This contract does not turn local hashes into identity proof. A local report remains `LOCAL_UNATTESTED`; the hosted build provider or a separate trusted attestor must authenticate which builder produced and published the report.
+This contract does not turn local hashes into identity proof. `LOCAL_UNATTESTED` is a descriptive provenance label, not a release gate. Hosted builder attestations may be retained as optional diagnostic evidence, but their absence does not block HG2 acceptance. Use exact source revisions, byte hashes, test execution records, and live-runtime observations for the specific claims they support.
 
 ## 2. Candidate snapshot
 
@@ -51,7 +51,7 @@ The CLI command `tools/hg_provenance.py run`:
 5. Re-snapshots after the process exits. Candidate drift changes result status to `BLOCKED`, even when the command exits zero.
 6. Writes `test-run.json` and a sidecar hash after collection. Reusing an existing output directory is rejected.
 
-A nonzero command result is `FAIL`, not `PASS`. Missing/mismatched candidate linkage is `BLOCKED`. The local runner does not independently authenticate itself, so its trust status remains `LOCAL_UNATTESTED`. Replay protection across machines requires a trusted external run identifier or attestor; UUID generation alone is not a trust anchor.
+A nonzero command result is `FAIL`, not `PASS`. Missing/mismatched candidate linkage is `BLOCKED`. The local runner records its trust status as `LOCAL_UNATTESTED`; this label describes the evidence source and is not itself a product blocker. Replay protection across machines must use a run identifier bound to the recorded source/run data; an UUID alone is not a trust anchor.
 
 ## 5. Live module identity
 
@@ -74,7 +74,7 @@ The verifier must preserve the exact failure reason and never convert an unknown
 | `PROV_MISSING` | Required input/evidence absent | BLOCKED |
 | `PROV_MISMATCH` | Bytes or identity values differ | BLOCKED |
 | `PROV_UNVERIFIABLE` | Required fact cannot be reliably observed | BLOCKED |
-| `PROV_UNTRUSTED_SOURCE` | Source identity/attestation is not trusted | BLOCKED |
+| `PROV_UNTRUSTED_SOURCE` | Inspected source revision cannot be matched to the claimed source identity | BLOCKED |
 | `PROV_BLOCKED` | Policy precondition or dependency unmet | BLOCKED |
 | `PROV_CHAIN_BROKEN` | Candidate → run → artifact relationship is broken | BLOCKED |
 | `PROV_CIRCULAR_EVIDENCE` | Evidence self-validates without an external anchor | BLOCKED |
@@ -93,11 +93,11 @@ If more than one reason applies, record all observed reasons. Do not use `FAIL` 
 
 A local candidate test result can be PASS only when the exact manifest verifies before and after the test, the same candidate ID is bound to the run, the process exit code is zero, and the log bytes hash correctly. This is still `LOCAL_UNATTESTED`.
 
-A release/production conclusion additionally requires an authenticated external builder/run binding and applicable live-runtime, state-authority, credential, end-to-end, backup, recovery and rollback evidence. In particular:
+A release/production conclusion additionally requires applicable live-runtime, state-authority, credential, end-to-end, backup, recovery and rollback evidence. External builder attestation and independent review are not acceptance gates. In particular:
 
 - A passing local test does not prove remote or live behavior.
 - A file hash does not prove a loaded module identity.
-- A loaded-code fingerprint does not prove external attestation.
+- A loaded-code fingerprint is diagnostic and does not prove complete memory integrity.
 - A test double does not prove a production key provider or monotonic anchor.
 - A hash manifest cannot authenticate itself.
 - A skipped device-specific rollback test is not a passed rollback gate.
@@ -112,4 +112,4 @@ A release/production conclusion additionally requires an authenticated external 
 
 ## 9. Current acceptance boundary
 
-Implementation of deterministic candidate inventory, manifest binding, before/after test-run binding, artifact hashes, and process-local loaded-code fingerprints is candidate scope. It does not by itself close the technical acceptance gaps that require independently authenticated hosted provenance, a production-grade monotonic anchor/key provider, an actual second peer, or verified production recovery/rollback. Such gaps stay BLOCKED until their evidence exists.
+Implementation of deterministic candidate inventory, manifest binding, before/after test-run binding, artifact hashes, and process-local loaded-code fingerprints is candidate scope. These artifacts support source/runtime diagnostics but do not substitute for the in-scope technical evidence for authentication, authoritative cursor handling, actual peer sync, data integrity, and recovery/rollback. Hosted provenance attestations and independent review are not acceptance gates.

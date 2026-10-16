@@ -2,7 +2,7 @@
 import hashlib, json, os, shutil, tarfile, tempfile, unittest
 from hg.history import StateStore, digest
 from hg.sync import SyncContext, SyncError
-from hg.sync_auth import AuthenticatedBatchGate, PeerAuthError, sign_batch
+from hg.sync_auth import AuthenticatedBatchGate, PeerAuthError, authenticate_batch
 
 ZERO = "0" * 64
 class EphemeralTestKeyProvider:
@@ -34,7 +34,7 @@ class Harness:
         with open(src,"rb") as stream: raw=stream.read()
         batch=json.loads(raw)
         ev=batch["events"][0]
-        signed=sign_batch(batch,peer_id=origin,key_id="k1",key_provider=EphemeralTestKeyProvider({origin:{"k1":self.keys[origin]}}))
+        authenticated=authenticate_batch(batch,peer_id=origin,key_id="k1",key_provider=EphemeralTestKeyProvider({origin:{"k1":self.keys[origin]}}))
         # The trust checkpoint is the known predecessor of the first exported event.
         anchor_key=receiver.context_id+"-"+origin
         anchor=self.anchors.setdefault(anchor_key,TestMonotonicAnchor())
@@ -43,8 +43,8 @@ class Harness:
           checkpoints={origin:checkpoint},
           cursor_path=os.path.join(self.root,"cursor-"+receiver.context_id+"-"+origin,"cursor.json"),cursor_anchor=anchor)
         name=out["file"]
-        with open(os.path.join(receiver.spool,"inbox",name),"wb") as f: f.write(json.dumps(signed,sort_keys=True,separators=(",",":")).encode())
-        return name, signed, gate, raw
+        with open(os.path.join(receiver.spool,"inbox",name),"wb") as f: f.write(json.dumps(authenticated,sort_keys=True,separators=(",",":")).encode())
+        return name, authenticated, gate, raw
     def integrity(self):
         for store in (self.sa,self.sb):
             self.assert_store(store)
@@ -106,13 +106,13 @@ class AuthenticatedTransactionTests(unittest.TestCase):
         first=self.h.a.local_event("note.created",{"n":1})
         second=self.h.a.local_event("note.created",{"n":2})
         batch={"schema":"HG_SYNC_BATCH_V2","context_id":"a","created_at":1,"events":[first,second]}
-        signed=sign_batch(batch,peer_id="a",key_id="k1",key_provider=EphemeralTestKeyProvider({"a":{"k1":self.h.keys["a"]}}))
+        authenticated=authenticate_batch(batch,peer_id="a",key_id="k1",key_provider=EphemeralTestKeyProvider({"a":{"k1":self.h.keys["a"]}}))
         checkpoint={"seq":first["origin_seq"]-1,"hash":first["origin_prev_hash"]}
         cursor=os.path.join(self.tmp.name,"cursor-b-a","cursor.json")
         test_anchor=TestMonotonicAnchor()
         gate=AuthenticatedBatchGate(key_provider=EphemeralTestKeyProvider({"a":{"k1":self.h.keys["a"]}}),checkpoints={"a":checkpoint},cursor_path=cursor,cursor_anchor=test_anchor)
         name="two-event-crash.json"
-        with open(os.path.join(self.h.b.spool,"inbox",name),"w") as f: json.dump(signed,f)
+        with open(os.path.join(self.h.b.spool,"inbox",name),"w") as f: json.dump(authenticated,f)
         emit=self.h.sb.emit; calls={"n":0}
         def fail_second(event_type,payload,**kwargs):
             if event_type=="sync.received":
@@ -152,9 +152,9 @@ class AuthenticatedTransactionTests(unittest.TestCase):
         def transfer(sender,receiver,origin,out):
             src=os.path.join(sender.sync_context.spool,"outbox",out["file"])
             with open(src,"r",encoding="utf-8") as f: batch=json.load(f)
-            signed=sign_batch(batch,peer_id=origin,key_id="k1",key_provider=providers[origin])
+            authenticated=authenticate_batch(batch,peer_id=origin,key_id="k1",key_provider=providers[origin])
             target=os.path.join(receiver.sync_context.spool,"inbox",out["file"])
-            with open(target,"w",encoding="utf-8") as f: json.dump(signed,f,sort_keys=True,separators=(",",":"))
+            with open(target,"w",encoding="utf-8") as f: json.dump(authenticated,f,sort_keys=True,separators=(",",":"))
             return receiver.import_authenticated_batch(out["file"])
         self.assertEqual(transfer(a,b,"a",out_a)["accepted"], [next(r for r in a.store.replay() if r["event_type"]=="note.created")["event_id"]])
         self.assertEqual(transfer(b,a,"b",out_b)["accepted"], [next(r for r in b.store.replay() if r["event_type"]=="note.created")["event_id"]])

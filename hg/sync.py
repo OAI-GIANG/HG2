@@ -276,7 +276,7 @@ class SyncContext:
         if os.path.commonpath((state_dir, cursor_path)) == state_dir:
             raise SyncError("authenticated cursor must be outside StateStore directory")
         proposal = gate.verify(batch)
-        # Validate/import the exact same parsed object whose signature was checked.
+        # Validate/import the exact same parsed object whose authentication tag was checked.
         # import_batch validates every envelope before first write and is idempotent.
         result = self.import_batch(path_or_name, _authenticated_batch=batch, _authenticated_raw=raw)
         # Cursor is durable only after every event has been imported or confirmed duplicate.

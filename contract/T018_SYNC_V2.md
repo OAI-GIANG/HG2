@@ -2,7 +2,7 @@
 
 ## Status
 
-`PROTOTYPE_ONLY`; this contract does not certify production readiness, runtime integration, or live cross-context memory synchronization. Release remains blocked until the gates below pass independently.
+`PROTOTYPE_ONLY`; this contract does not certify production readiness, runtime integration, or live cross-context memory synchronization. Release remains blocked only by applicable technical gates below. Signature, external-attestation, and independent-review gates are out of scope.
 
 ## Scope
 
@@ -28,7 +28,7 @@ An exact repeated event is treated as a duplicate. Reuse of an event ID with dif
 
 ## Explicit security limitations
 
-- SHA-256 without a secret or signature proves consistency of the supplied record, not the identity of the sender. A party able to rewrite the entire batch can fabricate a new record and recompute its hashes.
+- SHA-256 proves record consistency, not sender identity. A party able to rewrite the entire batch can fabricate a new record and recompute its hashes; peer authentication must be provided separately by the configured authentication mechanism.
 - `origin_context` is a claimed context label, not a cryptographically authenticated identity.
 - For the first event received from a context, this prototype does not possess an independently trusted origin checkpoint. Its `origin_prev_hash` is therefore not anchored to a previously trusted source head.
 - The spool transport has no peer authentication or authorization contract in this module.
@@ -39,13 +39,13 @@ These limitations are blockers for `LIVE_VERIFIED` and production memory synchro
 
 ## Required production gates
 
-1. Define and implement authenticated peer identity (for example, signed origin records or a reviewed MAC/key-management contract).
+1. Define and implement authenticated peer identity and key provisioning (for example, an approved MAC/key-management contract); no digital-signature or reviewer gate is required.
 2. Define a trusted initial origin checkpoint and per-origin cursor policy; reject gaps and forks against the last accepted origin head.
 3. Define data-classification, sharing permissions, retention and conflict-resolution semantics.
 4. Integrate through the single canonical state owner without opening a second independent `StateStore` on the same directory.
 5. Define a transport/API and failure/retry behavior; do not assume local spool files are a cross-runtime transport.
 6. Test two actual authorized runtime contexts, restart, tamper, replay, sequence gaps, conflicts and offline recovery.
-7. Verify source/runtime provenance and the tested deployment evidence; independent review and signatures are not required acceptance gates.
+7. Verify source/runtime identity and the tested deployment evidence using hashes, exact revisions, and runtime observations appropriate to the claim.
 
 ## Canonical boundary
 

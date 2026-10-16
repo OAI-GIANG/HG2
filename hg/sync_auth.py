@@ -30,7 +30,7 @@ class CursorAnchorInterface(Protocol):
 def _sha(value: object) -> bool:
     return isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
 
-def sign_batch(batch: dict, *, peer_id: str, key_id: str,
+def authenticate_batch(batch: dict, *, peer_id: str, key_id: str,
                key_provider: KeyManagementInterface) -> dict:
     """Return a signed copy using key material obtained only via the key interface."""
     if not callable(getattr(key_provider, "get_peer_key", None)):
@@ -138,7 +138,7 @@ class AuthenticatedBatchGate:
             if os.path.exists(tmp): os.unlink(tmp)
 
     def verify(self, batch: dict) -> dict:
-        """Validate signature and chain; returns proposed cursor without persisting it."""
+        """Validate authentication tag and chain; returns proposed cursor without persisting it."""
         if not isinstance(batch, dict) or not isinstance(batch.get("auth"), dict):
             raise PeerAuthError("missing peer authentication")
         auth = batch["auth"]

@@ -10,7 +10,7 @@ The phone runtime must not equate the presence of a credential string, a non-emp
 
 The host-supplied session_authenticator(credential) must independently validate, using a trusted issuer/configuration and protected replay/revocation state:
 
-1. Credential authenticity and approved issuer/key status. Cryptographic signatures may be one implementation mechanism but are not a project-level acceptance requirement.
+1. Credential authenticity and approved issuer/key status, validated against the trusted issuer/configuration selected for the deployment.
 2. Subject and audience binding to the intended HG2 phone runtime.
 3. Explicit action scope for session.create and least privilege.
 4. Not-before and expiry with a defined clock-skew policy.
