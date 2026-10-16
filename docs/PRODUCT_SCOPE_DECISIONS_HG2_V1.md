@@ -47,7 +47,7 @@ Acceptance criteria: `AC-ID-01` through `AC-ID-05` in the JSON contract.
 
 ## 3. Evidence status at record creation
 
-Implementation-level tests above remain `BLOCKED_NOT_RUN` until their required sources/routers/fixtures are available and the test is implemented and executed, except `T-ID-01`, which passed locally before the first commit. That local result is not a substitute for independent verification of the exact candidate SHA and CI. A passing contract-record test proves only that this decision record is structurally consistent; it does not pass the implementation gates.
+Implementation-level tests above remain `BLOCKED_NOT_RUN` until their required sources/routers/fixtures are available and the test is implemented and executed, except `T-ID-01`, which passed locally before the first commit. That local result is not a substitute for tests and CI evidence tied to the exact candidate SHA. A passing contract-record test proves only that this decision record is structurally consistent; it does not pass the implementation gates.
 
 The previously recorded durability tests and CI result apply only to their exact recorded source SHA and do not prove these new scope decisions are implemented. No power-loss test is implied. The governance simplification proposal removes the two previously mandatory governance controls; this does not change any historic evidence record.
 
@@ -59,4 +59,4 @@ Historical source and commit metadata remain recorded as originally observed. Th
 - Production authentication and applicable VPS/HTTPS/device E2E: `BLOCKED` until supported by evidence.
 - No merge, deploy, canonical branch mutation, repository/branch archive or deletion, or history rewrite is authorized by these choices.
 
-**Current conclusion: `BLOCKED / NO-GO`.** The Owner's scope decisions are recorded; implementation, test, and production evidence remain separate technical gates; independent review and signatures are not acceptance gates.
+**Current conclusion: `BLOCKED / NO-GO`.** The Owner's scope decisions are recorded; implementation, test, and production evidence remain separate technical gates.

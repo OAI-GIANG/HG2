@@ -2,12 +2,9 @@
 
 Status: ACTIVE FOR THE FULL-PRODUCT-UNIFICATION CANDIDATE.
 
-## Explicit exclusions
+## Acceptance basis
 
-- Independent review is not a required acceptance gate.
-- Commit signatures, reviewer signatures, signed attestations, and signature-based approval are not required acceptance gates.
-- Absence of an independent reviewer or signature must not block a candidate or product acceptance.
-- A hash is used for artifact integrity and provenance comparison; it must not be represented as proof of identity or authorization.
+Acceptance is determined by the applicable technical evidence listed below. A hash is used for artifact integrity and provenance comparison; it must not be represented as proof of identity or authorization.
 
 ## Required technical evidence
 
@@ -20,8 +17,8 @@ Status: ACTIVE FOR THE FULL-PRODUCT-UNIFICATION CANDIDATE.
 
 ## Change/deployment safety
 
-Do not modify canonical or deploy over a live runtime until source provenance, data inventory, a recoverable backup, and rollback steps have been verified. This is a technical safety gate, not a review or signature gate.
+Do not modify canonical or deploy over a live runtime until source provenance, data inventory, a recoverable backup, and rollback steps have been verified. This is a technical safety gate.
 
 ## Closure
 
-Close only when the applicable technical acceptance gates above have passing evidence. Do not introduce reviewer identity, independent-review or signature requirements.
+Close only when the applicable technical acceptance gates above have passing evidence.

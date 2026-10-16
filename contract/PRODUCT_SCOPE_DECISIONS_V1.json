@@ -226,7 +226,7 @@
     "archive_or_delete_repository_or_branch": "FORBIDDEN",
     "history_rewrite": "FORBIDDEN"
   },
-  "evidence_rule": "This record is owner-approved scope only, not implementation or runtime certification. Keep BLOCKED/NO-GO until applicable production and external-impact criteria have evidence tied to the exact candidate SHA. Historical records are retained as facts; neither of the two retired governance controls is required by this scope policy.",
+  "evidence_rule": "This record captures scope only, not implementation or runtime certification. Keep BLOCKED/NO-GO until applicable production and external-impact criteria have evidence tied to the exact candidate SHA. Historical records are retained as facts.",
   "provenance_exceptions": [
     {
       "commit": "b5f49770cba13cd995533cd140b7560d999c441e",
