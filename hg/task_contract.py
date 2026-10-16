@@ -10,7 +10,12 @@ import re
 from datetime import datetime
 from typing import Any
 
+from .authority import ALLOWED as HG_ALLOWED_ACTIONS
+from .authority import FORBIDDEN as HG_FORBIDDEN_ACTIONS
+from .authority import NEEDS_AUTH as HG_AUTH_REQUIRED_ACTIONS
+
 SCHEMA_VERSION = "hg.task-contract.v1"
+AUTHORITY_POLICY_REF = "policy:HG_AUTHORITY_V1"
 MAX_CONTRACT_BYTES = 256_000
 MAX_TASKS = 2_000
 MAX_DEPENDENCIES_PER_TASK = 2_000
@@ -31,7 +36,7 @@ REQUIRED_FIELDS = TOP_LEVEL_FIELDS
 OBJECT_FIELDS = {
     "scope": frozenset({"include", "exclude"}),
     "next_action": frozenset({"action_id", "description", "preconditions", "on_blocked"}),
-    "authorization_requirement": frozenset({"policy_ref", "action", "approval_required", "scope_ref"}),
+    "authorization_requirement": frozenset({"policy_ref", "action", "authenticated_actor_required", "approval_required", "scope_ref"}),
 }
 NESTED_FIELDS = {
     "input": frozenset({"input_id", "description", "source_ref", "required", "validation_rule_refs"}),
@@ -55,14 +60,11 @@ NESTED_REQUIRED = {
 }
 TERMINAL_STATUSES = frozenset({"PASS", "FAIL", "BLOCKED", "INCONCLUSIVE", "NOT_RUN"})
 SEVERITIES = frozenset({"P0", "P1", "P2", "P3", "INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"})
-FORBIDDEN_DECLARED_ACTIONS = frozenset({
-    "file.read", "file.write", "shell.exec", "network.fetch", "deploy",
-    "identity.change", "state.import", "provider.invoke",
-})
-# Must remain in sync with the current HG authority policy; this does not itself grant access.
-DECLARED_ACTION_ALLOWLIST = frozenset({
-    "health.read", "session.create", "edge.register", "edge.heartbeat", "edge.status",
-})
+RISK_SEVERITIES = frozenset({"LOW", "MEDIUM", "HIGH", "CRITICAL"})
+# Reuse the canonical HG authority policy; this validates declarations but grants no access.
+FORBIDDEN_DECLARED_ACTIONS = HG_FORBIDDEN_ACTIONS
+DECLARED_ACTION_ALLOWLIST = HG_ALLOWED_ACTIONS
+AUTHENTICATED_ACTOR_REQUIRED_ACTIONS = HG_AUTH_REQUIRED_ACTIONS
 
 
 class ContractError(ValueError):
@@ -99,7 +101,11 @@ def parse_json_strict(raw: str | bytes) -> dict[str, Any]:
             raise ContractError("CONTRACT_INVALID_JSON", "$", "input is not UTF-8") from exc
     elif not isinstance(raw, str):
         raise ContractError("CONTRACT_INVALID_JSON", "$", "expected str or bytes")
-    if len(raw.encode("utf-8")) > MAX_CONTRACT_BYTES:
+    try:
+        raw_bytes = raw.encode("utf-8", errors="strict")
+    except UnicodeEncodeError as exc:
+        raise ContractError("CONTRACT_INVALID_JSON", "$", "input contains invalid Unicode") from exc
+    if len(raw_bytes) > MAX_CONTRACT_BYTES:
         raise ContractError("CONTRACT_RESOURCE_LIMIT", "$", "contract exceeds byte limit")
     try:
         value = json.loads(raw, object_pairs_hook=_pairs_no_duplicates, parse_constant=_reject_constant)
@@ -126,8 +132,10 @@ def _check_depth(value: Any, depth: int = 0, path: str = "$") -> None:
 
 def canonical_json(value: Any) -> str:
     try:
-        return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
-    except (TypeError, ValueError, RecursionError) as exc:
+        document = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
+        document.encode("utf-8", errors="strict")
+        return document
+    except (TypeError, ValueError, RecursionError, UnicodeError) as exc:
         raise ContractError("CONTRACT_CANONICALIZATION_FAILED", "$", str(exc)) from exc
 
 
@@ -211,9 +219,8 @@ def _check_array_objects(contract: dict[str, Any], field: str) -> list[dict[str,
             "required_capabilities": "capability_id",
         }[field]
         identity = _id(item[id_key], f"{p}.{id_key}")
-        if field != "dependencies":
-            _require(identity not in ids, "CONTRACT_DUPLICATE_ID", f"{p}.{id_key}", "duplicate identifier")
-            ids.add(identity)
+        _require(identity not in ids, "CONTRACT_DUPLICATE_ID", f"{p}.{id_key}", "duplicate identifier")
+        ids.add(identity)
         # Validate by declared field name, not by incidental runtime type.
         field_types = {
             "input": {"input_id": "id", "description": "str", "source_ref": "ref",
@@ -249,6 +256,20 @@ def _check_array_objects(contract: dict[str, Any], field: str) -> list[dict[str,
                 _string_list(v, kp)
             else:
                 _require(False, "CONTRACT_SCHEMA_INVALID", kp, "unsupported schema type")
+        if field == "acceptance_criteria":
+            _require(item["severity"] in SEVERITIES, "CONTRACT_SCHEMA_INVALID", f"{p}.severity", "unknown severity")
+        if field == "risks":
+            _require(item["severity"] in RISK_SEVERITIES, "CONTRACT_SCHEMA_INVALID", f"{p}.severity", "unknown risk severity")
+        if field == "stop_conditions":
+            _require(item["minimum_status"] in TERMINAL_STATUSES, "CONTRACT_SCHEMA_INVALID", f"{p}.minimum_status", "unknown terminal status")
+        if field == "dependencies":
+            _require(item["required_terminal_status"] in TERMINAL_STATUSES,
+                     "CONTRACT_SCHEMA_INVALID", f"{p}.required_terminal_status", "unknown terminal status")
+            _require(item["dependency_kind"] in {"HARD", "SOFT"},
+                     "CONTRACT_SCHEMA_INVALID", f"{p}.dependency_kind", "unknown dependency kind")
+        if field == "required_capabilities":
+            _require(item["required"] is True, "CONTRACT_SCHEMA_INVALID", f"{p}.required",
+                     "optional capability references are not part of contract v1")
         result.append(item)
     return result
 
@@ -293,14 +314,19 @@ def validate_contract(contract: dict[str, Any], *, check_digest: bool = True) ->
 
     auth = _check_object(contract["authorization_requirement"], "$.authorization_requirement",
                          OBJECT_FIELDS["authorization_requirement"], OBJECT_FIELDS["authorization_requirement"])
-    _str(auth["policy_ref"], "$.authorization_requirement.policy_ref", maximum=512)
+    policy_ref = _str(auth["policy_ref"], "$.authorization_requirement.policy_ref", maximum=512)
+    if policy_ref != AUTHORITY_POLICY_REF:
+        raise ContractError("AUTHORITY_POLICY_UNRESOLVED", "$.authorization_requirement.policy_ref", "not the canonical HG authority policy")
     action = _str(auth["action"], "$.authorization_requirement.action", maximum=128)
+    _bool(auth["authenticated_actor_required"], "$.authorization_requirement.authenticated_actor_required")
     _bool(auth["approval_required"], "$.authorization_requirement.approval_required")
     _str(auth["scope_ref"], "$.authorization_requirement.scope_ref", maximum=512)
     if action in FORBIDDEN_DECLARED_ACTIONS:
         raise ContractError("AUTHORIZATION_DENIED", "$.authorization_requirement.action", "action explicitly forbidden by current policy")
     if action not in DECLARED_ACTION_ALLOWLIST:
         raise ContractError("AUTHORIZATION_UNRESOLVED", "$.authorization_requirement.action", "action is not in the current HG allowlist")
+    if action in AUTHENTICATED_ACTOR_REQUIRED_ACTIONS and not auth["authenticated_actor_required"]:
+        raise ContractError("AUTHENTICATION_REQUIRED", "$.authorization_requirement.authenticated_actor_required", "action policy requires an authenticated actor")
     if auth["approval_required"]:
         _require(contract["approval_ref"] is not None, "APPROVAL_REQUIRED", "$.approval_ref")
 

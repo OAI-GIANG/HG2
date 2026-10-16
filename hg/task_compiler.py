@@ -8,10 +8,10 @@ from __future__ import annotations
 import hashlib
 import heapq
 from itertools import islice
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 from .task_contract import (
-    ContractError, MAX_DEPENDENCIES_PER_TASK, MAX_TASKS, TERMINAL_STATUSES,
+    ContractError, MAX_CONTRACT_BYTES, MAX_DEPENDENCIES_PER_TASK, MAX_TASKS, TERMINAL_STATUSES,
     canonical_json, contract_digest, parse_json_strict, validate_contract,
 )
 
@@ -32,15 +32,24 @@ def compile_contract(raw: str | bytes | dict[str, Any]) -> dict[str, Any]:
     exposed as an unresolved prerequisite, not treated as an allow decision.
     """
     try:
-        contract = parse_json_strict(raw) if isinstance(raw, (str, bytes)) else dict(raw)
+        if isinstance(raw, (str, bytes)):
+            contract = parse_json_strict(raw)
+        elif type(raw) is dict:
+            contract = raw
+        else:
+            raise ContractError("CONTRACT_SCHEMA_INVALID", "$", "expected JSON string, bytes, or object")
         validate_contract(contract)
     except ContractError as exc:
         raise CompileError(exc.code, exc.path, exc.detail) from exc
 
     # Capability inventory and approval verification deliberately do not exist in G1.
-    unresolved = ["capability_registry", "approval_verifier"] if (
-        contract["required_capabilities"] or contract["authorization_requirement"]["approval_required"]
-    ) else []
+    unresolved: list[str] = []
+    if contract["required_capabilities"]:
+        unresolved.append("capability_registry")
+    if contract["authorization_requirement"]["authenticated_actor_required"]:
+        unresolved.append("actor_authenticator")
+    if contract["authorization_requirement"]["approval_required"]:
+        unresolved.append("approval_verifier")
     plan_core = {
         "schema_version": "hg.compiled-task-plan.v1",
         "task_id": contract["task_id"],
@@ -64,6 +73,45 @@ def compile_contract(raw: str | bytes | dict[str, Any]) -> dict[str, Any]:
     }
     plan_core["plan_digest"] = hashlib.sha256(canonical_json(plan_core).encode("utf-8")).hexdigest()
     return plan_core
+
+
+def compile_natural_language(
+    request: str,
+    *,
+    draft_provider: Callable[[str], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Compile an NL request via an injected, untrusted draft provider.
+
+    The provider must be configured outside the task payload. Its output is treated as
+    untrusted data and must pass full Task Contract v1 validation. This function performs
+    no network/model call itself and never authorizes or executes the resulting plan.
+    """
+    if not isinstance(request, str) or not request.strip():
+        raise CompileError("TASK_REQUEST_INVALID", "$.request", "request must be nonempty text")
+    try:
+        encoded = request.encode("utf-8", errors="strict")
+    except UnicodeEncodeError as exc:
+        raise CompileError("TASK_REQUEST_INVALID", "$.request", "request is not valid Unicode") from exc
+    if len(encoded) > MAX_CONTRACT_BYTES:
+        raise CompileError("CONTRACT_RESOURCE_LIMIT", "$.request", "request exceeds byte limit")
+    if draft_provider is None:
+        raise CompileError("TASK_DRAFT_PROVIDER_UNAVAILABLE", "$.draft_provider")
+    try:
+        proposed_contract = draft_provider(request)
+    except Exception as exc:
+        raise CompileError("TASK_DRAFT_PROVIDER_ERROR", "$.draft_provider", type(exc).__name__) from exc
+    try:
+        plan = compile_contract(proposed_contract)
+    except CompileError:
+        raise
+    except Exception as exc:
+        raise CompileError("TASK_DRAFT_INVALID", "$.draft_provider", type(exc).__name__) from exc
+    plan.pop("plan_digest", None)
+    plan["source_request_digest"] = hashlib.sha256(encoded).hexdigest()
+    plan["draft_provider_state"] = "UNTRUSTED_PROPOSAL_VALIDATED"
+    plan["executable"] = False
+    plan["plan_digest"] = hashlib.sha256(canonical_json(plan).encode("utf-8")).hexdigest()
+    return plan
 
 
 def compile_task_graph(tasks: Iterable[dict[str, Any]]) -> dict[str, Any]:
@@ -92,6 +140,9 @@ def compile_task_graph(tasks: Iterable[dict[str, Any]]) -> dict[str, Any]:
 
     if any(len(c["dependencies"]) > MAX_DEPENDENCIES_PER_TASK for c in nodes.values()):
         raise CompileError("CONTRACT_RESOURCE_LIMIT", "$.dependencies", "too many dependency edges for one task")
+    max_graph_edges = min(100_000, MAX_TASKS * 10)
+    if sum(len(c["dependencies"]) for c in nodes.values()) > max_graph_edges:
+        raise CompileError("CONTRACT_RESOURCE_LIMIT", "$.dependencies", "total graph edge limit exceeded")
 
     predecessors: dict[str, set[str]] = {task_id: set() for task_id in nodes}
     successors: dict[str, set[str]] = {task_id: set() for task_id in nodes}

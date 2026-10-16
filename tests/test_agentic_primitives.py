@@ -2,14 +2,22 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import sqlite3
+import tempfile
 import unittest
+from contextlib import closing
 from copy import deepcopy
+from pathlib import Path
 
-from hg.task_contract import canonical_json
+from hg.task_contract import canonical_json, contract_digest
+from tests.test_task_contract import make_contract
 from hg.capabilities import CapabilityError, CapabilityRegistry, route_agent
-from hg.evidence import EvidenceError, evidence_digest, validate_evidence_envelope, verify_claim
+from hg.evidence import (EvidenceError, SQLiteEvidenceStore, evidence_digest,
+                         validate_evidence_envelope, verify_claim)
 from hg.transactions import TransactionCoordinatorModel, TransactionError
-from hg.provenance_memory import assess_memory, create_memory_record, detect_memory_conflicts, MemoryError
+from hg.provenance_memory import (SQLiteProvenanceMemoryStore, assess_memory,
+                                  create_memory_record, detect_memory_conflicts, MemoryError)
 from hg.verification_budget import (
     BudgetError, evaluate_verification_result, plan_verification,
 )
@@ -71,6 +79,15 @@ class CapabilityTests(unittest.TestCase):
             CapabilityRegistry([record])
         self.assertEqual(ctx.exception.code, "CAPABILITY_SCHEMA_INVALID")
 
+    def test_expired_capability_fails_even_if_verifier_reports_pass(self):
+        record = valid_capability()
+        record["valid_from"] = "2020-01-01T00:00:00Z"
+        record["expires_at"] = "2021-01-01T00:00:00Z"
+        reg = CapabilityRegistry([record], trust_verifier=lambda item: (True, "TEST_ONLY_TRUST"))
+        result = reg.resolve("local.health", required_version="v1", action="health.read")
+        self.assertFalse(result["allowed"])
+        self.assertEqual(result["reason"], "CAPABILITY_EXPIRED")
+
     def test_unknown_action_not_accepted_as_capability(self):
         record = valid_capability()
         record["actions"] = ["custom.unlisted.action"]
@@ -78,12 +95,47 @@ class CapabilityTests(unittest.TestCase):
             CapabilityRegistry([record])
         self.assertEqual(ctx.exception.code, "CAPABILITY_ACTION_NOT_ALLOWLISTED")
 
+    def test_invalid_timestamp_rejected(self):
+        record = valid_capability()
+        record["valid_from"] = "not-a-time"
+        with self.assertRaises(CapabilityError) as ctx:
+            CapabilityRegistry([record])
+        self.assertEqual(ctx.exception.code, "CAPABILITY_SCHEMA_INVALID")
+
+    def test_trusted_adapter_routes_proposal_but_never_enables_execution(self):
+        reg = CapabilityRegistry([valid_capability()], trust_verifier=lambda record: (True, "TEST_ONLY_TRUST_DECISION"))
+        task = make_contract("route:task")
+        task["required_capabilities"] = [{
+            "capability_id": "local.health", "contract_version": "v1", "required": True,
+        }]
+        task["contract_digest"] = contract_digest(task)
+        result = route_agent(
+            task, available_capability_ids={"local.health"}, capability_registry=reg,
+        )
+        self.assertEqual(result["routing_state"], "ROUTED")
+        self.assertEqual(result["routes"][0]["provider_id"], "provider:phone")
+        self.assertFalse(result["executable"])
+        self.assertIsNone(result["selected_provider"])
+
+    def test_route_blocked_when_task_requires_auth_and_no_auth_verifier(self):
+        task = make_contract("route:auth")
+        task["authorization_requirement"]["action"] = "session.create"
+        task["authorization_requirement"]["authenticated_actor_required"] = True
+        task["contract_digest"] = contract_digest(task)
+        result = route_agent(task, available_capability_ids=set(), capability_registry=CapabilityRegistry([]))
+        self.assertEqual(result["routing_state"], "BLOCKED")
+        self.assertIn("TASK_AUTHORIZATION_VERIFIER_UNAVAILABLE", [r["reason"] for r in result["blocked_requirements"]])
+        self.assertFalse(result["executable"])
+
     def test_router_never_selects_provider(self):
         reg = CapabilityRegistry([valid_capability()])
+        task = make_contract("route:task")
+        task["required_capabilities"] = [{
+            "capability_id": "local.health", "contract_version": "v1", "required": True,
+        }]
+        task["contract_digest"] = contract_digest(task)
         result = route_agent(
-            {"task_id": "task:one", "required_capabilities": [
-                {"capability_id": "local.health", "contract_version": "v1", "required": True}]},
-            available_capability_ids={"local.health"}, capability_registry=reg,
+            task, available_capability_ids={"local.health"}, capability_registry=reg,
         )
         self.assertFalse(result["executable"])
         self.assertIsNone(result["selected_provider"])
@@ -110,6 +162,13 @@ class EvidenceTests(unittest.TestCase):
             validate_evidence_envelope(e)
         self.assertEqual(ctx.exception.code, "EVIDENCE_TRUST_PROMOTION_FORBIDDEN")
 
+    def test_evidence_envelope_resource_limit_enforced(self):
+        e = valid_evidence()
+        e["environment"] = {"large": "x" * 300_000}
+        with self.assertRaises(EvidenceError) as ctx:
+            evidence_digest(e)
+        self.assertEqual(ctx.exception.code, "EVIDENCE_RESOURCE_LIMIT")
+
     def test_digest_tampering_rejected(self):
         e = valid_evidence()
         e["observed_status"] = "FAIL"
@@ -125,6 +184,97 @@ class EvidenceTests(unittest.TestCase):
         with self.assertRaises(EvidenceError) as ctx:
             validate_evidence_envelope(e)
         self.assertEqual(ctx.exception.code, "EVIDENCE_SCHEMA_INVALID")
+
+    def test_sqlite_evidence_store_persists_unverified_envelope(self):
+        with tempfile.TemporaryDirectory(prefix="hg-evidence-test-") as directory:
+            path = str(Path(directory) / "evidence.sqlite3")
+            envelope = valid_evidence()
+            store = SQLiteEvidenceStore(path)
+            result = store.put(envelope)
+            self.assertTrue(result["stored"])
+            self.assertEqual(result["trust_state"], "UNVERIFIED")
+            reopened = SQLiteEvidenceStore(path)
+            self.assertEqual(reopened.get("ev:one"), envelope)
+            self.assertTrue(reopened.verify_event_chain()["ok"])
+            self.assertTrue(reopened.verify_store_integrity()["ok"])
+
+    def test_sqlite_evidence_store_idempotency_and_immutable_id(self):
+        with tempfile.TemporaryDirectory(prefix="hg-evidence-test-") as directory:
+            store = SQLiteEvidenceStore(str(Path(directory) / "evidence.sqlite3"))
+            envelope = valid_evidence()
+            self.assertFalse(store.put(envelope)["idempotent"])
+            self.assertTrue(store.put(envelope)["idempotent"])
+            changed = valid_evidence()
+            changed["test_id"] = "G2-DIFFERENT"
+            changed["envelope_digest"] = evidence_digest(changed)
+            with self.assertRaises(EvidenceError) as ctx:
+                store.put(changed)
+            self.assertEqual(ctx.exception.code, "EVIDENCE_ID_CONFLICT")
+
+    def test_sqlite_evidence_store_malformed_event_json_fails_closed(self):
+        with tempfile.TemporaryDirectory(prefix="hg-evidence-test-") as directory:
+            path = str(Path(directory) / "evidence.sqlite3")
+            store = SQLiteEvidenceStore(path)
+            store.put(valid_evidence())
+            with closing(sqlite3.connect(path)) as db:
+                db.execute("UPDATE hg_evidence_event SET detail_json='not-json' WHERE seq=1")
+                db.commit()
+            result = store.verify_event_chain()
+            self.assertFalse(result["ok"])
+            self.assertEqual(result["reason"], "EVIDENCE_EVENT_DETAIL_INVALID")
+
+    def test_sqlite_evidence_store_event_tampering_detected(self):
+        with tempfile.TemporaryDirectory(prefix="hg-evidence-test-") as directory:
+            path = str(Path(directory) / "evidence.sqlite3")
+            store = SQLiteEvidenceStore(path)
+            store.put(valid_evidence())
+            with closing(sqlite3.connect(path)) as db:
+                db.execute("UPDATE hg_evidence_event SET detail_json='{}' WHERE seq=1")
+                db.commit()
+            result = store.verify_event_chain()
+            self.assertFalse(result["ok"])
+            self.assertEqual(result["reason"], "EVIDENCE_EVENT_CHAIN_DIGEST_MISMATCH")
+            self.assertFalse(store.verify_store_integrity()["ok"])
+
+    def test_sqlite_evidence_store_projection_tampering_detected(self):
+        with tempfile.TemporaryDirectory(prefix="hg-evidence-test-") as directory:
+            path = str(Path(directory) / "evidence.sqlite3")
+            store = SQLiteEvidenceStore(path)
+            store.put(valid_evidence())
+            with closing(sqlite3.connect(path)) as db:
+                db.execute("UPDATE hg_evidence SET source_revision='tampered-revision' WHERE evidence_id='ev:one'")
+                db.commit()
+            result = store.verify_store_integrity()
+            self.assertFalse(result["ok"])
+            self.assertEqual(result["reason"], "EVIDENCE_EVENT_PROJECTION_MISMATCH")
+
+    def test_claim_verifier_reads_durable_evidence_store(self):
+        with tempfile.TemporaryDirectory(prefix="hg-evidence-test-") as directory:
+            store = SQLiteEvidenceStore(str(Path(directory) / "evidence.sqlite3"))
+            store.put(valid_evidence())
+            result = verify_claim(
+                claim_id="claim:sqlite", criterion_id="crit:sqlite", evidence_ids=["ev:one"],
+                evidence_store=store, expected_source_revision="85d57d4",
+                expected_oracle_id="oracle:g2", expected_oracle_version="v1",
+                attestation_verifier=lambda envelope: (True, "TEST_ONLY_DURABLE_ATTESTATION"),
+            )
+            self.assertEqual(result["status"], "UNVERIFIED")
+            self.assertFalse(result["authenticated_provenance"])
+            self.assertTrue(result["attestation_adapter_reported_pass"])
+
+    def test_trusted_attestation_adapter_can_verify_consistent_claim(self):
+        e = valid_evidence()
+        result = verify_claim(
+            claim_id="claim:trusted-test", criterion_id="crit:trusted-test", evidence_ids=["ev:one"],
+            evidence_store={"ev:one": e}, expected_source_revision="85d57d4",
+            expected_oracle_id="oracle:g2", expected_oracle_version="v1",
+            attestation_verifier=lambda envelope: (True, "TEST_ONLY_ATTESTATION_DECISION"),
+        )
+        self.assertEqual(result["status"], "UNVERIFIED")
+        self.assertFalse(result["authenticated_provenance"])
+        self.assertTrue(result["attestation_adapter_reported_pass"])
+        self.assertEqual(result["reason"], "ATTESTATION_ADAPTER_NOT_BOUND_TO_TRUST_ROOT")
+        self.assertIn("TEST_ONLY_ATTESTATION_DECISION", result["attestation_decision_refs"])
 
     def test_source_oracle_mismatch_stays_unverified(self):
         e = valid_evidence()
@@ -191,6 +341,14 @@ class TransactionModelTests(unittest.TestCase):
 
 
 class ProvenanceMemoryTests(unittest.TestCase):
+    def test_invalid_parent_id_type_returns_normalized_memory_error(self):
+        with self.assertRaises(MemoryError) as ctx:
+            create_memory_record(
+                memory_id="memory:bad-parent", statement="claim", source_ref=None, source_digest=None,
+                authority_ref=None, observed_at=None, expires_at=None, parent_memory_ids=[["nested"]],
+            )
+        self.assertEqual(ctx.exception.code, "MEMORY_SCHEMA_INVALID")
+
     def test_missing_provenance_remains_unverified(self):
         record = create_memory_record(
             memory_id="memory:1", statement="claim", source_ref=None, source_digest=None,
@@ -210,6 +368,121 @@ class ProvenanceMemoryTests(unittest.TestCase):
         self.assertEqual(record["trust_level"], "UNVERIFIED")
         self.assertFalse(assess_memory(record, known_authority_refs={"authority:1"})["trusted"])
 
+    def test_configured_provenance_verifier_can_verify_valid_record(self):
+        record = create_memory_record(
+            memory_id="memory:verified-test", statement="claim", source_ref="source:1", source_digest="a"*64,
+            authority_ref="authority:1", observed_at="2026-10-17T00:00:00Z",
+            expires_at="2027-10-17T00:00:00Z", memory_key="deployment-state",
+        )
+        assessment = assess_memory(record, known_authority_refs={"authority:1"},
+                                   provenance_verifier=lambda value: (True, "TEST_ONLY_MEMORY_DECISION"))
+        self.assertFalse(assessment["trusted"])
+        self.assertEqual(assessment["status"], "UNVERIFIED")
+        self.assertTrue(assessment["provenance_adapter_reported_pass"])
+        self.assertIn("PROVENANCE_ADAPTER_NOT_BOUND_TO_TRUST_ROOT", assessment["reasons"])
+
+    def test_memory_record_digest_tampering_is_detected(self):
+        record = create_memory_record(
+            memory_id="memory:3", statement="claim", source_ref="source:1", source_digest="a"*64,
+            authority_ref="authority:1", observed_at="2026-10-17T00:00:00Z",
+            expires_at="2027-10-17T00:00:00Z", memory_key="deployment-state",
+        )
+        record["statement"] = "tampered"
+        assessment = assess_memory(record, known_authority_refs={"authority:1"})
+        self.assertFalse(assessment["trusted"])
+        self.assertIn("MEMORY_RECORD_DIGEST_MISMATCH", assessment["reasons"])
+
+    def test_memory_record_conflicts_are_derived_from_created_records(self):
+        kwargs = dict(source_ref="source:1", source_digest="a"*64, authority_ref="authority:1",
+                      observed_at="2026-10-17T00:00:00Z", expires_at="2027-10-17T00:00:00Z",
+                      memory_key="deployment-state")
+        a = create_memory_record(memory_id="memory:a", statement="old", **kwargs)
+        b = create_memory_record(memory_id="memory:b", statement="new", **kwargs)
+        conflicts = detect_memory_conflicts([a, b])
+        self.assertEqual(len(conflicts), 1)
+        self.assertEqual(conflicts[0]["status"], "CONFLICT_UNRESOLVED")
+
+    def test_sqlite_memory_store_persists_records_and_event_chain(self):
+        with tempfile.TemporaryDirectory(prefix="hg-memory-test-") as directory:
+            path = str(Path(directory) / "memory.sqlite3")
+            record = create_memory_record(
+                memory_id="memory:durable", statement="non-sensitive test fact", source_ref="source:1",
+                source_digest="a"*64, authority_ref="authority:1",
+                observed_at="2026-10-17T00:00:00Z", expires_at="2027-10-17T00:00:00Z",
+                memory_key="test-fact", sensitivity="INTERNAL",
+            )
+            store = SQLiteProvenanceMemoryStore(path)
+            result = store.put(record)
+            self.assertTrue(result["stored"])
+            reopened = SQLiteProvenanceMemoryStore(path)
+            self.assertEqual(reopened.get("memory:durable"), record)
+            self.assertTrue(reopened.verify_event_chain()["ok"])
+            self.assertTrue(reopened.verify_store_integrity()["ok"])
+            self.assertEqual(assess_memory(reopened.get("memory:durable"))["status"], "UNVERIFIED")
+
+    def test_sqlite_memory_store_idempotency_and_conflict_reporting(self):
+        with tempfile.TemporaryDirectory(prefix="hg-memory-test-") as directory:
+            store = SQLiteProvenanceMemoryStore(str(Path(directory) / "memory.sqlite3"))
+            common = dict(source_ref="source:1", source_digest="a"*64, authority_ref="authority:1",
+                          observed_at="2026-10-17T00:00:00Z", expires_at="2027-10-17T00:00:00Z",
+                          memory_key="deployment-state", sensitivity="INTERNAL")
+            first = create_memory_record(memory_id="memory:first", statement="old", **common)
+            second = create_memory_record(memory_id="memory:second", statement="new", **common)
+            self.assertFalse(store.put(first)["idempotent"])
+            self.assertTrue(store.put(first)["idempotent"])
+            added = store.put(second)
+            self.assertTrue(added["conflict"])
+            self.assertEqual(len(store.list_conflicts()), 1)
+            self.assertEqual(store.list_conflicts()[0]["status"], "CONFLICT_UNRESOLVED")
+            self.assertTrue(store.verify_store_integrity()["ok"])
+
+    def test_sqlite_memory_store_refuses_secret_without_encryption_adapter(self):
+        with tempfile.TemporaryDirectory(prefix="hg-memory-test-") as directory:
+            store = SQLiteProvenanceMemoryStore(str(Path(directory) / "memory.sqlite3"))
+            record = create_memory_record(
+                memory_id="memory:secret", statement="classified marker", source_ref="source:1",
+                source_digest="a"*64, authority_ref="authority:1",
+                observed_at="2026-10-17T00:00:00Z", expires_at="2027-10-17T00:00:00Z",
+                memory_key="secret-fact", sensitivity="SECRET",
+            )
+            with self.assertRaises(MemoryError) as ctx:
+                store.put(record)
+            self.assertEqual(ctx.exception.code, "MEMORY_SENSITIVITY_BLOCKED")
+
+    def test_sqlite_memory_store_malformed_event_json_fails_closed(self):
+        with tempfile.TemporaryDirectory(prefix="hg-memory-test-") as directory:
+            path = str(Path(directory) / "memory.sqlite3")
+            store = SQLiteProvenanceMemoryStore(path)
+            record = create_memory_record(
+                memory_id="memory:bad-json", statement="fact", source_ref="source:1", source_digest="a"*64,
+                authority_ref="authority:1", observed_at="2026-10-17T00:00:00Z",
+                expires_at="2027-10-17T00:00:00Z", memory_key="fact", sensitivity="PUBLIC",
+            )
+            store.put(record)
+            with closing(sqlite3.connect(path)) as db:
+                db.execute("UPDATE hg_memory_event SET detail_json='not-json' WHERE seq=1")
+                db.commit()
+            result = store.verify_event_chain()
+            self.assertFalse(result["ok"])
+            self.assertEqual(result["reason"], "MEMORY_EVENT_DETAIL_INVALID")
+
+    def test_sqlite_memory_store_detects_event_tampering(self):
+        with tempfile.TemporaryDirectory(prefix="hg-memory-test-") as directory:
+            path = str(Path(directory) / "memory.sqlite3")
+            store = SQLiteProvenanceMemoryStore(path)
+            record = create_memory_record(
+                memory_id="memory:tamper", statement="fact", source_ref="source:1", source_digest="a"*64,
+                authority_ref="authority:1", observed_at="2026-10-17T00:00:00Z",
+                expires_at="2027-10-17T00:00:00Z", memory_key="fact", sensitivity="PUBLIC",
+            )
+            store.put(record)
+            with closing(sqlite3.connect(path)) as db:
+                db.execute("UPDATE hg_memory_event SET detail_json='{}' WHERE seq=1")
+                db.commit()
+            result = store.verify_event_chain()
+            self.assertFalse(result["ok"])
+            self.assertEqual(result["reason"], "MEMORY_EVENT_CHAIN_DIGEST_MISMATCH")
+
     def test_conflicting_values_reported_not_silently_chosen(self):
         records = [
             {"source_ref": "source:1", "memory_key": "deployment-state", "value_digest": "a"*64},
@@ -221,6 +494,15 @@ class ProvenanceMemoryTests(unittest.TestCase):
 
 
 class VerificationBudgetTests(unittest.TestCase):
+    def test_c0_cannot_be_removed_from_mandatory_floor(self):
+        plan = plan_verification(risk_level="LOW", mandatory_checks=("style",),
+                                 optional_checks=(), available_units=10)
+        self.assertIn("C0", plan.required_checks)
+        self.assertGreaterEqual(plan.mandatory_floor, 2)
+        result = evaluate_verification_result(plan=plan, results={"style": "PASS"}, critical_checks=())
+        self.assertEqual(result["status"], "BLOCKED")
+        self.assertEqual(result["reason"], "CRITICAL_CHECK_NOT_RUN")
+
     def test_low_budget_cannot_skip_mandatory_checks(self):
         plan = plan_verification(risk_level="CRITICAL", mandatory_checks=("C0", "P0"),
                                  optional_checks=("style",), available_units=1)
@@ -240,6 +522,13 @@ class VerificationBudgetTests(unittest.TestCase):
                                  optional_checks=("style", "integration"), available_units=2)
         result = evaluate_verification_result(plan=plan, results={"C0": "PASS"})
         self.assertNotEqual(result["status"], "PASS")
+
+    def test_missing_critical_check_cannot_be_treated_as_pass(self):
+        plan = plan_verification(risk_level="LOW", mandatory_checks=("style",),
+                                 optional_checks=(), available_units=10)
+        result = evaluate_verification_result(plan=plan, results={"style": "PASS"})
+        self.assertEqual(result["status"], "BLOCKED")
+        self.assertEqual(result["reason"], "CRITICAL_CHECK_NOT_RUN")
 
     def test_negative_budget_rejected(self):
         with self.assertRaises(BudgetError):

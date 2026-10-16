@@ -14,7 +14,7 @@ from hg.task_contract import (
     ContractError, SCHEMA_VERSION, canonical_json, contract_digest, parse_json_strict,
     validate_contract,
 )
-from hg.task_compiler import CompileError, compile_contract, compile_task_graph, dependency_gate
+from hg.task_compiler import CompileError, compile_contract, compile_natural_language, compile_task_graph, dependency_gate
 
 
 def make_contract(task_id: str = "task:A", dependencies: list[dict] | None = None) -> dict:
@@ -48,7 +48,8 @@ def make_contract(task_id: str = "task:A", dependencies: list[dict] | None = Non
         "required_capabilities": [],
         "authorization_requirement": {
             "policy_ref": "policy:HG_AUTHORITY_V1", "action": "health.read",
-            "approval_required": False, "scope_ref": "scope:read-only-test",
+            "authenticated_actor_required": False, "approval_required": False,
+            "scope_ref": "scope:read-only-test",
         },
         "created_at": "2026-10-17T10:00:00+00:00",
         "created_by": "test-harness",
@@ -75,6 +76,17 @@ class StrictJsonTests(unittest.TestCase):
     def test_nan_rejected(self):
         with self.assertRaises(ContractError) as ctx:
             parse_json_strict('{"x":NaN}')
+        self.assertEqual(ctx.exception.code, "CONTRACT_INVALID_JSON")
+
+    def test_unpaired_surrogate_rejected_during_canonicalization(self):
+        value = parse_json_strict('{"x":"\\ud800"}')
+        with self.assertRaises(ContractError) as ctx:
+            canonical_json(value)
+        self.assertEqual(ctx.exception.code, "CONTRACT_CANONICALIZATION_FAILED")
+
+    def test_raw_string_with_invalid_unicode_rejected(self):
+        with self.assertRaises(ContractError) as ctx:
+            parse_json_strict('{"x":"' + chr(0xD800) + '"}')
         self.assertEqual(ctx.exception.code, "CONTRACT_INVALID_JSON")
 
     def test_non_object_rejected(self):
@@ -116,6 +128,46 @@ class ContractP0Tests(unittest.TestCase):
         with self.assertRaises(ContractError) as ctx:
             validate_contract(value)
         self.assertEqual(ctx.exception.code, "CONTRACT_REQUIRED_FIELD_MISSING")
+
+    def test_acceptance_criterion_rejects_unknown_severity(self):
+        value = make_contract()
+        value["acceptance_criteria"][0]["severity"] = "P99"
+        value["contract_digest"] = contract_digest(value)
+        with self.assertRaises(ContractError) as ctx:
+            validate_contract(value)
+        self.assertEqual(ctx.exception.code, "CONTRACT_SCHEMA_INVALID")
+
+    def test_dependency_rejects_unknown_terminal_status(self):
+        value = make_contract("B", [{"dependency_task_id": "A", "required_terminal_status": "UNKNOWN",
+                                      "dependency_kind": "HARD"}])
+        value["contract_digest"] = contract_digest(value)
+        with self.assertRaises(ContractError) as ctx:
+            validate_contract(value)
+        self.assertEqual(ctx.exception.code, "CONTRACT_SCHEMA_INVALID")
+
+    def test_dependency_rejects_unknown_kind(self):
+        value = make_contract("B", [{"dependency_task_id": "A", "required_terminal_status": "PASS",
+                                      "dependency_kind": "MAGIC"}])
+        value["contract_digest"] = contract_digest(value)
+        with self.assertRaises(ContractError) as ctx:
+            validate_contract(value)
+        self.assertEqual(ctx.exception.code, "CONTRACT_SCHEMA_INVALID")
+
+    def test_required_capability_cannot_be_marked_optional(self):
+        value = make_contract()
+        value["required_capabilities"] = [{"capability_id": "local.health", "contract_version": "v1", "required": False}]
+        value["contract_digest"] = contract_digest(value)
+        with self.assertRaises(ContractError) as ctx:
+            validate_contract(value)
+        self.assertEqual(ctx.exception.code, "CONTRACT_SCHEMA_INVALID")
+
+    def test_stop_condition_rejects_unknown_terminal_status(self):
+        value = make_contract()
+        value["stop_conditions"][0]["minimum_status"] = "MAYBE_DONE"
+        value["contract_digest"] = contract_digest(value)
+        with self.assertRaises(ContractError) as ctx:
+            validate_contract(value)
+        self.assertEqual(ctx.exception.code, "CONTRACT_SCHEMA_INVALID")
 
     def test_unknown_field_fails(self):
         value = make_contract()
@@ -188,6 +240,14 @@ class ContractP0Tests(unittest.TestCase):
             validate_contract(value)
         self.assertEqual(ctx.exception.code, "AUTHORIZATION_DENIED")
 
+    def test_noncanonical_authority_policy_reference_rejected(self):
+        value = make_contract()
+        value["authorization_requirement"]["policy_ref"] = "policy:attacker-defined"
+        value["contract_digest"] = contract_digest(value)
+        with self.assertRaises(ContractError) as ctx:
+            validate_contract(value)
+        self.assertEqual(ctx.exception.code, "AUTHORITY_POLICY_UNRESOLVED")
+
     def test_unknown_action_not_implicitly_authorized(self):
         value = make_contract()
         value["authorization_requirement"]["action"] = "custom.unlisted.action"
@@ -195,6 +255,24 @@ class ContractP0Tests(unittest.TestCase):
         with self.assertRaises(ContractError) as ctx:
             validate_contract(value)
         self.assertEqual(ctx.exception.code, "AUTHORIZATION_UNRESOLVED")
+
+    def test_action_requiring_authentication_cannot_disable_it(self):
+        value = make_contract()
+        value["authorization_requirement"]["action"] = "session.create"
+        value["authorization_requirement"]["authenticated_actor_required"] = False
+        value["contract_digest"] = contract_digest(value)
+        with self.assertRaises(ContractError) as ctx:
+            validate_contract(value)
+        self.assertEqual(ctx.exception.code, "AUTHENTICATION_REQUIRED")
+
+    def test_action_requiring_authentication_records_unresolved_verifier(self):
+        value = make_contract()
+        value["authorization_requirement"]["action"] = "session.create"
+        value["authorization_requirement"]["authenticated_actor_required"] = True
+        value["contract_digest"] = contract_digest(value)
+        plan = compile_contract(value)
+        self.assertIn("actor_authenticator", plan["unresolved_prerequisites"])
+        self.assertIs(plan["executable"], False)
 
     def test_approval_required_without_reference_rejected(self):
         value = make_contract()
@@ -214,6 +292,35 @@ class ContractP0Tests(unittest.TestCase):
         plan = compile_contract(make_contract())
         self.assertEqual(plan["state"], "VALIDATED")
         self.assertIs(plan["executable"], False)
+
+    def test_natural_language_compiler_requires_configured_provider(self):
+        with self.assertRaises(CompileError) as ctx:
+            compile_natural_language("check history")
+        self.assertEqual(ctx.exception.code, "TASK_DRAFT_PROVIDER_UNAVAILABLE")
+
+    def test_natural_language_draft_is_validated_and_never_executable(self):
+        request = "Create a read-only task contract for validating history."
+        plan = compile_natural_language(request, draft_provider=lambda _request: make_contract("nl:task"))
+        self.assertEqual(plan["state"], "VALIDATED")
+        self.assertEqual(plan["draft_provider_state"], "UNTRUSTED_PROPOSAL_VALIDATED")
+        self.assertIs(plan["executable"], False)
+        self.assertEqual(plan["source_request_digest"], hashlib.sha256(request.encode()).hexdigest())
+
+    def test_natural_language_invalid_draft_rejected(self):
+        def invalid_provider(_request):
+            value = make_contract("nl:bad")
+            value.pop("objective")
+            return value
+        with self.assertRaises(CompileError) as ctx:
+            compile_natural_language("Make a task", draft_provider=invalid_provider)
+        self.assertEqual(ctx.exception.code, "CONTRACT_REQUIRED_FIELD_MISSING")
+
+    def test_natural_language_request_bounded_before_provider(self):
+        called = []
+        with self.assertRaises(CompileError) as ctx:
+            compile_natural_language("x" * (256_001), draft_provider=lambda request: called.append(request))
+        self.assertEqual(ctx.exception.code, "CONTRACT_RESOURCE_LIMIT")
+        self.assertEqual(called, [])
 
     def test_capability_reference_does_not_imply_capability_exists(self):
         value = make_contract()
@@ -267,6 +374,13 @@ class DependencyGraphP0Tests(unittest.TestCase):
     def test_p017_duplicate_task_ids_rejected(self):
         with self.assertRaises(CompileError) as ctx:
             compile_task_graph([make_contract("A"), make_contract("A")])
+        self.assertEqual(ctx.exception.code, "CONTRACT_DUPLICATE_ID")
+
+    def test_duplicate_dependency_reference_rejected(self):
+        a = make_contract("A")
+        b = make_contract("B", [dep("A"), dep("A")])
+        with self.assertRaises(ContractError) as ctx:
+            validate_contract(b)
         self.assertEqual(ctx.exception.code, "CONTRACT_DUPLICATE_ID")
 
     def test_p018_topological_tie_break_is_deterministic(self):
