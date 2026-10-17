@@ -1,0 +1,53 @@
+{
+  "report_schema": "HG2_CIRCULATORY_RESTRUCTURE_EVIDENCE_V1",
+  "status": "PASS",
+  "scope": "circulatory contracts, strict history parsing, opt-in SQLite state/outbox, centralized policy and pure workflow state machine",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-circulatory-architecture-20261018",
+  "tested_commit": "5532fe17d95d40f864614eb87fc7e66ba91d1a83",
+  "tested_tree": "912625f515acfd98aee708650c76b582ab32ec4a",
+  "parent_commit": "2805c2216bd4b32325bbf5b482ff554a1ba48a32",
+  "python": "3.14.6",
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "commands": [
+    {
+      "command": "python -m json.tool manifest.json",
+      "status": "PASS"
+    },
+    {
+      "command": "python -m compileall -q hg tests",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "python -m unittest discover -s tests -v",
+      "status": "PASS",
+      "result": "80 tests passed; exit code 0"
+    }
+  ],
+  "changed_source_file_sha256": {
+    "hg/authority.py": "b6e04eb90bd33193c2fc743ba986aa1f1f800785ea26b2ec8b558b64334e56c6",
+    "hg/policy.py": "fde59271843787649ca7d6483a0d6d35c7146f0134ad78e8f9f2f6468c98dc64",
+    "hg/workflow.py": "a6052beaafda7148ef21e24fadde5ef1a1a26fbe9146b5bf32f2f1b0f331ae9f",
+    "hg/contracts.py": "7d1c99def4f9ad1737007325ac5be6cd772930fda3bae55a513ab949b01ecb78",
+    "hg/history.py": "0d03f24acf1f15b31817cc7e0d4fc3e2dff1b120a8267b245b98c64edbd112db",
+    "hg/sqlite_state.py": "043ba4c69a54b9f1652cb24efa97421f7bd961664a886198896cd32ae257aa7f",
+    "hg/phone_runtime.py": "05cf97a319a6c29a5816b7a8a3aeaeb20fb2e1aa38ff56b8c6aac3498dc2f255",
+    "hg/edge.py": "1d8a53e22ad807eead4297c0095da7aa1d3d5189b5d1e9e8491523fad17c2e52",
+    "tests/test_policy.py": "e44800c67db4578917b50c49abf680c0b1e1886669a423b56aba1e349379eb4c",
+    "tests/test_workflow.py": "80a8e5e845cca540b3d6077cd780a088a0eff9625edef71bd41782bc6370762e",
+    "tests/test_core.py": "dcb9f44d9c4b15d020bdd0d98cf6d5c8b6da4963c798eeafd00b16a1a20e44b0",
+    "tests/test_sqlite_state.py": "c23a2484503925523f5a8e8a59a60c4edd0466aa78030a962dfcaff7da448aa1",
+    "manifest.json": "f2f5facebc7f0bfb857b6b40fef109111c424cee776ddcfdda5d9265ab88caa4",
+    "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md": "91a96cd07449cd80980a7e1f3ce33cc2ea99aac81fb48493dbe90e25292cdb2c"
+  },
+  "limitations": [
+    "SQLiteStateStore is opt-in; legacy remains the default runtime backend.",
+    "Legacy-state migration and recovery drills remain open.",
+    "Workflow state machine and grants/approvals are not yet persisted as first-class projections.",
+    "No APK build/install, deployment, PR creation, or merge was performed."
+  ]
+}
