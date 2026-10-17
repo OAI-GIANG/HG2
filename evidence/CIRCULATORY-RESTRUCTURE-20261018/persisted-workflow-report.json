@@ -1,0 +1,55 @@
+{
+  "report_schema": "HG2_CIRCULATORY_RESTRUCTURE_EVIDENCE_V1",
+  "status": "PASS",
+  "scope": "persisted versioned workflow lifecycle, transactional projections, canonical contracts, outbox and sync dispatcher",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-circulatory-architecture-20261018",
+  "tested_commit": "58631be0b4224beb7ad610730e45749d92b036a2",
+  "tested_tree": "dd3421c69e8fabd15abd76a27a9228ef81403f56",
+  "parent_commit": "83c5f5aba5a6033ab15c8e1835e320960d3aa90f",
+  "python": "3.14.6",
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "commands": [
+    {
+      "command": "python -m json.tool manifest.json",
+      "status": "PASS"
+    },
+    {
+      "command": "python -m compileall -q hg tests",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "python -m unittest discover -s tests -v",
+      "status": "PASS",
+      "result": "89 tests passed; exit code 0"
+    }
+  ],
+  "changed_source_file_sha256": {
+    "hg/authority.py": "b6e04eb90bd33193c2fc743ba986aa1f1f800785ea26b2ec8b558b64334e56c6",
+    "hg/policy.py": "fde59271843787649ca7d6483a0d6d35c7146f0134ad78e8f9f2f6468c98dc64",
+    "hg/workflow.py": "42e6539265afdaae130b5805dfab6bc9022a0016da58946235aab209f5d93f42",
+    "hg/contracts.py": "7d1c99def4f9ad1737007325ac5be6cd772930fda3bae55a513ab949b01ecb78",
+    "hg/history.py": "0d03f24acf1f15b31817cc7e0d4fc3e2dff1b120a8267b245b98c64edbd112db",
+    "hg/sqlite_state.py": "d453f05f0c68035de961e976d0a1983fb356d9f35aafc930a96a5ec6c7652fbe",
+    "hg/sync.py": "a42fb26e1c1421908b1aaa2d7c73939bc46f534064e66c6071ecf560804c02cc",
+    "hg/phone_runtime.py": "05cf97a319a6c29a5816b7a8a3aeaeb20fb2e1aa38ff56b8c6aac3498dc2f255",
+    "hg/edge.py": "1d8a53e22ad807eead4297c0095da7aa1d3d5189b5d1e9e8491523fad17c2e52",
+    "tests/test_policy.py": "e44800c67db4578917b50c49abf680c0b1e1886669a423b56aba1e349379eb4c",
+    "tests/test_workflow.py": "97fb22b5cd9751844e929641136628c9d45c00d52293b63104db5e94877f3eea",
+    "tests/test_sync.py": "5a66b83d3152c490be87eb43d9bbeb920eed095d3e54dc018a2b378391ced978",
+    "tests/test_core.py": "dcb9f44d9c4b15d020bdd0d98cf6d5c8b6da4963c798eeafd00b16a1a20e44b0",
+    "tests/test_sqlite_state.py": "c23a2484503925523f5a8e8a59a60c4edd0466aa78030a962dfcaff7da448aa1",
+    "manifest.json": "f89b534e02dbae2048664706dd00041c656760c8c1ba76e21f63ee5d6e68f0d6",
+    "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md": "ced5746e09213257c542c396bcf90b2753c49b677608ccc1144356e69d79b700"
+  },
+  "limitations": [
+    "SQLite backend remains opt-in; legacy remains the default.",
+    "Legacy-state migration, persistent approval records, backup/restore, and Android packaging remain open.",
+    "Sync transport was tested with fake transports only; no live network transport was invoked.",
+    "No PR creation, merge, or deployment was performed."
+  ]
+}
