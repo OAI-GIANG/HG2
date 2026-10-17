@@ -22,11 +22,10 @@ class CirculatoryArchitectureTests(unittest.TestCase):
         self.assertIn("implementation not yet certified", contract)
         self.assertIn("No gate is passed by documentation alone", contract)
 
-    def test_manifest_registers_policy_and_state_contract_modules(self):
+    def test_manifest_registers_policy_contract_workflow_and_state_modules(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-        self.assertIn("hg.policy", manifest["modules"])
-        self.assertIn("hg.contracts", manifest["modules"])
-        self.assertIn("hg.sqlite_state", manifest["modules"])
+        for module in ("hg.policy", "hg.contracts", "hg.sqlite_state", "hg.workflow"):
+            self.assertIn(module, manifest["modules"])
         self.assertEqual(manifest["architecture"]["status"], "DESIGN_BASELINE_NOT_CERTIFIED")
 
     def test_phone_is_the_only_runtime_composition_root_for_state_store(self):

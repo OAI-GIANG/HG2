@@ -36,6 +36,17 @@ class PolicyTests(unittest.TestCase):
         for grant in (expired, future, revoked):
             self.assertFalse(authorize_with_grants("alice", "session.create", [grant], now=10).allowed)
 
+    def test_malformed_grant_and_approval_state_fail_closed(self):
+        malformed = CapabilityGrant("g1", "alice", "session.create", "bad-time")
+        self.assertFalse(authorize_with_grants("alice", "session.create", [malformed], now=2).allowed)
+        request = create_approval_request(
+            principal_id="alice", action="session.create", resource_id="session-A",
+            request_digest="c" * 64, now=100,
+        )
+        request["status"] = ["PENDING"]
+        with self.assertRaisesRegex(PolicyError, "APPROVAL_STATUS_INVALID"):
+            decide_approval(request, decision="APPROVED", approver_id="reviewer", now=101)
+
     def test_forbidden_action_cannot_be_granted(self):
         grant = CapabilityGrant("g1", "alice", "shell.exec", 1)
         result = authorize_with_grants("alice", "shell.exec", [grant], now=2)

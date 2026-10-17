@@ -43,13 +43,23 @@ class CapabilityGrant:
     resource_scope: str | None = None
 
     def active_at(self, now: float) -> bool:
-        if not self.grant_id or not self.principal_id or not self.capability:
+        if not isinstance(self.grant_id, str) or not self.grant_id.strip():
             return False
-        if not math.isfinite(self.issued_at) or now < self.issued_at:
+        if not isinstance(self.principal_id, str) or not self.principal_id.strip():
             return False
-        if self.expires_at is not None and (not math.isfinite(self.expires_at) or now >= self.expires_at):
+        if not isinstance(self.capability, str) or not self.capability.strip():
             return False
-        if self.revoked_at is not None and (not math.isfinite(self.revoked_at) or now >= self.revoked_at):
+        if isinstance(self.issued_at, bool) or not isinstance(self.issued_at, (int, float)) or not math.isfinite(self.issued_at) or now < self.issued_at:
+            return False
+        if self.expires_at is not None and (
+            isinstance(self.expires_at, bool) or not isinstance(self.expires_at, (int, float))
+            or not math.isfinite(self.expires_at) or now >= self.expires_at
+        ):
+            return False
+        if self.revoked_at is not None and (
+            isinstance(self.revoked_at, bool) or not isinstance(self.revoked_at, (int, float))
+            or not math.isfinite(self.revoked_at) or now >= self.revoked_at
+        ):
             return False
         return True
 
@@ -154,10 +164,28 @@ def decide_approval(
     if set(request) != required:
         raise PolicyError("APPROVAL_SCHEMA_INVALID")
     current = dict(request)
-    if current["status"] not in _APPROVAL_STATES:
+    for field in ("approval_id", "principal_id", "action", "resource_id"):
+        if not isinstance(current[field], str) or not current[field].strip():
+            raise PolicyError("APPROVAL_SCHEMA_INVALID")
+    if not isinstance(current["request_digest"], str) or not _DIGEST_RE.fullmatch(current["request_digest"]):
+        raise PolicyError("REQUEST_DIGEST_INVALID")
+    if not isinstance(current["status"], str) or current["status"] not in _APPROVAL_STATES:
         raise PolicyError("APPROVAL_STATUS_INVALID")
+    if not isinstance(current["decision_reason"], str) or len(current["decision_reason"]) > 512:
+        raise PolicyError("APPROVAL_SCHEMA_INVALID")
     if isinstance(now, bool) or not isinstance(now, (int, float)) or not math.isfinite(now):
         raise PolicyError("INVALID_POLICY_TIME")
+    if isinstance(current["created_at"], bool) or not isinstance(current["created_at"], (int, float)) or not math.isfinite(current["created_at"]):
+        raise PolicyError("APPROVAL_SCHEMA_INVALID")
+    if isinstance(current["expires_at"], bool) or not isinstance(current["expires_at"], (int, float)) or not math.isfinite(current["expires_at"]) or current["expires_at"] <= current["created_at"]:
+        raise PolicyError("APPROVAL_SCHEMA_INVALID")
+    if current["decided_at"] is not None and (
+        isinstance(current["decided_at"], bool) or not isinstance(current["decided_at"], (int, float))
+        or not math.isfinite(current["decided_at"])
+    ):
+        raise PolicyError("APPROVAL_SCHEMA_INVALID")
+    if current["decided_by"] is not None and (not isinstance(current["decided_by"], str) or not current["decided_by"].strip()):
+        raise PolicyError("APPROVAL_SCHEMA_INVALID")
     if current["status"] != "PENDING":
         if current["status"] == decision and current["decided_by"] == approver_id:
             return current
