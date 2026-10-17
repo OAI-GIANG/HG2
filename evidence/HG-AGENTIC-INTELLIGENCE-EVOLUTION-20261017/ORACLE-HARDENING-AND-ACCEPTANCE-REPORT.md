@@ -150,3 +150,36 @@ The candidate provider has a credential loader that enforces a private regular f
 ### Gate disposition
 
 No new trust root, key, credential or authority artifact was created. No production process was restarted; no production database write, canonical mutation, merge, deploy, release or PR close occurred. The isolated SQLite/source/runtime lab results remain limited-scope rehearsal evidence only. Runtime provenance, authenticated trust root, CP0, live-model E2E and full-service rollback remain blocking gates.
+
+
+## 12. Continued blocker resolution and repeated lab recovery (2026-10-17)
+
+### External standards checked
+
+- SLSA Build Provenance v1.2 defines provenance as verifiable information about how artifacts were produced and requires consumers to verify expected builder identity, build definition, inputs/dependencies, and artifact subject: https://slsa.dev/spec/v1.2/provenance
+- Sigstore Cosign documents verification of signatures and attestations, including constraints on signer identity/issuer and transparency-log verification: https://docs.sigstore.dev/cosign/verifying/verify/
+- The Update Framework (TUF) specification describes threshold-signed root rotation and explicit rollback/freeze protections through version and expiry checks: https://theupdateframework.github.io/specification/v1.0.36/
+
+These are design references, not evidence that HG has implemented or satisfied those guarantees. No tool was installed and no trust key/root was created.
+
+### Additional GitHub CP0 searches
+
+Authenticated GitHub code searches scoped to `OAI-GIANG/HG2` for `HNIF2-18`, `CP0 historical criteria`, and `26 criteria intelligence` returned zero results. This is consistent with the bounded prior search and is not proof that no authoritative primary source exists outside the searched repository. CP0 remains `BLOCKED_INPUT` until an owner-controlled or otherwise authoritative primary source and its provenance are verified.
+
+### Three-cycle isolated runtime restart rehearsal
+
+The copied runtime in `~/.cache/hg-evidence-first-20261017/recovery-lab/full-runtime-lab/` was launched three times using only a minimal environment without inherited credentials, on loopback ephemeral ports. In every cycle, `/api/health`, `/api/plugin/contract`, and `/api/phone/status` returned HTTP 200 with `ok=true`; each isolated process was terminated and exited, and the synthetic state SHA-256 remained unchanged (`518506e752725351d15d453e33c608d3258f09dac77d3c6cf48d4f008431a85f`). Evidence is local at `~/.cache/hg-evidence-first-20261017/recovery-lab/restart-rollback-rehearsal-evidence.json`.
+
+Classification: `PASS_ISOLATED_LAB_RESTART_HEALTH_SHUTDOWN`. This demonstrates repeatable start/health/shutdown of the copied runtime only. It does not exercise the real Termux supervisor, a prior-version launcher rollback, abrupt power loss, production data restore, or any production cutover. It does not clear runtime provenance or trust-root blockers.
+
+### Updated gate decision
+
+- Re-ran the complete strict Termux suite after this evidence/report update: 182 tests passed, exit code 0, `ResourceWarning` treated as an error. `git diff --check` passed. This verifies the candidate test suite, not the blocked production trust/provenance gates.
+
+- Candidate code tests and prior exact-commit CI evidence remain as previously recorded; this new evidence is documentation/rehearsal evidence only.
+- Runtime provenance: `BLOCKED_MISMATCH` — no authenticated build/source attestation and no proof of exact loaded source bytes.
+- Trust root lifecycle: `BLOCKED` — no independently verified authority, signature policy, key rotation, revocation/freshness, or anti-rollback implementation.
+- CP0: `BLOCKED_INPUT` — no verified authoritative historical primary source.
+- Live model E2E: `NOT_RUN` — not run while source provenance and auditable request/response custody are unresolved.
+- Full-system restore/rollback: `BLOCKED` — limited SQLite and isolated runtime rehearsal do not establish actual supervisor rollback, phone power-loss recovery, credential recovery, or production side-effect reversal.
+- Canonical remains unchanged; PR #21 remains OPEN Draft; production services remain running. No merge, deployment, release, or PR close was performed.
