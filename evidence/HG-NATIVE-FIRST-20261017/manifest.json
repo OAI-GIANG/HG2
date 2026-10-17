@@ -17,7 +17,7 @@
     "canonical_repository": "OAI-GIANG/HG2",
     "evidence_only_commit_sha": null
   },
-  "candidate_commit_sha": "0a1a5e97d57cdee68b696866e29dc0fb07562ec6",
+  "candidate_commit_sha": "d4d9d37189f66101a77555213c32831c4322538f",
   "captured_environment": {
     "capture_attestation": "LOCAL_UNATTESTED",
     "device": "Termux on Android ARM64",
@@ -28,7 +28,7 @@
   },
   "classification": "CANDIDATE_ENGINEERING_EVIDENCE_UNATTESTED",
   "disposition": "NATIVE_RUBRIC_AND_TESTS_ADDED; TECHNICAL_ACCEPTANCE_BLOCKED; NOT_RELEASED",
-  "hosted_ci_after_evidence_push": "PENDING_RECHECK",
+  "hosted_ci_after_evidence_push": "PASS_CIRCLECI_JOB_139",
   "native_rubric": {
     "criteria_count": 16,
     "criteria_digest_sha256": "4811fd8f28bc09db621714b8aebe35acaff66cc87ecc527acae9f6dcc3de798b",
@@ -38,7 +38,7 @@
     "version": "1.0.0",
     "weight_total": 100
   },
-  "note": "The test log is locally captured. Hashes bind file bytes but do not authenticate the runner, device clock, production trust, or semantic quality of the oracles. This manifest must be updated and the full suite rerun against the evidence-bound commit before publication.",
+  "note": "Post-commit full suite was rerun on the code candidate before this evidence-only update. GitHub CircleCI job #139 then passed for the evidence-bound final HEAD. The local capture remains unattested.",
   "remaining_gates": [
     "live_natural_language_model_e2e_not_accepted",
     "production_trust_roots_blocked",
@@ -54,7 +54,7 @@
     "exit_code": 0,
     "failed": 0,
     "log_file": "strict-unittest-native-first.log",
-    "log_sha256": "67fe7c74b21d374ffe92a6b183e22ceb43636fd1c790b47f095a9b5cbbffe07c",
+    "log_sha256": "0a2d2543e9df49e7dca6de401ce3c40938c6115c138cb2a52ff5e45bf37094b8",
     "passed": 169,
     "resource_warning_treated_as_error": true,
     "result": "PASS",

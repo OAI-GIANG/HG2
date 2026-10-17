@@ -169,6 +169,6 @@ test_too_large_rejected (test_task_contract.StrictJsonTests.test_too_large_rejec
 test_unpaired_surrogate_rejected_during_canonicalization (test_task_contract.StrictJsonTests.test_unpaired_surrogate_rejected_during_canonicalization) ... ok
 
 ----------------------------------------------------------------------
-Ran 169 tests in 5.277s
+Ran 169 tests in 5.044s
 
 OK
