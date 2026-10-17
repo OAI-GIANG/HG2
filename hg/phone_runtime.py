@@ -34,20 +34,31 @@ def open_state_store(state_dir):
 
 
 class PhoneRuntime:
-    def __init__(self, state_dir=None, edge_url="", edge_token="", device_id=None, timeout=3.0):
+    def __init__(self, state_dir=None, edge_url="", edge_token="", device_id=None, timeout=3.0,
+                 session_authenticator=None):
         self.state_dir = state_dir or os.environ.get("HG_STATE_DIR") or os.path.join(os.getcwd(), "hg-state")
         self.edge_url = edge_url or os.environ.get("HG_EDGE_URL", "")
         self.edge_token = edge_token or os.environ.get("HG_EDGE_TOKEN", "")
         self.device_id = device_id or os.environ.get("HG_DEVICE_ID") or "phone-" + secrets.token_hex(4)
         self.timeout = timeout
+        # Session creation has no implicit authenticated=True shortcut. The trusted host
+        # must inject a real verifier; missing, rejecting, or failing verifiers deny.
+        self.session_authenticator = session_authenticator
         self.store = open_state_store(self.state_dir)
 
     def health(self):
         return {"ok": True, "product": "HG", "runtime_id": self.store.runtime_id,
                 "edge_configured": bool(self.edge_url), "integrity": self.store.verify()}
 
-    def start_session(self, correlation_id=None):
-        d = authorize("session.create", authenticated=True)
+    def start_session(self, correlation_id=None, *, credential=None):
+        authenticated = False
+        verifier = self.session_authenticator
+        if callable(verifier):
+            try:
+                authenticated = verifier(credential) is True
+            except Exception:
+                authenticated = False
+        d = authorize("session.create", authenticated=authenticated)
         if not d.allowed:
             raise PermissionError(d.reason)
         rec = self.store.emit("session.created", {"session_id": secrets.token_urlsafe(18), "product": "HG"},

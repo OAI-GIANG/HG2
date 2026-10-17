@@ -109,6 +109,38 @@ class HistoryTests(unittest.TestCase):
         with self.assertRaises(HistoryError):
             StateStore(d)
 
+    def test_missing_history_with_other_artifacts_fails_closed_without_repair(self):
+        with tempfile.TemporaryDirectory() as d:
+            head = os.path.join(d, "head.json")
+            state = os.path.join(d, "state.json")
+            runtime_id = os.path.join(d, "runtime_id")
+            expected = {
+                head: '{"seq":1,"head_hash":"' + ZERO + '"}',
+                state: '{"schema":"HG_STATE_V1"}',
+                runtime_id: "preserve-existing-runtime\n",
+            }
+            for path, content in expected.items():
+                with open(path, "w", encoding="utf-8") as stream:
+                    stream.write(content)
+            with self.assertRaisesRegex(HistoryError, "incomplete durable state artifacts"):
+                StateStore(d)
+            self.assertFalse(os.path.exists(os.path.join(d, "history.jsonl")))
+            for path, content in expected.items():
+                with open(path, encoding="utf-8") as stream:
+                    self.assertEqual(stream.read(), content)
+
+    def test_corrupt_state_projection_fails_closed_without_repair(self):
+        with tempfile.TemporaryDirectory() as d:
+            StateStore(d)
+            path = os.path.join(d, "state.json")
+            bad = '{"schema":"HG_STATE_V1","last_seq":999}'
+            with open(path, "w", encoding="utf-8") as stream:
+                stream.write(bad)
+            with self.assertRaisesRegex(HistoryError, "state projection does not match history"):
+                StateStore(d)
+            with open(path, encoding="utf-8") as stream:
+                self.assertEqual(stream.read(), bad)
+
     def test_duplicate_json_keys_in_history_fail_closed(self):
         with tempfile.TemporaryDirectory() as d:
             s = StateStore(d, clock=lambda: 1750000000.0)
@@ -209,22 +241,53 @@ class EdgeTests(unittest.TestCase):
 
 
 class PhoneTests(unittest.TestCase):
+    def test_session_creation_fails_closed_without_verifier(self):
+        with tempfile.TemporaryDirectory() as d:
+            rt = PhoneRuntime(state_dir=d)
+            before = rt.store.audit_export()["events"]
+            with self.assertRaises(PermissionError):
+                rt.start_session(credential="anything")
+            self.assertEqual(rt.store.audit_export()["events"], before)
+
+    def test_session_creation_fails_closed_when_verifier_rejects_or_raises(self):
+        verifiers = (
+            lambda _credential: False,
+            lambda _credential: (_ for _ in ()).throw(RuntimeError("auth unavailable")),
+        )
+        for verifier in verifiers:
+            with self.subTest(verifier=verifier), tempfile.TemporaryDirectory() as d:
+                rt = PhoneRuntime(state_dir=d, session_authenticator=verifier)
+                before = rt.store.audit_export()["events"]
+                with self.assertRaises(PermissionError):
+                    rt.start_session(credential="invalid")
+                self.assertEqual(rt.store.audit_export()["events"], before)
+
     def test_local_and_offline(self):
         with tempfile.TemporaryDirectory() as d:
-            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4)
+            rt = PhoneRuntime(
+                state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4,
+                session_authenticator=lambda credential: credential == "session-test-token",
+            )
             self.assertTrue(rt.health()["ok"])
             self.assertFalse(rt.heartbeat())
-            s = rt.start_session()
+            with self.assertRaises(PermissionError):
+                rt.start_session()
+            s = rt.start_session(credential="session-test-token")
             self.assertEqual(s["product"], "HG")
             self.assertEqual(rt.store.audit_export()["events"], 2)
 
     def test_sqlite_backend_is_explicit_opt_in_and_offline_capable(self):
         with tempfile.TemporaryDirectory() as d, patch.dict(os.environ, {"HG_STATE_BACKEND": "sqlite"}, clear=False):
-            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.1)
+            rt = PhoneRuntime(
+                state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.1,
+                session_authenticator=lambda credential: credential == "session-test-token",
+            )
             try:
                 self.assertTrue(rt.health()["ok"])
                 self.assertFalse(rt.heartbeat())
-                session = rt.start_session()
+                with self.assertRaises(PermissionError):
+                    rt.start_session()
+                session = rt.start_session(credential="session-test-token")
                 self.assertEqual(session["product"], "HG")
                 self.assertEqual(rt.store.audit_export()["events"], 2)
                 self.assertTrue(os.path.exists(os.path.join(d, "hg2-state.sqlite3")))

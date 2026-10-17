@@ -30,6 +30,19 @@ class StateStore:
         self.log = os.path.join(self.dir, "history.jsonl")
         self.head = os.path.join(self.dir, "head.json")
         self.state = os.path.join(self.dir, "state.json")
+        self.runtime_path = os.path.join(self.dir, "runtime_id")
+        artifact_paths = {
+            "history log": self.log,
+            "head checkpoint": self.head,
+            "state projection": self.state,
+            "runtime identity": self.runtime_path,
+        }
+        present = {name: os.path.lexists(path) for name, path in artifact_paths.items()}
+        self._had_state_artifacts = any(present.values())
+        if self._had_state_artifacts:
+            missing = [name for name, exists in present.items() if not exists]
+            if missing:
+                raise HistoryError("incomplete durable state artifacts; missing: " + ", ".join(missing))
         self._clock = clock
         self.runtime_id = self._runtime_id()
         self._lock = threading.RLock()
@@ -39,19 +52,32 @@ class StateStore:
         self._counters = {}
         self._load()
         if not self._events:
+            if self._had_state_artifacts:
+                raise HistoryError("history log empty while durable state artifacts exist")
             self.emit(GENESIS_EVENT, {"product_id": PRODUCT_ID, "schema": SCHEMA}, correlation_id="genesis")
 
     def _runtime_id(self):
-        p = os.path.join(self.dir, "runtime_id")
-        if os.path.exists(p):
-            with open(p, encoding="utf-8") as fh:
-                v = fh.read().strip()
-            if v:
-                return v
-        v = uuid.uuid4().hex
-        with open(p, "w", encoding="utf-8") as fh:
-            fh.write(v + "\n")
-        return v
+        p = self.runtime_path
+        if os.path.lexists(p):
+            try:
+                with open(p, encoding="utf-8") as fh:
+                    value = fh.read().strip()
+            except OSError as exc:
+                raise HistoryError("runtime identity unreadable") from exc
+            if not value:
+                raise HistoryError("runtime identity malformed")
+            return value
+        if self._had_state_artifacts:
+            raise HistoryError("runtime identity missing while state artifacts exist")
+        value = uuid.uuid4().hex
+        try:
+            with open(p, "x", encoding="utf-8") as fh:
+                fh.write(value + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
+        except OSError as exc:
+            raise HistoryError("runtime identity could not be initialized") from exc
+        return value
 
     def _head(self):
         return (0, ZERO) if not self._events else (self._events[-1]["seq"], self._events[-1]["record_hash"])
@@ -75,30 +101,49 @@ class StateStore:
                 core = {k: v for k, v in rec.items() if k != "record_hash"}
                 if not rh or digest(core) != rh:
                     raise HistoryError("record hash mismatch line %d" % n)
+                required = {"seq", "event_id", "event_type", "recorded_at", "correlation_id",
+                            "causation_id", "product_id", "runtime_id", "schema", "payload", "prev_hash"}
+                if not required.issubset(rec):
+                    raise HistoryError("record fields missing line %d" % n)
+                if rec.get("product_id") != PRODUCT_ID or rec.get("schema") != SCHEMA:
+                    raise HistoryError("identity/schema mismatch line %d" % n)
+                if rec.get("runtime_id") != self.runtime_id:
+                    raise HistoryError("runtime identity mismatch line %d" % n)
                 if rec["prev_hash"] != prev:
                     raise HistoryError("chain break line %d" % n)
-                if rec["seq"] != seq + 1:
+                if isinstance(rec["seq"], bool) or not isinstance(rec["seq"], int) or rec["seq"] != seq + 1:
                     raise HistoryError("sequence gap line %d" % n)
-                if rec["event_id"] in seen:
-                    raise HistoryError("duplicate event_id line %d" % n)
+                if not isinstance(rec["event_id"], str) or not rec["event_id"] or rec["event_id"] in seen:
+                    raise HistoryError("invalid or duplicate event_id line %d" % n)
+                if not isinstance(rec["event_type"], str) or not rec["event_type"]:
+                    raise HistoryError("invalid event_type line %d" % n)
+                if not isinstance(rec["payload"], dict):
+                    raise HistoryError("invalid payload line %d" % n)
                 seen.add(rec["event_id"])
                 prev, seq = rh, rec["seq"]
                 self._events.append(rec)
                 self._by_id[rec["event_id"]] = rec
                 self._apply(rec)
-        if os.path.exists(self.head):
-            with open(self.head, encoding="utf-8") as fh:
-                try:
-                    hd = parse_json_no_duplicate_keys(fh.read())
-                except ContractError as exc:
-                    raise HistoryError("invalid head checkpoint") from exc
-            if not isinstance(hd, dict):
+        if self._had_state_artifacts and not self._events:
+            raise HistoryError("history log empty while durable state artifacts exist")
+        if self._had_state_artifacts:
+            try:
+                with open(self.head, encoding="utf-8") as fh:
+                    checkpoint = parse_json_no_duplicate_keys(fh.read())
+            except (OSError, ContractError) as exc:
+                raise HistoryError("head checkpoint unreadable or malformed") from exc
+            if not isinstance(checkpoint, dict):
                 raise HistoryError("head checkpoint is not an object")
-            s, h = self._head()
-            if hd.get("seq") != s or hd.get("head_hash") != h:
+            seq, head_hash = self._head()
+            if checkpoint.get("seq") != seq or checkpoint.get("head_hash") != head_hash:
                 raise HistoryError("log does not match head checkpoint")
-        self._write_state()
-        self._write_head()
+            try:
+                with open(self.state, encoding="utf-8") as fh:
+                    projection = parse_json_no_duplicate_keys(fh.read())
+            except (OSError, ContractError) as exc:
+                raise HistoryError("state projection unreadable or malformed") from exc
+            if not isinstance(projection, dict) or projection != self._doc():
+                raise HistoryError("state projection does not match history")
 
     def _apply(self, rec):
         if rec["event_type"] == "session.created" and "session_id" in rec["payload"]:
