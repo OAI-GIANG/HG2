@@ -1,0 +1,66 @@
+{
+  "artifact_sha256": {
+    "docs/HG_NATIVE_INTELLIGENCE_CRITERIA_V1.md": "81738e582fe0d4da7bcb789b49d8aab82861dbf7741702345c72b93d1bfb2180",
+    "evidence/HG-NATIVE-FIRST-20261017/criteria-v1.json": "1ccb316b1f9c47a650af7e16880c277f01724eb08df006b7272172e4854f0912",
+    "hg/native_criteria.py": "a8101e21d1e253e637525c1f67e2459a12b17f862481c5a7a719983207f43fe0",
+    "scripts/hg-native-evaluate": "d895d64eb60de0f286cebf2ba7363c7c9538aef99917752e1ce97d7cace50ef0",
+    "tests/test_native_criteria.py": "a629657e3e56936acf2accc362cb5bbcb10c1749fac6c956edc7fe00771b155c",
+    "tests/test_native_improvement_plan.py": "70e728de78b47b7ac46c5aba37b67f35bf241ff1694e46d184f7b904c47893e0",
+    "tests/testdata/hg-native-improvement-plan.v1.json": "9d5dff997619f252e0c4058d35695debebf1a70e717206376a8ac5215506716c"
+  },
+  "baseline": {
+    "candidate_branch": "stt/hg-agentic-intelligence-g1-20261017",
+    "candidate_parent_sha_tested_before_evidence_commit": "694f13209f718feae543e28c871c905ae530a135",
+    "canonical_base_sha": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+    "canonical_branch": "hg-genesis",
+    "canonical_repository": "OAI-GIANG/HG2",
+    "evidence_only_commit_sha": null
+  },
+  "captured_environment": {
+    "capture_attestation": "LOCAL_UNATTESTED",
+    "device": "Termux on Android ARM64",
+    "device_clock_attested": false,
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6",
+    "sqlite": "3.53.4"
+  },
+  "classification": "CANDIDATE_ENGINEERING_EVIDENCE_UNATTESTED",
+  "disposition": "NATIVE_RUBRIC_AND_TESTS_ADDED; TECHNICAL_ACCEPTANCE_BLOCKED; NOT_RELEASED",
+  "native_rubric": {
+    "criteria_count": 16,
+    "criteria_digest_sha256": "4811fd8f28bc09db621714b8aebe35acaff66cc87ecc527acae9f6dcc3de798b",
+    "critical_gate_count": 7,
+    "historical_cp0_equivalence": "NOT_CLAIMED",
+    "schema_version": "hg.native-intelligence-criteria.v1",
+    "version": "1.0.0",
+    "weight_total": 100
+  },
+  "note": "The test log is locally captured. Hashes bind file bytes but do not authenticate the runner, device clock, production trust, or semantic quality of the oracles. This manifest must be updated and the full suite rerun against the evidence-bound commit before publication.",
+  "remaining_gates": [
+    "live_natural_language_model_e2e_not_accepted",
+    "production_trust_roots_blocked",
+    "criterion-specific independent oracles and human rubric calibration incomplete",
+    "target-device abrupt power-loss test not run",
+    "runtime provenance backup/restore rollback and side-effect acceptance blocked",
+    "hosted CI for the eventual evidence-bound final candidate SHA not yet checked"
+  ],
+  "schema_version": "hg.native-first-evidence.v1",
+  "task": "HG AGENTIC INTELLIGENCE EVOLUTION — NATIVE-FIRST",
+  "test_result": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "exit_code": 0,
+    "failed": 0,
+    "log_file": "strict-unittest-native-first.log",
+    "log_sha256": "67fe7c74b21d374ffe92a6b183e22ceb43636fd1c790b47f095a9b5cbbffe07c",
+    "passed": 169,
+    "resource_warning_treated_as_error": true,
+    "result": "PASS",
+    "tests_run": 169
+  },
+  "unchanged_scope": {
+    "canonical_branch_mutated": false,
+    "historical_cp0": "BLOCKED_INPUT",
+    "merge_deploy_release_performed": false,
+    "synthetic_v2_1_fixtures": "PRESERVED_AND_REMAIN_NOT_RUN"
+  }
+}
