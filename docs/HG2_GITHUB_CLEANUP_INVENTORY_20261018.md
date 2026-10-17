@@ -228,3 +228,35 @@ Regression tests now cover write poisoning, missing history with other durable a
 Evidence `evidence/HG2-STATE-STORE-HARDENING-20261018/summary.json` is tied to tested commit `b524e5747dd2b4cb1891ea01ef15c9be4814384a`: 165 tests passed in 5.868 s on Python 3.14.6 / Android-16 aarch64; `ResourceWarning` was treated as error; exit code 0. The log SHA-256 is recorded in both `summary.json` and `SHA256SUMS.txt`.
 
 Disposition for PR #5: its file-locking, atomic-write and poisoned-store concepts have been integrated into the single StateStore candidate implementation. Its old branch is still preserved while its unrelated product-scope/base skew is assessed; it must not be merged wholesale. PRs #1 and #11 are redundant P0 candidate branches whose core fail-closed behavior is now in the same tested StateStore, but their closure waits until their remaining unique test/value is confirmed and current PR status is rechecked.
+
+## 16. Current cleanup state (refreshed 2026-10-18)
+
+This section supersedes earlier inventory sections wherever they described PRs #1/#5/#11/#12/#13/#19/#24 as still open or closure as pending.
+
+### Closed PRs — all branches preserved, none merged
+- #19: broad old-base runtime/product-scope bundle; closed without merge, branch retained.
+- #1, #5, #11: duplicate P0 history/state candidate branches; useful integrity/durability behavior selectively integrated into the one StateStore candidate and covered by 165-test evidence; all branches retained.
+- #24: auth/provider/agent/tool-plane code selectively ported into the architecture candidate and covered by full tests; its standalone provenance/acceptance inventory remains on the retained branch.
+- #12, #13: optional CTI/creative-assimilation/research benchmark candidate group; closed as non-core/reference-only for now, raw evidence and branches preserved. Nothing was erased.
+- Each closure was confirmed through authenticated GitHub CLI as CLOSED with mergedAt=null. The hg-genesis branch was not changed. PR #25 remains the working draft.
+
+### Developer-only code-intelligence scanner
+The bounded static Python import scanner, its 23 unit tests, normative contract and local usage guide were selectively ported from PR #15 into tools/, tests/, contract/ and docs/. Benchmark runners and duplicate versioned evidence packs were not copied. It is deliberately excluded from manifest.json functional runtime modules. It uses hg.contracts canonical JSON/digest helpers with an explicit larger byte cap suitable for bounded scan reports; the canonical runtime default remains 1 MiB. Tests cover keeping it outside the runtime module set and using shared serialization.
+- Code commit: 5ca99f5464722170812dff47ec0bb143b8e2ca5a
+- Exact-commit test evidence: evidence/HG2-CODE-INTELLIGENCE-20261018/summary.json
+- 190 tests passed in 7.367 s on Python 3.14.6 / Android-16 aarch64; ResourceWarning as error; exit code 0.
+- Log SHA-256: 728d59bc02eb2027af9a2baeef0bf7684ee23f418e09ef1e147aa5b2ead3f53f.
+- PR #15 remains open pending current-tree scan and final verification of its selective absorption, then should close without merging; its branch and research/benchmark files remain available as references.
+
+### Remaining open work groups — do not integrate wholesale
+- #22: candidate unique memory + replica/server/limits features. Integrate at most one memory subsystem and one explicit replication/outbox interface. Do not import its alternate model_gateway alongside hg.provider; do not allow server/replica to own canonical state. Reconcile against PR #25's event and SQLite models first.
+- #21: task compiler/contracts and agentic capabilities/evaluators. The current agent/provider/tool-plane is already bounded. Task compiler can be considered as plan-generation input, while workflow.py remains sole task-lifecycle owner. Do not import alternate model_provider, capability registries or duplicate durable transaction stores. Evaluators and benchmarks remain developer/research tooling.
+- #17: read-only connector/integration verifier is an external adapter candidate, not runtime-state owner. Compare it against typed adapter interfaces before deciding selective port.
+- #8: T-018 cross-context sync candidate. Treat only as protocol adapter/test evidence; reconcile cursor/outbox/receipt schema against the current single hg.sync before integrating.
+- #15: code-intelligence feature is being absorbed selectively as developer tooling. Keep its benchmark/evidence packs and original branch, and close its PR only after confirming the current scanner/tests on the candidate branch.
+- #6: phone-primary platform ADR may provide a useful decision record; reconcile its invariants into the normative architecture contract rather than keep duplicate active normative contracts.
+- #7 and #16: reference/red-team/absorption packs are not runtime modules. Preserve history and close only after verifying any unique blocker/evidence not yet represented in the inventory.
+- #2/#3: test resource hygiene and external CI proof branches; current candidate full-suite tests run with ResourceWarning as error. Reconfirm state and unique CI value before closure; never delete their branches or assume an external CI token exists.
+
+### Cutover and release remain blocked
+No canonical branch mutation, merge, runtime switch, live-state import, APK installation, or deployment occurred. PR #25 remains a draft; tests prove only the isolated candidate at exact evidenced commits. SQLite remains opt-in; migration/cutover are separate gates.
