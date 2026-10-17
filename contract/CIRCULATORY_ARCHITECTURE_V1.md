@@ -13,15 +13,16 @@ Rebuild HG2 as one coherent, offline-first system with explicit ownership, bound
 
 | Biological analogy | HG2 subsystem | Responsibility | Hard boundary |
 |---|---|---|---|
-| Heart | Phone Runtime Kernel | Own lifecycle, command dispatch, transaction boundary, health, and scheduling | The phone is the only canonical runtime/state owner |
+| Brain | HGAgent / application orchestrator | Accept a bounded user goal, coordinate provider/tool turns, and route requests through policy and runtime interfaces | Does not own canonical state, grant authority, or bypass policy |
+| Heart | Phone Runtime Kernel | Own lifecycle, canonical state composition, command boundary, health, and durable state interfaces | The phone is the only canonical runtime/state owner |
 | Blood | Canonical Event Envelope | Carry typed facts and state transitions with IDs, sequence, timestamps, schema, correlation/causation, and integrity digest | No mutation bypasses the state/event contract |
 | Arteries and veins | Local ports, sync outbox, transport adapters | Move commands/results/events between modules and optional remote endpoints | Transport is not authority; retries must be idempotent |
 | Organs | Capability modules | Identity, policy, task planning, memory, tools, provider adapters, evidence, backup, user interaction | Each module has one responsibility and a versioned interface |
-| Nervous system | Event dispatcher and workflow scheduler | Route events, coordinate task state machines, cancellation, deadlines, and retries | No hidden background side effects; every transition is observable |
+| Nervous system | Bounded tool router and workflow scheduler | Route authenticated provider/tool signals, task transitions, cancellation, deadlines, and retries | No hidden background side effects; every transition is observable |
 | Immune system | Authorization and security policy | Authenticate actors, authorize actions, enforce least privilege, prevent secret leakage, deny by default | Unlisted actions are denied; policy failure is fail-closed |
 | Liver / filters | Ingress validation and normalization | Validate schemas, bounds, duplicate keys, content types, provenance, and payload size before mutation | Invalid input never reaches state mutation |
 | Kidneys | Integrity verifier and recovery controller | Verify hash chains, checkpoints, backup manifests, restore candidates, and recovery invariants | Never silently repair, overwrite, or promote unverified state |
-| Lungs | External model/provider/network adapters | Supply optional external capability when configured | External providers and Internet are optional; no edge holds provider secrets |
+| Lungs | Single provider adapter boundary (hg.provider) | Supply optional bounded external inference when configured | No duplicate model gateways; providers do not own state or grant authority; no edge holds provider secrets |
 | Bone structure | Contracts, schemas, manifest, module graph | Define stable interfaces, dependency direction, versioning, and ownership | No circular dependencies or undocumented cross-module imports |
 | Capillaries | Narrow adapters and module ports | Connect a capability to the kernel through small interfaces | No direct writes to another module's private storage |
 | Lymphatic system | Telemetry, audit, diagnostics, evidence collection | Detect anomalies, surface degradation, retain traceable evidence | Diagnostics must not expose secrets or mutate canonical state |
@@ -38,7 +39,7 @@ Rebuild HG2 as one coherent, offline-first system with explicit ownership, bound
 
 ## 4. Required command/data flow
 
-User/Input -> Identity -> Authorization -> Schema/Boundary Validation -> Planner/Workflow -> Capability Port -> Result Validation -> State Transaction -> Append-only Event -> Evidence/Audit -> Response
+User/Input -> Authentication -> Brain/Turn Orchestrator -> Policy (sealed principal) -> Schema/Boundary Validation -> Workflow/Tool Router -> Capability/Provider -> Result Validation -> State Transaction -> Append-only Event -> Evidence/Audit -> Response
 
 Remote sync, if configured, is a separate post-commit path:
 
@@ -67,14 +68,17 @@ The canonical serializer must be deterministic. Digests prove byte/content integ
 ## 6. Module boundaries and dependency direction
 
 Target modules (names are logical boundaries; final file layout is decided after contract tests):
-- kernel: lifecycle, composition root, health, command boundary
+- brain/agent: bounded user-turn orchestration and dependency composition; no state ownership or policy bypass
+- kernel: phone lifecycle, canonical-state composition root, health, command boundary
 - identity: product/runtime/device identity and provenance labels
-- policy: authorization predicates, grants, denials, approval state machine
-- contracts: schemas, canonical serializer, typed event/command/result envelopes
+- authentication: validate credentials and produce sealed, scoped caller principals; do not decide authorization
+- policy: the single authorization decision point, capability grants, denials, approval state machine
+- contracts: schemas, the shared canonical JSON/parser/digest primitives, typed event/command/result envelopes
+- tool routing: bounded provider/tool-call loop and redacted audit; all mutating operations route through runtime/policy
 - state: transactional persistence, append-only history, snapshots, migration
 - workflow: task graph/state machine, retries, cancellation, deadlines
 - capabilities: capability registry and narrow execution ports
-- adapters: external provider, filesystem, network, relay, and UI adapters
+- adapters: the single hg.provider transport boundary plus network, relay, and UI adapters; alternate model clients must implement the same port rather than create parallel gateways
 - sync: outbox/inbox, authenticated batches, cursor/anchor, replay protection
 - evidence: evidence capture, manifests, verification, audit exports
 - recovery: backup, restore, rollback, promotion guard
@@ -85,7 +89,7 @@ Dependency rule: outer adapters depend inward on contracts/ports; core policy an
 ## 7. Security and failure rules
 
 - Deny by default; explicitly forbidden actions remain forbidden regardless of caller claims.
-- No arbitrary shell, arbitrary filesystem, arbitrary network fetch, deployment, or provider invocation unless a separately defined capability and authorization contract explicitly grants it.
+- No arbitrary shell, arbitrary filesystem, arbitrary network fetch, or deployment. Provider invocation and session creation are permitted only with sealed principals carrying the respective explicit provider.invoke or session.create scope; a caller-supplied boolean is not sufficient. A trusted credential adapter must return a sealed principal, not a boolean, before PhoneRuntime creates a session.
 - No secrets in source, manifests, events, exception messages, logs, test fixtures, or evidence bundles.
 - Validate sizes, types, schema versions, duplicate JSON keys, nested secret sinks, and replay/idempotency before mutating state.
 - On hash-chain, checkpoint, anchor, or provenance mismatch: stop the affected mutation/sync/recovery path and preserve evidence; do not auto-heal.

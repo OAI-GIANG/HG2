@@ -2,7 +2,8 @@ import json, os, shutil, subprocess, sys, tempfile, threading, unittest, urllib.
 from unittest.mock import patch
 from http.server import ThreadingHTTPServer
 from hg import edge
-from hg.authority import ALLOWED, FORBIDDEN, authorize
+from hg.auth import BearerAuthenticator
+from hg.policy import ALLOWED, FORBIDDEN, authorize
 from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest
 from hg.identity import PRODUCT_ID, identity
 from hg.phone_runtime import PhoneRuntime
@@ -252,6 +253,7 @@ class PhoneTests(unittest.TestCase):
     def test_session_creation_fails_closed_when_verifier_rejects_or_raises(self):
         verifiers = (
             lambda _credential: False,
+            lambda _credential: True,
             lambda _credential: (_ for _ in ()).throw(RuntimeError("auth unavailable")),
         )
         for verifier in verifiers:
@@ -264,9 +266,11 @@ class PhoneTests(unittest.TestCase):
 
     def test_local_and_offline(self):
         with tempfile.TemporaryDirectory() as d:
+            auth = BearerAuthenticator("session-test-token", {"session.create"})
             rt = PhoneRuntime(
                 state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4,
-                session_authenticator=lambda credential: credential == "session-test-token",
+                session_authenticator=lambda credential: auth.authenticate("Bearer " + credential)
+                if isinstance(credential, str) else None,
             )
             self.assertTrue(rt.health()["ok"])
             self.assertFalse(rt.heartbeat())
@@ -278,9 +282,11 @@ class PhoneTests(unittest.TestCase):
 
     def test_sqlite_backend_is_explicit_opt_in_and_offline_capable(self):
         with tempfile.TemporaryDirectory() as d, patch.dict(os.environ, {"HG_STATE_BACKEND": "sqlite"}, clear=False):
+            auth = BearerAuthenticator("session-test-token", {"session.create"})
             rt = PhoneRuntime(
                 state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.1,
-                session_authenticator=lambda credential: credential == "session-test-token",
+                session_authenticator=lambda credential: auth.authenticate("Bearer " + credential)
+                if isinstance(credential, str) else None,
             )
             try:
                 self.assertTrue(rt.health()["ok"])

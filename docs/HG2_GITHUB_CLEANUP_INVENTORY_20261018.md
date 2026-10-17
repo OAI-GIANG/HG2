@@ -190,3 +190,25 @@ This hardening addresses concrete correctness/security gaps found during cleanup
 - Preserved reference branch: stt/hg2-unification-p0-20261016 @ a64e49d1619f5d83b5741d13c92961df9b07c79a. The branch was not deleted and should be used only as a source for later selective review.
 - Other overlapping feature PRs were not closed. PRs #12/#13/#15 carry narrower candidate scopes and still need product-scope disposition; PRs #21/#22/#24/#25 remain distinct candidate feature groups and must not be merged wholesale without one-owner interface reconciliation.
 - No merge to hg-genesis, no canonical branch mutation, no runtime change, and no live-state migration.
+
+
+## 14. Selective agent/provider/tool-plane consolidation (candidate branch only)
+
+Selected from PR #24 without merging the PR wholesale:
+- hg/auth.py: credential validation and sealed, scoped AuthenticatedPrincipal.
+- hg/provider.py: bounded OpenAI-compatible HTTPS transport; redirects rejected, request/response/time limits enforced, safe errors and no credential logging.
+- hg/agent.py: application composition/orchestration root; it composes PhoneRuntime, provider and tool router, not canonical state directly.
+- hg/toolplane.py: bounded turn/tool loop with allowlist, redacted/hash-only event audit, strict arguments and iteration/call limits.
+- Focused tests copied and adapted: test_auth.py, test_provider.py, test_agent.py, test_toolplane.py.
+
+Single-owner changes made in this candidate:
+- Active runtime and tool-plane imports now use hg.policy directly; hg.authority remains only a thin compatibility facade and is removed from the active functional module registry.
+- CONFIGURABLE_SCOPES is the shared source for token-scope registration and policy authenticated action sets.
+- provider.invoke requires a sealed principal carrying the explicit scope; a boolean authenticated=True, generic string-ID grant, or approval request cannot authorize it.
+- ToolPlane requires the PhoneRuntime interface and calls runtime.start_session(principal=...) for session creation. The tool plane no longer emits session.created directly, avoiding a second mutation route.
+- Provider response parsing and tool argument parsing now reuse the canonical strict JSON parser in hg.contracts. Hash/canonical message serialization uses canonical_digest/canonical_json. Private copies of duplicate-key parser and canonical hash helpers were removed.
+- manifest.json records one active model/provider boundary (hg.provider) and explicitly maps hg.authority as a compatibility facade; it does not register alternate model_gateway or model_provider modules.
+- Updated README, normative architecture contract and module map to distinguish Brain/HGAgent from Heart/PhoneRuntime, and Authentication from Policy.
+
+Focused verification after these changes: 54 tests across auth/provider/toolplane/agent/policy pass under ResourceWarning-as-error. Full-suite exact-head verification and evidence recording are pending after final review. The agent/provider modules do not invoke a real external provider in test runs; tests use fake/local transport fixtures. No token was displayed or changed; no real provider request was sent.
+\nAdditional principal-bound rule: PhoneRuntime.start_session always calls authorize_principal. An injected session_authenticator must return a sealed AuthenticatedPrincipal; True/False results and exceptions fail closed. Regression coverage explicitly verifies that a boolean True does not create a session. The old authorize boolean compatibility API is no longer used by the application-session path.\n

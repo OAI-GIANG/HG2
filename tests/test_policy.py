@@ -1,12 +1,16 @@
 """Tests for HG2's fail-closed policy and approval state machine."""
 import unittest
 
+from hg.auth import BearerAuthenticator, CONFIGURABLE_SCOPES
 from hg.policy import (
     ALLOWED,
+    APPROVABLE_ACTIONS,
     FORBIDDEN,
+    NEEDS_AUTH,
     CapabilityGrant,
     PolicyError,
     authorize,
+    authorize_principal,
     authorize_with_grants,
     create_approval_request,
     decide_approval,
@@ -20,6 +24,30 @@ class PolicyTests(unittest.TestCase):
         self.assertFalse(authorize("session.create").allowed)
         self.assertFalse(authorize("shell.exec", authenticated=True).allowed)
         self.assertFalse(ALLOWED & FORBIDDEN)
+
+    def test_provider_invocation_requires_sealed_principal_not_boolean_or_approval(self):
+        self.assertFalse(authorize("provider.invoke", authenticated=True).allowed)
+        self.assertEqual(authorize("provider.invoke", authenticated=True).reason, "SEALED_PRINCIPAL_REQUIRED")
+        self.assertNotIn("provider.invoke", APPROVABLE_ACTIONS)
+        with self.assertRaisesRegex(PolicyError, "ACTION_NOT_APPROVABLE"):
+            create_approval_request(
+                principal_id="alice", action="provider.invoke", resource_id="provider",
+                request_digest="a" * 64, now=10,
+            )
+        grant = CapabilityGrant("g-provider", "alice", "provider.invoke", 1)
+        self.assertEqual(
+            authorize_with_grants("alice", "provider.invoke", [grant], now=2).reason,
+            "SEALED_PRINCIPAL_REQUIRED",
+        )
+
+    def test_configurable_auth_scopes_are_single_sourced_through_policy(self):
+        self.assertLessEqual(CONFIGURABLE_SCOPES, ALLOWED)
+        self.assertLessEqual(CONFIGURABLE_SCOPES, NEEDS_AUTH)
+        auth = BearerAuthenticator("policy-test-token", CONFIGURABLE_SCOPES)
+        principal = auth.authenticate("Bearer policy-test-token")
+        for action in CONFIGURABLE_SCOPES:
+            self.assertTrue(authorize_principal(action, principal).allowed)
+            self.assertFalse(authorize_principal(action, object()).allowed)
 
     def test_explicit_grant_is_required_and_scoped(self):
         grant = CapabilityGrant(

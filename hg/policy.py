@@ -7,13 +7,19 @@ import uuid
 from dataclasses import dataclass
 from typing import Any, Iterable, Mapping
 
+from .auth import AuthenticatedPrincipal, CONFIGURABLE_SCOPES
+
 ALLOWED = frozenset({
-    "health.read", "session.create", "edge.register", "edge.heartbeat", "edge.status"
-})
-NEEDS_AUTH = frozenset({"session.create", "edge.register", "edge.heartbeat", "edge.status"})
+    "health.read", "edge.register", "edge.heartbeat", "edge.status",
+}) | CONFIGURABLE_SCOPES
+NEEDS_AUTH = frozenset({
+    "edge.register", "edge.heartbeat", "edge.status",
+}) | CONFIGURABLE_SCOPES
+PRINCIPAL_ONLY_ACTIONS = frozenset({"provider.invoke"})
+APPROVABLE_ACTIONS = ALLOWED - PRINCIPAL_ONLY_ACTIONS
 FORBIDDEN = frozenset({
     "file.read", "file.write", "shell.exec", "network.fetch", "deploy",
-    "identity.change", "state.import", "provider.invoke",
+    "identity.change", "state.import",
 })
 _DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
 _APPROVAL_STATES = frozenset({"PENDING", "APPROVED", "DENIED", "EXPIRED"})
@@ -75,11 +81,35 @@ def authorize(action: Any, *, authenticated: bool = False) -> Decision:
         return Decision(False, "", "INVALID_ACTION")
     if action in FORBIDDEN:
         return Decision(False, action, "EXPLICITLY_FORBIDDEN")
+    if action in PRINCIPAL_ONLY_ACTIONS:
+        return Decision(False, action, "SEALED_PRINCIPAL_REQUIRED")
     if action not in ALLOWED:
         return Decision(False, action, "NOT_ALLOWLISTED")
     if action in NEEDS_AUTH and not authenticated:
         return Decision(False, action, "AUTHENTICATION_REQUIRED")
     return Decision(True, action, "ALLOWLISTED")
+
+
+def authorize_principal(action: Any, principal: Any) -> Decision:
+    """Authorize a sealed principal without trusting a caller-supplied boolean.
+
+    The compatibility `authorize(..., authenticated=True)` API is retained for
+    existing internal relay paths, but authenticated application actions should
+    use this principal-bound decision function.
+    """
+    if not isinstance(action, str) or not action:
+        return Decision(False, "", "INVALID_ACTION")
+    if action in FORBIDDEN:
+        return Decision(False, action, "EXPLICITLY_FORBIDDEN")
+    if action not in ALLOWED:
+        return Decision(False, action, "NOT_ALLOWLISTED")
+    if action not in NEEDS_AUTH:
+        return Decision(True, action, "ALLOWLISTED")
+    if not isinstance(principal, AuthenticatedPrincipal):
+        return Decision(False, action, "AUTHENTICATION_REQUIRED")
+    if not principal.allows(action):
+        return Decision(False, action, "ACTION_NOT_AUTHORIZED")
+    return Decision(True, action, "AUTHENTICATED_SCOPE")
 
 
 def authorize_with_grants(
@@ -120,7 +150,7 @@ def validate_approval_request(request: Mapping[str, Any]) -> dict[str, Any]:
     for field in ("approval_id", "principal_id", "resource_id"):
         if not isinstance(result[field], str) or not result[field].strip():
             raise PolicyError("APPROVAL_SCHEMA_INVALID")
-    if not isinstance(result["action"], str) or result["action"] not in ALLOWED or result["action"] in FORBIDDEN:
+    if not isinstance(result["action"], str) or result["action"] not in APPROVABLE_ACTIONS or result["action"] in FORBIDDEN:
         raise PolicyError("ACTION_NOT_APPROVABLE")
     if not isinstance(result["request_digest"], str) or not _DIGEST_RE.fullmatch(result["request_digest"]):
         raise PolicyError("REQUEST_DIGEST_INVALID")
@@ -167,7 +197,7 @@ def create_approval_request(
 ) -> dict[str, Any]:
     if not isinstance(principal_id, str) or not principal_id.strip():
         raise PolicyError("PRINCIPAL_REQUIRED")
-    if not isinstance(action, str) or action not in ALLOWED or action in FORBIDDEN:
+    if not isinstance(action, str) or action not in APPROVABLE_ACTIONS or action in FORBIDDEN:
         raise PolicyError("ACTION_NOT_APPROVABLE")
     if not isinstance(resource_id, str) or not resource_id.strip():
         raise PolicyError("RESOURCE_REQUIRED")

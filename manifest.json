@@ -5,17 +5,20 @@
   "dependencies": {},
   "modules": [
     "hg.identity",
-    "hg.authority",
+    "hg.auth",
     "hg.policy",
     "hg.contracts",
+    "hg.phone_runtime",
+    "hg.agent",
+    "hg.toolplane",
+    "hg.provider",
+    "hg.edge",
     "hg.history",
     "hg.sqlite_state",
     "hg.migration",
     "hg.recovery",
-    "hg.sync",
     "hg.workflow",
-    "hg.phone_runtime",
-    "hg.edge"
+    "hg.sync"
   ],
   "origin": "clean_room",
   "architecture": {
@@ -24,5 +27,8 @@
     "module_map": "docs/HG2_CIRCULATORY_MODULE_MAP_V1.md",
     "roadmap": "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md",
     "status": "DESIGN_BASELINE_NOT_CERTIFIED"
+  },
+  "compatibility_facades": {
+    "hg.authority": "hg.policy (legacy import path only; no policy logic)"
   }
 }

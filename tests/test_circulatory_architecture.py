@@ -41,6 +41,44 @@ class CirculatoryArchitectureTests(unittest.TestCase):
                     break
         self.assertEqual(sorted(set(users)), ["phone_runtime.py"])
 
+    def test_agent_stack_is_registered_with_one_provider_boundary(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        for module in ("hg.auth", "hg.provider", "hg.toolplane", "hg.agent"):
+            self.assertIn(module, manifest["modules"])
+        provider_modules = [name for name in manifest["modules"]
+                            if name.rsplit(".", 1)[-1] in {"provider", "model_gateway", "model_provider"}]
+        self.assertEqual(provider_modules, ["hg.provider"])
+
+    def test_authority_module_is_only_a_compatibility_facade(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        self.assertNotIn("hg.authority", manifest["modules"])
+        self.assertEqual(
+            manifest.get("compatibility_facades", {}).get("hg.authority"),
+            "hg.policy (legacy import path only; no policy logic)",
+        )
+        for path in SOURCE.glob("*.py"):
+            if path.name == "authority.py":
+                continue
+            self.assertNotIn("from .authority import", path.read_text(encoding="utf-8"), path.name)
+
+    def test_json_parser_and_digest_are_not_reimplemented_by_provider_or_toolplane(self):
+        provider = (SOURCE / "provider.py").read_text(encoding="utf-8")
+        toolplane = (SOURCE / "toolplane.py").read_text(encoding="utf-8")
+        self.assertNotIn("def _no_duplicate_json_keys", provider)
+        self.assertNotIn("def _reject_json_constant", provider)
+        self.assertNotIn("def _no_duplicate_keys", toolplane)
+        self.assertNotIn("def _reject_json_constant", toolplane)
+        self.assertIn("parse_json_no_duplicate_keys", provider)
+        self.assertIn("parse_json_no_duplicate_keys", toolplane)
+        self.assertIn("canonical_digest", toolplane)
+        self.assertIn("canonical_json", provider)
+
+    def test_toolplane_routes_session_creation_through_runtime(self):
+        source = (SOURCE / "toolplane.py").read_text(encoding="utf-8")
+        self.assertNotIn('self.store.emit("session.created"', source)
+        self.assertIn('self.runtime.start_session(principal=principal)', source)
+        self.assertIn('authorize_principal("provider.invoke", principal)', source)
+
     def test_edge_relay_does_not_import_canonical_state_store(self):
         tree = ast.parse((SOURCE / "edge.py").read_text(encoding="utf-8"), filename="edge.py")
         imported = []

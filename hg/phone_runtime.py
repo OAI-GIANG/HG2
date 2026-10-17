@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json, os, secrets, urllib.error, urllib.request
-from .authority import authorize
+from .policy import authorize, authorize_principal
 from .history import StateStore
 from .sqlite_state import SQLiteStateStore
 
@@ -50,17 +50,21 @@ class PhoneRuntime:
         return {"ok": True, "product": "HG", "runtime_id": self.store.runtime_id,
                 "edge_configured": bool(self.edge_url), "integrity": self.store.verify()}
 
-    def start_session(self, correlation_id=None, *, credential=None):
-        authenticated = False
-        verifier = self.session_authenticator
-        if callable(verifier):
-            try:
-                authenticated = verifier(credential) is True
-            except Exception:
-                authenticated = False
-        d = authorize("session.create", authenticated=authenticated)
-        if not d.allowed:
-            raise PermissionError(d.reason)
+    def start_session(self, correlation_id=None, *, credential=None, principal=None):
+        if principal is not None and credential is not None:
+            raise PermissionError("AMBIGUOUS_SESSION_CREDENTIAL")
+        if principal is None:
+            verifier = self.session_authenticator
+            if callable(verifier):
+                try:
+                    principal = verifier(credential)
+                except Exception:
+                    principal = None
+        # A verifier must return a sealed AuthenticatedPrincipal. Boolean True is not
+        # authentication proof and is intentionally rejected by policy.
+        decision = authorize_principal("session.create", principal)
+        if not decision.allowed:
+            raise PermissionError(decision.reason)
         rec = self.store.emit("session.created", {"session_id": secrets.token_urlsafe(18), "product": "HG"},
                               correlation_id=correlation_id)
         return dict(rec["payload"])
