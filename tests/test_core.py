@@ -3,7 +3,7 @@ from unittest.mock import patch
 from http.server import ThreadingHTTPServer
 from hg import edge
 from hg.authority import ALLOWED, FORBIDDEN, authorize
-from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest
+from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest, canonical
 from hg.identity import PRODUCT_ID, identity
 from hg.phone_runtime import PhoneRuntime
 
@@ -121,6 +121,123 @@ class HistoryTests(unittest.TestCase):
                                 capture_output=True, text=True, cwd=ROOT, env=env)
             self.assertEqual(r2.returncode, 0, r2.stderr)
             self.assertEqual(r2.stdout.strip(), "True ['p']")
+
+
+    def test_missing_head_checkpoint_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            os.unlink(os.path.join(d, "head.json"))
+            self.assertFalse(store.verify()["ok"])
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
+    def test_missing_state_projection_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            os.unlink(os.path.join(d, "state.json"))
+            self.assertFalse(store.verify()["ok"])
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
+    def test_missing_history_with_old_artifacts_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            os.unlink(os.path.join(d, "history.jsonl"))
+            self.assertFalse(store.verify()["ok"])
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
+    def test_projection_tampering_all_fields_detected(self):
+        mutations = {
+            "schema": lambda x: x.update(schema="OTHER"),
+            "runtime_id": lambda x: x.update(runtime_id="forged"),
+            "last_seq": lambda x: x.update(last_seq=0),
+            "head_hash": lambda x: x.update(head_hash=ZERO),
+            "sessions": lambda x: x.update(sessions={"fake": {"session_id": "fake"}}),
+            "counters": lambda x: x.update(counters={"forged": 900}),
+        }
+        for name, mutate in mutations.items():
+            with self.subTest(field=name), tempfile.TemporaryDirectory() as d:
+                StateStore(d).emit("session.created", {"session_id": "real"})
+                path = os.path.join(d, "state.json")
+                projection = json.load(open(path, encoding="utf-8"))
+                mutate(projection)
+                with open(path, "w", encoding="utf-8") as fh:
+                    json.dump(projection, fh)
+                probe = StateStore.__new__(StateStore)
+                probe.dir, probe.log, probe.head, probe.state = d, os.path.join(d, "history.jsonl"), os.path.join(d, "head.json"), path
+                self.assertFalse(probe.verify()["ok"], name)
+                with self.assertRaises(HistoryError, msg=name):
+                    StateStore(d)
+
+    def test_checkpoint_rollback_detected(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            store.emit("session.created", {"session_id": "x"})
+            records = lines(d)
+            old = json.loads(records[-2])
+            with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
+                json.dump({"seq": old["seq"], "head_hash": old["record_hash"]}, fh)
+            self.assertEqual(store.verify()["reason"], "checkpoint_mismatch")
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
+    def test_non_object_history_record_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            path = os.path.join(d, "history.jsonl")
+            with open(path, encoding="utf-8") as fh:
+                rows = fh.read().splitlines()
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write("[]\n")
+            result = store.verify()
+            self.assertFalse(result["ok"])
+            self.assertEqual(result["reason"], "record_not_object_line_1")
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
+    def test_invalid_sequence_and_event_type_fail_closed(self):
+        for name, alter in (
+            ("boolean_sequence", lambda r: r.update(seq=True)),
+            ("empty_event_type", lambda r: r.update(event_type="")),
+        ):
+            with self.subTest(case=name), tempfile.TemporaryDirectory() as d:
+                store = StateStore(d)
+                path = os.path.join(d, "history.jsonl")
+                with open(path, encoding="utf-8") as fh:
+                    rec = json.loads(fh.readline())
+                alter(rec)
+                core = {k: v for k, v in rec.items() if k != "record_hash"}
+                rec["record_hash"] = digest(core)
+                with open(path, "w", encoding="utf-8") as fh:
+                    fh.write(canonical(rec) + "\n")
+                result = store.verify()
+                self.assertFalse(result["ok"], name)
+                with self.assertRaises(HistoryError, msg=name):
+                    StateStore(d)
+
+    def test_interrupted_append_detected(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            with open(os.path.join(d, "history.jsonl"), "ab") as fh:
+                fh.write(b'{"seq":2,"partial":')
+            self.assertFalse(store.verify()["ok"])
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
+    def test_duplicate_and_reordered_records_are_rejected(self):
+        for name, mutate in (
+            ("duplicate", lambda rows: rows + [rows[-1]]),
+            ("reordered", lambda rows: [rows[0], rows[2], rows[1]]),
+        ):
+            with self.subTest(case=name), tempfile.TemporaryDirectory() as d:
+                store = StateStore(d)
+                store.emit("session.created", {"session_id": "a"})
+                store.emit("session.created", {"session_id": "b"})
+                put(d, mutate(lines(d)))
+                self.assertFalse(store.verify()["ok"])
+                with self.assertRaises(HistoryError):
+                    StateStore(d)
 
 
 class EdgeTests(unittest.TestCase):
