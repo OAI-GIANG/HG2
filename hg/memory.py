@@ -190,3 +190,56 @@ class MemoryStore:
                 visible.append(dict(rec))
             visible.sort(key=lambda x: (x.get("id", ""), x.get("version", 0)))
             return visible[:limit]
+
+    def retrieve(self, query: str, *, grants, limit: int = 10) -> dict[str, Any]:
+        """Deterministic lexical retrieval after ACL filtering; no model call."""
+        if not isinstance(query, str) or not query.strip() or len(query) > 4000:
+            raise MemoryValidationError("query must contain 1..4000 characters")
+        if not isinstance(limit, int) or not 1 <= limit <= 50:
+            raise MemoryValidationError("limit must be 1..50")
+        terms = set(re.findall(r"[^\W_]+", query.casefold(), flags=re.UNICODE))
+        visible = self.list_active(grants=grants, limit=500)
+        matches = []
+        for rec in visible:
+            text = (str(rec.get("title", "")) + " " + str(rec.get("content", ""))).casefold()
+            words = set(re.findall(r"[^\W_]+", text, flags=re.UNICODE))
+            overlap = terms & words
+            if not overlap:
+                continue
+            score = len(overlap) / max(1, len(terms))
+            matches.append({**rec, "score": round(score, 6)})
+        matches.sort(key=lambda x: (-x["score"], x["id"]))
+        matches = matches[:limit]
+        query_id = _sha({"query": query, "state_head": self.store.audit_export()["head_hash"]})
+        manifest = {"schema_version": 1, "operation": "memory_retrieve", "query_id": query_id,
+                    "query_sha256": hashlib.sha256(query.encode("utf-8")).hexdigest(),
+                    "source_head_hash": self.store.audit_export()["head_hash"],
+                    "selected": [{"id": r["id"], "version": r["version"], "scope_id": r["scope_id"],
+                                  "checksum": r["checksum"], "score": r["score"]} for r in matches],
+                    "visible_record_count": len(visible), "match_count": len(matches), "model_called": False}
+        manifest["manifest_sha256"] = _sha(manifest)
+        return {"query_id": query_id, "matches": matches, "manifest": manifest}
+
+    def build_context(self, query: str, *, grants, limit: int = 10, max_chars: int = 12000) -> dict[str, Any]:
+        if not isinstance(max_chars, int) or not 256 <= max_chars <= 100000:
+            raise MemoryValidationError("max_chars must be 256..100000")
+        result = self.retrieve(query, grants=grants, limit=limit)
+        blocks = []; used = 0
+        for rec in result["matches"]:
+            block = {"source_id": rec["id"], "version": rec["version"], "scope_id": rec["scope_id"],
+                     "checksum": rec["checksum"], "title": rec["title"], "content": rec["content"],
+                     "content_is_untrusted_data": True}
+            size = len(block["title"]) + len(block["content"])
+            if used + size > max_chars:
+                remaining = max_chars - used
+                if remaining <= 0: break
+                block["content"] = block["content"][:remaining]
+                block["truncated"] = True
+                blocks.append(block); used += remaining; break
+            block["truncated"] = False
+            blocks.append(block); used += size
+        manifest = dict(result["manifest"])
+        manifest.update({"operation": "memory_context", "context_record_ids": [b["source_id"] for b in blocks],
+                         "context_char_count": used, "max_chars": max_chars, "model_called": False})
+        manifest["manifest_sha256"] = _sha({k:v for k,v in manifest.items() if k != "manifest_sha256"})
+        return {"query_id": result["query_id"], "context": blocks, "manifest": manifest}

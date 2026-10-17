@@ -7,9 +7,10 @@ import os
 import re
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from .memory import MemoryConflict, MemoryDenied, MemoryErrorBase, MemoryIdempotencyConflict, MemoryStore, MemoryValidationError
+from .model_gateway import ModelGatewayError, ModelNotConfigured
 from .phone_runtime import PhoneRuntime
 
 MAX_BODY = 256 * 1024
@@ -120,6 +121,27 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                         "runtime": "READY" if integ.get("ok") else "DEGRADED",
                         "integrity": integ, "edge_configured": health.get("edge_configured", False)})
             return
+        if path in ("/api/memory/search", "/api/memory/context"):
+            grants = self._auth(write=False)
+            if grants is None: return
+            params = parse_qs(urlsplit(self.path).query, keep_blank_values=True)
+            if any(len(v) != 1 for v in params.values()) or set(params) - {"q", "limit", "max_chars"}:
+                self._send(400, {"ok": False, "error": {"code": "INVALID_QUERY_PARAMETERS"}}); return
+            query = params.get("q", [""])[0]
+            try:
+                limit = int(params.get("limit", ["10"])[0])
+                if path.endswith("/context"):
+                    max_chars = int(params.get("max_chars", ["12000"])[0])
+                    result = self.server.runtime.memory.build_context(query, grants=grants, limit=limit, max_chars=max_chars)
+                    self._send(200, {"ok": True, **result})
+                else:
+                    result = self.server.runtime.memory.retrieve(query, grants=grants, limit=limit)
+                    self._send(200, {"ok": True, **result})
+            except ValueError:
+                self._send(400, {"ok": False, "error": {"code": "INVALID_QUERY_PARAMETERS"}})
+            except MemoryErrorBase as exc:
+                self._send(422, {"ok": False, "error": {"code": exc.code}})
+            return
         if path == "/api/memory":
             grants = self._auth(write=False)
             if grants is None: return
@@ -143,6 +165,40 @@ class HGRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
+        if path == "/api/ask":
+            grants = self._auth(write=False)
+            if grants is None: return
+            try:
+                body = self._body()
+                query = body.get("query")
+                if not isinstance(query, str) or not query.strip() or len(query) > 12000:
+                    raise MemoryValidationError("query must contain 1..12000 characters")
+                context = self.server.runtime.memory.build_context(query, grants=grants, limit=10, max_chars=12000)
+                result = self.server.runtime.model_gateway.ask(query, context)
+                manifest = result["manifest"]
+                audit = {"operation": "model_answer", "model": result.get("model"),
+                         "query_sha256": manifest.get("query_sha256"),
+                         "context_manifest_sha256": manifest.get("context_manifest_sha256"),
+                         "request_sha256": manifest.get("request_sha256"),
+                         "response_sha256": manifest.get("response_sha256"),
+                         "manifest_sha256": manifest.get("manifest_sha256")}
+                self.server.runtime.store.emit("model.call.completed", audit,
+                    correlation_id=context.get("query_id"), event_id="model-call:" + str(manifest.get("manifest_sha256")))
+                self._send(200, {"ok": True, "answer": result["answer"], "model": result["model"],
+                                 "context_manifest": context["manifest"], "model_manifest": manifest})
+            except OverflowError:
+                self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
+            except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+                self._send(400, {"ok": False, "error": {"code": "INVALID_JSON"}})
+            except MemoryDenied as exc:
+                self._send(403, {"ok": False, "error": {"code": exc.code}})
+            except MemoryErrorBase as exc:
+                self._send(422, {"ok": False, "error": {"code": exc.code}})
+            except ModelNotConfigured as exc:
+                self._send(503, {"ok": False, "error": {"code": exc.code}})
+            except ModelGatewayError as exc:
+                self._send(502, {"ok": False, "error": {"code": exc.code}})
+            return
         if path != "/api/memory":
             self._send(404, {"ok": False, "error": {"code": "NOT_FOUND"}}); return
         grants = self._auth(write=True)

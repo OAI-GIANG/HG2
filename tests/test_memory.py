@@ -41,6 +41,16 @@ class MemoryTests(unittest.TestCase):
         self.assertIsNone(reopened.get("fact-1", grants=self.grants))
         with self.assertRaises(MemoryConflict):
             reopened.remember(self.rec, principal_id="p", grants=self.grants, idempotency_key="k3")
+    def test_retrieve_and_context_manifest(self):
+        self.mem.remember(self.rec, principal_id="p", grants=self.grants, idempotency_key="k1")
+        result = self.mem.retrieve("HG2 owns", grants=self.grants)
+        self.assertEqual([x["id"] for x in result["matches"]], ["fact-1"])
+        self.assertFalse(result["manifest"]["model_called"])
+        context = self.mem.build_context("HG2 owns", grants=self.grants)
+        self.assertEqual(context["context"][0]["source_id"], "fact-1")
+        self.assertTrue(context["context"][0]["content_is_untrusted_data"])
+        self.assertFalse(context["manifest"]["model_called"])
+        self.assertEqual(len(context["manifest"]["manifest_sha256"]), 64)
     def test_history_integrity_covers_memory_mutation(self):
         self.mem.remember(self.rec, principal_id="p", grants=self.grants, idempotency_key="k1")
         self.assertTrue(self.state.verify()["ok"])

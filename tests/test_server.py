@@ -47,9 +47,32 @@ class ServerTests(unittest.TestCase):
         status, body = self.call("/api/memory")
         self.assertEqual(status, 200); self.assertEqual(body["count"], 1)
         self.assertEqual(self.call("/api/memory/api-fact")[0], 200)
+        status, body = self.call("/api/memory/search?q=Single+system")
+        self.assertEqual(status, 200); self.assertEqual(body["manifest"]["model_called"], False)
+        status, body = self.call("/api/memory/context?q=Single+system")
+        self.assertEqual(status, 200); self.assertEqual(body["manifest"]["operation"], "memory_context")
         status, body = self.call("/api/memory/api-fact", "DELETE", {"expected_version":1,"idempotency_key":"delete-1"}, token=WRITE_TOKEN)
         self.assertEqual(status, 200); self.assertEqual(body["memory"]["status"], "tombstoned")
         self.assertEqual(self.call("/api/memory/api-fact")[0], 404)
+    def test_ask_uses_authorized_context_and_audits_call(self):
+        self.rt.memory.remember({"id":"ask-memory","type":"fact","title":"HG2","content":"single runtime","scope_id":"owner"},
+            principal_id="test-owner",grants={"owner"},idempotency_key="ask-memory-create")
+        class FakeGateway:
+            def ask(self, query, context):
+                assert context["manifest"]["model_called"] is False
+                return {"answer":"mock answer","model":"fake-model","manifest":{
+                    "query_sha256":"a"*64,"context_manifest_sha256":context["manifest"]["manifest_sha256"],
+                    "request_sha256":"b"*64,"response_sha256":"c"*64,"manifest_sha256":"d"*64}}
+        self.rt.model_gateway=FakeGateway()
+        status, body=self.call("/api/ask","POST",{"query":"What is HG2?"},token=READ_TOKEN)
+        self.assertEqual(status,200); self.assertEqual(body["answer"],"mock answer")
+        self.assertEqual(body["context_manifest"]["model_called"],False)
+        self.assertIn("model.call.completed",[e["event_type"] for e in self.rt.store.replay()])
+    def test_ask_without_provider_config_fails_closed(self):
+        from hg.model_gateway import ModelGateway
+        self.rt.model_gateway=ModelGateway(base_url="",api_key="",model="")
+        status, body=self.call("/api/ask","POST",{"query":"No provider"},token=READ_TOKEN)
+        self.assertEqual(status,503); self.assertEqual(body["error"]["code"],"MODEL_NOT_CONFIGURED")
     def test_scope_enforced_and_no_duplicate_json_keys(self):
         record = {"id":"denied", "type":"fact", "title":"x", "content":"y", "scope_id":"other"}
         self.assertEqual(self.call("/api/memory", "POST", {"record":record,"idempotency_key":"k"}, token=WRITE_TOKEN)[0], 403)

@@ -5,6 +5,7 @@ import json, os, secrets, urllib.error, urllib.request
 from .authority import authorize
 from .history import StateStore
 from .memory import MemoryStore
+from .model_gateway import ModelGateway
 
 
 class PhoneRuntime:
@@ -15,8 +16,9 @@ class PhoneRuntime:
         self.device_id = device_id or os.environ.get("HG_DEVICE_ID") or "phone-" + secrets.token_hex(4)
         self.timeout = timeout
         self.store = StateStore(self.state_dir)
-        # Memory shares the sole canonical state owner; no second database/runtime.
+        # Memory and model gateway are composed under this one canonical runtime.
         self.memory = MemoryStore(self.store)
+        self.model_gateway = ModelGateway(timeout=45)
 
     def health(self):
         return {"ok": True, "product": "HG", "runtime_id": self.store.runtime_id,

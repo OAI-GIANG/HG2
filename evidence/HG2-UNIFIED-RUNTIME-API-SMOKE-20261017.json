@@ -20,17 +20,33 @@
     "observed_count": 31,
     "scope_filter": "global,HG"
   },
-  "ui": {
+  "retrieval": {
     "http_status": 200,
-    "bytes": 5959
+    "query": "HG",
+    "match_count": 10,
+    "model_called": false
+  },
+  "context": {
+    "http_status": 200,
+    "block_count": 10,
+    "model_called": false,
+    "content_is_data": true
+  },
+  "ask_without_provider_configuration": {
+    "http_status": 503,
+    "error_code": "MODEL_NOT_CONFIGURED",
+    "provider_called": false
+  },
+  "ui": {
+    "http_status": 200
   },
   "server_process": {
-    "stopped_after_test": true,
-    "return_code": -15
+    "stopped_after_test": true
   },
   "limitations": [
-    "No production credentials configured",
-    "No model gateway or durable replication cutover",
+    "No production API read/write tokens provisioned",
+    "No real model-provider call made",
+    "No durable replication cutover",
     "No live runtime restart/deploy"
   ]
 }

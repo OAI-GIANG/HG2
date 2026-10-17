@@ -30,8 +30,9 @@ Build one cohesive runtime from canonical HG2 source. Do not mount or import a s
 
 ## Current implementation branch evidence
 
-- `hg/memory.py`: event-sourced memory with explicit scopes, optimistic version checks, idempotency, checksums, tombstones, and no resurrection.
-- `hg/server.py` + `ui/index.html`: one-process local API/UI; requires separate `HG_API_READ_TOKEN` and `HG_API_WRITE_TOKEN`, explicit read/write scopes, and loopback bind.
+- `hg/memory.py`: event-sourced memory with explicit scopes, optimistic version checks, idempotency, checksums, tombstones, no resurrection, deterministic lexical retrieval, and context manifests marked `model_called=false`.
+- `hg/model_gateway.py`: OpenAI-compatible provider adapter that keeps retrieved memory as untrusted data, stores hashes/provenance rather than prompt or response bodies in audit events, and fails closed when provider configuration is absent.
+- `hg/server.py` + `ui/index.html`: one-process local API/UI with chat, retrieval, context preview, and memory CRUD; requires separate `HG_API_READ_TOKEN` and `HG_API_WRITE_TOKEN`, explicit read/write scopes, and loopback bind.
 - `tools/legacy_state_preflight.py` + `tools/import_legacy_state.py`: read-only inventory and dry-run-by-default importer. The importer preserves legacy messages/conversations as inert events, copies only verified Library assets inside the canonical root, and redacts device tokens from the event log.
 - Rehearsal against the frozen snapshot imported 31 scoped memories, preserved 2 unscoped records in quarantine, imported 68 messages and 4 conversations, copied 4 verified assets, quarantined 13 unsafe/missing Library metadata records, and recorded 2 device records without tokens. The hash-chained target passed integrity and content/hash reconciliation. This is staging evidence only, not a production cutover.
 - An isolated API smoke test against the rehearsed imported state returned health/integrity READY, 31 visible scoped memories, and the UI with HTTP 200; the process was stopped immediately after the test. Evidence: `evidence/HG2-UNIFIED-RUNTIME-API-SMOKE-20261017.json`.
