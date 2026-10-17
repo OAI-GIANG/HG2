@@ -8,6 +8,7 @@
     "connection_budget_503_retry_after": "PASS",
     "credential_expiry_fail_closed": "PASS",
     "credential_revocation_fail_closed": "PASS",
+    "edge_http_error_response_closed": "PASS",
     "git_diff_check": "PASS",
     "http_429_retry_after": "PASS",
     "invalid_credential_metadata_fails_closed": "PASS",
@@ -37,14 +38,14 @@
   },
   "full_suite": {
     "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
-    "log_sha256": "3e4d4af0d242c2b0fe350c158b417ec5f067b1c69b13c47df2cab99fa6f7ae51",
+    "log_sha256": "0e9df06b20881044acaa15968ad63c07f16a36cfc82afaf4eb5722af14c43c0f",
     "resource_warnings_are_errors": true,
     "result": "PASS",
     "tests_failed": 0,
     "tests_passed": 91
   },
-  "implementation_tree_sha1_excluding_evidence": "aed659747e8a7cfa3166c4fa824fd984f4424843",
-  "parent_candidate_commit": "66fc1ca9caa0a36051434a66d13deb6aa48cd5fa",
+  "implementation_tree_sha1_excluding_evidence": "7f0e43aa5880679140c4a821c5cbd9a3d84e96ab",
+  "parent_candidate_commit": "25e9374fc8717854cc806de446c252a72e9545c1",
   "release_gate": "NOT_RELEASED; no production cutover, merge, deploy, or deletion authorized by this evidence",
   "runtime": {
     "credential_values_read": false,
@@ -59,5 +60,6 @@
   },
   "schema": "HG2_RESOURCE_BOUNDS_ACCEPTANCE_V1",
   "status": "PASS_STAGING_ONLY",
-  "tested_branch": "stt/hg2-single-system-hardening-20261017"
+  "tested_branch": "stt/hg2-single-system-20261017",
+  "tested_local_branch": "stt/hg2-single-system-hardening-20261017"
 }
