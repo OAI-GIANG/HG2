@@ -21,10 +21,12 @@ from .contracts import (
     parse_json_no_duplicate_keys,
     validate_event,
 )
+from .workflow import WorkflowError, transition_task, validate_task
 
 _PRODUCT_ID = "HG"
 _OWNER_ID = "phone"
 _REQUIRED_META = ("runtime_id", "state_owner_id", "last_seq", "head_digest", "last_ack_cursor", "last_ack_sequence", "backend_schema")
+_SQLITE_SCHEMA_VERSION = "2"
 
 
 class SQLiteStateError(RuntimeError):
@@ -33,6 +35,51 @@ class SQLiteStateError(RuntimeError):
 
 class IdempotencyConflict(SQLiteStateError):
     """An idempotency key was reused for a different operation."""
+
+
+def _apply_task_event(event: dict[str, Any], tasks: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """Validate a task event against the previous projection and return the new projection."""
+    if event["event_type"] == "workflow.task.created":
+        task = validate_task(event["payload"])
+        task_id = task["task_id"]
+        if task_id in tasks or task["state"] != "PENDING" or task["version"] != 1:
+            raise WorkflowError("TASK_CREATE_PROJECTION_INVALID")
+        updated = dict(tasks)
+        updated[task_id] = task
+        return updated
+    if event["event_type"] != "workflow.task.transitioned":
+        return tasks
+    payload = event["payload"]
+    if not isinstance(payload, dict) or set(payload) != {"task", "transition"}:
+        raise WorkflowError("TASK_TRANSITION_EVENT_SCHEMA_INVALID")
+    task = validate_task(payload["task"])
+    transition = payload["transition"]
+    if not isinstance(transition, dict) or set(transition) != {
+        "from_state", "requested_state", "approval_id", "approval_status", "reason"
+    }:
+        raise WorkflowError("TASK_TRANSITION_METADATA_INVALID")
+    task_id = task["task_id"]
+    previous = tasks.get(task_id)
+    if previous is None:
+        raise WorkflowError("TASK_TRANSITION_WITHOUT_CREATE")
+    if transition["from_state"] != previous["state"]:
+        raise WorkflowError("TASK_TRANSITION_SOURCE_MISMATCH")
+    expected = transition_task(
+        previous,
+        target_state=transition["requested_state"],
+        actor_id=event["actor_id"],
+        now=task["updated_at"],
+        reason=transition["reason"],
+        result_digest=task["result_digest"],
+        error_code=task["error_code"],
+        approval_id=transition["approval_id"],
+        approval_status=transition["approval_status"],
+    )
+    if canonical_json(expected) != canonical_json(task):
+        raise WorkflowError("TASK_TRANSITION_RESULT_MISMATCH")
+    updated = dict(tasks)
+    updated[task_id] = task
+    return updated
 
 
 class SQLiteStateStore:
@@ -90,6 +137,9 @@ class SQLiteStateStore:
                     "CREATE TABLE IF NOT EXISTS counters (event_type TEXT PRIMARY KEY, count INTEGER NOT NULL CHECK(count >= 0))"
                 )
                 self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS tasks (task_id TEXT PRIMARY KEY, task_json TEXT NOT NULL)"
+                )
+                self._conn.execute(
                     "CREATE TABLE IF NOT EXISTS outbox ("
                     "event_id TEXT PRIMARY KEY REFERENCES events(event_id), "
                     "sequence INTEGER NOT NULL UNIQUE, event_digest TEXT NOT NULL, "
@@ -107,7 +157,7 @@ class SQLiteStateStore:
                     self._set_meta("head_digest", ZERO_DIGEST)
                     self._set_meta("last_ack_cursor", "0")
                     self._set_meta("last_ack_sequence", "0")
-                    self._set_meta("backend_schema", "1")
+                    self._set_meta("backend_schema", _SQLITE_SCHEMA_VERSION)
                     genesis = create_event(
                         event_type="hg.genesis",
                         sequence=1,
@@ -144,6 +194,18 @@ class SQLiteStateStore:
         self._set_meta("head_digest", event["record_digest"])
 
     def _apply_projection(self, event: dict[str, Any]) -> None:
+        if event["event_type"] in ("workflow.task.created", "workflow.task.transitioned"):
+            actual_tasks = {
+                row["task_id"]: parse_json_no_duplicate_keys(row["task_json"])
+                for row in self._conn.execute("SELECT task_id, task_json FROM tasks")
+            }
+            projected_tasks = _apply_task_event(event, actual_tasks)
+            task_id = event["payload"]["task_id"] if event["event_type"] == "workflow.task.created" else event["payload"]["task"]["task_id"]
+            self._conn.execute(
+                "INSERT INTO tasks(task_id, task_json) VALUES(?, ?) "
+                "ON CONFLICT(task_id) DO UPDATE SET task_json=excluded.task_json",
+                (task_id, canonical_json(projected_tasks[task_id])),
+            )
         if event["event_type"] == "session.created":
             session_id = event["payload"].get("session_id")
             if isinstance(session_id, str) and session_id:
@@ -167,6 +229,24 @@ class SQLiteStateStore:
             "SELECT event_json FROM events WHERE idempotency_key=?", (key,)
         ).fetchone()
         return None if row is None else parse_json_no_duplicate_keys(row["event_json"])
+
+    def get_event_by_idempotency(self, key: str) -> dict[str, Any] | None:
+        if not isinstance(key, str) or not key:
+            return None
+        with self._lock:
+            return self._event_by_idempotency(key)
+
+    def get_task(self, task_id: str) -> dict[str, Any] | None:
+        if not isinstance(task_id, str) or not task_id:
+            return None
+        with self._lock:
+            row = self._conn.execute("SELECT task_json FROM tasks WHERE task_id=?", (task_id,)).fetchone()
+            if row is None:
+                return None
+            try:
+                return validate_task(parse_json_no_duplicate_keys(row["task_json"]))
+            except (ContractError, WorkflowError) as exc:
+                raise SQLiteStateError("TASK_PROJECTION_INVALID") from exc
 
     def emit(
         self,
@@ -350,6 +430,7 @@ class SQLiteStateStore:
                 seen_ids = set()
                 expected_counters: dict[str, int] = {}
                 expected_sessions: dict[str, str] = {}
+                expected_tasks: dict[str, dict[str, Any]] = {}
                 rows = self._conn.execute("SELECT * FROM events ORDER BY sequence").fetchall()
                 for row in rows:
                     try:
@@ -372,6 +453,11 @@ class SQLiteStateStore:
                         return {"ok": False, "events": expected_seq - 1, "reason": "duplicate_event_id"}
                     seen_ids.add(event["event_id"])
                     expected_counters[event["event_type"]] = expected_counters.get(event["event_type"], 0) + 1
+                    if event["event_type"] in ("workflow.task.created", "workflow.task.transitioned"):
+                        try:
+                            expected_tasks = _apply_task_event(event, expected_tasks)
+                        except (WorkflowError, ContractError, KeyError, TypeError):
+                            return {"ok": False, "events": expected_seq - 1, "reason": "task_event_projection_invalid"}
                     if event["event_type"] == "session.created":
                         session_id = event["payload"].get("session_id")
                         if isinstance(session_id, str) and session_id:
@@ -421,7 +507,14 @@ class SQLiteStateStore:
                         return {"ok": False, "events": last_seq, "reason": "outbox_status_invalid"}
                 if int(meta["last_ack_cursor"]) != last_cursor or int(meta["last_ack_sequence"]) != last_acked_sequence:
                     return {"ok": False, "events": last_seq, "reason": "outbox_checkpoint_mismatch"}
-                if meta["backend_schema"] != "1":
+                actual_tasks = {
+                    row["task_id"]: row["task_json"]
+                    for row in self._conn.execute("SELECT task_id, task_json FROM tasks")
+                }
+                expected_task_json = {key: canonical_json(value) for key, value in expected_tasks.items()}
+                if actual_tasks != expected_task_json:
+                    return {"ok": False, "events": last_seq, "reason": "task_projection_mismatch"}
+                if meta["backend_schema"] != _SQLITE_SCHEMA_VERSION:
                     return {"ok": False, "events": last_seq, "reason": "unsupported_backend_schema"}
                 return {
                     "ok": True, "events": last_seq, "last_seq": last_seq,
@@ -454,7 +547,14 @@ class SQLiteStateStore:
             "last_ack_cursor": int(meta["last_ack_cursor"]),
             "pending_outbox": self._conn.execute("SELECT COUNT(*) FROM outbox WHERE status='pending'").fetchone()[0],
             "verify": verification,
-            "state": {"sessions": sessions, "counters": counters},
+            "state": {
+                "sessions": sessions,
+                "counters": counters,
+                "tasks": {
+                    row["task_id"]: validate_task(parse_json_no_duplicate_keys(row["task_json"]))
+                    for row in self._conn.execute("SELECT task_id, task_json FROM tasks")
+                },
+            },
         }
 
     def close(self) -> None:

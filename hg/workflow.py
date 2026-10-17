@@ -13,7 +13,7 @@ TASK_STATES = frozenset({
 })
 TERMINAL_STATES = frozenset({"SUCCEEDED", "CANCELLED", "EXPIRED"})
 _REQUIRED_FIELDS = {
-    "task_id", "task_type", "state", "attempt", "max_attempts", "created_at",
+    "task_id", "task_type", "state", "version", "attempt", "max_attempts", "created_at",
     "updated_at", "deadline_at", "input_digest", "correlation_id", "idempotency_key",
     "result_digest", "error_code", "approval_id",
 }
@@ -65,6 +65,7 @@ def create_task(
         "task_id": tid,
         "task_type": task_type,
         "state": "PENDING",
+        "version": 1,
         "attempt": 0,
         "max_attempts": max_attempts,
         "created_at": created_at,
@@ -92,6 +93,8 @@ def validate_task(task: Mapping[str, Any]) -> dict[str, Any]:
         _text(result[field], code, 512)
     if not isinstance(result["state"], str) or result["state"] not in TASK_STATES:
         raise WorkflowError("TASK_STATE_INVALID")
+    if isinstance(result["version"], bool) or not isinstance(result["version"], int) or result["version"] < 1:
+        raise WorkflowError("TASK_VERSION_INVALID")
     if isinstance(result["attempt"], bool) or not isinstance(result["attempt"], int) or result["attempt"] < 0:
         raise WorkflowError("TASK_ATTEMPT_INVALID")
     if isinstance(result["max_attempts"], bool) or not isinstance(result["max_attempts"], int) or not 1 <= result["max_attempts"] <= 20:
@@ -150,7 +153,7 @@ def transition_task(
         raise WorkflowError("TASK_TERMINAL_STATE")
     if current["deadline_at"] is not None and now_value >= current["deadline_at"] and target_state not in ("EXPIRED", "CANCELLED"):
         result = dict(current)
-        result.update(state="EXPIRED", updated_at=now_value, error_code="TASK_DEADLINE_EXCEEDED")
+        result.update(state="EXPIRED", version=current["version"] + 1, updated_at=now_value, error_code="TASK_DEADLINE_EXCEEDED")
         return validate_task(result)
 
     allowed = {
@@ -166,6 +169,7 @@ def transition_task(
 
     result = dict(current)
     result["state"] = target_state
+    result["version"] = current["version"] + 1
     result["updated_at"] = now_value
     if target_state == "PENDING" and current["state"] == "FAILED":
         result["error_code"] = None
@@ -201,3 +205,137 @@ def transition_task(
         result["error_code"] = "TASK_CANCELLED" if target_state == "CANCELLED" else "TASK_EXPIRED"
         result["result_digest"] = None
     return validate_task(result)
+
+
+class WorkflowService:
+    """Persist task commands through a transactional store implementing the HG2 state-store port."""
+
+    def __init__(self, store, *, actor_id: str = "local-user", authority_context=None, clock=time.time):
+        _text(actor_id, "TASK_ACTOR_REQUIRED")
+        self.store = store
+        self.actor_id = actor_id
+        self.authority_context = authority_context if authority_context is not None else {"principal": actor_id}
+        self.clock = clock
+
+    def create(
+        self,
+        *,
+        task_type: str,
+        input_digest: str,
+        idempotency_key: str,
+        deadline_at: float | None = None,
+        max_attempts: int = 3,
+        task_id: str | None = None,
+        correlation_id: str | None = None,
+        sync_required: bool = False,
+    ) -> dict[str, Any]:
+        existing = self.store.get_event_by_idempotency(idempotency_key)
+        if existing is not None:
+            payload = existing.get("payload")
+            if (
+                existing.get("event_type") == "workflow.task.created"
+                and existing.get("actor_id") == self.actor_id
+                and isinstance(payload, dict)
+                and payload.get("task_type") == task_type
+                and payload.get("input_digest") == input_digest
+                and payload.get("idempotency_key") == idempotency_key
+            ):
+                current = self.store.get_task(payload.get("task_id"))
+                if current is not None:
+                    return current
+            raise WorkflowError("TASK_IDEMPOTENCY_CONFLICT")
+
+        task = create_task(
+            task_type=task_type,
+            input_digest=input_digest,
+            idempotency_key=idempotency_key,
+            now=self.clock(),
+            deadline_at=deadline_at,
+            max_attempts=max_attempts,
+            task_id=task_id,
+            correlation_id=correlation_id,
+        )
+        self.store.emit(
+            "workflow.task.created",
+            task,
+            actor_id=self.actor_id,
+            authority_context=self.authority_context,
+            idempotency_key=idempotency_key,
+            sync_required=sync_required,
+        )
+        return task
+
+    def transition(
+        self,
+        task_id: str,
+        *,
+        target_state: str,
+        expected_version: int,
+        idempotency_key: str | None = None,
+        reason: str = "",
+        result_digest: str | None = None,
+        error_code: str | None = None,
+        approval_id: str | None = None,
+        approval_status: str | None = None,
+        sync_required: bool = False,
+    ) -> dict[str, Any]:
+        _text(task_id, "TASK_ID_REQUIRED")
+        if isinstance(expected_version, bool) or not isinstance(expected_version, int) or expected_version < 1:
+            raise WorkflowError("TASK_VERSION_INVALID")
+        transition_key = idempotency_key or "task:" + task_id + ":version:" + str(expected_version + 1)
+        existing = self.store.get_event_by_idempotency(transition_key)
+        if existing is not None:
+            payload = existing.get("payload")
+            if (
+                existing.get("event_type") == "workflow.task.transitioned"
+                and existing.get("actor_id") == self.actor_id
+                and isinstance(payload, dict)
+                and isinstance(payload.get("task"), dict)
+                and payload["task"].get("task_id") == task_id
+                and payload["transition"].get("requested_state") == target_state
+            ):
+                current = self.store.get_task(task_id)
+                if current == payload["task"]:
+                    return current
+            current = self.store.get_task(task_id)
+            if current is not None and current["version"] != expected_version:
+                raise WorkflowError("TASK_VERSION_CONFLICT")
+            raise WorkflowError("TASK_IDEMPOTENCY_CONFLICT")
+
+        current = self.store.get_task(task_id)
+        if current is None:
+            raise WorkflowError("TASK_NOT_FOUND")
+        if current["version"] != expected_version:
+            raise WorkflowError("TASK_VERSION_CONFLICT")
+        now_value = self.clock()
+        updated = transition_task(
+            current,
+            target_state=target_state,
+            actor_id=self.actor_id,
+            now=now_value,
+            reason=reason,
+            result_digest=result_digest,
+            error_code=error_code,
+            approval_id=approval_id,
+            approval_status=approval_status,
+        )
+        event_payload = {
+            "task": updated,
+            "transition": {
+                "from_state": current["state"],
+                "requested_state": target_state,
+                "approval_id": approval_id,
+                "approval_status": approval_status,
+                "reason": reason,
+            },
+        }
+        self.store.emit(
+            "workflow.task.transitioned",
+            event_payload,
+            actor_id=self.actor_id,
+            authority_context=self.authority_context,
+            causation_id=None,
+            idempotency_key=transition_key,
+            sync_required=sync_required,
+        )
+        return updated
