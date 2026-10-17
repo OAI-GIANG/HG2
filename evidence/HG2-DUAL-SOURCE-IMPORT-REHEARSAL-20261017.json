@@ -1,0 +1,162 @@
+{
+  "api_acceptance": {
+    "candidate_commit": "d118d48a925b7e046e41cdfd35c3723dae543959",
+    "checks_passed": 17,
+    "checks_total": 17,
+    "credentials_recorded": false,
+    "model_provider_called": false,
+    "remote_durable_called": false,
+    "source_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
+    "staging_pid": 18551,
+    "status": "PASS"
+  },
+  "blockers": [
+    "three backend-only records lack scope authority and remain quarantined",
+    "candidate source/build/process provenance not proven for production",
+    "dedicated production API read/write credentials are not configured",
+    "encrypted durable replica, TLS edge and dedicated scoped credential not configured",
+    "production writer freeze and rollback gates must be demonstrated before cutover"
+  ],
+  "cutover_ready": false,
+  "import": {
+    "active_memory_count": 31,
+    "events": 186,
+    "hash_only_duplicate_events": 24,
+    "head_hash": "2f239404fd94398500e343538b2ccc16bf9306a1ea34cf76b15fb23ff82fe02c",
+    "integrity": {
+      "events": 186,
+      "head_hash": "2f239404fd94398500e343538b2ccc16bf9306a1ea34cf76b15fb23ff82fe02c",
+      "ok": true,
+      "reason": "chain_ok"
+    },
+    "operation_receipt_events": 31,
+    "quarantined_backend_only_records": 3,
+    "raw_backend_only_claims_in_events": false,
+    "target": "/data/data/com.termux/files/home/tmp/HG2-DUAL-SOURCE-STAGING-20261017-R2"
+  },
+  "model_provider_called": false,
+  "production_processes_restarted": false,
+  "production_state_mutated": false,
+  "reconciliation": {
+    "backend_duplicate_ids": 0,
+    "backend_memory_rows": 27,
+    "backend_only_checksum_categories": {
+      "OTHER_OR_INVALID": 1,
+      "SHA1_HEX40": 2
+    },
+    "backend_only_count": 3,
+    "backend_scope_column_present": false,
+    "backend_unique_id_rows": 27,
+    "exact_duplicate_matches": 24,
+    "overlap_conflicts": 0,
+    "overlap_content_conflicts": 0,
+    "overlap_content_matches": 24,
+    "overlap_count": 24,
+    "overlap_version_conflicts": 0,
+    "overlap_version_matches": 24,
+    "state_duplicate_ids": 0,
+    "state_memory_rows": 33,
+    "state_only_count": 9,
+    "state_unique_id_rows": 33
+  },
+  "remote_durable_endpoint_called": false,
+  "restore": {
+    "byte_identical": true,
+    "bytes": 5141174,
+    "file_count": 8,
+    "head_hash": "2f239404fd94398500e343538b2ccc16bf9306a1ea34cf76b15fb23ff82fe02c",
+    "head_matches": true,
+    "integrity": {
+      "events": 186,
+      "head_hash": "2f239404fd94398500e343538b2ccc16bf9306a1ea34cf76b15fb23ff82fe02c",
+      "ok": true,
+      "reason": "chain_ok"
+    },
+    "restored_tree_sha256": "8b405c2af029f572d783b8f8ef500eaac868b0cc8404101c7a98b490cf283b6d",
+    "source_tree_sha256": "8b405c2af029f572d783b8f8ef500eaac868b0cc8404101c7a98b490cf283b6d",
+    "target": "/data/data/com.termux/files/home/tmp/HG2-DUAL-SOURCE-RESTORE-20261017-R2"
+  },
+  "runtime_source_manifest": {
+    "files": [
+      {
+        "bytes": 51,
+        "path": "hg/__init__.py",
+        "sha256": "ade9650e06ace02b679cce2fa459bf801a53063746e2799b768c68c660efccb5"
+      },
+      {
+        "bytes": 968,
+        "path": "hg/authority.py",
+        "sha256": "1531473ebe1f3534a91bb9c992ae8bf7d6944f5f6ce5ebcb48008d8267572068"
+      },
+      {
+        "bytes": 7898,
+        "path": "hg/durable.py",
+        "sha256": "11f6580213405f49f4ffd534e58a1a45712fa5ebc31643de1effe5350d1d4cb1"
+      },
+      {
+        "bytes": 6472,
+        "path": "hg/edge.py",
+        "sha256": "489eecdaa7166143416db81d0ed4ae4787c6da6a39f86b8d129468543307a6c1"
+      },
+      {
+        "bytes": 7666,
+        "path": "hg/history.py",
+        "sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc"
+      },
+      {
+        "bytes": 235,
+        "path": "hg/identity.py",
+        "sha256": "128211f8cb18cf8f8359721097244fe5fcc008b41cbb6b73dac64ee61e68a227"
+      },
+      {
+        "bytes": 13004,
+        "path": "hg/memory.py",
+        "sha256": "4c1e5b1346bc757ad6308d23a56850e5c79d3292ef07a47d2f551c406c97ec54"
+      },
+      {
+        "bytes": 6192,
+        "path": "hg/model_gateway.py",
+        "sha256": "f5dac0ef3406301ddfa75b8df8a38b2123a5a7cc37aa62873a7aef36f2c0d472"
+      },
+      {
+        "bytes": 2890,
+        "path": "hg/phone_runtime.py",
+        "sha256": "238cfc38c1c172cdb967d7b279c969ca986fbce4a93991c34cf9c60d2190ed67"
+      },
+      {
+        "bytes": 3350,
+        "path": "hg/provenance.py",
+        "sha256": "2081ff229d92c4a3b82d1a360f14fb207c98410fad17127c97b2178bcc20f629"
+      },
+      {
+        "bytes": 16068,
+        "path": "hg/replica.py",
+        "sha256": "bff7234ce97b25c2051e959aaad907f420e16c9470b5959b2d6947b3e3c057e5"
+      },
+      {
+        "bytes": 18617,
+        "path": "hg/server.py",
+        "sha256": "dcdb4f4d69c28d1da53080adced7aec6aa474af498f986a16e0f95d430e01622"
+      },
+      {
+        "bytes": 7436,
+        "path": "ui/index.html",
+        "sha256": "4a657779befd33a11c8121b07ca609f66c2ec766900d3c56a42c6420d73f4fe9"
+      }
+    ],
+    "manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
+    "schema": "HG_RUNTIME_SOURCE_MANIFEST_V1"
+  },
+  "schema": "HG2_DUAL_SOURCE_IMPORT_REHEARSAL_V1",
+  "source_backend": {
+    "path": "/data/data/com.termux/files/home/hg/backend-data/hg.db",
+    "scope_column_present": false,
+    "sha256": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc"
+  },
+  "source_json": {
+    "path": "/data/data/com.termux/files/home/hg/core/runtime/data/state.json",
+    "sha256": "7eee10f17366acb36bd230c1ca7e4b0c7da0ef1bcbb1902f4cec43015936baa0",
+    "stable_at_import_check": true
+  },
+  "status": "PASS_STAGING_ONLY"
+}

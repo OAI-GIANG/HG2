@@ -1,0 +1,63 @@
+{
+  "blockers": [
+    "Three backend-only records have no scope authority and remain quarantined.",
+    "Production runtime/process is not the exact candidate build and approved source manifest.",
+    "Production read/write credentials and durable TLS replica endpoint are not configured.",
+    "Need a proven cutover/rollback plan that accounts for writes arriving after this audit."
+  ],
+  "cutover_ready": false,
+  "fresh_online_backup": {
+    "bytes": 106496,
+    "directory_mode": "0o700",
+    "mode": "0o600",
+    "path": "/data/data/com.termux/files/home/.local/share/hg/backups/hg2-single-system-backend-reconciliation-20261017-R1/backend.sqlite3",
+    "sha256": "5e20def72cd36fe3209fc48dce9a12e55e806a87eb2f27a167d52e439c2d17df",
+    "sqlite_integrity_check": "ok",
+    "table_counts": {
+      "conflicts": 0,
+      "evidence": 0,
+      "experience": 0,
+      "memory": 27,
+      "operations": 31,
+      "quarantine": 0,
+      "restores": 0
+    }
+  },
+  "live_backend": {
+    "path": "/data/data/com.termux/files/home/hg/backend-data/hg.db",
+    "sha256_after": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc",
+    "sha256_before": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc",
+    "unchanged": true
+  },
+  "live_state_sha256": "85cf707201e925e64948e919158546eaf2c8f0e306760be092d379a2d165515f",
+  "previous_backup": {
+    "path": "/data/data/com.termux/files/home/.local/share/hg/backups/hg2-single-system-backend-reconciliation-20261017/backend.sqlite3",
+    "restore_integrity_check": "ok",
+    "restore_table_counts": {
+      "conflicts": 0,
+      "evidence": 0,
+      "experience": 0,
+      "memory": 27,
+      "operations": 31,
+      "quarantine": 0,
+      "restores": 0
+    },
+    "schema_and_counts_match_fresh_backup": true,
+    "sha256": "5e20def72cd36fe3209fc48dce9a12e55e806a87eb2f27a167d52e439c2d17df",
+    "verified_copy_path": "/data/data/com.termux/files/home/.local/share/hg/backups/hg2-single-system-backend-reconciliation-20261017-R1/restore-check.sqlite3"
+  },
+  "schema": "HG2_BACKEND_RECONCILIATION_BACKUP_REVALIDATION_V1",
+  "source_reconciliation": {
+    "backend_only_records_quarantined": 3,
+    "backend_records": 27,
+    "backend_scope_column_present": false,
+    "exact_duplicate_matches": 24,
+    "json_only_records": 9,
+    "json_records": 33,
+    "operation_count": 31,
+    "overlap_conflicts": 0,
+    "source_stable": true,
+    "sqlite_quick_check": "ok"
+  },
+  "status": "READ_ONLY_BACKUP_AND_RESTORE_VERIFIED"
+}

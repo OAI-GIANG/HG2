@@ -1,0 +1,347 @@
+{
+  "backend_only_memory_id_sha256": [
+    "728b6ec96c0deeccb382f7246b84453ea1c504548fcdfb9edb2332cee87a987e",
+    "73be34fb82a42f34449e3dc7dc5aa4bd864e09d822df138a6f6be1785d0f8889",
+    "75edac21903d396fc13bae18e934424dfc8ea6d7c19c7d5bd1f24f2410a231d7"
+  ],
+  "backend_source": {
+    "artifacts_after": {
+      "main": {
+        "sha256": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc",
+        "size": 106496
+      }
+    },
+    "artifacts_before": {
+      "main": {
+        "sha256": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc",
+        "size": 106496
+      }
+    },
+    "bytes": 106496,
+    "database_sha256": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc",
+    "database_sha256_after": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc",
+    "path": "/data/data/com.termux/files/home/hg/backend-data/hg.db",
+    "sqlite_quick_check": "ok",
+    "stable_during_audit": true
+  },
+  "cutover_blockers": [
+    "The JSON state and SQLite backend have separate source files and no shared atomic snapshot/cursor.",
+    "The backend memory schema has no scope_id; database-only records cannot safely enter active memory.",
+    "Only exact id+version+claim matches may be considered duplicates; conflicts require quarantine and resolution.",
+    "The active backend writer may add data after the read-only audit; repeat the audit at migration freeze."
+  ],
+  "cutover_ready": false,
+  "memory_reconciliation": {
+    "backend_duplicate_ids": 0,
+    "backend_memory_rows": 27,
+    "backend_only_checksum_categories": {
+      "OTHER_OR_INVALID": 1,
+      "SHA1_HEX40": 2
+    },
+    "backend_only_count": 3,
+    "backend_scope_column_present": false,
+    "backend_unique_id_rows": 27,
+    "exact_duplicate_matches": 24,
+    "overlap_conflicts": 0,
+    "overlap_content_conflicts": 0,
+    "overlap_content_matches": 24,
+    "overlap_count": 24,
+    "overlap_version_conflicts": 0,
+    "overlap_version_matches": 24,
+    "state_duplicate_ids": 0,
+    "state_memory_rows": 33,
+    "state_only_count": 9,
+    "state_unique_id_rows": 33
+  },
+  "operations": {
+    "available": true,
+    "kinds": {
+      "memory.persist": 31
+    },
+    "result_categories": {
+      "SUCCESS": 31
+    },
+    "row_count": 31
+  },
+  "overlap": [
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 3,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "e692c9003ef91e8194845072c5441d4192ef8818530ebcecaf69ecd2a20880a8",
+      "state_scope": "HG",
+      "state_version": 3,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "3367c3338df6589ce646bb6b51d5f49ae2b81587410026f5241809327e78b526",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "740a8876f93c84a48826f677312a5f46b6ded3c06ae128e27b51d877cf77fdaf",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "5eda09d7e95a42c69490d9712e725898dd32b9e1a1988e7f8328a43ce2d876d6",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "319cdf55af8ab3d1a39d3f7b3506fc1b1f6407eae74a4ca6b05149df3e48a967",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "e3435a0e7cb9244310f520b18d4ecac6eb5e2f5961c3444697754c44157c48df",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "da864e86a013917eb71ac58a96ec032e695ab99f05c5719abc70503e98af65a6",
+      "state_scope": "global",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "c037d4f71c7b099d9cc2010d8e31677b71a632a40d5284e2a1c14d3507809c71",
+      "state_scope": "global",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "d7c7dd2b2557ec52f3192eab0648b22046c42eb3ec81990912253107795c6732",
+      "state_scope": "global",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "3fb706e306d8ba0bc8e05913ec001d97baaf6430221b777305f3bb40464b5082",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "6ae52a1f1c4bcecbdc14250b64ae6d4195ab1b0627eacc00d28baec91b317b7d",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "19529c2d451a27d82b479b570969a0d9e5f73c7f7084fd2e175e4feb3e39d4f2",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "8fc650ec7519456082638f51f40791869c51e37cbf708e16d1caf35adf402c8f",
+      "state_scope": "global",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "cc8d9df1098fdd6341f58c4e591aab73805ef77e1823523e11d13b53129b8212",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 3,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "db563fe6062d297a57386ece83fa56e34ed073fb85fbc3c8e2fcbe12e6ef989f",
+      "state_scope": "HG",
+      "state_version": 3,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "b2680a1a82c2e92cc69bf25b6e42ced122ea0d7b8b55745ed9e99835848a0e5b",
+      "state_scope": "global",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "1d594dc8b22e76811c634d27b395d04c673dedc41d2ba5cb8638f6c67dbe57e5",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "5102a1907b26fc6adb4622dfafb856e9c59690e8ca5c6b9b4cec9a318882f3e9",
+      "state_scope": "global",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "769b67dd0ecf17bc958cc2052e0b2db0e521a7e9ed37c8d8b4876f55e475e4a1",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "9eba8805f6b71fbf8d5c8ce1a6c03eaa03adf22190e79cc1cfceb2dd5b2d14a2",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "3b0ff6a07920c507de0918f601885e119357e832d1d37573cd30fdaf6ee4cae9",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "5b8bc761a30dbc85c0dbe2425b99626be1e8160f06789d815d3f2ccfb8cdd641",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "4e254e267112fc23ed7e69e25b22da6807ad20c29963611f04fd253db6da2105",
+      "state_scope": "global",
+      "state_version": 1,
+      "version_match": true
+    },
+    {
+      "backend_has_scope_column": false,
+      "backend_version": 1,
+      "content_match": true,
+      "disposition": "DUPLICATE_MATCH",
+      "memory_id_sha256": "5daa4a6ce62db9d861665f19ca7fa2fdbb8cea180e1c98494b7cddea2253a3ca",
+      "state_scope": "HG",
+      "state_version": 1,
+      "version_match": true
+    }
+  ],
+  "schema": "HG2_LEGACY_BACKEND_RECONCILIATION_V1",
+  "scope_disposition": {
+    "backend_only_records_must_remain_quarantined": true,
+    "backend_rows_are_not_scope_authoritative": true,
+    "json_scoped_values": {
+      "HG": 19,
+      "UNSCOPED": 2,
+      "global": 12
+    },
+    "overlap_conflicts_must_not_be_activated": true
+  },
+  "state_only_memory_id_sha256": [
+    "05a2fd3798f4395baf0a960f0d2e774cbf9bca3fe40f39d59bdea4f71916d95e",
+    "23191af4ac87fc15f281b9987f0ff04367585b741fc0261d369bbc5ff39fa8dc",
+    "8ff1d1e94c1c5827481d6e1a917a50610a82db447ab0525f865db3b13b031749",
+    "902489a4a41a2290a2361a8325f75c2b78b5c18483719c2b12c36e9228356d6f",
+    "a85f2ce419c62436f3364bcece1ecadb33c706b2fb3bc1c2b7f105d3ba6a646f",
+    "cec0c8cba787b01ddd368e222d1f41cfe00c61ac0cb0914ad94284590ce077b9",
+    "dac2b565eacd15313f2ccf251b5190041a6611d69775ea6a9d6a0e2cfe815b1f",
+    "e198001797dc99d198bafd354350b302f765a66773ccd1547f382358190d9e31",
+    "eb6da0c2e51295f4ad3075d3c4c42b24e6d563efad3906016b2978116ba7ccdb"
+  ],
+  "state_source": {
+    "bytes": 2497875,
+    "path": "/data/data/com.termux/files/home/hg/core/runtime/data/state.json",
+    "sha256": "7eee10f17366acb36bd230c1ca7e4b0c7da0ef1bcbb1902f4cec43015936baa0",
+    "sha256_after": "7eee10f17366acb36bd230c1ca7e4b0c7da0ef1bcbb1902f4cec43015936baa0",
+    "stable_during_audit": true
+  },
+  "status": "READ_ONLY_AUDIT",
+  "tables": {
+    "conflicts": 0,
+    "evidence": 0,
+    "experience": 0,
+    "memory": 27,
+    "operations": 31,
+    "quarantine": 0,
+    "restores": 0
+  }
+}

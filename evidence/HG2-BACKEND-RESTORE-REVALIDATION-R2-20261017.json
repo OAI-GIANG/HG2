@@ -1,0 +1,40 @@
+{
+  "backup_bytes": 106496,
+  "backup_directory_mode": "0o700",
+  "backup_integrity": "ok",
+  "backup_mode": "0o600",
+  "backup_path": "/data/data/com.termux/files/home/.local/share/hg/backups/hg2-single-system-backend-reconciliation-20261017-R2/backend.sqlite3",
+  "backup_sha256": "5e20def72cd36fe3209fc48dce9a12e55e806a87eb2f27a167d52e439c2d17df",
+  "backup_table_counts": {
+    "conflicts": 0,
+    "evidence": 0,
+    "experience": 0,
+    "memory": 27,
+    "operations": 31,
+    "quarantine": 0,
+    "restores": 0
+  },
+  "cutover_ready": false,
+  "live_database_sha256_after": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc",
+  "live_database_sha256_before": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc",
+  "live_database_unchanged": true,
+  "production_mutated": false,
+  "production_restarted": false,
+  "restore_copy_path": "/data/data/com.termux/files/home/.local/share/hg/backups/hg2-single-system-backend-reconciliation-20261017-R2/restore-check.sqlite3",
+  "restore_integrity": "ok",
+  "restore_schema_counts_match": true,
+  "restore_table_counts": {
+    "conflicts": 0,
+    "evidence": 0,
+    "experience": 0,
+    "memory": 27,
+    "operations": 31,
+    "quarantine": 0,
+    "restores": 0
+  },
+  "schema": "HG2_CURRENT_BACKEND_BACKUP_RESTORE_REVALIDATION_V1",
+  "state_sha256_after": "7eee10f17366acb36bd230c1ca7e4b0c7da0ef1bcbb1902f4cec43015936baa0",
+  "state_sha256_before": "7eee10f17366acb36bd230c1ca7e4b0c7da0ef1bcbb1902f4cec43015936baa0",
+  "state_stable": true,
+  "status": "PASS_READ_ONLY_BACKUP_RESTORE"
+}
