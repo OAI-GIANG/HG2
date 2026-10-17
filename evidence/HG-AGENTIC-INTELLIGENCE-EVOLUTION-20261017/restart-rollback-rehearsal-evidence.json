@@ -1,0 +1,94 @@
+{
+  "captured_utc": "2026-10-17T04:52:08.448340+00:00",
+  "classification": "ISOLATED_LAB_RESTART_ROLLBACK_REHEARSAL",
+  "credential_environment_inherited": false,
+  "cycles": [
+    {
+      "checks": [
+        {
+          "http_status": 200,
+          "ok": true,
+          "path": "/api/health"
+        },
+        {
+          "http_status": 200,
+          "ok": true,
+          "path": "/api/plugin/contract",
+          "response_sha256": "09fbda54d6b9091582370ce4c92f357e0768b5fa2cc00b1fcca966073a9e22b3"
+        },
+        {
+          "http_status": 200,
+          "ok": true,
+          "path": "/api/phone/status",
+          "response_sha256": "fab462500449bc9cc7fd11fbe290eb2d6a5cb276fe5f59b0286cc7d5d637957a"
+        }
+      ],
+      "cycle": 1,
+      "exit_code": -15,
+      "ready": true,
+      "shutdown": "SIGTERM"
+    },
+    {
+      "checks": [
+        {
+          "http_status": 200,
+          "ok": true,
+          "path": "/api/health"
+        },
+        {
+          "http_status": 200,
+          "ok": true,
+          "path": "/api/plugin/contract",
+          "response_sha256": "09fbda54d6b9091582370ce4c92f357e0768b5fa2cc00b1fcca966073a9e22b3"
+        },
+        {
+          "http_status": 200,
+          "ok": true,
+          "path": "/api/phone/status",
+          "response_sha256": "fab462500449bc9cc7fd11fbe290eb2d6a5cb276fe5f59b0286cc7d5d637957a"
+        }
+      ],
+      "cycle": 2,
+      "exit_code": -15,
+      "ready": true,
+      "shutdown": "SIGTERM"
+    },
+    {
+      "checks": [
+        {
+          "http_status": 200,
+          "ok": true,
+          "path": "/api/health"
+        },
+        {
+          "http_status": 200,
+          "ok": true,
+          "path": "/api/plugin/contract",
+          "response_sha256": "09fbda54d6b9091582370ce4c92f357e0768b5fa2cc00b1fcca966073a9e22b3"
+        },
+        {
+          "http_status": 200,
+          "ok": true,
+          "path": "/api/phone/status",
+          "response_sha256": "fab462500449bc9cc7fd11fbe290eb2d6a5cb276fe5f59b0286cc7d5d637957a"
+        }
+      ],
+      "cycle": 3,
+      "exit_code": -15,
+      "ready": true,
+      "shutdown": "SIGTERM"
+    }
+  ],
+  "limitations": [
+    "Not a test of the actual Termux service supervisor or launcher rollback.",
+    "No abrupt power-loss test.",
+    "Does not prove production runtime provenance, trust root, credentials, CP0, full-system restore, or production cutover."
+  ],
+  "result": "PASS_ISOLATED_LAB_RESTART_HEALTH_SHUTDOWN",
+  "runtime_script": "recovery-lab/full-runtime-lab/core/runtime/hg_runtime.py",
+  "runtime_source_sha256": "e02f344c11f0e513e4e874fdc35eb6c28ea76d8aa541da7bbde19a1427f10a83",
+  "scope": "Termux local isolated cache only; no production source, state, service, environment, or credentials used",
+  "state_unchanged": true,
+  "synthetic_state_sha256_after": "518506e752725351d15d453e33c608d3258f09dac77d3c6cf48d4f008431a85f",
+  "synthetic_state_sha256_before": "518506e752725351d15d453e33c608d3258f09dac77d3c6cf48d4f008431a85f"
+}

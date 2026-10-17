@@ -1,0 +1,8 @@
+STATIC_SEMANTIC_VALIDATION PASS
+fixtures=26 unique_ids=26 oracle_specs=26/26
+HNIT=30/30 XN=6/6
+semantic_arithmetic=PASS
+digest_recompute=PASS
+aggregation_truth_table=PASS
+preservation_size_presence_checks=PASS (not byte-for-byte proof)
+errors=[]

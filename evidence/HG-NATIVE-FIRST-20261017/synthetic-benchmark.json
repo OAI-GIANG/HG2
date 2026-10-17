@@ -1,0 +1,255 @@
+{
+  "acceptance": {
+    "accepted": true,
+    "predeclared_minimum_delta": 0.25,
+    "zero_regressions_required": true
+  },
+  "baseline_policy_id": "baseline_v0",
+  "candidate_policy_id": "candidate_v1",
+  "classification": "SYNTHETIC_CONTROL_POLICY_COMPARISON_NOT_LIVE_MODEL",
+  "dataset_id": "HNO-SYNTH-001",
+  "dataset_sha256": "cfeb9b2cbdc05ce7238f236e942a167b1d40549af2678d1f879b67253fde9916",
+  "dataset_version": "1.0.0",
+  "delta_pass_rate": 0.75,
+  "observed_model_runs": 0,
+  "oracle_version": "HNO-ORACLE-1.0.0",
+  "paired_cases_improved": 15,
+  "policies": {
+    "baseline_v0": {
+      "failed_case_ids": [
+        "OR-02",
+        "OR-03",
+        "OR-04",
+        "OR-05",
+        "OR-06",
+        "OR-09",
+        "OR-10",
+        "OR-11",
+        "OR-12",
+        "OR-13",
+        "OR-15",
+        "OR-16",
+        "OR-17",
+        "OR-18",
+        "OR-20"
+      ],
+      "passed": 5,
+      "rate": 0.25,
+      "rows": [
+        {
+          "case_id": "OR-01",
+          "criterion_id": "HNI-01",
+          "score": 1
+        },
+        {
+          "case_id": "OR-02",
+          "criterion_id": "HNI-01",
+          "score": 0
+        },
+        {
+          "case_id": "OR-03",
+          "criterion_id": "HNI-02",
+          "score": 0
+        },
+        {
+          "case_id": "OR-04",
+          "criterion_id": "HNI-03",
+          "score": 0
+        },
+        {
+          "case_id": "OR-05",
+          "criterion_id": "HNI-06",
+          "score": 0
+        },
+        {
+          "case_id": "OR-06",
+          "criterion_id": "HNI-07",
+          "score": 0
+        },
+        {
+          "case_id": "OR-07",
+          "criterion_id": "HNI-08",
+          "score": 1
+        },
+        {
+          "case_id": "OR-08",
+          "criterion_id": "HNI-09",
+          "score": 1
+        },
+        {
+          "case_id": "OR-09",
+          "criterion_id": "HNI-09",
+          "score": 0
+        },
+        {
+          "case_id": "OR-10",
+          "criterion_id": "HNI-10",
+          "score": 0
+        },
+        {
+          "case_id": "OR-11",
+          "criterion_id": "HNI-11",
+          "score": 0
+        },
+        {
+          "case_id": "OR-12",
+          "criterion_id": "HNI-12",
+          "score": 0
+        },
+        {
+          "case_id": "OR-13",
+          "criterion_id": "HNI-13",
+          "score": 0
+        },
+        {
+          "case_id": "OR-14",
+          "criterion_id": "HNI-14",
+          "score": 1
+        },
+        {
+          "case_id": "OR-15",
+          "criterion_id": "HNI-14",
+          "score": 0
+        },
+        {
+          "case_id": "OR-16",
+          "criterion_id": "HNI-15",
+          "score": 0
+        },
+        {
+          "case_id": "OR-17",
+          "criterion_id": "HNI-16",
+          "score": 0
+        },
+        {
+          "case_id": "OR-18",
+          "criterion_id": "HNI-05",
+          "score": 0
+        },
+        {
+          "case_id": "OR-19",
+          "criterion_id": "HNI-04",
+          "score": 1
+        },
+        {
+          "case_id": "OR-20",
+          "criterion_id": "HNI-04",
+          "score": 0
+        }
+      ],
+      "total": 20
+    },
+    "candidate_v1": {
+      "failed_case_ids": [],
+      "passed": 20,
+      "rate": 1.0,
+      "rows": [
+        {
+          "case_id": "OR-01",
+          "criterion_id": "HNI-01",
+          "score": 1
+        },
+        {
+          "case_id": "OR-02",
+          "criterion_id": "HNI-01",
+          "score": 1
+        },
+        {
+          "case_id": "OR-03",
+          "criterion_id": "HNI-02",
+          "score": 1
+        },
+        {
+          "case_id": "OR-04",
+          "criterion_id": "HNI-03",
+          "score": 1
+        },
+        {
+          "case_id": "OR-05",
+          "criterion_id": "HNI-06",
+          "score": 1
+        },
+        {
+          "case_id": "OR-06",
+          "criterion_id": "HNI-07",
+          "score": 1
+        },
+        {
+          "case_id": "OR-07",
+          "criterion_id": "HNI-08",
+          "score": 1
+        },
+        {
+          "case_id": "OR-08",
+          "criterion_id": "HNI-09",
+          "score": 1
+        },
+        {
+          "case_id": "OR-09",
+          "criterion_id": "HNI-09",
+          "score": 1
+        },
+        {
+          "case_id": "OR-10",
+          "criterion_id": "HNI-10",
+          "score": 1
+        },
+        {
+          "case_id": "OR-11",
+          "criterion_id": "HNI-11",
+          "score": 1
+        },
+        {
+          "case_id": "OR-12",
+          "criterion_id": "HNI-12",
+          "score": 1
+        },
+        {
+          "case_id": "OR-13",
+          "criterion_id": "HNI-13",
+          "score": 1
+        },
+        {
+          "case_id": "OR-14",
+          "criterion_id": "HNI-14",
+          "score": 1
+        },
+        {
+          "case_id": "OR-15",
+          "criterion_id": "HNI-14",
+          "score": 1
+        },
+        {
+          "case_id": "OR-16",
+          "criterion_id": "HNI-15",
+          "score": 1
+        },
+        {
+          "case_id": "OR-17",
+          "criterion_id": "HNI-16",
+          "score": 1
+        },
+        {
+          "case_id": "OR-18",
+          "criterion_id": "HNI-05",
+          "score": 1
+        },
+        {
+          "case_id": "OR-19",
+          "criterion_id": "HNI-04",
+          "score": 1
+        },
+        {
+          "case_id": "OR-20",
+          "criterion_id": "HNI-04",
+          "score": 1
+        }
+      ],
+      "total": 20
+    }
+  },
+  "production_acceptance": "NOT_ESTABLISHED",
+  "regressions": [],
+  "schema_version": "hg.native-benchmark-result.v1",
+  "trust_note": "This compares deterministic synthetic controls, not HG natural-language output or a live model. It validates control-policy logic only, not intelligence quality or production readiness."
+}

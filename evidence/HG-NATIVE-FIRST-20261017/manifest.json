@@ -1,0 +1,125 @@
+{
+  "artifact_sha256": {
+    ".circleci/config.yml": "65424f799ae6b22b7b907ee05bb5b3c87c2deacf0b9521f986eb50c25455ff75",
+    "docs/HG_NATIVE_INTELLIGENCE_CRITERIA_V1.md": "104da2261c3bb382c82ff48c5b2cce512404f182070c4498d2f8bc8c2146c021",
+    "evidence/HG-NATIVE-FIRST-20261017/FINAL-STATUS.md": "1a7a5a2be078b3f08d320b12bb483e7284f6f39319d1c1b3c4cd9aa37a980454",
+    "evidence/HG-NATIVE-FIRST-20261017/criteria-v1.json": "1ccb316b1f9c47a650af7e16880c277f01724eb08df006b7272172e4854f0912",
+    "evidence/HG-NATIVE-FIRST-20261017/manifest.json": "SELF_HASH_NOT_EMBEDDED",
+    "evidence/HG-NATIVE-FIRST-20261017/oracle-self-test.json": "e755df653ba9849d10facd75290d523c50e6745f1d0840a49caea9eb36e2a455",
+    "evidence/HG-NATIVE-FIRST-20261017/runtime-provenance-readonly.json": "3fc4534746bdecf2583bf79f867cb9bdff5c3b4d08ef49913240b80bde8e5c88",
+    "evidence/HG-NATIVE-FIRST-20261017/strict-unittest-native-first.log": "83913068c678f08961d8ab2d395a1e2e12f6d97aa115dce5f6e9a86a5b10577f",
+    "evidence/HG-NATIVE-FIRST-20261017/synthetic-benchmark.json": "a1b7fc2e0bdc1750010190e7b8916615a927f77bd9379bddc2f3d4f66610b708",
+    "hg/native_criteria.py": "a8101e21d1e253e637525c1f67e2459a12b17f862481c5a7a719983207f43fe0",
+    "scripts/hg-native-benchmark": "7ff0055a90905c68bb223d78598e2e59f489a2694e9852a6a3826ad3e393ebf0",
+    "scripts/hg-native-evaluate": "d895d64eb60de0f286cebf2ba7363c7c9538aef99917752e1ce97d7cace50ef0",
+    "scripts/hg-native-oracle": "616569a22994120ac80261397a1df97562d862211b975a42a0d9e629acdfc974",
+    "tests/test_native_benchmark.py": "6547cce57ecf27add87823ec7a61a85b3cb80369c39517bdd76f3a5951a9a9f2",
+    "tests/test_native_criteria.py": "a629657e3e56936acf2accc362cb5bbcb10c1749fac6c956edc7fe00771b155c",
+    "tests/test_native_improvement_plan.py": "70e728de78b47b7ac46c5aba37b67f35bf241ff1694e46d184f7b904c47893e0",
+    "tests/test_native_oracle.py": "bf7c18caa05f4aa86a1b6cabb0738ebc75414d5ad68e35bc8906201f00082ecc",
+    "tests/testdata/hg-native-improvement-plan.v1.json": "9d5dff997619f252e0c4058d35695debebf1a70e717206376a8ac5215506716c",
+    "tests/testdata/hg-native-oracle-cases.v1.json": "cfeb9b2cbdc05ce7238f236e942a167b1d40549af2678d1f879b67253fde9916"
+  },
+  "baseline": {
+    "candidate_branch": "stt/hg-agentic-intelligence-g1-20261017",
+    "candidate_parent_sha_tested_before_evidence_commit": "65a3fd9147ca79a45d66a01c1eca3f75ed34b793",
+    "canonical_base_sha": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+    "canonical_branch": "hg-genesis",
+    "canonical_repository": "OAI-GIANG/HG2",
+    "evidence_only_commit_sha": "15bf5d7699cc52e9c6dbaa1a553d0c94048d5631"
+  },
+  "candidate_commit_sha": "02c543dc4851d3e45f92a6e520054fb6b3aee41d",
+  "captured_environment": {
+    "capture_attestation": "LOCAL_UNATTESTED",
+    "device": "Termux on Android ARM64",
+    "device_clock_attested": false,
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6",
+    "sqlite": "3.53.4"
+  },
+  "classification": "CANDIDATE_ENGINEERING_EVIDENCE_UNATTESTED",
+  "disposition": "NATIVE_RUBRIC_AND_TESTS_ADDED; TECHNICAL_ACCEPTANCE_BLOCKED; NOT_RELEASED",
+  "hosted_ci_after_evidence_push": "NOT_REPORTED_FOR_02c543dc4851d3e45f92a6e520054fb6b3aee41d",
+  "native_rubric": {
+    "criteria_count": 16,
+    "criteria_digest_sha256": "4811fd8f28bc09db621714b8aebe35acaff66cc87ecc527acae9f6dcc3de798b",
+    "critical_gate_count": 7,
+    "historical_cp0_equivalence": "NOT_CLAIMED",
+    "schema_version": "hg.native-intelligence-criteria.v1",
+    "version": "1.0.0",
+    "weight_total": 100
+  },
+  "note": "174/174 strict unit tests passed on Termux; deterministic synthetic oracle 20/20; synthetic control-policy comparison baseline 5/20 vs candidate 20/20 (delta +0.75, 15 paired improvements, zero regressions, zero live model runs). Runtime services are present, but provenance is BLOCKED_MISMATCH: a process runs from detached, dirty ~/hg2-phone rather than this candidate. No restart/cutover was performed. GitHub reported no CircleCI check/status for 02c543dc4851d3e45f92a6e520054fb6b3aee41d after repeated read-only checks; job #141 passed only for the previous HEAD. Capture remains locally unattested.",
+  "oracle_suite": {
+    "classification": "SYNTHETIC_ORACLE_IMPLEMENTATION_TEST",
+    "dataset_cases": 20,
+    "dataset_id": "HNO-SYNTH-001",
+    "dataset_sha256": "cfeb9b2cbdc05ce7238f236e942a167b1d40549af2678d1f879b67253fde9916",
+    "dataset_version": "1.0.0",
+    "failed": 0,
+    "oracle_version": "HNO-ORACLE-1.0.0",
+    "passed": 20,
+    "result_sha256": "e755df653ba9849d10facd75290d523c50e6745f1d0840a49caea9eb36e2a455",
+    "run_status": "PASS"
+  },
+  "remaining_gates": [
+    "live_natural_language_model_e2e_not_accepted",
+    "production_trust_roots_blocked",
+    "criterion-specific independent oracles and human rubric calibration incomplete",
+    "target-device abrupt power-loss test not run",
+    "runtime provenance backup/restore rollback and side-effect acceptance blocked",
+    "live natural-language model E2E remains NOT_ACCEPTED",
+    "synthetic policy benchmark is not live-model intelligence evidence",
+    "CircleCI for the integration commit added after this manifest update must pass on its exact SHA",
+    "No GitHub check run/status was reported for candidate 02c543dc4851d3e45f92a6e520054fb6b3aee41d; last known passing CircleCI job #141 was for previous HEAD 65a3fd9147ca79a45d66a01c1eca3f75ed34b793"
+  ],
+  "runtime_provenance": {
+    "active_candidate_match": false,
+    "additional_python_checkout_branch_state": "DETACHED_HEAD",
+    "additional_python_checkout_head": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+    "additional_python_checkout_worktree": "DIRTY",
+    "additional_python_process_cwd": "/data/data/com.termux/files/home/hg2-phone",
+    "cutover_or_restart_performed": false,
+    "secret_file_content_hashed": false,
+    "secret_file_content_read": false,
+    "service_status_observed": {
+      "hg-backend": "run pid 10805",
+      "hg-runtime": "run pid 10809"
+    },
+    "source_evidence": "runtime-provenance-readonly.json",
+    "status": "BLOCKED_MISMATCH"
+  },
+  "schema_version": "hg.native-first-evidence.v1",
+  "synthetic_benchmark": {
+    "accepted_by_predeclared_synthetic_gate": true,
+    "baseline_passed": 5,
+    "baseline_rate": 0.25,
+    "candidate_passed": 20,
+    "candidate_rate": 1.0,
+    "classification": "SYNTHETIC_CONTROL_POLICY_COMPARISON_NOT_LIVE_MODEL",
+    "delta_pass_rate": 0.75,
+    "observed_model_runs": 0,
+    "paired_cases_improved": 15,
+    "regressions": [],
+    "result_sha256": "a1b7fc2e0bdc1750010190e7b8916615a927f77bd9379bddc2f3d4f66610b708",
+    "total": 20
+  },
+  "task": "HG AGENTIC INTELLIGENCE EVOLUTION — NATIVE-FIRST",
+  "test_result": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "exit_code": 0,
+    "failed": 0,
+    "log_file": "strict-unittest-native-first.log",
+    "log_sha256": "83913068c678f08961d8ab2d395a1e2e12f6d97aa115dce5f6e9a86a5b10577f",
+    "passed": 174,
+    "resource_warning_treated_as_error": true,
+    "result": "PASS",
+    "tests_run": 174
+  },
+  "unchanged_scope": {
+    "canonical_branch_mutated": false,
+    "historical_cp0": "BLOCKED_INPUT",
+    "merge_deploy_release_performed": false,
+    "synthetic_v2_1_fixtures": "PRESERVED_AND_REMAIN_NOT_RUN"
+  }
+}

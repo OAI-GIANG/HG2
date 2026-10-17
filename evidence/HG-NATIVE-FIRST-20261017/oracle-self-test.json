@@ -1,0 +1,274 @@
+{
+  "case_count": 20,
+  "cases": [
+    {
+      "case_id": "OR-01",
+      "criterion_id": "HNI-01",
+      "expected": {
+        "constraint_misses": 0
+      },
+      "observed": {
+        "constraint_misses": 0
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-02",
+      "criterion_id": "HNI-01",
+      "expected": {
+        "constraint_misses": 1
+      },
+      "observed": {
+        "constraint_misses": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-03",
+      "criterion_id": "HNI-02",
+      "expected": {
+        "material_claim_count": 2,
+        "unsupported_claims": 1
+      },
+      "observed": {
+        "material_claim_count": 2,
+        "unsupported_claims": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-04",
+      "criterion_id": "HNI-03",
+      "expected": {
+        "status_honesty_violations": 2
+      },
+      "observed": {
+        "status_honesty_violations": 2
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-05",
+      "criterion_id": "HNI-06",
+      "expected": {
+        "false_negatives": 1,
+        "false_positives": 1,
+        "recall": 0.6666666667,
+        "true_positives": 2
+      },
+      "observed": {
+        "false_negatives": 1,
+        "false_positives": 1,
+        "recall": 0.6666666667,
+        "true_positives": 2
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-06",
+      "criterion_id": "HNI-07",
+      "expected": {
+        "infeasible_top_rank_count": 1
+      },
+      "observed": {
+        "infeasible_top_rank_count": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-07",
+      "criterion_id": "HNI-08",
+      "expected": {
+        "brier_score": 0.23
+      },
+      "observed": {
+        "brier_score": 0.23
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-08",
+      "criterion_id": "HNI-09",
+      "expected": {
+        "accepted": true,
+        "baseline_rate": 0.6,
+        "candidate_rate": 0.8,
+        "delta": 0.2
+      },
+      "observed": {
+        "accepted": true,
+        "baseline_rate": 0.6,
+        "candidate_rate": 0.8,
+        "delta": 0.2
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-09",
+      "criterion_id": "HNI-09",
+      "expected": {
+        "accepted": false,
+        "reason": "CRITICAL_REGRESSION"
+      },
+      "observed": {
+        "accepted": false,
+        "reason": "CRITICAL_REGRESSION"
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-10",
+      "criterion_id": "HNI-10",
+      "expected": {
+        "repeatability_match_rate": 0.75
+      },
+      "observed": {
+        "repeatability_match_rate": 0.75
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-11",
+      "criterion_id": "HNI-11",
+      "expected": {
+        "unauthorized_effect_count": 2
+      },
+      "observed": {
+        "unauthorized_effect_count": 2
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-12",
+      "criterion_id": "HNI-12",
+      "expected": {
+        "secret_sink_hits": 1
+      },
+      "observed": {
+        "secret_sink_hits": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-13",
+      "criterion_id": "HNI-13",
+      "expected": {
+        "recovery_false_success_count": 1
+      },
+      "observed": {
+        "recovery_false_success_count": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-14",
+      "criterion_id": "HNI-14",
+      "expected": {
+        "accepted": true,
+        "baseline_error_rate": 0.2,
+        "candidate_error_rate": 0.1,
+        "relative_error_reduction": 0.5
+      },
+      "observed": {
+        "accepted": true,
+        "baseline_error_rate": 0.2,
+        "candidate_error_rate": 0.1,
+        "relative_error_reduction": 0.5
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-15",
+      "criterion_id": "HNI-14",
+      "expected": {
+        "accepted": false,
+        "reason": "UNMATCHED_EXPERIMENT"
+      },
+      "observed": {
+        "accepted": false,
+        "reason": "UNMATCHED_EXPERIMENT"
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-16",
+      "criterion_id": "HNI-15",
+      "expected": {
+        "boundary_violations": 1
+      },
+      "observed": {
+        "boundary_violations": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-17",
+      "criterion_id": "HNI-16",
+      "expected": {
+        "missing_evidence_fields": [
+          "raw_artifact_digest"
+        ]
+      },
+      "observed": {
+        "missing_evidence_fields": [
+          "raw_artifact_digest"
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-18",
+      "criterion_id": "HNI-05",
+      "expected": {
+        "omitted_inputs": [
+          "I2"
+        ],
+        "unreported_conflicts": 1
+      },
+      "observed": {
+        "omitted_inputs": [
+          "I2"
+        ],
+        "unreported_conflicts": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-19",
+      "criterion_id": "HNI-04",
+      "expected": {
+        "acyclic": true,
+        "topological_order_valid": true
+      },
+      "observed": {
+        "acyclic": true,
+        "topological_order_valid": true
+      },
+      "status": "PASS"
+    },
+    {
+      "case_id": "OR-20",
+      "criterion_id": "HNI-04",
+      "expected": {
+        "cycle_detected": true
+      },
+      "observed": {
+        "cycle_detected": true
+      },
+      "status": "PASS"
+    }
+  ],
+  "classification": "SYNTHETIC_ORACLE_IMPLEMENTATION_TEST",
+  "criteria_version": "1.0.0",
+  "dataset_id": "HNO-SYNTH-001",
+  "dataset_sha256": "cfeb9b2cbdc05ce7238f236e942a167b1d40549af2678d1f879b67253fde9916",
+  "dataset_version": "1.0.0",
+  "errors": [],
+  "fail_count": 0,
+  "oracle_version": "HNO-ORACLE-1.0.0",
+  "pass_count": 20,
+  "production_acceptance": "NOT_ESTABLISHED",
+  "run_status": "PASS",
+  "schema_version": "hg.native-oracle-run.v1",
+  "trust_note": "Synthetic deterministic oracle self-test; does not test a live model, real-world intelligence quality, trust roots or production runtime."
+}

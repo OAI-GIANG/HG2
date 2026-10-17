@@ -1,0 +1,61 @@
+{
+  "evidence_id": "HG-AI-STRICT-UNITTEST-2D4098EE",
+  "execution": {
+    "captured_at_utc": "2026-10-16T19:32:59+00:00",
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "device": "Remote Desktop Commander localhost / Android Termux",
+    "exit_code": 0,
+    "machine": "aarch64",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6",
+    "resource_warning_policy": "warnings treated as errors",
+    "sqlite": "3.53.4",
+    "tests_failed": 0,
+    "tests_passed": 153,
+    "tests_run": 153
+  },
+  "hosted_ci": {
+    "context": "ci/circleci: verify",
+    "observed_head_sha": "2d4098ee91fc08115bce15fd05fb044f9afd27c5",
+    "provider": "CircleCI",
+    "status": "success",
+    "url": "https://circleci.com/gh/OAI-GIANG/HG2/135"
+  },
+  "log_artifact": {
+    "bytes": 21274,
+    "path": "evidence/HG-AGENTIC-INTELLIGENCE-20261017/strict-unittest-2d4098ee.log",
+    "sha256": "5e02b8fcb55a9454d14258eac45186585a345e09e20718eabacb4ccb9a8e0b38"
+  },
+  "provider_smoke": {
+    "catalog_request_http_status": 200,
+    "configured_model": "deepseek-flash",
+    "credential_values_logged": false,
+    "live_json_acceptance": "FAIL",
+    "reason": "The single low-token response was incomplete/unparseable; the follow-up live generation was blocked by the execution tool safety gate and was not retried through another path.",
+    "single_completion_http_status": 200
+  },
+  "release": {
+    "canonical_base": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+    "status": "NOT_RELEASED",
+    "technical_acceptance": "BLOCKED"
+  },
+  "schema_version": "hg.test-run-evidence.v1",
+  "subject": {
+    "branch": "stt/hg-agentic-intelligence-g1-20261017",
+    "commit": "2d4098ee91fc08115bce15fd05fb044f9afd27c5",
+    "repository": "OAI-GIANG/HG2",
+    "tree": "3a4af4578ab028811fabc74d791083afac7da7ca"
+  },
+  "task": "HG Agentic Intelligence Evolution",
+  "trust_boundary": {
+    "capture_attestation": "LOCAL_UNATTESTED",
+    "evidence_trust_state": "UNVERIFIED",
+    "notes": [
+      "Local SHA-256 binds log bytes, not an authenticated local runner.",
+      "CircleCI status was observed for this exact code commit.",
+      "Model provider unit tests use mocked responses; TEST_ONLY callbacks are not production trust roots.",
+      "HNI V2.1 fixtures remain synthetic and 26/26 NOT_RUN.",
+      "CP0 original criteria primary-source provenance remains unresolved."
+    ]
+  }
+}
