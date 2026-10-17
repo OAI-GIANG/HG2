@@ -6,6 +6,7 @@ No API credential or Authorization header is captured or printed.
 """
 from __future__ import annotations
 import hashlib
+import argparse
 import json
 import os
 import platform
@@ -19,7 +20,7 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from hg.model_provider import DeepSeekTaskDraftProvider, ModelProviderError
-from hg.task_compiler import compile_natural_language
+from hg.task_compiler import CompileError, compile_natural_language
 
 PROMPT = (
     "Draft a task contract for a read-only operation that checks whether a local test suite "
@@ -55,6 +56,11 @@ def git_output(*args: str) -> str:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--max-tokens", type=int, default=None, help="temporary response budget override, 128..4096")
+    args = parser.parse_args()
+    if args.max_tokens is not None and not 128 <= args.max_tokens <= 4096:
+        parser.error("--max-tokens must be in 128..4096")
     if git_output("status", "--porcelain"):
         print(json.dumps({"status": "BLOCKED", "reason": "CANDIDATE_WORKTREE_NOT_CLEAN"}))
         return 2
@@ -82,6 +88,17 @@ def main() -> int:
             "authorization_header_captured": event["authorization_header_captured"],
             "credential_captured": event["credential_captured"],
         })
+        try:
+            envelope = json.loads(event["response_payload"].decode("utf-8"))
+            choice = envelope.get("choices", [{}])[0]
+            usage = envelope.get("usage", {})
+            trace_state["response_id"] = envelope.get("id") if isinstance(envelope.get("id"), str) else None
+            trace_state["finish_reason"] = choice.get("finish_reason") if isinstance(choice, dict) else None
+            trace_state["usage_tokens"] = {k: v for k, v in usage.items() if k in {
+                "prompt_tokens", "completion_tokens", "total_tokens"
+            } and type(v) is int} if isinstance(usage, dict) else {}
+        except Exception:
+            trace_state["response_metadata_parse"] = "UNAVAILABLE"
 
     result = {
         "schema_version": "hg.live-model-provider-e2e.v1",
@@ -102,6 +119,8 @@ def main() -> int:
     write_private(run_dir, "user-request.txt", PROMPT.encode("utf-8"))
     try:
         provider = DeepSeekTaskDraftProvider.from_env_file(trace_sink=trace_sink)
+        if args.max_tokens is not None:
+            provider.max_tokens = args.max_tokens
         result["model_provider"] = "DeepSeek"
         result["model_id"] = provider.model_id
         result["endpoint_host"] = urlsplit(provider._base_url).hostname
@@ -128,7 +147,12 @@ def main() -> int:
     except ModelProviderError as exc:
         result["run_status"] = "BLOCKED"
         result["error_code"] = exc.code
-        result["error_detail"] = exc.detail
+        result["error_detail_code"] = exc.detail if isinstance(exc.detail, str) and exc.detail.isascii() and len(exc.detail) <= 96 else "REDACTED"
+    except CompileError as exc:
+        result["run_status"] = "BLOCKED"
+        result["error_code"] = exc.code
+        result["error_path"] = exc.path
+        result["error_detail_code"] = exc.detail if isinstance(exc.detail, str) and exc.detail.isascii() and len(exc.detail) <= 96 else "REDACTED"
     except Exception as exc:
         # Never serialize exception text that could contain provider or user data.
         result["run_status"] = "BLOCKED"
