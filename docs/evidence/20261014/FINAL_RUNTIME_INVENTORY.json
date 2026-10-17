@@ -1,0 +1,41 @@
+{
+  "anonymous_route_check": {
+    "error": "LOCAL_CAPABILITY_AUTH_REQUIRED",
+    "http_status": 401
+  },
+  "audit_log_sha256": "6701cfa9d1bfeabe3ae538c3e1d2127d3c1695528ded2913b220abc8e346d88a",
+  "audit_verifier_sha256": "9d1ff9cb744cab3d0257e59c1cf95fdfbf23e8af7bcf9dc5c0d70ea823ed217c",
+  "canonical_remote_ref": {
+    "branch": "hg-genesis",
+    "sha": "cdebaeed014371f033f14352f552c6d0d4e69198"
+  },
+  "checked_at_utc": "2026-10-14T03:39:13.699997+00:00",
+  "connector": {
+    "rate_limit_per_minute": 6,
+    "source_sha256": "913f23f4ecc41cf730cfa0484427c717ae9c3c1cefb55bc3ffa980ad11c6425d"
+  },
+  "correct_local_bearer_after_final_restart": "NOT_RUN",
+  "current_status": "BLOCKED_CREDENTIAL",
+  "local_clone_head": {
+    "differs_from_remote_ref": true,
+    "path": "/data/data/com.termux/files/home/hg2-phone",
+    "sha": "4d97c34d8bb7c1091265330aef63dd78d0e72c49"
+  },
+  "narrow_capability": {
+    "credential_state": "UPSTREAM_REJECTED_401",
+    "id": "github_hg2_public_read",
+    "revocation_state": "ACTIVE",
+    "runtime_state": "BLOCKED",
+    "write_enabled": false
+  },
+  "registry_sha256": "3275baf0a0d45c1ac0ba7a49cc8277af3df7fa5b7212bc1690b0f9ea1125dfa0",
+  "release": "BLOCKED",
+  "rollback_script_sha256": "5bf023d9f73d440b464715c4cdb6c03a9c46ad232274032a59f4e4132747cf5b",
+  "runtime": {
+    "health_http_status": 200,
+    "pid": 24729,
+    "source_sha256": "c9ce1337373007950b05c353bea14d2f2888d08ee5e7f34c5ca4003967c053ae"
+  },
+  "state_sha256": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc",
+  "upstream_credentials_read_or_printed": false
+}

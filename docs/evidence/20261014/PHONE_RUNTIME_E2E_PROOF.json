@@ -1,0 +1,42 @@
+{
+  "http_status": 200,
+  "observed_at_utc": "2026-10-14T03:17:53.962874+00:00",
+  "query": {
+    "ref": "hg-genesis",
+    "repo": "OAI-GIANG/HG2"
+  },
+  "request_method": "GET",
+  "request_path": "/api/hg2/read",
+  "response": {
+    "ok": true,
+    "result": {
+      "authenticated": true,
+      "commit_sha": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "commit_url": "https://github.com/OAI-GIANG/HG2/commit/cdebaeed014371f033f14352f552c6d0d4e69198",
+      "http_status": {
+        "commit": 200,
+        "manifest": 200
+      },
+      "manifest_blob_sha": "f30da194e246dba2773125d074488a30912635eb",
+      "manifest_path": "manifest.json",
+      "ok": true,
+      "ref": "hg-genesis",
+      "repository": "OAI-GIANG/HG2",
+      "source": "github-api",
+      "tree_sha": "fa986a20e8c5c091f930f66a653f4a41611c76b2"
+    },
+    "runtime": {
+      "bind_address": "127.0.0.1",
+      "bind_port": 8787,
+      "connector_source_path": "/data/data/com.termux/files/home/hg/core/runtime/github_hg2_readonly.py",
+      "connector_source_sha256_at_import": "96872852a0b89da8cdd7c912eaa687fa58d47e9fc2a4a8512c39777af1347bb1",
+      "pid": 7449,
+      "process_started_epoch": 1791947840.7788053,
+      "runtime_source_file_sha256_at_start": "29e2f3cf7caac6d3d5b3820ab118a40a93ae44dc878ab6b50f4cc93cedf16253",
+      "runtime_source_path": "/data/data/com.termux/files/home/hg/core/runtime/hg_runtime.py"
+    }
+  },
+  "state_sha256_after": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc",
+  "state_sha256_before": "392ce5f66c81ef7402bbc0992da2151dcc0b5db2ab822052058309f034481ecc",
+  "state_unchanged": true
+}
