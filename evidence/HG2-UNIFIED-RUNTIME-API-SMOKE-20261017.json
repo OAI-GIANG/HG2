@@ -43,9 +43,18 @@
   "server_process": {
     "stopped_after_test": true
   },
+  "durable_outbox_smoke": {
+    "status_http": 200,
+    "status": "NOT_CONFIGURED",
+    "pending_count": 31,
+    "sync_without_credentials_http": 503,
+    "sync_error": "DURABLE_NOT_CONFIGURED",
+    "state_log_hash_unchanged": true
+  },
   "limitations": [
     "No production API read/write tokens provisioned",
     "No real model-provider call made",
+    "Legacy durable backend contract incompatible; adapter fails closed",
     "No durable replication cutover",
     "No live runtime restart/deploy"
   ]
