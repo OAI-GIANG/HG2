@@ -1,0 +1,74 @@
+{
+  "schema_version": "hg.agentic-intelligence-evolution-evidence-manifest.v3",
+  "record_id": "HG-AGENTIC-INTELLIGENCE-EVOLUTION-20261017-V3",
+  "status": "ACCEPTANCE_BLOCKED_NOT_RELEASED",
+  "candidate_code_commit": "dff0eb0bd6a5a9b73facad25e9c800407e6ee98b",
+  "evidence_commit_prior": "d952be68bdf252e8f814d6cb6b6f3b4acbc6ec53",
+  "canonical_head": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+  "pr21": {
+    "state": "OPEN",
+    "draft": true,
+    "head_at_observation": "d952be68bdf252e8f814d6cb6b6f3b4acbc6ec53",
+    "base": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+    "merged": false
+  },
+  "ci": [
+    {
+      "job": 153,
+      "commit": "dff0eb0bd6a5a9b73facad25e9c800407e6ee98b",
+      "status": "PASS",
+      "url": "https://circleci.com/gh/OAI-GIANG/HG2/153"
+    },
+    {
+      "job": 154,
+      "commit": "d952be68bdf252e8f814d6cb6b6f3b4acbc6ec53",
+      "status": "PASS",
+      "url": "https://circleci.com/gh/OAI-GIANG/HG2/154"
+    }
+  ],
+  "prior_v2_manifest_sha256": "f7613ac90614b1f5d02aea15906ef8c9bcf688d19b2e1912d9606e25eee25bfd",
+  "prior_v2_checksum_register_sha256": "10163623bb8693dc5289aa6a0bfb88b4ccf890cce9ff6c5d37f2435b6bc862a2",
+  "live_model_summary_sha256": "2ae928f11acd6d95ecef929e70d0bb3baec7c3ff8ab86de09f18b8531e8b7c66",
+  "runtime_observation": {
+    "path": "runtime-provenance-observation.json",
+    "sha256": "cf3b92eefd140f38f03fba17976fe04cfec443a9fbcfdccb960692ff04c803ae",
+    "classification": "LOCAL_PROCESS_PATH_OBSERVATION_NOT_CRYPTOGRAPHIC_ATTESTATION"
+  },
+  "tests": {
+    "strict_unittest": "200/200 PASS",
+    "fixture_static": "PASS",
+    "fixture_package": "12/12 PASS",
+    "hni30_oracle_binding": "PASS; 30 criteria; runtime NOT_APPROVED/NOT_RUN"
+  },
+  "gates": {
+    "hni30_runtime": "NOT_RUN",
+    "live_model_provider": "BLOCKED_AFTER_THREE_ATTEMPTS",
+    "production_provenance": "BLOCKED_MISMATCH",
+    "production_trust_root": "BLOCKED",
+    "full_system_recovery": "BLOCKED",
+    "cp0": "BLOCKED",
+    "release": "NOT_RELEASED"
+  },
+  "preservation": {
+    "canonical_write": false,
+    "merge": false,
+    "deploy": false,
+    "production_restart": false,
+    "production_database_write": false,
+    "trust_root_or_key_created": false,
+    "secret_export": false,
+    "dirty_phone_checkout_modified": false
+  },
+  "artifacts": [
+    {
+      "path": "EVOLUTION-STATUS-V3.md",
+      "sha256": "5e71f8922945380a4511d22d5b4f4f7c14f48e37b60336b422cc27125a16e8dd",
+      "bytes": 6690
+    },
+    {
+      "path": "runtime-provenance-observation.json",
+      "sha256": "cf3b92eefd140f38f03fba17976fe04cfec443a9fbcfdccb960692ff04c803ae",
+      "bytes": 4403
+    }
+  ]
+}
