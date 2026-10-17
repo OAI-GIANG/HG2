@@ -83,3 +83,4 @@ Restructure the single canonical repository OAI-GIANG/HG2 around the Circulatory
 
 - WP2 integration increment: existing history serialization and digest now delegate to hg.contracts. History and checkpoint parsing reject duplicate JSON keys and non-standard JSON constants. Existing persisted record shape remains compatible; migration to HG_EVENT_V1 storage is still open.
 - The full local suite passed 46 tests, including new malformed-history and malformed-checkpoint checks.
+- Shared parser integration increment: the edge relay now uses the same canonical JSON parser/serializer as history, eliminating a duplicate parser implementation while preserving the existing duplicate-key error response. The full suite remained at 46 passing tests.

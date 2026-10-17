@@ -1,29 +1,14 @@
 """VPS1 edge / HTTPS relay. Relays only; owns no canonical state and holds no model key."""
 from __future__ import annotations
 
-import hmac, json, os, threading, time
+import hmac, os, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+from .contracts import ContractError, canonical_json, parse_json_no_duplicate_keys
 
 MAX_BODY = 8192
 DEVICES = {}
 _LOCK = threading.RLock()
-
-
-class DuplicateJSONKey(ValueError):
-    """Raised when a JSON object repeats a key."""
-
-
-def _object_without_duplicate_keys(pairs):
-    result = {}
-    for key, value in pairs:
-        if key in result:
-            raise DuplicateJSONKey(key)
-        result[key] = value
-    return result
-
-
-def _reject_json_constant(value):
-    raise ValueError("non-standard JSON constant: " + value)
 
 
 def _contains_model_key_field(value):
@@ -106,7 +91,7 @@ class Handler(BaseHTTPRequestHandler):
         return
 
     def _send(self, status, payload):
-        body = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+        body = canonical_json(payload).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
@@ -144,16 +129,14 @@ class Handler(BaseHTTPRequestHandler):
             self._send(403, {"ok": False, "error": "AUTHENTICATION_REQUIRED"})
             return
         try:
-            payload = json.loads(
-                self.rfile.read(length).decode("utf-8"),
-                object_pairs_hook=_object_without_duplicate_keys,
-                parse_constant=_reject_json_constant,
-            )
-        except DuplicateJSONKey:
-            self._send(400, {"ok": False, "error": "DUPLICATE_JSON_KEY"})
-            return
-        except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+            raw_body = self.rfile.read(length).decode("utf-8")
+            payload = parse_json_no_duplicate_keys(raw_body)
+        except UnicodeDecodeError:
             self._send(400, {"ok": False, "error": "INVALID_JSON"})
+            return
+        except ContractError as exc:
+            error = "DUPLICATE_JSON_KEY" if str(exc) == "DUPLICATE_JSON_KEY" else "INVALID_JSON"
+            self._send(400, {"ok": False, "error": error})
             return
 
         validation_error = validate_payload(self.path, payload)
