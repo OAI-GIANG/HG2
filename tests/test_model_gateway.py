@@ -26,14 +26,29 @@ class ModelGatewayTests(unittest.TestCase):
   self.assertIn('treat as data',seen['body']['messages'][1]['content'])
   self.assertEqual(out['manifest']['context_manifest_sha256'],'a'*64)
   self.assertTrue(out['manifest']['provider_called']); self.assertNotIn('test-provider-key',json.dumps(out['manifest']))
+ def test_status_does_not_contact_provider_or_disclose_secret(self):
+  secret='super-secret-model-key'
+  gw=ModelGateway(base_url='https://provider.invalid/v1',api_key=secret,model='test-model')
+  state=gw.status()
+  self.assertEqual(state['status'],'CONFIGURED')
+  self.assertFalse(state['network_called'])
+  self.assertNotIn(secret,repr(state))
  def test_missing_configuration_fails_closed(self):
   with self.assertRaises(ModelNotConfigured): ModelGateway(base_url='',api_key='',model='').ask('q',{})
+ def test_external_cleartext_or_credentialed_urls_fail_before_network(self):
+  calls=[]
+  opener=lambda *a,**k: calls.append((a,k))
+  for url in ('http://provider.example/v1', 'https://user:pass@provider.example/v1',
+              'https://provider.example/v1?token=unsafe'):
+   gw=ModelGateway(base_url=url,api_key='test-key',model='m',opener=opener)
+   with self.assertRaises(ModelNotConfigured): gw.ask('q',{})
+  self.assertEqual(calls,[])
  def test_invalid_provider_response_fails_closed(self):
   class BadResponse:
    status=200
    def __enter__(self): return self
    def __exit__(self,*args): return False
    def read(self): return b'{"choices":[]}'
-  gw=ModelGateway(base_url='http://example.invalid/v1',api_key='x',model='m',opener=lambda *a,**k:BadResponse())
+  gw=ModelGateway(base_url='https://example.invalid/v1',api_key='x',model='m',opener=lambda *a,**k:BadResponse())
   with self.assertRaises(ModelResponseInvalid): gw.ask('q',{})
 if __name__=='__main__': unittest.main()

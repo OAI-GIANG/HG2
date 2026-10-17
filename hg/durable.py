@@ -7,10 +7,22 @@ compatible with the HG2 memory schema.
 """
 from __future__ import annotations
 import hashlib, json, os, urllib.error, urllib.request
+from urllib.parse import urlsplit
 from .history import canonical
 
 CONTRACT = "HG2_DURABLE_BATCH_V1"
 MEMORY_EVENTS = {"memory.mutated", "memory.tombstoned"}
+
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # Never forward a bearer token to a redirect target.
+        return None
+
+
+def _urlopen_without_redirect(req, timeout=4):
+    return urllib.request.build_opener(_NoRedirectHandler).open(req, timeout=timeout)
+
 
 class DurableError(Exception):
     code = "DURABLE_ERROR"
@@ -27,7 +39,7 @@ class DurableOutbox:
         self.base_url=(base_url if base_url is not None else os.environ.get("HG_DURABLE_URL", "")).strip().rstrip("/")
         self.token=token if token is not None else os.environ.get("HG_DURABLE_TOKEN", "")
         self.timeout=max(1,min(30,int(timeout)))
-        self.opener=opener or urllib.request.urlopen
+        self.opener=opener or _urlopen_without_redirect
 
     def status(self):
         events=self.store.replay()
@@ -48,6 +60,13 @@ class DurableOutbox:
 
     def deliver_once(self, limit=25):
         if not self.base_url or not self.token: raise DurableNotConfigured("durable URL/token not configured")
+        parts = urlsplit(self.base_url)
+        if (not parts.hostname or parts.username or parts.password or parts.query or parts.fragment
+                or parts.path not in ("", "/")):
+            raise DurableDeliveryError("durable URL must be an absolute origin without embedded credentials, path, query, or fragment")
+        local_hosts = {"localhost", "127.0.0.1", "::1"}
+        if parts.scheme != "https" and not (parts.scheme == "http" and parts.hostname.lower() in local_hosts):
+            raise DurableDeliveryError("durable endpoint requires HTTPS outside loopback staging")
         if not isinstance(limit,int) or not 1<=limit<=100: raise DurableDeliveryError("limit must be 1..100")
         # Contract negotiation is mandatory; legacy /backend/memory/persist is not this protocol.
         req=urllib.request.Request(self.base_url+"/backend/hg2/capabilities",method="GET")
@@ -61,7 +80,7 @@ class DurableOutbox:
             raise DurableDeliveryError("durable capability request failed with HTTP %d"%exc.code) from None
         except (urllib.error.URLError,TimeoutError,OSError,json.JSONDecodeError,UnicodeDecodeError) as exc:
             raise DurableDeliveryError("durable capability request failed: "+type(exc).__name__) from None
-        if caps.get("contract")!=CONTRACT or caps.get("memory_schema")!="HG_MEMORY_V1" or caps.get("supports_tombstones") is not True or caps.get("supports_scopes") is not True:
+        if caps.get("contract")!=CONTRACT or caps.get("memory_schema")!="HG_MEMORY_V1" or caps.get("supports_tombstones") is not True or caps.get("supports_scopes") is not True or caps.get("required_scope")!="MEMORY_PERSIST":
             raise DurableContractMismatch("backend capabilities do not satisfy HG2 memory contract")
         st=self.status(); acked=set()
         for event in self.store.replay():

@@ -1,6 +1,7 @@
 """Single-process HTTP surface for the canonical phone-primary HG runtime."""
 from __future__ import annotations
 
+import hashlib
 import hmac
 import json
 import os
@@ -8,6 +9,8 @@ import re
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
+
+from .provenance import runtime_identity, runtime_manifest, validate_build
 
 from .memory import MemoryConflict, MemoryDenied, MemoryErrorBase, MemoryIdempotencyConflict, MemoryStore, MemoryValidationError
 from .model_gateway import ModelGatewayError, ModelNotConfigured
@@ -48,6 +51,8 @@ class HGHTTPServer(ThreadingHTTPServer):
         self.principal_id = os.environ.get("HG_API_PRINCIPAL_ID", "phone-owner")
         self.read_scopes = _scopes("HG_MEMORY_READ_SCOPES")
         self.write_scopes = _scopes("HG_MEMORY_WRITE_SCOPES")
+        self.build_root = Path(__file__).resolve().parents[1]
+        self.build_identity = runtime_identity(self.build_root, commit=os.environ.get("HG_BUILD_COMMIT", "UNDECLARED"))
         super().__init__(address, HGRequestHandler)
 
 
@@ -117,11 +122,23 @@ class HGRequestHandler(BaseHTTPRequestHandler):
         if path == "/api/health":
             health = self.server.runtime.health()
             integ = health.get("integrity", {})
-            self._send(200 if health.get("ok") and integ.get("ok") else 503,
-                       {"ok": bool(health.get("ok") and integ.get("ok")), "product": "HG",
-                        "runtime": "READY" if integ.get("ok") else "DEGRADED",
-                        "integrity": integ, "edge_configured": health.get("edge_configured", False),
-                        "durable": self.server.runtime.durable.status()})
+            try:
+                current_manifest = runtime_manifest(self.server.build_root)
+                provenance_ok = hmac.compare_digest(current_manifest["manifest_sha256"],
+                                                    self.server.build_identity["source_manifest_sha256"])
+            except (OSError, RuntimeError, ValueError):
+                current_manifest = {"manifest_sha256": "UNAVAILABLE", "files": []}
+                provenance_ok = False
+            ok = bool(health.get("ok") and integ.get("ok") and provenance_ok)
+            self._send(200 if ok else 503,
+                       {"ok": ok, "product": "HG", "runtime": "READY" if ok else "DEGRADED",
+                        "integrity": integ, "provenance": {"ok": provenance_ok,
+                        "startup_manifest_sha256": self.server.build_identity["source_manifest_sha256"],
+                        "current_manifest_sha256": current_manifest["manifest_sha256"],
+                        "file_count": len(current_manifest["files"])},
+                        "model_gateway": self.server.runtime.model_gateway.status(),
+                        "edge_configured": health.get("edge_configured", False),
+                        "durable": self.server.runtime.durable.status(), "build": self.server.build_identity})
             return
         if path == "/api/durable/status":
             grants = self._auth(write=False)
@@ -148,6 +165,47 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                 self._send(400, {"ok": False, "error": {"code": "INVALID_QUERY_PARAMETERS"}})
             except MemoryErrorBase as exc:
                 self._send(422, {"ok": False, "error": {"code": exc.code}})
+            return
+        if path == "/api/library":
+            grants = self._auth(write=False)
+            if grants is None: return
+            if not grants.intersection({"global", "HG"}):
+                self._send(403, {"ok": False, "error": {"code": "LIBRARY_SCOPE_DENIED"}})
+                return
+            root = Path(self.server.runtime.store.dir).resolve()
+            items = []
+            quarantined = 0
+            try:
+                for event in self.server.runtime.store.replay():
+                    typ, payload = event.get("event_type"), event.get("payload", {})
+                    if typ == "legacy.library.quarantined":
+                        quarantined += 1
+                        continue
+                    if typ != "legacy.library.asset.imported":
+                        continue
+                    rel = payload.get("relative_blob")
+                    digest = payload.get("sha256")
+                    if not isinstance(rel, str) or not re.fullmatch(r"library/[0-9a-f]{64}", rel):
+                        raise ValueError("invalid_library_reference")
+                    if not isinstance(digest, str) or rel != "library/" + digest:
+                        raise ValueError("library_hash_reference_mismatch")
+                    candidate = (root / rel).resolve(strict=True)
+                    if candidate.parent != (root / "library").resolve() or not candidate.is_file():
+                        raise ValueError("library_path_escape")
+                    h = hashlib.sha256()
+                    with candidate.open("rb") as asset:
+                        for chunk in iter(lambda: asset.read(1024 * 1024), b""):
+                            h.update(chunk)
+                    if not hmac.compare_digest(h.hexdigest(), digest):
+                        raise ValueError("library_hash_mismatch")
+                    items.append({"id": payload.get("legacy_id"), "name": payload.get("name"),
+                                  "sha256": digest, "size": candidate.stat().st_size,
+                                  "integrity": "VERIFIED"})
+            except (OSError, ValueError, RuntimeError):
+                self._send(503, {"ok": False, "error": {"code": "LIBRARY_INTEGRITY_FAILED"}})
+                return
+            self._send(200, {"ok": True, "count": len(items), "quarantined_count": quarantined,
+                             "assets": items, "source": "LOCAL_HASH_VERIFIED_BLOBS"})
             return
         if path == "/api/memory":
             grants = self._auth(write=False)
@@ -275,6 +333,7 @@ class HGRequestHandler(BaseHTTPRequestHandler):
 
 
 def main():
+    build_check = validate_build(Path(__file__).resolve().parents[1])
     host = os.environ.get("HG_BIND", "127.0.0.1")
     if host not in ("127.0.0.1", "::1", "localhost"):
         raise RuntimeError("HG phone API must bind to loopback; expose it only through the authenticated HTTPS edge")
@@ -283,7 +342,7 @@ def main():
     runtime = PhoneRuntime(state_dir=state_dir)
     server = HGHTTPServer((host, port), runtime=runtime)
     print(json.dumps({"event": "HG_API_STARTED", "product": "HG", "host": host, "port": port,
-                      "runtime_id": runtime.store.runtime_id}, sort_keys=True), flush=True)
+                      "runtime_id": runtime.store.runtime_id, "build": build_check}, sort_keys=True), flush=True)
     try:
         server.serve_forever(poll_interval=0.25)
     finally:

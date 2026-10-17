@@ -1,7 +1,18 @@
 """Minimal OpenAI-compatible model gateway with provenance-only audit metadata."""
 from __future__ import annotations
 import hashlib, json, os, urllib.error, urllib.request
+from urllib.parse import urlsplit
 from .history import canonical
+
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # Provider redirects must not receive the model bearer token.
+        return None
+
+
+def _urlopen_without_redirect(req, timeout=45):
+    return urllib.request.build_opener(_NoRedirectHandler).open(req, timeout=timeout)
 
 class ModelGatewayError(Exception):
     code = "MODEL_GATEWAY_ERROR"
@@ -18,11 +29,23 @@ class ModelGateway:
         self.api_key = api_key if api_key is not None else os.environ.get("HG_MODEL_API_KEY", "")
         self.model = (model if model is not None else os.environ.get("HG_MODEL_ID", "")).strip()
         self.timeout = max(1, min(120, int(timeout)))
-        self.opener = opener or urllib.request.urlopen
+        self.opener = opener or _urlopen_without_redirect
+
+    def status(self):
+        """Expose provider readiness without disclosing secrets or contacting the provider."""
+        configured = bool(self.base_url and self.api_key and self.model)
+        return {"configured": configured, "status": "CONFIGURED" if configured else "NOT_CONFIGURED",
+                "provider": "openai_compatible", "network_called": False}
 
     def _endpoint(self):
         if not self.base_url or not self.api_key or not self.model:
             raise ModelNotConfigured("model gateway configuration missing")
+        parts = urlsplit(self.base_url)
+        if not parts.hostname or parts.username or parts.password or parts.query or parts.fragment:
+            raise ModelNotConfigured("model provider URL must be absolute and contain no embedded credentials, query, or fragment")
+        local_hosts = {"localhost", "127.0.0.1", "::1"}
+        if parts.scheme != "https" and not (parts.scheme == "http" and parts.hostname.lower() in local_hosts):
+            raise ModelNotConfigured("model provider requires HTTPS outside loopback testing")
         base=self.base_url.rstrip("/")
         if base.endswith("/chat/completions"): return base
         return base + "/chat/completions"

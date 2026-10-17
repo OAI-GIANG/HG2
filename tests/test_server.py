@@ -12,7 +12,7 @@ class ServerTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.env = patch.dict(os.environ, {"HG_API_READ_TOKEN": READ_TOKEN, "HG_API_WRITE_TOKEN": WRITE_TOKEN, "HG_API_PRINCIPAL_ID":"test-owner",
-            "HG_MEMORY_READ_SCOPES":"owner", "HG_MEMORY_WRITE_SCOPES":"owner"}, clear=False)
+            "HG_MEMORY_READ_SCOPES":"owner,global,HG", "HG_MEMORY_WRITE_SCOPES":"owner,global,HG"}, clear=False)
         self.env.start(); self.addCleanup(self.env.stop)
         self.rt = PhoneRuntime(state_dir=self.tmp.name)
         self.srv = HGHTTPServer(("127.0.0.1", 0), runtime=self.rt)
@@ -35,11 +35,44 @@ class ServerTests(unittest.TestCase):
             self.assertIn("Bộ nhớ hợp nhất", page.read().decode())
         status, body = self.call("/api/health")
         self.assertEqual(status, 200); self.assertTrue(body["integrity"]["ok"])
+        self.assertEqual(body["build"]["git_commit"], os.environ.get("HG_BUILD_COMMIT", "UNDECLARED"))
+        self.assertRegex(body["build"]["source_manifest_sha256"], r"^[0-9a-f]{64}$")
+        self.assertGreater(body["build"]["source_file_count"], 1)
+        self.assertTrue(body["provenance"]["ok"])
+        self.assertEqual(body["provenance"]["current_manifest_sha256"], body["build"]["source_manifest_sha256"])
+        self.assertEqual(body["model_gateway"]["status"], "NOT_CONFIGURED")
+        self.assertFalse(body["model_gateway"]["network_called"])
+        self.assertEqual(body["build"]["process_pid"], self.srv.build_identity["process_pid"])
+        self.assertEqual(self.call("/api/library", token=None)[0], 401)
+        self.assertEqual(self.call("/api/library", token=WRITE_TOKEN)[0], 401)
+        self.srv.read_scopes = frozenset({"owner"})
+        self.assertEqual(self.call("/api/library")[0], 403)
+        self.srv.read_scopes = frozenset({"owner", "global", "HG"})
         self.assertEqual(self.call("/api/memory", token=None)[0], 401)
         self.assertEqual(self.call("/api/memory", token="wrong")[0], 401)
         self.assertEqual(self.call("/api/memory", token=WRITE_TOKEN)[0], 401)
         rec = {"id":"read-token-write-attempt", "type":"fact", "title":"x", "content":"y", "scope_id":"owner"}
         self.assertEqual(self.call("/api/memory", "POST", {"record":rec,"idempotency_key":"no-write"}, token=READ_TOKEN)[0], 401)
+    def test_source_provenance_mismatch_degrades_health(self):
+        with patch("hg.server.runtime_manifest", return_value={"manifest_sha256":"0" * 64, "files":[]}):
+            status, body = self.call("/api/health")
+        self.assertEqual(status, 503)
+        self.assertFalse(body["ok"])
+        self.assertFalse(body["provenance"]["ok"])
+
+    def test_library_endpoint_empty_state_and_path_integrity_fail_closed(self):
+        status, body = self.call("/api/library")
+        self.assertEqual(status, 200)
+        self.assertEqual(body["count"], 0)
+        self.assertEqual(body["quarantined_count"], 0)
+        self.assertEqual(body["source"], "LOCAL_HASH_VERIFIED_BLOBS")
+        self.rt.store.emit("legacy.library.asset.imported", {
+            "relative_blob": "library/" + "0" * 64, "sha256": "0" * 64, "legacy_id": "asset-1", "name": "x"
+        }, event_id="library-test-event")
+        status, body = self.call("/api/library")
+        self.assertEqual(status, 503)
+        self.assertEqual(body["error"]["code"], "LIBRARY_INTEGRITY_FAILED")
+
     def test_create_list_read_delete(self):
         record = {"id":"api-fact", "type":"fact", "title":"HG2", "content":"Single system", "scope_id":"owner"}
         status, body = self.call("/api/memory", "POST", {"record":record, "idempotency_key":"create-1"}, token=WRITE_TOKEN)
