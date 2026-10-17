@@ -1,0 +1,61 @@
+{
+  "schema": "HG2_UNIFIED_RUNTIME_API_SMOKE_V1",
+  "status": "PASS",
+  "environment": "isolated Termux staging rehearsal only",
+  "production_touched": false,
+  "bind": "127.0.0.1",
+  "port": 18788,
+  "temporary_test_tokens_used": true,
+  "health": {
+    "http_status": 200,
+    "ok": true,
+    "runtime": "READY",
+    "integrity_ok": true,
+    "events": 127,
+    "head_hash": "4f34b24ac4b300bfd20b076022858c632935e99517ff8827b1bf16a59ddfdacf"
+  },
+  "memory_list": {
+    "http_status": 200,
+    "expected_count": 31,
+    "observed_count": 31,
+    "scope_filter": "global,HG"
+  },
+  "retrieval": {
+    "http_status": 200,
+    "query": "HG",
+    "match_count": 10,
+    "model_called": false
+  },
+  "context": {
+    "http_status": 200,
+    "block_count": 10,
+    "model_called": false,
+    "content_is_data": true
+  },
+  "ask_without_provider_configuration": {
+    "http_status": 503,
+    "error_code": "MODEL_NOT_CONFIGURED",
+    "provider_called": false
+  },
+  "ui": {
+    "http_status": 200
+  },
+  "server_process": {
+    "stopped_after_test": true
+  },
+  "durable_outbox_smoke": {
+    "status_http": 200,
+    "status": "NOT_CONFIGURED",
+    "pending_count": 31,
+    "sync_without_credentials_http": 503,
+    "sync_error": "DURABLE_NOT_CONFIGURED",
+    "state_log_hash_unchanged": true
+  },
+  "limitations": [
+    "No production API read/write tokens provisioned",
+    "No real model-provider call made",
+    "Legacy durable backend contract incompatible; adapter fails closed",
+    "No durable replication cutover",
+    "No live runtime restart/deploy"
+  ]
+}

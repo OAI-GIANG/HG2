@@ -1,0 +1,139 @@
+{
+  "base_url": "http://127.0.0.1:8788",
+  "checks": {
+    "durable_outbox_fail_closed_status": {
+      "detail": {
+        "status": "NOT_CONFIGURED"
+      },
+      "ok": true
+    },
+    "durable_status_authenticated": {
+      "detail": {
+        "http_status": 200,
+        "status": "NOT_CONFIGURED"
+      },
+      "ok": true
+    },
+    "durable_sync_not_configured_fail_closed": {
+      "detail": {
+        "code": "DURABLE_NOT_CONFIGURED",
+        "http_status": 503
+      },
+      "ok": true
+    },
+    "health_and_integrity": {
+      "detail": {
+        "http_status": 200,
+        "integrity": true
+      },
+      "ok": true
+    },
+    "imported_memory_projection": {
+      "detail": {
+        "expected_count": 31,
+        "http_status": 200,
+        "observed_count": 31
+      },
+      "ok": true
+    },
+    "library_metadata_and_blob_hashes": {
+      "detail": {
+        "count": 4,
+        "hashes_verified": true,
+        "http_status": 200,
+        "quarantined_count": 13
+      },
+      "ok": true
+    },
+    "memory_create": {
+      "detail": {
+        "http_status": 201
+      },
+      "ok": true
+    },
+    "memory_delete_tombstone": {
+      "detail": {
+        "http_status": 200,
+        "status": "tombstoned"
+      },
+      "ok": true
+    },
+    "memory_projection_restored": {
+      "detail": {
+        "count": 31,
+        "http_status": 200
+      },
+      "ok": true
+    },
+    "memory_read_after_create": {
+      "detail": {
+        "count": 32,
+        "http_status": 200
+      },
+      "ok": true
+    },
+    "model_gateway_no_network": {
+      "detail": {
+        "configured": false,
+        "network_called": false,
+        "provider": "openai_compatible",
+        "status": "NOT_CONFIGURED"
+      },
+      "ok": true
+    },
+    "no_real_model_call": {
+      "detail": {
+        "code": "MODEL_NOT_CONFIGURED",
+        "http_status": 503
+      },
+      "ok": true
+    },
+    "read_token_cannot_write": {
+      "detail": {
+        "http_status": 401,
+        "response_code": "UNAUTHORIZED"
+      },
+      "ok": true
+    },
+    "read_write_credential_separation": {
+      "detail": {
+        "response_code": "UNAUTHORIZED",
+        "write_token_cannot_read": true
+      },
+      "ok": true
+    },
+    "source_to_process_identity": {
+      "detail": {
+        "commit_matches": true,
+        "process_pid_matches": true,
+        "source_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6"
+      },
+      "ok": true
+    },
+    "ui_http": {
+      "detail": {
+        "expected_title_present": true,
+        "http_status": 200
+      },
+      "ok": true
+    },
+    "ui_security_headers": {
+      "detail": {
+        "cache_control": "no-store",
+        "csp_present": true
+      },
+      "ok": true
+    }
+  },
+  "durable_replication_enabled": false,
+  "expected_commit": "f88bf1adb43da3bf102f8536862a3c948f5c7c4a",
+  "expected_source_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
+  "finished_at_unix": 1792233820,
+  "initial_active_memory_count": 31,
+  "library_assets_expected": 4,
+  "library_quarantine_count": 13,
+  "model_provider_called": false,
+  "process_pid": "19544",
+  "schema": "HG2_SINGLE_SYSTEM_STAGING_ACCEPTANCE_V1",
+  "status": "PASS"
+}

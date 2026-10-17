@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><title>HG · Bộ nhớ hợp nhất</title>
+<style>
+:root{color-scheme:light dark;font:16px/1.5 system-ui,sans-serif}body{max-width:900px;margin:0 auto;padding:1rem}h1{margin-bottom:.2rem}.muted{opacity:.7}.grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}label{display:block;font-weight:600}input,textarea,select,button{font:inherit;width:100%;box-sizing:border-box;padding:.65rem;margin:.25rem 0 .75rem;border-radius:.5rem;border:1px solid #888;background:transparent}textarea{min-height:7rem}button{cursor:pointer;background:#2868d7;color:white;border:0}.row{display:flex;gap:.5rem}.row>*{flex:1}.item{border:1px solid #8888;border-radius:.6rem;padding:.8rem;margin:.6rem 0;overflow-wrap:anywhere}.status{padding:.5rem 0;white-space:pre-wrap}.danger{color:#d44}@media(max-width:650px){.grid{grid-template-columns:1fr}.row{display:block}}
+</style></head>
+<body>
+<h1>HG · Bộ nhớ hợp nhất</h1><p class="muted">HG2 là hệ thống vận hành duy nhất. Dữ liệu lưu tại runtime HG trên điện thoại; nội dung dưới đây được hiển thị như dữ liệu, không phải chỉ thị.</p>
+<div class="grid"><div><label for="readToken">Token đọc (MEMORY_RETRIEVE)</label><input id="readToken" type="password" autocomplete="off" placeholder="Token đọc; không lưu trên trình duyệt"></div><div><label for="writeToken">Token ghi (MEMORY_PERSIST)</label><input id="writeToken" type="password" autocomplete="off" placeholder="Token ghi; không lưu trên trình duyệt"></div></div>
+<div class="row"><button id="check">Kiểm tra runtime</button><button id="refresh">Tải bộ nhớ</button></div><div class="row"><input id="query" placeholder="Tìm trong bộ nhớ..." maxlength="4000"><button id="search">Tìm kiếm</button></div><div id="status" class="status" role="status">Chưa kết nối.</div>
+<h2>Trò chuyện với HG</h2><form id="ask"><label for="question">Câu hỏi</label><textarea id="question" required maxlength="12000" placeholder="HG sẽ tìm bộ nhớ được cấp quyền trước khi trả lời."></textarea><button type="submit">Hỏi HG</button></form><div id="answer" class="item" hidden></div>
+<h2>Ghi bộ nhớ</h2><form id="create"><div class="grid"><div><label for="id">ID duy nhất</label><input id="id" required maxlength="128" pattern="[A-Za-z0-9][A-Za-z0-9._:-]{0,127}"></div><div><label for="scope">Phạm vi</label><input id="scope" required maxlength="128" value="owner"></div><div><label for="type">Loại</label><select id="type"><option>fact</option><option>preference</option><option>rule</option><option>project</option><option>event</option><option>other</option></select></div><div><label for="title">Tiêu đề</label><input id="title" required maxlength="300"></div></div><label for="content">Nội dung</label><textarea id="content" required maxlength="100000"></textarea><button type="submit">Lưu bộ nhớ</button></form>
+<h2>Bộ nhớ hiện có</h2><div id="records"></div>
+<script>
+(() => {
+  let readToken = '', writeToken = '';
+  const el = id => document.getElementById(id);
+  const status = (msg, bad=false) => { el('status').textContent = msg; el('status').className = 'status' + (bad ? ' danger' : ''); };
+  async function api(path, options={}, write=false) {
+    const token = write ? writeToken : readToken;
+    const headers = {'Authorization':'Bearer '+token};
+    if (options.body) headers['Content-Type']='application/json';
+    const r = await fetch(path, {...options, headers:{...headers,...options.headers}, cache:'no-store'});
+    let data={}; try { data=await r.json(); } catch (_) {}
+    if (!r.ok) throw new Error((data.error && data.error.code) || ('HTTP_'+r.status));
+    return data;
+  }
+  el('check').onclick = async () => { try { const h=await fetch('/api/health',{cache:'no-store'}); const j=await h.json(); status('Runtime: '+(j.runtime||'UNKNOWN')+' · Integrity: '+(j.integrity?.reason||'unknown')); } catch(e){status('Không kết nối được runtime: '+e.message,true);} };
+  el('refresh').onclick = async () => { readToken=el('readToken').value; if(!readToken){status('Cần token đọc.',true);return;} try { const j=await api('/api/memory'); render(j.memory||[]); status('Đã tải '+(j.count||0)+' bản ghi.'); } catch(e){status('Không tải được: '+e.message,true);} };
+  el('search').onclick = async () => { readToken=el('readToken').value; const q=el('query').value.trim(); if(!readToken||!q){status('Cần token đọc và nội dung tìm kiếm.',true);return;} try { const j=await api('/api/memory/search?q='+encodeURIComponent(q)); render(j.matches||[]); status('Tìm thấy '+(j.manifest?.match_count||0)+' bản ghi · manifest '+(j.manifest?.manifest_sha256||'')); } catch(e){status('Tìm kiếm thất bại: '+e.message,true);} };
+  function render(rows) {
+    const root=el('records'); root.replaceChildren();
+    if(!rows.length){root.textContent='Chưa có bộ nhớ trong phạm vi được cấp quyền.';return;}
+    for(const r of rows){ const card=document.createElement('article'); card.className='item';
+      const head=document.createElement('strong'); head.textContent=r.title+' · v'+r.version; card.append(head);
+      const meta=document.createElement('p'); meta.className='muted'; meta.textContent=r.id+' · '+r.type+' · scope='+r.scope_id; card.append(meta);
+      const body=document.createElement('p'); body.textContent=r.content; card.append(body);
+      const del=document.createElement('button'); del.textContent='Xóa (tạo tombstone)'; del.onclick=async()=>{writeToken=el('writeToken').value;if(!writeToken){status('Cần token ghi.',true);return;}if(!confirm('Đánh dấu xóa bản ghi '+r.id+'?'))return;try{const j=await api('/api/memory/'+encodeURIComponent(r.id),{method:'DELETE',body:JSON.stringify({expected_version:r.version,idempotency_key:'ui-delete-'+crypto.randomUUID()})},true);status('Đã tạo tombstone cho '+j.memory.id);el('refresh').click();}catch(e){status('Xóa thất bại: '+e.message,true);}}; card.append(del); root.append(card);
+    }
+  }
+  el('ask').onsubmit=async ev=>{ev.preventDefault();readToken=el('readToken').value;const query=el('question').value.trim();if(!readToken||!query){status('Cần token đọc và câu hỏi.',true);return;}try{status('HG đang xử lý…');const j=await api('/api/ask',{method:'POST',body:JSON.stringify({query})});el('answer').hidden=false;el('answer').textContent=j.answer;status('Hoàn tất · model '+j.model+' · context '+(j.context_manifest?.manifest_sha256||''));}catch(e){status('HG chưa trả lời được: '+e.message,true);}};
+  el('create').onsubmit=async ev=>{ev.preventDefault();writeToken=el('writeToken').value;if(!writeToken){status('Cần token ghi.',true);return;}
+    const record={id:el('id').value,type:el('type').value,title:el('title').value,content:el('content').value,scope_id:el('scope').value};
+    try{const j=await api('/api/memory',{method:'POST',body:JSON.stringify({record,idempotency_key:'ui-create-'+crypto.randomUUID()})},true);status('Đã lưu '+j.memory.id+' · version '+j.memory.version);el('create').reset();el('scope').value='owner';el('refresh').click();}catch(e){status('Lưu thất bại: '+e.message,true);}
+  };
+})();
+</script></body></html>

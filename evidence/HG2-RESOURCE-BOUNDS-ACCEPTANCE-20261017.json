@@ -1,0 +1,65 @@
+{
+  "canonical_refs": {
+    "changed": false,
+    "hg_genesis": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+    "main": "dc29622fce50b328fca5673b1d0385be884ec132"
+  },
+  "checks": {
+    "connection_budget_503_retry_after": "PASS",
+    "credential_expiry_fail_closed": "PASS",
+    "credential_revocation_fail_closed": "PASS",
+    "edge_http_error_response_closed": "PASS",
+    "git_diff_check": "PASS",
+    "http_429_retry_after": "PASS",
+    "invalid_credential_metadata_fails_closed": "PASS",
+    "invalid_resource_configuration_fails_closed": "PASS",
+    "no_legacy_token_fallback": "PASS_BY_DESIGN",
+    "public_cleartext_bind_refused": "PASS",
+    "python_ast_syntax": "PASS",
+    "slow_body_408_without_state_mutation": "PASS",
+    "slow_header_not_dispatched": "PASS",
+    "slow_request_line_cutoff": "PASS"
+  },
+  "credential_pattern_scan": {
+    "blobs_scanned": 827,
+    "high_confidence_pattern_matches": 0,
+    "private_audit_report_sha256": "db44cbabb7bf66e509989047e311f613211ee95f0fa5c8f54cdfe5bea5dd8e13",
+    "reachable_objects_scanned": 1734,
+    "scan_head_sha": "66fc1ca9caa0a36051434a66d13deb6aa48cd5fa",
+    "scope_note": "Fetched branch and PR-head objects plus current staged source/docs/tests; no credential values were read. This does not prove unreferenced historical GitHub objects have been purged or every external credential revoked.",
+    "working_tree_paths_scanned": 4
+  },
+  "focused_security_resource_suite": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest tests.test_limits tests.test_server_limits tests.test_server.ServerTests.test_credential_expiry_and_revocation_fail_closed tests.test_server.ServerTests.test_startup_fails_without_credential_expiry tests.test_server.ServerTests.test_startup_fails_closed_for_invalid_credential_ids_or_revocation_list -v",
+    "log_sha256": "e054b74cc088b020f722d214076d20a215c56fff98e0695ce3e095ee74efc7d7",
+    "result": "PASS",
+    "tests_failed": 0,
+    "tests_passed": 14
+  },
+  "full_suite": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "log_sha256": "0e9df06b20881044acaa15968ad63c07f16a36cfc82afaf4eb5722af14c43c0f",
+    "resource_warnings_are_errors": true,
+    "result": "PASS",
+    "tests_failed": 0,
+    "tests_passed": 91
+  },
+  "implementation_tree_sha1_excluding_evidence": "7f0e43aa5880679140c4a821c5cbd9a3d84e96ab",
+  "parent_candidate_commit": "25e9374fc8717854cc806de446c252a72e9545c1",
+  "release_gate": "NOT_RELEASED; no production cutover, merge, deploy, or deletion authorized by this evidence",
+  "runtime": {
+    "credential_values_read": false,
+    "environment": "Termux on authorized primary Android phone",
+    "model_provider_called": false,
+    "old_vps_contacted": false,
+    "production_database_mutated": false,
+    "production_process_touched": false,
+    "production_restarted": false,
+    "python": "3.14.6",
+    "remote_durable_endpoint_called": false
+  },
+  "schema": "HG2_RESOURCE_BOUNDS_ACCEPTANCE_V1",
+  "status": "PASS_STAGING_ONLY",
+  "tested_branch": "stt/hg2-single-system-20261017",
+  "tested_local_branch": "stt/hg2-single-system-hardening-20261017"
+}

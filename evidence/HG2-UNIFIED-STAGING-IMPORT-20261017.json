@@ -1,0 +1,21 @@
+{
+  "counts": {
+    "conversations_imported": 4,
+    "devices_redacted": 2,
+    "library_imported": 4,
+    "library_quarantined": 13,
+    "memory_imported": 31,
+    "memory_quarantined": 2,
+    "messages_imported": 68
+  },
+  "integrity": {
+    "events": 127,
+    "head_hash": "16a1cc289b63e82a377b473c61c778de269564bbb466603c9ecc56575c811ccf",
+    "ok": true,
+    "reason": "chain_ok"
+  },
+  "memory_active_count": 31,
+  "source_sha256": "85cf707201e925e64948e919158546eaf2c8f0e306760be092d379a2d165515f",
+  "status": "IMPORTED_TO_NEW_TARGET_ONLY",
+  "target": "/data/data/com.termux/files/home/tmp/HG2-SINGLE-SYSTEM-STAGING-20261017"
+}

@@ -1,0 +1,58 @@
+{
+  "backend_reconciliation": {
+    "database_sha256": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc",
+    "database_stable_during_audit": true,
+    "memory_reconciliation": {
+      "backend_duplicate_ids": 0,
+      "backend_memory_rows": 27,
+      "backend_only_checksum_categories": {
+        "OTHER_OR_INVALID": 1,
+        "SHA1_HEX40": 2
+      },
+      "backend_only_count": 3,
+      "backend_scope_column_present": false,
+      "backend_unique_id_rows": 27,
+      "exact_duplicate_matches": 24,
+      "overlap_conflicts": 0,
+      "overlap_content_conflicts": 0,
+      "overlap_content_matches": 24,
+      "overlap_count": 24,
+      "overlap_version_conflicts": 0,
+      "overlap_version_matches": 24,
+      "state_duplicate_ids": 0,
+      "state_memory_rows": 33,
+      "state_only_count": 9,
+      "state_unique_id_rows": 33
+    },
+    "operations": {
+      "available": true,
+      "kinds": {
+        "memory.persist": 31
+      },
+      "result_categories": {
+        "SUCCESS": 31
+      },
+      "row_count": 31
+    }
+  },
+  "conversation_count": 4,
+  "counts": {
+    "active_convo": null,
+    "context": 0,
+    "conversations": 4,
+    "library": 17,
+    "memory": 33,
+    "memory_summary": null,
+    "message": 68,
+    "phone_devices": 2,
+    "phone_evidence": 0,
+    "plugin": 0
+  },
+  "library_quarantined": 13,
+  "library_safe": 4,
+  "memory_quarantined": 2,
+  "memory_safe": 31,
+  "message_count": 68,
+  "source_sha256": "85cf707201e925e64948e919158546eaf2c8f0e306760be092d379a2d165515f",
+  "status": "DRY_RUN_ONLY"
+}

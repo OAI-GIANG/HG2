@@ -1,0 +1,33 @@
+{
+  "checks": {
+    "conversations_4_lossless": true,
+    "device_credentials_redacted_from_events": true,
+    "history_integrity": true,
+    "library_13_unsafe_records_quarantined_losslessly": true,
+    "library_4_assets_hash_match": true,
+    "memory_31_exact_content_match": true,
+    "messages_68_lossless": true,
+    "two_unscoped_memories_quarantined_losslessly": true
+  },
+  "destination_counts": {
+    "active_memory": 31,
+    "conversations": 4,
+    "devices_redacted": 2,
+    "library_assets": 4,
+    "library_quarantined": 13,
+    "memory_quarantined": 2,
+    "messages": 68
+  },
+  "destination_events": 127,
+  "destination_head_hash": "4f34b24ac4b300bfd20b076022858c632935e99517ff8827b1bf16a59ddfdacf",
+  "schema": "HG2_UNIFIED_IMPORT_REHEARSAL_VERIFICATION_V1",
+  "source_counts": {
+    "conversations": 4,
+    "library_metadata": 17,
+    "memory": 33,
+    "message": 68,
+    "phone_devices": 2
+  },
+  "source_sha256": "85cf707201e925e64948e919158546eaf2c8f0e306760be092d379a2d165515f",
+  "status": "PASS"
+}

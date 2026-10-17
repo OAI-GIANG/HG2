@@ -1,0 +1,39 @@
+{
+  "schema": "HG2_DURABLE_OUTBOX_CONTRACT_EVIDENCE_V1",
+  "status": "PASS_WITH_CUTOVER_BLOCKER",
+  "production_touched": false,
+  "contract": "HG2_DURABLE_BATCH_V1",
+  "unit_tests": {
+    "count": 4,
+    "passed": 4,
+    "covered": [
+      "missing configuration fails closed",
+      "legacy backend capability 404 fails closed before POST",
+      "valid receipt produces append-only acknowledgement and idempotent empty retry",
+      "invalid receipt does not acknowledge or clear pending batch"
+    ]
+  },
+  "current_backend_source": {
+    "path": "~/hg/backend/hg_backend.py",
+    "legacy_endpoint": "/backend/memory/persist",
+    "authorization_scope": "MEMORY_PERSIST",
+    "capability_endpoint": "/backend/hg2/capabilities",
+    "present": false,
+    "scopes_persisted_in_memory_schema": false,
+    "tombstone_contract": false,
+    "compatible": false
+  },
+  "credential": {
+    "scope": "MEMORY_PERSIST only",
+    "copied_to_runtime": false,
+    "reason": "current backend contract cannot preserve HG2 memory scopes/tombstones; fail closed"
+  },
+  "outbox": {
+    "source": "canonical phone event log",
+    "delivery": "at least once",
+    "idempotency": "deterministic batch and event identifiers",
+    "acknowledgement": "append-only event after strict receipt validation",
+    "remote_authority": false
+  },
+  "release_decision": "BLOCKED_DURABLE_CONTRACT_AND_API_CREDENTIALS"
+}
