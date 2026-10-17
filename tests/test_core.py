@@ -180,6 +180,7 @@ class PhoneTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4)
             self.assertTrue(rt.health()["ok"])
+            self.assertIs(rt.memory.store, rt.store)
             self.assertFalse(rt.heartbeat())
             s = rt.start_session()
             self.assertEqual(s["product"], "HG")
