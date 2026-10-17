@@ -8,6 +8,7 @@
     "hg.authority",
     "hg.contracts",
     "hg.history",
+    "hg.sqlite_state",
     "hg.phone_runtime",
     "hg.edge"
   ],

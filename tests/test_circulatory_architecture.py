@@ -1,6 +1,7 @@
 """Architecture boundary tests for the circulatory restructuring baseline."""
 from pathlib import Path
 import ast
+import json
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -8,6 +9,7 @@ SOURCE = ROOT / "hg"
 CONTRACT = ROOT / "contract" / "CIRCULATORY_ARCHITECTURE_V1.md"
 MODULE_MAP = ROOT / "docs" / "HG2_CIRCULATORY_MODULE_MAP_V1.md"
 ROADMAP = ROOT / "docs" / "HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md"
+MANIFEST = ROOT / "manifest.json"
 
 
 class CirculatoryArchitectureTests(unittest.TestCase):
@@ -19,6 +21,12 @@ class CirculatoryArchitectureTests(unittest.TestCase):
         self.assertIn("DESIGN BASELINE", contract)
         self.assertIn("implementation not yet certified", contract)
         self.assertIn("No gate is passed by documentation alone", contract)
+
+    def test_manifest_registers_contract_and_opt_in_sqlite_backend(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        self.assertIn("hg.contracts", manifest["modules"])
+        self.assertIn("hg.sqlite_state", manifest["modules"])
+        self.assertEqual(manifest["architecture"]["status"], "DESIGN_BASELINE_NOT_CERTIFIED")
 
     def test_phone_is_the_only_runtime_composition_root_for_state_store(self):
         users = []
@@ -45,7 +53,7 @@ class CirculatoryArchitectureTests(unittest.TestCase):
         self.assertNotIn("hg.history", modules)
         self.assertNotIn(".history", modules)
 
-    def test_only_history_module_names_canonical_persistence_files(self):
+    def test_only_history_module_names_legacy_persistence_files(self):
         protected_names = ("history.jsonl", "head.json", "state.json")
         owners = set()
         for path in SOURCE.glob("*.py"):
