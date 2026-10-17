@@ -108,6 +108,38 @@ class HistoryTests(unittest.TestCase):
         with self.assertRaises(HistoryError):
             StateStore(d)
 
+    def test_duplicate_json_keys_in_history_fail_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            s = StateStore(d, clock=lambda: 1750000000.0)
+            raw = lines(d)[0]
+            self.assertIn('"seq":1', raw)
+            put(d, [raw.replace('"seq":1', '"seq":1,"seq":1', 1)])
+            self.assertFalse(s.verify()["ok"])
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
+    def test_non_standard_json_constant_in_history_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            s = StateStore(d, clock=lambda: 1750000000.0)
+            raw = lines(d)[0]
+            self.assertIn('"recorded_at":1750000000.0', raw)
+            put(d, [raw.replace('"recorded_at":1750000000.0', '"recorded_at":NaN', 1)])
+            self.assertFalse(s.verify()["ok"])
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
+    def test_duplicate_json_keys_in_checkpoint_fail_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            s = StateStore(d, clock=lambda: 1750000000.0)
+            with open(os.path.join(d, "head.json"), encoding="utf-8") as stream:
+                raw = stream.read()
+            self.assertIn('"seq":1', raw)
+            with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as stream:
+                stream.write(raw.replace('"seq":1', '"seq":1,"seq":1', 1))
+            self.assertEqual(s.verify()["reason"], "malformed_checkpoint")
+            with self.assertRaises(HistoryError):
+                StateStore(d)
+
     def test_restart_in_new_process(self):
         with tempfile.TemporaryDirectory() as d:
             env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")

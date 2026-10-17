@@ -1,7 +1,9 @@
 """Append-only, hash-chained HG state and history. Fail-closed on any integrity failure."""
 from __future__ import annotations
 
-import hashlib, json, os, threading, time, uuid
+import json, os, threading, time, uuid
+
+from .contracts import ContractError, canonical_digest, canonical_json, parse_json_no_duplicate_keys
 
 SCHEMA = "HG_STATE_V1"
 PRODUCT_ID = "HG"
@@ -10,11 +12,11 @@ ZERO = "0" * 64
 
 
 def canonical(o):
-    return json.dumps(o, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return canonical_json(o)
 
 
 def digest(o):
-    return hashlib.sha256(canonical(o).encode("utf-8")).hexdigest()
+    return canonical_digest(o)
 
 
 class HistoryError(Exception):
@@ -64,9 +66,11 @@ class StateStore:
                 if not line:
                     continue
                 try:
-                    rec = json.loads(line)
-                except json.JSONDecodeError as exc:
+                    rec = parse_json_no_duplicate_keys(line)
+                except ContractError as exc:
                     raise HistoryError("malformed record line %d" % n) from exc
+                if not isinstance(rec, dict):
+                    raise HistoryError("record is not an object line %d" % n)
                 rh = rec.get("record_hash")
                 core = {k: v for k, v in rec.items() if k != "record_hash"}
                 if not rh or digest(core) != rh:
@@ -84,7 +88,12 @@ class StateStore:
                 self._apply(rec)
         if os.path.exists(self.head):
             with open(self.head, encoding="utf-8") as fh:
-                hd = json.loads(fh.read())
+                try:
+                    hd = parse_json_no_duplicate_keys(fh.read())
+                except ContractError as exc:
+                    raise HistoryError("invalid head checkpoint") from exc
+            if not isinstance(hd, dict):
+                raise HistoryError("head checkpoint is not an object")
             s, h = self._head()
             if hd.get("seq") != s or hd.get("head_hash") != h:
                 raise HistoryError("log does not match head checkpoint")
@@ -147,7 +156,12 @@ class StateStore:
                     line = line.strip()
                     if not line:
                         continue
-                    rec = json.loads(line)
+                    try:
+                        rec = parse_json_no_duplicate_keys(line)
+                    except ContractError:
+                        return {"ok": False, "events": n, "reason": "malformed_record_line_%d" % lineno}
+                    if not isinstance(rec, dict):
+                        return {"ok": False, "events": n, "reason": "record_not_object_line_%d" % lineno}
                     rh = rec.get("record_hash")
                     core = {k: v for k, v in rec.items() if k != "record_hash"}
                     if not rh or digest(core) != rh:
@@ -160,11 +174,16 @@ class StateStore:
                         return {"ok": False, "events": n, "reason": "duplicate_event_id_line_%d" % lineno}
                     seen.add(rec["event_id"])
                     prev, seq, n = rh, rec["seq"], n + 1
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, ContractError, RecursionError):
             return {"ok": False, "events": n, "reason": "malformed_record"}
         if os.path.exists(self.head):
             with open(self.head, encoding="utf-8") as fh:
-                hd = json.loads(fh.read())
+                try:
+                    hd = parse_json_no_duplicate_keys(fh.read())
+                except ContractError:
+                    return {"ok": False, "events": n, "reason": "malformed_checkpoint"}
+            if not isinstance(hd, dict):
+                return {"ok": False, "events": n, "reason": "checkpoint_not_object"}
             if hd.get("seq") != seq or hd.get("head_hash") != prev:
                 return {"ok": False, "events": n, "reason": "checkpoint_mismatch"}
         return {"ok": True, "events": n, "head_hash": prev, "reason": "chain_ok"}

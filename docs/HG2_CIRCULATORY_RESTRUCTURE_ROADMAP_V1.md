@@ -80,3 +80,6 @@ Restructure the single canonical repository OAI-GIANG/HG2 around the Circulatory
 - WP2: IN_PROGRESS. Added hg/contracts.py with HG_EVENT_V1 event envelopes, deterministic JSON canonicalization, SHA-256 content digest, strict schema validation, duplicate-key rejection, non-finite number rejection, and sensitive-field-name rejection. Focused contract tests: 11 passed.
 - Existing history persistence has not yet been migrated to HG_EVENT_V1. That migration requires a compatibility plan and dedicated replay/corruption tests; do not claim the new envelope is already the persisted history format.
 - Current implementation work is on the isolated branch and is not merged to hg-genesis.
+
+- WP2 integration increment: existing history serialization and digest now delegate to hg.contracts. History and checkpoint parsing reject duplicate JSON keys and non-standard JSON constants. Existing persisted record shape remains compatible; migration to HG_EVENT_V1 storage is still open.
+- The full local suite passed 46 tests, including new malformed-history and malformed-checkpoint checks.
