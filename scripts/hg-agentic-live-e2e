@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 import tempfile
@@ -147,12 +148,12 @@ def main() -> int:
     except ModelProviderError as exc:
         result["run_status"] = "BLOCKED"
         result["error_code"] = exc.code
-        result["error_detail_code"] = exc.detail if isinstance(exc.detail, str) and exc.detail.isascii() and len(exc.detail) <= 96 else "REDACTED"
+        result["error_detail_code"] = exc.detail if isinstance(exc.detail, str) and re.fullmatch(r"[A-Z0-9_:-]{1,96}", exc.detail) else "REDACTED"
     except CompileError as exc:
         result["run_status"] = "BLOCKED"
         result["error_code"] = exc.code
         result["error_path"] = exc.path
-        result["error_detail_code"] = exc.detail if isinstance(exc.detail, str) and exc.detail.isascii() and len(exc.detail) <= 96 else "REDACTED"
+        result["error_detail_code"] = exc.detail if isinstance(exc.detail, str) and re.fullmatch(r"[A-Z0-9_:-]{1,96}", exc.detail) else "REDACTED"
     except Exception as exc:
         # Never serialize exception text that could contain provider or user data.
         result["run_status"] = "BLOCKED"
@@ -173,6 +174,8 @@ def main() -> int:
         "model_id": result.get("model_id"),
         "endpoint_host": result.get("endpoint_host"),
         "http_status": trace_state.get("http_status"),
+        "finish_reason": trace_state.get("finish_reason"),
+        "usage_tokens": trace_state.get("usage_tokens"),
         "trace_captured": trace_state["captured"],
         "request_sha256": trace_state.get("request_sha256"),
         "response_sha256": trace_state.get("response_sha256"),
