@@ -1,7 +1,7 @@
 # HG Agentic Intelligence Evolution — Oracle Hardening and Acceptance Report
 
-**Observation date:** 2026-10-17 (Termux / Android)  
-**Scope:** candidate-only quantitative oracle hardening, regression tests, CI evidence, read-only runtime provenance/trust investigation.  
+**Observation date:** 2026-10-17 (Termux / Android)
+**Scope:** candidate-only quantitative oracle hardening, regression tests, CI evidence, read-only runtime provenance/trust investigation.
 **Disposition:** `TECHNICAL_CANDIDATE_IMPROVED / PRODUCTION_ACCEPTANCE_BLOCKED / NOT_RELEASED`.
 
 ## 1. Candidate and authority boundary
