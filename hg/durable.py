@@ -100,9 +100,13 @@ class DurableOutbox:
             with self.opener(req,timeout=self.timeout) as response:
                 caps=json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
-            if exc.code in (401,403): raise DurableDeliveryError("durable credential rejected or insufficiently scoped") from None
-            if exc.code==404: raise DurableContractMismatch("backend does not expose HG2 durable contract") from None
-            raise DurableDeliveryError("durable capability request failed with HTTP %d"%exc.code) from None
+            # HTTPError owns a response stream; close it before converting the
+            # transport exception into a safe domain error.
+            status = exc.code
+            exc.close()
+            if status in (401,403): raise DurableDeliveryError("durable credential rejected or insufficiently scoped") from None
+            if status==404: raise DurableContractMismatch("backend does not expose HG2 durable contract") from None
+            raise DurableDeliveryError("durable capability request failed with HTTP %d"%status) from None
         except (urllib.error.URLError,TimeoutError,OSError,json.JSONDecodeError,UnicodeDecodeError) as exc:
             raise DurableDeliveryError("durable capability request failed: "+type(exc).__name__) from None
         if caps.get("contract")!=CONTRACT or caps.get("memory_schema")!="HG_MEMORY_V1" or caps.get("supports_tombstones") is not True or caps.get("supports_scopes") is not True or caps.get("required_scope")!="MEMORY_PERSIST":

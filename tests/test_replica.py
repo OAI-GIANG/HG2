@@ -154,7 +154,8 @@ class ReplicaTests(unittest.TestCase):
         url = "http://127.0.0.1:%d/backend/hg2/capabilities" % server.server_address[1]
         with self.assertRaises(HTTPError) as ctx:
             urlopen(url, timeout=2)
-        self.assertEqual(ctx.exception.code, 401)
+        with ctx.exception:
+            self.assertEqual(ctx.exception.code, 401)
         request = Request(url, headers={"Authorization": "Bearer " + token})
         with urlopen(request, timeout=2) as response:
             caps = json.loads(response.read().decode())

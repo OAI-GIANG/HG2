@@ -28,7 +28,9 @@ class ServerTests(unittest.TestCase):
         if data is not None: req.add_header("Content-Type", "application/json")
         try:
             with urllib.request.urlopen(req, timeout=3) as resp: return resp.status, json.loads(resp.read())
-        except urllib.error.HTTPError as e: return e.code, json.loads(e.read())
+        except urllib.error.HTTPError as e:
+            with e:
+                return e.code, json.loads(e.read())
     def test_health_and_auth(self):
         with urllib.request.urlopen(self.base + "/", timeout=3) as page:
             self.assertEqual(page.status, 200)

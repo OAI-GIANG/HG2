@@ -1,0 +1,36 @@
+{
+  "schema": "HG_LEGACY_MIGRATION_PREFLIGHT_REDACTED_V1",
+  "status": "REDACTED_AGGREGATE_SUMMARY",
+  "counts": {
+    "conversations": 4,
+    "library": 17,
+    "memory": 33,
+    "message": 68
+  },
+  "library": {
+    "total": 17,
+    "safe_present_count": 4,
+    "quarantine_or_missing_count": 13,
+    "status_counts": {
+      "SAFE_PRESENT": 4,
+      "QUARANTINE_OUTSIDE_ROOT": 13
+    },
+    "item_level_records_included": false
+  },
+  "memory": {
+    "total": 33,
+    "safe_candidate_count": 31,
+    "quarantine_count": 2,
+    "quarantine_reason_counts": {
+      "MISSING_OR_UNRECOGNIZED_SCOPE": 2
+    },
+    "item_level_records_included": false
+  },
+  "message_count": 68,
+  "conversation_count": 4,
+  "privacy_controls": {
+    "per_item_names_ids_hashes_sizes_indices_device_ids_absolute_paths_raw_content": "REMOVED",
+    "source_file_path_size_and_hash": "REMOVED",
+    "aggregate_only": true
+  }
+}
