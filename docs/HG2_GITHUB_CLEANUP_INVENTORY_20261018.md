@@ -120,3 +120,65 @@ BRANCH_DELETED=false
 RUNTIME_CHANGED=false
 STATE_MIGRATED=false
 RELEASE_STATUS=BLOCKED_NOT_RELEASED
+
+## 9. Exact overlap and dependency evidence (cross-checked on 2026-10-18)
+
+### Same paths and identical content
+A Git object comparison was run between candidate branch heads, using their common Git merge base rather than filename-only assumptions:
+- PR #15 vs PR #19: PR #15 changes 56 paths; PR #19 changes 215 paths relative to the same merge base; all 56 paths overlap. 51 files have identical Git blob content at both heads; five differ: .circleci/config.yml, contract/CODE_INTELLIGENCE_V1.md, docs/ABSORPTION_GATE_REPORT.md, docs/ABSORPTION_SOURCE_DECISIONS.md, and docs/evidence/HG2_CI_GROUND_TRUTH_RESULT_V2.json. This establishes high duplication but not safe PR closure: PR #19 is not mergeable and has broader scope and different product/network decisions.
+- PR #22 vs PR #25: two shared paths, hg/phone_runtime.py and tests/test_core.py; both differ at the branch heads. Merge requires explicit composition and test preservation.
+- PR #24 vs PR #25: three shared paths, README.md, hg/authority.py, manifest.json; all three differ. PR #25's authority.py is a re-export facade for hg.policy; PR #24 extends the policy action set and introduces auth/provider/tool-plane services. Resolve with one canonical policy and preserve authenticated provider invocation only through the validated principal path.
+- PR #21 vs PR #25: no shared changed paths; however their task/workflow, provider, capability, evidence, and durable-transaction responsibilities overlap conceptually. Different paths do not prove distinct responsibilities.
+- PR #22 vs PR #24: no shared changed paths, but there is conceptual overlap among model gateway/provider, runtime/service composition, and outbox/replication.
+- PR #13 is based on PR #12's branch, so it is stacked, not an independent base-level change.
+- PR #3 is based on PR #2, and PR #2 is based on PR #1. Preserve that dependency chain until a combined fix is verified.
+- PR #19 and PR #15 report base commit cdebaeed..., while their shared merge base is d11e71ed...; both report not mergeable against the current target. PR #8 has base commit d11e71ed... and reports not mergeable. Rebase/reconcile against current hg-genesis is required before integration decisions.
+
+### Symbol and module map observed by parsing branch source (not a semantic proof)
+- PR #21 contains DurableTransactionStore (hg/durable_transactions.py, 552 lines), TransactionCoordinatorModel (hg/transactions.py, 161), and SQLiteEvidenceStore (hg/evidence.py, 436), plus a task contract/compiler, capability registry and model-provider implementation.
+- PR #22 contains DurableOutbox (hg/durable.py), MemoryStore over file-backed StateStore, ModelGateway, ReplicaStore/HTTP server, and an HTTP server composing PhoneRuntime + memory + provider gateway.
+- PR #24 contains bearer authentication (hg/auth.py), OpenAI-compatible provider transport (hg/provider.py), HGAgent, and fixed ToolPlane.
+- PR #25 contains one versioned envelope/serializer helper (hg/contracts.py), policy/approval state machine, SQLiteStateStore (778 lines), task workflow (341 lines), a generic sync dispatcher, migration and backup/restore helpers. It also retains legacy file-backed StateStore behind the default runtime path and keeps SQLite opt-in.
+- Source modules with distinct names may still duplicate underlying responsibilities. Before consolidation, determine whether each is an interface, adapter, projection, state machine, or independent capability.
+
+## 10. Preliminary target ownership decisions
+
+1. One canonical command/event/result schema and deterministic serializer shared by persistence, sync, evidence and tool audit. Legacy HG_STATE_V1 is a migration source, not a second concurrent authority after cutover.
+2. One runtime-selected state backend per state directory, with a narrow common store interface. The file-backed store remains read/migration compatible until a tested cutover; do not dual-write canonically.
+3. One authorization decision point. Authentication proves the principal; policy authorizes an action; approvals bind a particular principal, resource, request digest and version. Avoid duplicate allowlists in agent, tool-plane, edge and workflow.
+4. One task contract + compiler/planner interface + one persistent workflow state machine. Planning decides what should be done; workflow owns lifecycle/retry/deadline/cancel; capability adapters perform bounded operations.
+5. One provider transport boundary. Specialized providers implement a common provider interface; they do not each implement their own configuration, HTTPS safety, timeout, redirect, response-limit and redaction logic.
+6. One delivery/outbox engine and one explicit relay/replica endpoint contract. Remote durable-memory sync, generic event sync and backup replication may use policies/adapters, but must not each maintain competing cursors, retries, receipt schemas or canonical authority.
+7. One memory subsystem for user facts/preferences and scoped recall; provenance/evidence memory is a separate type only if a written contract demonstrates that its ownership and query/use-cases differ from user memory.
+8. One source/build/runtime provenance model with type-specific records. Code-intelligence provenance, running-build provenance, memory provenance and evidence integrity can be distinct record types but should not create redundant hash/manifest implementations.
+9. Code-intelligence, CTI benchmarks, creative-assimilation research, and evaluation harnesses are not automatically runtime modules. Retain them as optional tools/features only if product scope and acceptance tests justify them; keep raw immutable evidence in an archive/index instead of deleting it to reduce file count.
+10. One normative contract for each invariant; stale designs and audit artifacts remain history/reference, visibly marked superseded or archived, not competing current policy.
+
+## 11. Cleanup stage status after evidence update
+- Detailed repository and PR inventory: PARTIAL but evidence-backed.
+- Proven exact-path/content overlap: PR #15/#19 high overlap (51 identical blobs; 5 content variants).
+- Proven module/interface consolidation opportunities: policy/identity, event serializer/state, provider transport, workflow/capability routing, outbox/replica, provenance/evidence.
+- Actual source-file deletion, PR closure, branch deletion, runtime change, canonical mutation: NONE.
+- Next safe stage: create a bounded integration branch based on current hg-genesis, select one implementation owner per responsibility, port unique needed capabilities with tests, and only then close superseded PRs/branches with retained evidence.
+
+## 12. P0 fail-closed hardening performed on the isolated candidate branch
+
+Commit: 1a57dd088822ab1d1ae7426a3baefc19c6f497bc
+Parent: ba3c45d2ef27d9dfe095e33d45d8ff5f5ace4f18
+
+Code changes:
+- StateStore now checks the presence of the history log, head checkpoint, state projection, and runtime identity as one artifact set before initializing. Partial existing state fails closed; it cannot create a new genesis and overwrite evidence.
+- Existing runtime identity is never silently replaced when unreadable or empty.
+- Reopening an existing store validates required event fields, product/schema/runtime identity, sequence and event-ID constraints, chain order, head checkpoint, and replay-derived state projection. Invalid projection is rejected and preserved instead of silently rewritten.
+- PhoneRuntime no longer asserts authentication internally for session creation. It requires an injected session_authenticator returning exactly True; missing, rejecting, or raising verifiers deny without appending a session event.
+- Added regression tests for incomplete artifacts, projection corruption without repair, and missing/rejecting/raising session verifiers.
+
+Verification evidence directory: evidence/HG2-CLEANUP-P0-20261018/
+- summary.json identifies the exact tested commit, command, environment, test count, duration, result, and log digest.
+- unittest.log records the full test output.
+- exit_code.txt and SHA256SUMS.txt bind the evidence files.
+- Exact run: Python 3.14.6 on Android-16-aarch64-64bit-ELF; 112 tests passed in 4.792 seconds; ResourceWarning treated as error; exit code 0.
+- unittest.log SHA-256: 7bc77898ac7d15ed8a1fa8e7b0fa376f22aa209f4908319b4a071fad35c9eafd.
+- The test was run in the isolated candidate checkout. The active runtime and live state were not read or modified.
+
+This hardening addresses concrete correctness/security gaps found during cleanup. It is not a claim that every PR or feature group is consolidated, and it does not authorize release or canonical-branch changes.
