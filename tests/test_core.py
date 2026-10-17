@@ -68,6 +68,37 @@ class HistoryTests(unittest.TestCase):
                 prev = rh
             self.assertTrue(s.verify()["ok"])
 
+    def test_replayed_events_and_audit_exports_are_detached_snapshots(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            returned = store.emit("test.snapshot", {"nested": {"value": 1}})
+            returned["payload"]["nested"]["value"] = 99
+            replayed = store.replay()
+            replayed[-1]["payload"]["nested"]["value"] = 88
+            exported = store.audit_export()
+            exported["state"]["counters"]["test.snapshot"] = 0
+            exported["state"]["sessions"]["fake"] = {"session_id": "fake"}
+            snapshot = store.audit_export()
+            self.assertEqual(store.replay()[-1]["payload"]["nested"]["value"], 1)
+            self.assertEqual(snapshot["state"]["counters"]["test.snapshot"], 1)
+            self.assertNotIn("fake", snapshot["state"]["sessions"])
+
+    def test_separate_store_instances_serialize_writes_and_refresh(self):
+        with tempfile.TemporaryDirectory() as d:
+            first = StateStore(d)
+            second = StateStore(d)
+            first.emit("test.first", {"writer": "first"})
+            second.emit("test.second", {"writer": "second"})
+            first.emit("test.third", {"writer": "first"})
+            reopened = StateStore(d)
+            records = reopened.replay()
+            self.assertEqual([event["seq"] for event in records], [1, 2, 3, 4])
+            self.assertEqual(
+                [event["event_type"] for event in records],
+                ["hg.genesis", "test.first", "test.second", "test.third"],
+            )
+            self.assertTrue(reopened.verify()["ok"])
+
     def test_idempotent(self):
         with tempfile.TemporaryDirectory() as d:
             s = StateStore(d)
@@ -123,12 +154,23 @@ class HistoryTests(unittest.TestCase):
             for path, content in expected.items():
                 with open(path, "w", encoding="utf-8") as stream:
                     stream.write(content)
-            with self.assertRaisesRegex(HistoryError, "incomplete durable state artifacts"):
+            with self.assertRaisesRegex(HistoryError, "history log missing while other state artifacts exist"):
                 StateStore(d)
             self.assertFalse(os.path.exists(os.path.join(d, "history.jsonl")))
             for path, content in expected.items():
                 with open(path, encoding="utf-8") as stream:
                     self.assertEqual(stream.read(), content)
+
+    def test_store_is_poisoned_after_persistence_failure(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = StateStore(d)
+            with patch.object(store, "_write_state", side_effect=OSError("injected persistence failure")):
+                with self.assertRaisesRegex(OSError, "injected persistence failure"):
+                    store.emit("session.created", {"session_id": "failure-case"})
+            with self.assertRaisesRegex(HistoryError, "poisoned"):
+                store.emit("session.created", {"session_id": "must-not-append"})
+            with self.assertRaisesRegex(HistoryError, "log does not match head checkpoint"):
+                StateStore(d)
 
     def test_corrupt_state_projection_fails_closed_without_repair(self):
         with tempfile.TemporaryDirectory() as d:
