@@ -1,0 +1,40 @@
+{
+  "report_schema": "HG2_CIRCULATORY_RESTRUCTURE_EVIDENCE_V1",
+  "status": "PASS",
+  "scope": "architecture contract baseline only; runtime restructure not certified",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-circulatory-architecture-20261018",
+  "tested_commit": "1f38c700ede0831bbaf834ba4b7ee242ccc76967",
+  "tested_tree": "1174631be7b47997eb7322aff2e92eeacba0efe9",
+  "parent_commit": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+  "python": "3.14.6",
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "commands": [
+    {
+      "command": "python -m json.tool manifest.json",
+      "status": "PASS"
+    },
+    {
+      "command": "python -m compileall -q hg tests",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "python -m unittest discover -s tests -v",
+      "status": "PASS",
+      "result": "32 tests passed; exit code 0"
+    }
+  ],
+  "changed_source_file_sha256": {
+    "README.md": "d421467421ae400b5994f8c71136030b1cb820ba209f0721818162782d72fb06",
+    "manifest.json": "1ec6bef9cf9f66a397c0b7c2bd5058a929318adc0d57d5d4639fa197fad0e3b6",
+    "contract/CIRCULATORY_ARCHITECTURE_V1.md": "10e4306945103cab3d2ddbbbcd04771483ffeb475faa9e019d092ddece8be8ae",
+    "docs/HG2_CIRCULATORY_MODULE_MAP_V1.md": "abd4eb76ab2c1f932991d54a089f9a0874d35d20cda4ab1e284bc8dcd9ec4196",
+    "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md": "b33804320cbc71cc191e9caca0e541ee7a0db703c6d027b3904837ade4fdac55",
+    "tests/test_circulatory_architecture.py": "5b252072f0c15931aa74be40783aae9f2d702a57a3230542629729b4392ca87a"
+  },
+  "limitations": [
+    "This commit defines architecture and regression checks; it does not implement all logical modules in the target map.",
+    "No Android APK was built or installed.",
+    "No VPS deployment, merge, or canonical branch update was performed."
+  ]
+}
