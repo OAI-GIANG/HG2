@@ -74,6 +74,60 @@ The live plugin contract loads a private local JSON registry mapping plugin IDs 
 ## 9. External methodology references
 
 - CircleCI official documentation on retrieving job step output and metadata: https://circleci.com/docs/guides/orchestrate/analyze-pipelines-during-an-incident/
-- SLSA build provenance specification: https://slsa.dev/spec/v1.0/provenance
+- SLSA build provenance specification: https://slsa.dev/spec/v1.2/provenance
+- SLSA artifact provenance verification: https://slsa.dev/spec/v1.2/verifying-artifacts
 
 These references guide evidence collection; they do not themselves attest this HG runtime.
+
+
+## 10. Follow-up read-only provenance and recovery rehearsal (2026-10-17)
+
+### Runtime source provenance — refined finding
+
+The top-level `~/hg` directory is not a Git root, but a nested repository exists at `~/hg/core`. Its observed HEAD is `03409311f184f2c3f110274a10cf1ac0afbc1b1a`, branch `fix/hg-p0-library-vision-20261010`, with 77 worktree status entries. The live `runtime/hg_runtime.py` is tracked in that repository but dirty:
+
+- Committed HEAD blob SHA-256: `77062620e3490a77510fbf3dec74288869a22e26fab8845d5ea577320bafb8a1`.
+- Current worktree/live-disk file SHA-256: `e02f344c11f0e513e4e874fdc35eb6c28ea76d8aa541da7bbde19a1427f10a83`.
+- Diff against HEAD: 547 insertions and 43 deletions (590 changed lines); file mtime 2026-10-16 02:36:52 +0700.
+- Live process PID 10809 command path: `~/hg/core/runtime/hg_runtime.py`.
+- Backend source `~/hg/backend/hg_backend.py` and entrypoint `~/hg2-service/entry.py` are not inside Git repositories at their respective source paths. The latter's cwd repository `~/hg2-phone` is detached at `4d97c34d8bb7c1091265330aef63dd78d0e72c49` with 17 worktree status entries.
+- Runtime source digest endpoint is behind a PHONE-local bearer capability whose value was intentionally not read. Therefore, the digest of the source loaded by the live process is not independently attested here.
+
+This refines, rather than clears, the previous finding: disk files and their source-control relationships are now better mapped, but the loaded runtime is still not bound to the approved candidate or to a clean, approved source commit. Runtime provenance remains `BLOCKED_MISMATCH`.
+
+### Isolated recovery lab — limited PASS
+
+A consistent SQLite online backup was created from the phone-local backend database using a read-only source connection. The source database path was derived by reading only the non-secret `HG_BACKEND_DATA` path variable from the running process; no other environment values were inspected. The snapshot and restore rehearsal remained inside the private Termux cache.
+
+- Snapshot SHA-256: `5e20def72cd36fe3209fc48dce9a12e55e806a87eb2f27a167d52e439c2d17df`.
+- Snapshot `PRAGMA integrity_check`: `ok`; seven application tables.
+- Snapshot-to-lab-restore SHA-256: identical; byte-for-byte comparison PASS.
+- A separate eight-file source/launcher snapshot excluded environment files, keys, credentials, tokens and database content; all source-copy and restore-copy SHA-256 comparisons PASS.
+- Evidence manifests are stored locally, not committed, under `~/.cache/hg-evidence-first-20261017/recovery-lab/`. Directory mode is 0700 and snapshot/evidence files are 0600.
+
+Evidence manifest digests:
+- `snapshot-restore-evidence.json`: `cf521d86a18990fe721a1f7593dbf598d4ee310589f8e5a566d97bbd06f50065`.
+- `source-snapshot-restore-evidence.json`: `ee60f1cecba742115d677f00b643949cd5fe050b03599ef4b7c74e81a81d38bc`.
+
+This is a **database and source-file integrity rehearsal only**. It is not proof of full service restoration, credential/key restoration, loaded-process provenance, end-to-end recovery, or production rollback. No service restart, production database write, cutover or deployment was performed.
+
+### Trust root and CP0 follow-up
+
+The runtime plugin trust implementation reads a local registry mapping plugin IDs to SHA-256 manifest digests. The inspected code contains no independent signature-verification path, public-key identity, registry expiry/freshness check, or revocation/anti-rollback protocol. A configured registry is not equivalent to an authenticated trust root. Secret registry contents were not read.
+
+The local HNIF2-18 fixture explicitly states that the historical 26-criteria source is unresolved and that a native draft is not historical. Repository search and public web search did not yield a verifiable primary source. CP0 remains `BLOCKED_INPUT`; the fixture is evidence of the missing-source condition, not proof of historical equivalence.
+
+### Live model E2E decision
+
+The candidate provider has a credential loader that enforces a private regular file and a fixed official HTTPS host, but the configured credential contents were not inspected and no provider call was made. The runtime source is not bound to an approved commit, and the current provider interface does not preserve sufficient independent request/response attestation for a full HG runtime E2E. Therefore live model E2E remains `NOT_ACCEPTED / NOT_RUN` rather than producing an incomplete or misleading pass.
+
+### Updated recovery/closure gate
+
+- Local SQLite snapshot + isolated restore hash rehearsal: `PASS_LIMITED_SCOPE`.
+- Source/launcher snapshot + isolated restore hash rehearsal: `PASS_LIMITED_SCOPE`.
+- Full service/system recovery and rollback proof: `BLOCKED`.
+- Runtime provenance: `BLOCKED_MISMATCH`.
+- Trust root / authority / revocation: `BLOCKED`.
+- CP0: `BLOCKED_INPUT`.
+- Live model E2E: `NOT_RUN`.
+- PR #21: remain OPEN Draft; no merge, deployment, release or close.
