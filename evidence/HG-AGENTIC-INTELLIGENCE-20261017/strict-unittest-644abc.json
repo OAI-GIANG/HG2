@@ -1,0 +1,54 @@
+{
+  "schema_version": "hg.test-run-evidence.v1",
+  "evidence_id": "HG-AI-STRICT-UNITTEST-644ABC",
+  "task": "HG Agentic Intelligence Evolution final acceptance gate",
+  "execution": {
+    "captured_at_device_clock_utc": "2026-10-17T03:27:45Z",
+    "device_clock_attested": false,
+    "device": "Remote Desktop Commander localhost / Android Termux",
+    "platform": "Android-15-aarch64",
+    "python": "3.14.6",
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "exit_code": 0,
+    "tests_run": 153,
+    "tests_passed": 153,
+    "tests_failed": 0,
+    "resource_warning_policy": "warnings treated as errors"
+  },
+  "subject": {
+    "repository": "OAI-GIANG/HG2",
+    "branch": "stt/hg-agentic-intelligence-g1-20261017",
+    "commit": "644abc1490d542d3598a079ffbf0bbe25970c907",
+    "tree": "857f1b3a1558edde308de82de22e15ba55d3076c",
+    "parent": "2d4098ee91fc08115bce15fd05fb044f9afd27c5",
+    "canonical_base": "9d83a113ccdf1aeda656e494593fa55b9078c803"
+  },
+  "log_artifact": {
+    "path": "evidence/HG-AGENTIC-INTELLIGENCE-20261017/strict-unittest-644abc.log",
+    "sha256": "32514f2d4a71cd7b9b1b2e70641bf7a98355e446fb7e8d433e174901377eafa8"
+  },
+  "hosted_ci": {
+    "provider": "CircleCI",
+    "context": "ci/circleci: verify",
+    "observed_head_sha": "644abc1490d542d3598a079ffbf0bbe25970c907",
+    "status": "success",
+    "url": "https://circleci.com/gh/OAI-GIANG/HG2/136"
+  },
+  "trust_boundary": {
+    "capture_attestation": "LOCAL_UNATTESTED",
+    "evidence_trust_state": "UNVERIFIED",
+    "notes": [
+      "The local run was repeated on the exact candidate commit and passed 153/153 tests.",
+      "The log digest binds bytes but does not authenticate the runner or device clock.",
+      "TEST_ONLY callbacks are test fixtures, not production trust roots.",
+      "Live natural-language model E2E remains NOT_ACCEPTED.",
+      "CP0 primary-source provenance remains BLOCKED_INPUT; synthetic 26-item fixtures remain NOT_RUN.",
+      "Target-device abrupt power-loss durability test has NOT_RUN.",
+      "This evidence-only child commit does not close production acceptance gates."
+    ]
+  },
+  "release": {
+    "status": "NOT_RELEASED",
+    "technical_acceptance": "BLOCKED"
+  }
+}
