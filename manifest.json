@@ -1,14 +1,21 @@
 {
- "name": "hg",
- "version": "1.0.0",
- "runtime": "python>=3.10",
- "dependencies": {},
- "modules": [
-  "hg.identity",
-  "hg.authority",
-  "hg.history",
-  "hg.phone_runtime",
-  "hg.edge"
- ],
- "origin": "clean_room"
+  "name": "hg",
+  "version": "1.0.0",
+  "runtime": "python>=3.10",
+  "dependencies": {},
+  "modules": [
+    "hg.identity",
+    "hg.authority",
+    "hg.history",
+    "hg.phone_runtime",
+    "hg.edge"
+  ],
+  "origin": "clean_room",
+  "architecture": {
+    "model": "circulatory",
+    "contract": "contract/CIRCULATORY_ARCHITECTURE_V1.md",
+    "module_map": "docs/HG2_CIRCULATORY_MODULE_MAP_V1.md",
+    "roadmap": "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md",
+    "status": "DESIGN_BASELINE_NOT_CERTIFIED"
+  }
 }
