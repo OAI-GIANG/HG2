@@ -40,7 +40,7 @@
 
 ## GitHub PR disposition
 
-See the linked decision matrix for the full disposition and rationale. PRs were closed without merging only after recording why and preserving their branches/evidence. The closed set is #1, #2, #3, #5, #6, #7, #8, #11, #12, #13, #15, #16, #17, #19, #21, #22, and #24, all not merged. Their branches and historical evidence remain preserved. The only open streams are #25 (core architecture candidate) and #26 (optional standalone Voice Tools).
+See the linked decision matrix for the full disposition and rationale. PRs were closed without merging only after recording why and preserving their branches/evidence. The closed set is #1, #2, #3, #4, #5, #6, #7, #8, #11, #12, #13, #14, #15, #16, #17, #18, #19, #21, #22, #23, and #24, all not merged. Their branches and historical evidence remain preserved. The only open streams are #25 (core architecture candidate) and #26 (optional standalone Voice Tools).
 
 Closing these PRs did not delete their source branches or imply that their unique feature proposals were integrated. Unique unaccepted capabilities remain reference-only until selected through the single-owner matrix and independently tested at a new exact commit.
 
