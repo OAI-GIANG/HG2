@@ -1,0 +1,384 @@
+{
+  "schema": "HG-CTI-ARCHIVE-LICENSE-CONTENT-AUDIT-V1",
+  "results": [
+    {
+      "archive": "memXT-main.zip",
+      "repo": "Yupcha/memxt",
+      "commit": "55b81ce235587722a0611b0ca1754914972fae84",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "MIT",
+      "archive_license_paths": [
+        "memXT-main/LICENSE"
+      ],
+      "metadata_indicators": [],
+      "license_file_headings": [
+        {
+          "path": "memXT-main/LICENSE",
+          "head": "MIT License  Copyright (c) 2026 Yupcha  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The above copyright notice"
+        }
+      ]
+    },
+    {
+      "archive": "friday-main.zip",
+      "repo": "debpalash/friday",
+      "commit": "d731952210a184580318d64fbf55662f239b7313",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "Apache-2.0",
+      "archive_license_paths": [
+        "friday-main/LICENSE"
+      ],
+      "metadata_indicators": [],
+      "license_file_headings": [
+        {
+          "path": "friday-main/LICENSE",
+          "head": "                                  Apache License                            Version 2.0, January 2004                         http://www.apache.org/licenses/     TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION     1. Definitions.        \"License\" shall mean the terms and conditions for use, reproduction,       and distribution as defined by Sections 1 through 9 of this document.        \"Licensor\" shall mean the copyright owner or entity authorized by       the copyright owner that i"
+        }
+      ]
+    },
+    {
+      "archive": "pp-finder-main.zip",
+      "repo": "yeswehack/pp-finder",
+      "commit": "6e1011ca6bfc0a49ac40f8e6eb3e3e157e649fab",
+      "github_license_detection": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "github_spdx": null,
+      "archive_license_paths": [],
+      "metadata_indicators": [
+        {
+          "path": "pp-finder-main/package.json",
+          "field": "license",
+          "value": "MIT"
+        }
+      ]
+    },
+    {
+      "archive": "Dom-Explorer-main.zip",
+      "repo": "yeswehack/Dom-Explorer",
+      "commit": "fdde12fa842fd212cf6f864b1f872a07bd1132b0",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "MIT",
+      "archive_license_paths": [
+        "Dom-Explorer-main/LICENSE"
+      ],
+      "metadata_indicators": [],
+      "license_file_headings": [
+        {
+          "path": "Dom-Explorer-main/LICENSE",
+          "head": "MIT License  Copyright (c) 2024 BitK  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The above copyright notice a"
+        }
+      ]
+    },
+    {
+      "archive": "vulnerable-code-snippets-main.zip",
+      "repo": "yeswehack/vulnerable-code-snippets",
+      "commit": "90c910e15b9fd2ce7dbc06c7594a050d486b80e8",
+      "github_license_detection": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "github_spdx": null,
+      "archive_license_paths": [],
+      "metadata_indicators": []
+    },
+    {
+      "archive": "PwnFox-master.zip",
+      "repo": "B-i-t-K/PwnFox",
+      "commit": "74d1688f760413430790ac40db72744e2b4a8dbb",
+      "github_license_detection": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "github_spdx": null,
+      "archive_license_paths": [],
+      "metadata_indicators": []
+    },
+    {
+      "archive": "ywh2bugtracker-master.zip",
+      "repo": "yeswehack/ywh2bugtracker",
+      "commit": "9b617f1c349fb3c0e1b0d003552811637f6c47e7",
+      "github_license_detection": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "github_spdx": null,
+      "archive_license_paths": [],
+      "metadata_indicators": [
+        {
+          "path": "ywh2bugtracker-master/pyproject.toml",
+          "field": "toml",
+          "value": "classifiers = ["
+        }
+      ]
+    },
+    {
+      "archive": "YesWeBurp-master.zip",
+      "repo": "yeswehack/YesWeBurp",
+      "commit": "67c9499a8148a4a672a90cce433a073d1472d3c7",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "GPL-3.0",
+      "archive_license_paths": [
+        "YesWeBurp-master/LICENSE"
+      ],
+      "metadata_indicators": [],
+      "license_file_headings": [
+        {
+          "path": "YesWeBurp-master/LICENSE",
+          "head": "                    GNU GENERAL PUBLIC LICENSE                        Version 3, 29 June 2007   Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>  Everyone is permitted to copy and distribute verbatim copies  of this license document, but changing it is not allowed.                              Preamble    The GNU General Public License is a free, copyleft license for software and other kinds of works.    The licenses for most software and other practical works are designed to"
+        }
+      ]
+    },
+    {
+      "archive": "yeswecaido-main.zip",
+      "repo": "yeswehack/yeswecaido",
+      "commit": "0fa00adb0bda589ac43938f92023d114878faf68",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "MIT",
+      "archive_license_paths": [
+        "yeswecaido-main/LICENSE"
+      ],
+      "metadata_indicators": [
+        {
+          "path": "yeswecaido-main/packages/common/package.json",
+          "field": "license",
+          "value": "ISC"
+        }
+      ],
+      "license_file_headings": [
+        {
+          "path": "yeswecaido-main/LICENSE",
+          "head": "MIT License  Copyright (c) 2024 Brumens & BitK  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The above copyrigh"
+        }
+      ]
+    },
+    {
+      "archive": "myopenvdp-master.zip",
+      "repo": "yeswehack/my-open-vdp",
+      "commit": "03e90e225cb8aee90bd36c5684b97b5298dcbbbb",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "MIT",
+      "archive_license_paths": [
+        "myopenvdp-master/LICENSE"
+      ],
+      "metadata_indicators": [
+        {
+          "path": "myopenvdp-master/app-extension/package.json",
+          "field": "license",
+          "value": "MIT"
+        },
+        {
+          "path": "myopenvdp-master/ui/package.json",
+          "field": "license",
+          "value": "MIT"
+        }
+      ],
+      "license_file_headings": [
+        {
+          "path": "myopenvdp-master/LICENSE",
+          "head": "The MIT License (MIT)  Copyright (c) project@yeswehack.com  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The ab"
+        }
+      ]
+    },
+    {
+      "archive": "xsstools-master.zip",
+      "repo": "yeswehack/xsstools",
+      "commit": "115ab6d925b87b302c2a5c81899005d59caaaef5",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "GPL-3.0",
+      "archive_license_paths": [
+        "xsstools-master/LICENSE",
+        "xsstools-master/docgen/xsstools-jsdoc-theme/LICENSE"
+      ],
+      "metadata_indicators": [
+        {
+          "path": "xsstools-master/docgen/xsstools-jsdoc-theme/package.json",
+          "field": "licenses",
+          "value": [
+            {
+              "type": "Apache-2.0",
+              "url": "http://www.apache.org/licenses/LICENSE-2.0"
+            }
+          ]
+        },
+        {
+          "path": "xsstools-master/package.json",
+          "field": "license",
+          "value": "MIT"
+        }
+      ],
+      "license_file_headings": [
+        {
+          "path": "xsstools-master/LICENSE",
+          "head": "                    GNU GENERAL PUBLIC LICENSE                        Version 3, 29 June 2007   Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>  Everyone is permitted to copy and distribute verbatim copies  of this license document, but changing it is not allowed.                              Preamble    The GNU General Public License is a free, copyleft license for software and other kinds of works.    The licenses for most software and other practical works are designed to"
+        },
+        {
+          "path": "xsstools-master/docgen/xsstools-jsdoc-theme/LICENSE",
+          "head": "# License  Minami is free software, licensed under the Apache License, Version 2.0 (the \"License\"). Commercial and non-commercial use are permitted in compliance with the License.  Copyright (c) 2014-2015 Nijiko Yonskai <nijikokun@gmail.com> and the [contributors to Minami](https://github.com/Nijikokun/minami/graphs/contributors). All rights reserved.  You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0  In addition, a copy of the License is included with this dis"
+        }
+      ]
+    },
+    {
+      "archive": "burp-addon-tutorial-main.zip",
+      "repo": "yeswehack/burp-addon-tutorial",
+      "commit": "6a8b7a5a0ee3836aa227bc2cd287f3e5c2fea38d",
+      "github_license_detection": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "github_spdx": null,
+      "archive_license_paths": [],
+      "metadata_indicators": []
+    },
+    {
+      "archive": "hoglet-main.zip",
+      "repo": "debpalash/hoglet",
+      "commit": "ff5db7ad819e32e1890607080f98be8f86033252",
+      "github_license_detection": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "github_spdx": null,
+      "archive_license_paths": [],
+      "metadata_indicators": [
+        {
+          "path": "hoglet-main/Cargo.toml",
+          "field": "cargo.toml",
+          "value": "license = \"AGPL-3.0-only\""
+        }
+      ]
+    },
+    {
+      "archive": "OpenGTM-main.zip",
+      "repo": "debpalash/OpenGTM",
+      "commit": "9188fc4d040c186f3495902fe77e0d041deba3bd",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "NOASSERTION",
+      "archive_license_paths": [
+        "OpenGTM-main/LICENSE",
+        "OpenGTM-main/apps/docs/src/content/docs/community/license.md",
+        "OpenGTM-main/scripts/vendor/twenty-ui/LICENSE"
+      ],
+      "metadata_indicators": [
+        {
+          "path": "OpenGTM-main/packages/chrome-extension/package.json",
+          "field": "license",
+          "value": "AGPL-3.0-only"
+        },
+        {
+          "path": "OpenGTM-main/packages/n8n-nodes-yupcha/package.json",
+          "field": "license",
+          "value": "MIT"
+        }
+      ],
+      "license_file_headings": [
+        {
+          "path": "OpenGTM-main/LICENSE",
+          "head": "                    GNU AFFERO GENERAL PUBLIC LICENSE                        Version 3, 19 November 2007   Copyright (C) 2026 Yupcha Softwares PVT LTD.  Everyone is permitted to copy and distribute verbatim copies  of this license document, but changing it is not allowed.                              Preamble    The GNU Affero General Public License is a free, copyleft license for software and other kinds of works, specifically designed to ensure cooperation with the community in the case of net"
+        },
+        {
+          "path": "OpenGTM-main/apps/docs/src/content/docs/community/license.md",
+          "head": "--- title: License description: OpenGTM is AGPLv3. What that means for self-hosting and for offering it as a service. sidebar:   order: 3 ---  OpenGTM is licensed under the [GNU Affero General Public License v3.0](https://github.com/debpalash/opengtm/blob/main/LICENSE).  In plain terms:  - **Self-host it for your own team, free, with no strings on internal use.**   Use it, modify it, run it on your own servers. - **The AGPL network clause applies only if you offer OpenGTM (or a modified   versio"
+        },
+        {
+          "path": "OpenGTM-main/scripts/vendor/twenty-ui/LICENSE",
+          "head": "MIT License  Copyright (c) 2023-present Twenty.com, PBC  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The above"
+        }
+      ]
+    },
+    {
+      "archive": "VoiceStudio-main.zip",
+      "repo": "debpalash/VoiceStudio",
+      "commit": "c2ef99817fc4f2e0271a223c357e57e8df93cbde",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "NOASSERTION",
+      "archive_license_paths": [
+        "VoiceStudio-main/LICENSE",
+        "VoiceStudio-main/electron/src/main/fixtures/LICENSE"
+      ],
+      "metadata_indicators": [
+        {
+          "path": "VoiceStudio-main/electron/package.json",
+          "field": "license",
+          "value": "AGPL-3.0-only"
+        },
+        {
+          "path": "VoiceStudio-main/package.json",
+          "field": "license",
+          "value": "AGPL-3.0-only"
+        },
+        {
+          "path": "VoiceStudio-main/pyproject.toml",
+          "field": "toml",
+          "value": "license = \"AGPL-3.0-only\""
+        },
+        {
+          "path": "VoiceStudio-main/pyproject.toml",
+          "field": "toml",
+          "value": "classifiers = ["
+        }
+      ],
+      "license_file_headings": [
+        {
+          "path": "VoiceStudio-main/LICENSE",
+          "head": "                    GNU AFFERO GENERAL PUBLIC LICENSE                        Version 3, 19 November 2007   Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>  Everyone is permitted to copy and distribute verbatim copies  of this license document, but changing it is not allowed.                              Preamble    The GNU Affero General Public License is a free, copyleft license for software and other kinds of works, specifically designed to ensure cooperation with the comm"
+        },
+        {
+          "path": "VoiceStudio-main/electron/src/main/fixtures/LICENSE",
+          "head": "The MIT License (MIT)  Copyright (c) 2016-2021 Stuart Watt  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The ab"
+        }
+      ]
+    },
+    {
+      "archive": "Opal-main.zip",
+      "repo": "debpalash/Opal",
+      "commit": "3b708aa2bfc791c8885a26b0339ff6318e7d1355",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "GPL-3.0",
+      "archive_license_paths": [
+        "Opal-main/LICENSE"
+      ],
+      "metadata_indicators": [],
+      "license_file_headings": [
+        {
+          "path": "Opal-main/LICENSE",
+          "head": "                    GNU GENERAL PUBLIC LICENSE                        Version 3, 29 June 2007   Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>  Everyone is permitted to copy and distribute verbatim copies  of this license document, but changing it is not allowed.                              Preamble    The GNU General Public License is a free, copyleft license for software and other kinds of works.    The licenses for most software and other practical works are designed to"
+        }
+      ]
+    },
+    {
+      "archive": "bootable-main.zip",
+      "repo": "debpalash/bootable",
+      "commit": "f4837882be756cc33fda738890a6e382473f926f",
+      "github_license_detection": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "github_spdx": "Apache-2.0",
+      "archive_license_paths": [
+        "bootable-main/LICENSE"
+      ],
+      "metadata_indicators": [
+        {
+          "path": "bootable-main/Cargo.toml",
+          "field": "cargo.toml",
+          "value": "license = \"Apache-2.0\""
+        },
+        {
+          "path": "bootable-main/apps/bootable-desktop/Cargo.toml",
+          "field": "cargo.toml",
+          "value": "license.workspace = true"
+        },
+        {
+          "path": "bootable-main/apps/bootable-helper/Cargo.toml",
+          "field": "cargo.toml",
+          "value": "license.workspace = true"
+        },
+        {
+          "path": "bootable-main/apps/bootable-tui/Cargo.toml",
+          "field": "cargo.toml",
+          "value": "license.workspace = true"
+        },
+        {
+          "path": "bootable-main/crates/bootable-core/Cargo.toml",
+          "field": "cargo.toml",
+          "value": "license.workspace = true"
+        }
+      ],
+      "license_file_headings": [
+        {
+          "path": "bootable-main/LICENSE",
+          "head": "                                  Apache License                            Version 2.0, January 2004                         http://www.apache.org/licenses/     TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION     1. Definitions.        \"License\" shall mean the terms and conditions for use, reproduction,       and distribution as defined by Sections 1 through 9 of this document.        \"Licensor\" shall mean the copyright owner or entity authorized by       the copyright owner that i"
+        }
+      ]
+    },
+    {
+      "archive": "homebrew-memxt-main.zip",
+      "repo": "Yupcha/homebrew-memxt",
+      "commit": "07b8451114302080dcaafc3ae01daa6e2b36a223",
+      "github_license_detection": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "github_spdx": null,
+      "archive_license_paths": [],
+      "metadata_indicators": []
+    }
+  ]
+}

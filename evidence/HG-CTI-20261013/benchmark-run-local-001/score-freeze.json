@@ -1,0 +1,11 @@
+{
+  "schema": "HG-CTI-SCORE-FREEZE-V1",
+  "status": "FROZEN_BLIND_SCORES",
+  "frozen_utc": "2026-10-13T17:11:07.562913+00:00",
+  "blind_pairs_sha256": "485cd4695b04f3478e69a8bc04a91144c1ed8b9dd848c5f3109cb948685222e2",
+  "blind_scores_sha256": "9c4ec58bf77c096fa9849ff8be154df13313eb69d312ecfb8d3096077bbdabf2",
+  "case_count": 40,
+  "scorer_method": "Pre-registered case-specific rubric; labels A/B only; no key file read by this freezer.",
+  "approval_gate": false,
+  "signature": null
+}
