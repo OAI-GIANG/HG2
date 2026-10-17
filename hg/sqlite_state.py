@@ -230,6 +230,84 @@ class SQLiteStateStore:
         ).fetchone()
         return None if row is None else parse_json_no_duplicate_keys(row["event_json"])
 
+    def import_verified_events(self, events: list[dict[str, Any]], source_metadata: dict[str, Any]) -> dict[str, Any]:
+        """Replace a fresh genesis with a prevalidated imported chain in one transaction."""
+        if not isinstance(events, list) or not events:
+            raise SQLiteStateError("MIGRATION_EVENTS_REQUIRED")
+        required_source = {
+            "source_runtime_id", "source_head_hash", "source_event_count",
+            "source_log_sha256", "source_head_sha256", "source_state_sha256",
+            "source_runtime_id_sha256",
+        }
+        if not isinstance(source_metadata, dict) or set(source_metadata) != required_source:
+            raise SQLiteStateError("MIGRATION_METADATA_INVALID")
+        source_runtime_id = source_metadata["source_runtime_id"]
+        if not isinstance(source_runtime_id, str) or not source_runtime_id.strip():
+            raise SQLiteStateError("MIGRATION_SOURCE_RUNTIME_INVALID")
+        source_count = source_metadata["source_event_count"]
+        if isinstance(source_count, bool) or not isinstance(source_count, int) or source_count != len(events):
+            raise SQLiteStateError("MIGRATION_EVENT_COUNT_MISMATCH")
+        digest_fields = ("source_head_hash", "source_log_sha256", "source_head_sha256", "source_state_sha256", "source_runtime_id_sha256")
+        for field in digest_fields:
+            value = source_metadata[field]
+            if not isinstance(value, str) or len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+                raise SQLiteStateError("MIGRATION_DIGEST_INVALID")
+        previous = ZERO_DIGEST
+        task_projection: dict[str, dict[str, Any]] = {}
+        for expected_sequence, candidate in enumerate(events, 1):
+            event = validate_event(candidate)
+            if event["sequence"] != expected_sequence or event["previous_digest"] != previous:
+                raise SQLiteStateError("MIGRATION_CHAIN_INVALID")
+            if event["runtime_id"] != self.runtime_id or event["state_owner_id"] != _OWNER_ID:
+                raise SQLiteStateError("MIGRATION_TARGET_OWNER_MISMATCH")
+            try:
+                task_projection = _apply_task_event(event, task_projection)
+            except (WorkflowError, ContractError, KeyError, TypeError) as exc:
+                raise SQLiteStateError("MIGRATION_TASK_PROJECTION_INVALID") from exc
+            previous = event["record_digest"]
+
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                current = self._conn.execute("SELECT sequence, event_type FROM events ORDER BY sequence").fetchall()
+                meta = self._meta()
+                if (
+                    len(current) != 1
+                    or current[0]["sequence"] != 1
+                    or current[0]["event_type"] != "hg.genesis"
+                    or self._conn.execute("SELECT COUNT(*) FROM outbox").fetchone()[0] != 0
+                    or any(key.startswith("migration_") for key in meta)
+                ):
+                    raise SQLiteStateError("MIGRATION_TARGET_NOT_FRESH")
+                self._conn.execute("DELETE FROM events")
+                self._conn.execute("DELETE FROM sessions")
+                self._conn.execute("DELETE FROM counters")
+                self._conn.execute("DELETE FROM tasks")
+                self._set_meta("last_seq", "0")
+                self._set_meta("head_digest", ZERO_DIGEST)
+                self._set_meta("last_ack_cursor", "0")
+                self._set_meta("last_ack_sequence", "0")
+                for event in events:
+                    self._insert_event(event)
+                self._set_meta("migration_status", "VERIFIED_IMPORT")
+                self._set_meta("migration_schema", "HG_STATE_V1")
+                self._set_meta("migration_source_runtime_id", source_runtime_id)
+                self._set_meta("migration_source_head_hash", source_metadata["source_head_hash"])
+                self._set_meta("migration_source_event_count", str(source_metadata["source_event_count"]))
+                self._set_meta("migration_source_log_sha256", source_metadata["source_log_sha256"])
+                self._set_meta("migration_source_head_sha256", source_metadata["source_head_sha256"])
+                self._set_meta("migration_source_state_sha256", source_metadata["source_state_sha256"])
+                self._set_meta("migration_source_runtime_id_sha256", source_metadata["source_runtime_id_sha256"])
+                verification = self.verify()
+                if not verification["ok"]:
+                    raise SQLiteStateError("MIGRATION_TARGET_VERIFY_FAILED_" + verification["reason"])
+                self._conn.execute("COMMIT")
+                return verification
+            except Exception:
+                if self._conn.in_transaction:
+                    self._conn.execute("ROLLBACK")
+                raise
+
     def get_event_by_idempotency(self, key: str) -> dict[str, Any] | None:
         if not isinstance(key, str) or not key:
             return None
@@ -431,6 +509,7 @@ class SQLiteStateStore:
                 expected_counters: dict[str, int] = {}
                 expected_sessions: dict[str, str] = {}
                 expected_tasks: dict[str, dict[str, Any]] = {}
+                migration_last_ref = None
                 rows = self._conn.execute("SELECT * FROM events ORDER BY sequence").fetchall()
                 for row in rows:
                     try:
@@ -449,6 +528,23 @@ class SQLiteStateStore:
                         return {"ok": False, "events": expected_seq - 1, "reason": "idempotency_column_mismatch"}
                     if event["runtime_id"] != meta["runtime_id"] or event["state_owner_id"] != _OWNER_ID:
                         return {"ok": False, "events": expected_seq - 1, "reason": "event_owner_mismatch"}
+                    if meta.get("migration_status") == "VERIFIED_IMPORT":
+                        imported_count = int(meta["migration_source_event_count"])
+                        if event["sequence"] <= imported_count:
+                            authority = event["authority_context"]
+                            refs = event["evidence_refs"]
+                            if (
+                                authority.get("migration") != "HG_STATE_V1"
+                                or authority.get("source_runtime_id") != meta["migration_source_runtime_id"]
+                                or authority.get("source_sequence") != event["sequence"]
+                                or not isinstance(refs, list) or not refs
+                                or not isinstance(authority.get("source_event_id"), str) or not authority.get("source_event_id")
+                                or not isinstance(refs[0], str) or len(refs[0]) != 64
+                                or any(ch not in "0123456789abcdef" for ch in refs[0])
+                            ):
+                                return {"ok": False, "events": expected_seq - 1, "reason": "migration_lineage_mismatch"}
+                            if event["sequence"] == imported_count:
+                                migration_last_ref = refs[0]
                     if event["event_id"] in seen_ids:
                         return {"ok": False, "events": expected_seq - 1, "reason": "duplicate_event_id"}
                     seen_ids.add(event["event_id"])
@@ -516,6 +612,29 @@ class SQLiteStateStore:
                     return {"ok": False, "events": last_seq, "reason": "task_projection_mismatch"}
                 if meta["backend_schema"] != _SQLITE_SCHEMA_VERSION:
                     return {"ok": False, "events": last_seq, "reason": "unsupported_backend_schema"}
+                migration_fields = (
+                    "migration_status", "migration_schema", "migration_source_runtime_id",
+                    "migration_source_head_hash", "migration_source_event_count",
+                    "migration_source_log_sha256", "migration_source_head_sha256",
+                    "migration_source_state_sha256", "migration_source_runtime_id_sha256",
+                )
+                present_migration_fields = [key for key in migration_fields if key in meta]
+                if present_migration_fields and len(present_migration_fields) != len(migration_fields):
+                    return {"ok": False, "events": last_seq, "reason": "migration_metadata_partial"}
+                if present_migration_fields:
+                    if meta["migration_status"] != "VERIFIED_IMPORT" or meta["migration_schema"] != "HG_STATE_V1":
+                        return {"ok": False, "events": last_seq, "reason": "migration_status_invalid"}
+                    if meta["migration_source_runtime_id"] == meta["runtime_id"]:
+                        return {"ok": False, "events": last_seq, "reason": "migration_runtime_identity_collision"}
+                    source_count = int(meta["migration_source_event_count"])
+                    if source_count < 1 or source_count > last_seq:
+                        return {"ok": False, "events": last_seq, "reason": "migration_event_count_mismatch"}
+                    if migration_last_ref != meta["migration_source_head_hash"]:
+                        return {"ok": False, "events": last_seq, "reason": "migration_source_head_reference_mismatch"}
+                    for field in ("migration_source_head_hash", "migration_source_log_sha256", "migration_source_head_sha256", "migration_source_state_sha256", "migration_source_runtime_id_sha256"):
+                        value = meta[field]
+                        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+                            return {"ok": False, "events": last_seq, "reason": "migration_digest_invalid"}
                 return {
                     "ok": True, "events": last_seq, "last_seq": last_seq,
                     "head_digest": previous, "last_ack_cursor": last_cursor,
@@ -546,6 +665,9 @@ class SQLiteStateStore:
             "head_digest": meta["head_digest"],
             "last_ack_cursor": int(meta["last_ack_cursor"]),
             "pending_outbox": self._conn.execute("SELECT COUNT(*) FROM outbox WHERE status='pending'").fetchone()[0],
+            "migration": {
+                key: value for key, value in meta.items() if key.startswith("migration_")
+            } or None,
             "verify": verification,
             "state": {
                 "sessions": sessions,

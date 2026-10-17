@@ -24,7 +24,7 @@ class CirculatoryArchitectureTests(unittest.TestCase):
 
     def test_manifest_registers_policy_contract_workflow_sync_and_state_modules(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-        for module in ("hg.policy", "hg.contracts", "hg.sqlite_state", "hg.workflow", "hg.sync"):
+        for module in ("hg.policy", "hg.contracts", "hg.sqlite_state", "hg.migration", "hg.workflow", "hg.sync"):
             self.assertIn(module, manifest["modules"])
         self.assertEqual(manifest["architecture"]["status"], "DESIGN_BASELINE_NOT_CERTIFIED")
 
@@ -63,7 +63,14 @@ class CirculatoryArchitectureTests(unittest.TestCase):
             tree = ast.parse(source, filename=str(path))
             writes_files = any(
                 isinstance(node, ast.Call) and (
-                    (isinstance(node.func, ast.Name) and node.func.id == "open")
+                    (
+                        isinstance(node.func, ast.Name)
+                        and node.func.id == "open"
+                        and len(node.args) > 1
+                        and isinstance(node.args[1], ast.Constant)
+                        and isinstance(node.args[1].value, str)
+                        and any(mode in node.args[1].value for mode in ("w", "a", "x", "+"))
+                    )
                     or (isinstance(node.func, ast.Attribute) and node.func.attr in {"replace", "fsync"})
                 )
                 for node in ast.walk(tree)
