@@ -41,6 +41,15 @@ class CirculatoryArchitectureTests(unittest.TestCase):
                     break
         self.assertEqual(sorted(set(users)), ["phone_runtime.py"])
 
+    def test_code_intelligence_is_dev_only_and_uses_shared_canonicalization(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        self.assertNotIn("tools.hg_code_intelligence", manifest["modules"])
+        analyser = (ROOT / "tools" / "hg_code_intelligence.py").read_text(encoding="utf-8")
+        self.assertIn("from hg.contracts import canonical_digest, canonical_json", analyser)
+        self.assertIn("return canonical_json(value, max_bytes=4 * DEFAULT_MAX_TOTAL_BYTES).encode", analyser)
+        self.assertIn("snapshot_sha = canonical_digest(snapshot_material, max_bytes=4 * DEFAULT_MAX_TOTAL_BYTES)", analyser)
+        self.assertNotIn("json.dumps(value, sort_keys=True", analyser)
+
     def test_agent_stack_is_registered_with_one_provider_boundary(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         for module in ("hg.auth", "hg.provider", "hg.toolplane", "hg.agent"):

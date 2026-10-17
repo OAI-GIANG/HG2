@@ -21,3 +21,6 @@ Read the normative design contract in [contract/CIRCULATORY_ARCHITECTURE_V1.md](
 ## Current state
 
 The circulatory architecture is a design baseline. This candidate branch now includes a tested principal-based agent/provider/tool-routing path and stricter fail-closed state verification, but it is not merged to hg-genesis, is not connected to the deployed runtime, and is not release-certified. The legacy history store remains the default; SQLite remains opt-in with explicit migration required. Use the roadmap's work packages and acceptance gates; do not perform a big-bang rewrite or reset uncommitted work in other worktrees.
+
+
+Developer-only static inventory: run python3 -B tools/hg_code_intelligence.py --repo /absolute/path/to/repo --revision <declared-commit-or-UNKNOWN>. The scanner is read-only, bounded, does not execute the target repository, excludes secret-shaped files and symlinks, and reports incomplete coverage whenever it cannot justify a complete source view. It is a maintenance aid, not runtime code or release certification. See docs/HG_CODE_INTELLIGENCE_USAGE.md.

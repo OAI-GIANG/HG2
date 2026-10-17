@@ -56,8 +56,14 @@ def _validate_json_value(value: Any, *, depth: int = 0, budget: list[int] | None
     raise ContractError("UNSUPPORTED_JSON_VALUE_TYPE")
 
 
-def canonical_json(value: Any) -> str:
-    """Return deterministic JSON or fail closed on non-JSON/non-finite values."""
+def canonical_json(value: Any, *, max_bytes: int = MAX_CANONICAL_BYTES) -> str:
+    """Return deterministic JSON with an explicit byte limit.
+
+    The default remains the strict 1 MiB runtime limit. Read-only developer
+    reports may request a larger bound matching their own repository scan cap.
+    """
+    if isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or max_bytes < 1:
+        raise ContractError("INVALID_CANONICAL_BYTE_LIMIT")
     _validate_json_value(value)
     try:
         encoded = json.dumps(
@@ -66,13 +72,13 @@ def canonical_json(value: Any) -> str:
         )
     except (TypeError, ValueError, RecursionError) as exc:
         raise ContractError("CANONICALIZATION_FAILED") from exc
-    if len(encoded.encode("utf-8")) > MAX_CANONICAL_BYTES:
+    if len(encoded.encode("utf-8")) > max_bytes:
         raise ContractError("CANONICAL_PAYLOAD_TOO_LARGE")
     return encoded
 
 
-def canonical_digest(value: Any) -> str:
-    return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
+def canonical_digest(value: Any, *, max_bytes: int = MAX_CANONICAL_BYTES) -> str:
+    return hashlib.sha256(canonical_json(value, max_bytes=max_bytes).encode("utf-8")).hexdigest()
 
 
 def parse_json_no_duplicate_keys(raw: str) -> Any:

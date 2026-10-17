@@ -40,6 +40,14 @@ class CanonicalSerializerTests(unittest.TestCase):
         self.assertEqual(canonical_json(left), canonical_json(right))
         self.assertEqual(canonical_digest(left), canonical_digest(right))
 
+    def test_canonical_json_limit_is_explicit_and_runtime_default_stays_strict(self):
+        value = {"data": "x" * (1024 * 1024)}
+        with self.assertRaisesRegex(ContractError, "CANONICAL_PAYLOAD_TOO_LARGE"):
+            canonical_json(value)
+        self.assertEqual(len(canonical_json(value, max_bytes=2 * 1024 * 1024)), 1024 * 1024 + 11)
+        with self.assertRaisesRegex(ContractError, "INVALID_CANONICAL_BYTE_LIMIT"):
+            canonical_json({"x": 1}, max_bytes=True)
+
     def test_non_finite_numbers_are_rejected(self):
         with self.assertRaisesRegex(ContractError, "NON_FINITE_NUMBER"):
             canonical_json({"score": float("nan")})
