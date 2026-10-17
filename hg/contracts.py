@@ -1,0 +1,237 @@
+"""Versioned command/event contract primitives for HG2's circulatory architecture.
+
+This module is deliberately dependency-light and does not perform I/O.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+import re
+import time
+import uuid
+from typing import Any, Mapping
+
+SCHEMA_VERSION = "HG_EVENT_V1"
+ZERO_DIGEST = "0" * 64
+MAX_CANONICAL_BYTES = 1_048_576
+MAX_DEPTH = 64
+MAX_NODES = 20_000
+_DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
+_EVENT_TYPE_RE = re.compile(r"^[a-z][a-z0-9_.-]{0,127}$")
+_SENSITIVE_KEY_FRAGMENTS = (
+    "password", "passwd", "secret", "credential", "token", "apikey", "privatekey",
+    "bearertoken", "modelkey",
+)
+
+
+class ContractError(ValueError):
+    """Raised when an envelope violates its versioned contract."""
+
+
+def _validate_json_value(value: Any, *, depth: int = 0, budget: list[int] | None = None) -> None:
+    if budget is None:
+        budget = [MAX_NODES]
+    budget[0] -= 1
+    if budget[0] < 0:
+        raise ContractError("JSON_NODE_LIMIT_EXCEEDED")
+    if depth > MAX_DEPTH:
+        raise ContractError("JSON_DEPTH_LIMIT_EXCEEDED")
+    if value is None or isinstance(value, (str, bool, int)):
+        return
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ContractError("NON_FINITE_NUMBER")
+        return
+    if isinstance(value, list):
+        for item in value:
+            _validate_json_value(item, depth=depth + 1, budget=budget)
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise ContractError("OBJECT_KEYS_MUST_BE_STRINGS")
+            _validate_json_value(item, depth=depth + 1, budget=budget)
+        return
+    raise ContractError("UNSUPPORTED_JSON_VALUE_TYPE")
+
+
+def canonical_json(value: Any) -> str:
+    """Return deterministic JSON or fail closed on non-JSON/non-finite values."""
+    _validate_json_value(value)
+    try:
+        encoded = json.dumps(
+            value, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError, RecursionError) as exc:
+        raise ContractError("CANONICALIZATION_FAILED") from exc
+    if len(encoded.encode("utf-8")) > MAX_CANONICAL_BYTES:
+        raise ContractError("CANONICAL_PAYLOAD_TOO_LARGE")
+    return encoded
+
+
+def canonical_digest(value: Any) -> str:
+    return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
+
+
+def parse_json_no_duplicate_keys(raw: str) -> Any:
+    """Parse JSON while rejecting duplicate object keys and non-standard constants."""
+    if not isinstance(raw, str):
+        raise ContractError("INVALID_JSON")
+    try:
+        raw_size = len(raw.encode("utf-8"))
+    except UnicodeEncodeError as exc:
+        raise ContractError("INVALID_JSON_ENCODING") from exc
+    if raw_size > MAX_CANONICAL_BYTES:
+        raise ContractError("CANONICAL_PAYLOAD_TOO_LARGE")
+    def pairs_to_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ContractError("DUPLICATE_JSON_KEY")
+            result[key] = value
+        return result
+
+    def reject_constant(_value):
+        raise ContractError("NON_STANDARD_JSON_CONSTANT")
+
+    try:
+        value = json.loads(raw, object_pairs_hook=pairs_to_object, parse_constant=reject_constant)
+    except ContractError:
+        raise
+    except (json.JSONDecodeError, TypeError, ValueError, RecursionError) as exc:
+        raise ContractError("INVALID_JSON") from exc
+    _validate_json_value(value)
+    return value
+
+
+def _contains_sensitive_key(value: Any) -> bool:
+    if isinstance(value, dict):
+        for key, nested in value.items():
+            normalized = "".join(ch.lower() for ch in key if ch.isalnum())
+            if any(fragment in normalized for fragment in _SENSITIVE_KEY_FRAGMENTS):
+                return True
+            if _contains_sensitive_key(nested):
+                return True
+    elif isinstance(value, list):
+        return any(_contains_sensitive_key(item) for item in value)
+    return False
+
+
+def _require_text(value: Any, field: str, *, max_length: int = 256) -> None:
+    if not isinstance(value, str) or not value.strip():
+        raise ContractError(field.upper() + "_REQUIRED")
+    if len(value) > max_length:
+        raise ContractError(field.upper() + "_TOO_LONG")
+
+
+def validate_event(event: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate exact HG_EVENT_V1 structure and its content digest."""
+    if not isinstance(event, Mapping):
+        raise ContractError("EVENT_MUST_BE_OBJECT")
+    required = {
+        "schema_version", "event_id", "event_type", "sequence", "recorded_at",
+        "actor_id", "authority_context", "correlation_id", "causation_id",
+        "idempotency_key", "runtime_id", "state_owner_id", "payload",
+        "previous_digest", "record_digest", "evidence_refs",
+    }
+    if set(event) != required:
+        if required - set(event):
+            raise ContractError("MISSING_EVENT_FIELDS")
+        raise ContractError("UNKNOWN_EVENT_FIELDS")
+    result = dict(event)
+    _validate_json_value(result)
+    if result["schema_version"] != SCHEMA_VERSION:
+        raise ContractError("UNSUPPORTED_SCHEMA_VERSION")
+    for field in ("event_id", "actor_id", "correlation_id", "runtime_id", "state_owner_id"):
+        _require_text(result[field], field)
+    event_type = result["event_type"]
+    if not isinstance(event_type, str) or not _EVENT_TYPE_RE.fullmatch(event_type):
+        raise ContractError("INVALID_EVENT_TYPE")
+    sequence = result["sequence"]
+    if isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 1:
+        raise ContractError("INVALID_SEQUENCE")
+    recorded_at = result["recorded_at"]
+    if isinstance(recorded_at, bool) or not isinstance(recorded_at, (int, float)) or not math.isfinite(recorded_at):
+        raise ContractError("INVALID_RECORDED_AT")
+    for field in ("causation_id", "idempotency_key"):
+        value = result[field]
+        if value is not None:
+            _require_text(value, field)
+    if not isinstance(result["authority_context"], dict):
+        raise ContractError("AUTHORITY_CONTEXT_MUST_BE_OBJECT")
+    if not isinstance(result["payload"], dict):
+        raise ContractError("PAYLOAD_MUST_BE_OBJECT")
+    if _contains_sensitive_key(result["authority_context"]) or _contains_sensitive_key(result["payload"]):
+        raise ContractError("SENSITIVE_FIELD_NAME_FORBIDDEN")
+    for field in ("previous_digest", "record_digest"):
+        value = result[field]
+        if not isinstance(value, str) or not _DIGEST_RE.fullmatch(value):
+            raise ContractError(field.upper() + "_INVALID")
+    refs = result["evidence_refs"]
+    if not isinstance(refs, list) or len(refs) > 256:
+        raise ContractError("INVALID_EVIDENCE_REFS")
+    for ref in refs:
+        _require_text(ref, "evidence_ref", max_length=1024)
+    core = {key: value for key, value in result.items() if key != "record_digest"}
+    if canonical_digest(core) != result["record_digest"]:
+        raise ContractError("RECORD_DIGEST_MISMATCH")
+    return result
+
+
+def create_event(
+    *,
+    event_type: str,
+    sequence: int,
+    actor_id: str,
+    authority_context: dict[str, Any],
+    runtime_id: str,
+    state_owner_id: str,
+    payload: dict[str, Any],
+    previous_digest: str = ZERO_DIGEST,
+    correlation_id: str | None = None,
+    causation_id: str | None = None,
+    idempotency_key: str | None = None,
+    evidence_refs: list[str] | None = None,
+    event_id: str | None = None,
+    recorded_at: int | float | None = None,
+) -> dict[str, Any]:
+    """Create a validated event mapping. Callers must not mutate it after commit."""
+    if evidence_refs is not None and not isinstance(evidence_refs, list):
+        raise ContractError("INVALID_EVIDENCE_REFS")
+    core = {
+        "schema_version": SCHEMA_VERSION,
+        "event_id": event_id if event_id is not None else uuid.uuid4().hex,
+        "event_type": event_type,
+        "sequence": sequence,
+        "recorded_at": time.time() if recorded_at is None else recorded_at,
+        "actor_id": actor_id,
+        "authority_context": authority_context,
+        "correlation_id": correlation_id if correlation_id is not None else uuid.uuid4().hex,
+        "causation_id": causation_id,
+        "idempotency_key": idempotency_key,
+        "runtime_id": runtime_id,
+        "state_owner_id": state_owner_id,
+        "payload": payload,
+        "previous_digest": previous_digest,
+        "evidence_refs": [] if evidence_refs is None else evidence_refs,
+    }
+    event = dict(core)
+    event["record_digest"] = canonical_digest(core)
+    return validate_event(event)
+
+
+def verify_event(event: Mapping[str, Any]) -> dict[str, Any]:
+    """Return a bounded machine-readable verification result."""
+    try:
+        validated = validate_event(event)
+    except ContractError as exc:
+        return {"ok": False, "reason": str(exc)}
+    return {
+        "ok": True,
+        "reason": "EVENT_VALID",
+        "event_id": validated["event_id"],
+        "sequence": validated["sequence"],
+        "record_digest": validated["record_digest"],
+    }

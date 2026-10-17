@@ -72,3 +72,11 @@ Restructure the single canonical repository OAI-GIANG/HG2 around the Circulatory
 - Baseline tests before changes: python -m unittest discover -s tests -v — 26 tests passed.
 - The existing ~/hg2-phone worktree contains uncommitted modifications and is intentionally untouched.
 - Architecture documentation is not implementation proof; WP1 onward remains open until code and evidence satisfy the gates.
+
+## Execution status — 2026-10-18
+
+- WP0: PASS for the isolated restructure worktree. Baseline is the canonical remote commit 9d83a113ccdf1aeda656e494593fa55b9078c803. The pre-existing dirty phone checkout was not reset or modified.
+- WP1: PASS for the architecture-contract/documentation slice. Contract and static boundary tests are committed; this is not a claim that all architecture invariants are already enforced in production code.
+- WP2: IN_PROGRESS. Added hg/contracts.py with HG_EVENT_V1 event envelopes, deterministic JSON canonicalization, SHA-256 content digest, strict schema validation, duplicate-key rejection, non-finite number rejection, and sensitive-field-name rejection. Focused contract tests: 11 passed.
+- Existing history persistence has not yet been migrated to HG_EVENT_V1. That migration requires a compatibility plan and dedicated replay/corruption tests; do not claim the new envelope is already the persisted history format.
+- Current implementation work is on the isolated branch and is not merged to hg-genesis.

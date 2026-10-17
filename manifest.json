@@ -6,6 +6,7 @@
   "modules": [
     "hg.identity",
     "hg.authority",
+    "hg.contracts",
     "hg.history",
     "hg.phone_runtime",
     "hg.edge"
