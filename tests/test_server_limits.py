@@ -23,6 +23,11 @@ class ServerLimitTests(unittest.TestCase):
         self.env = patch.dict(os.environ, {
             "HG_API_READ_TOKEN": READ_TOKEN,
             "HG_API_WRITE_TOKEN": WRITE_TOKEN,
+            "HG_API_READ_TOKEN_ID": "read-v1",
+            "HG_API_WRITE_TOKEN_ID": "write-v1",
+            "HG_API_READ_TOKEN_EXPIRES_AT": "4102444800",
+            "HG_API_WRITE_TOKEN_EXPIRES_AT": "4102444800",
+            "HG_API_REVOKED_TOKEN_IDS": "",
             "HG_API_PRINCIPAL_ID": "test-owner",
             "HG_MEMORY_READ_SCOPES": "owner,global,HG",
             "HG_MEMORY_WRITE_SCOPES": "owner,global,HG",

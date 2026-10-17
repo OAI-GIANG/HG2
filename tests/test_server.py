@@ -11,7 +11,10 @@ WRITE_TOKEN = "test-hg-api-write-token"
 class ServerTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
-        self.env = patch.dict(os.environ, {"HG_API_READ_TOKEN": READ_TOKEN, "HG_API_WRITE_TOKEN": WRITE_TOKEN, "HG_API_PRINCIPAL_ID":"test-owner",
+        self.env = patch.dict(os.environ, {"HG_API_READ_TOKEN": READ_TOKEN, "HG_API_WRITE_TOKEN": WRITE_TOKEN,
+            "HG_API_READ_TOKEN_ID":"read-v1", "HG_API_WRITE_TOKEN_ID":"write-v1",
+            "HG_API_READ_TOKEN_EXPIRES_AT":"4102444800", "HG_API_WRITE_TOKEN_EXPIRES_AT":"4102444800",
+            "HG_API_REVOKED_TOKEN_IDS":"", "HG_API_PRINCIPAL_ID":"test-owner",
             "HG_MEMORY_READ_SCOPES":"owner,global,HG", "HG_MEMORY_WRITE_SCOPES":"owner,global,HG"}, clear=False)
         self.env.start(); self.addCleanup(self.env.stop)
         self.rt = PhoneRuntime(state_dir=self.tmp.name)
@@ -55,6 +58,19 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(self.call("/api/memory", token=WRITE_TOKEN)[0], 401)
         rec = {"id":"read-token-write-attempt", "type":"fact", "title":"x", "content":"y", "scope_id":"owner"}
         self.assertEqual(self.call("/api/memory", "POST", {"record":rec,"idempotency_key":"no-write"}, token=READ_TOKEN)[0], 401)
+    def test_credential_expiry_and_revocation_fail_closed(self):
+        self.srv.read_token_expires_at = 1
+        status, body = self.call("/api/memory")
+        self.assertEqual(status, 401)
+        self.assertEqual(body["error"]["code"], "CREDENTIAL_EXPIRED")
+        self.assertNotIn(READ_TOKEN, json.dumps(body))
+        self.srv.read_token_expires_at = 4102444800
+        self.srv.revoked_token_ids = frozenset({"read-v1"})
+        status, body = self.call("/api/memory")
+        self.assertEqual(status, 401)
+        self.assertEqual(body["error"]["code"], "CREDENTIAL_REVOKED")
+        self.assertNotIn(READ_TOKEN, json.dumps(body))
+
     def test_source_provenance_mismatch_degrades_health(self):
         with patch("hg.server.runtime_manifest", return_value={"manifest_sha256":"0" * 64, "files":[]}):
             status, body = self.call("/api/health")
@@ -112,6 +128,22 @@ class ServerTests(unittest.TestCase):
         record = {"id":"denied", "type":"fact", "title":"x", "content":"y", "scope_id":"other"}
         self.assertEqual(self.call("/api/memory", "POST", {"record":record,"idempotency_key":"k"}, token=WRITE_TOKEN)[0], 403)
         self.assertEqual(self.call("/api/memory", "POST", raw=b'{"record":{},"record":{},"idempotency_key":"k"}', token=WRITE_TOKEN)[0], 400)
+    def test_startup_fails_closed_for_invalid_credential_ids_or_revocation_list(self):
+        cases = [
+            {"HG_API_READ_TOKEN_ID": ""},
+            {"HG_API_READ_TOKEN_ID": "same-id", "HG_API_WRITE_TOKEN_ID": "same-id"},
+            {"HG_API_REVOKED_TOKEN_IDS": "*"},
+        ]
+        for values in cases:
+            with self.subTest(values=values), patch.dict(os.environ, values, clear=False):
+                with self.assertRaises(RuntimeError):
+                    HGHTTPServer(("127.0.0.1", 0), runtime=self.rt)
+
+    def test_startup_fails_without_credential_expiry(self):
+        with patch.dict(os.environ, {"HG_API_READ_TOKEN_EXPIRES_AT": ""}, clear=False):
+            with self.assertRaisesRegex(RuntimeError, "HG_API_READ_TOKEN_EXPIRES_AT"):
+                HGHTTPServer(("127.0.0.1", 0), runtime=self.rt)
+
     def test_startup_fails_without_token(self):
         with patch.dict(os.environ, {"HG_API_READ_TOKEN":"", "HG_API_WRITE_TOKEN":""}, clear=False):
             with self.assertRaises(RuntimeError): HGHTTPServer(("127.0.0.1", 0), runtime=self.rt)

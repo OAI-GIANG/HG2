@@ -36,3 +36,7 @@ The phone-local HG API also enforces bounded request resources before any extern
 - `HG_REQUEST_TIMEOUT_SECONDS` defaults to `5` and accepts `0.1..60`; slow request lines and headers are closed without dispatching the incomplete request.
 - `HG_RATE_LIMIT_REQUESTS` defaults to `120` per `HG_RATE_LIMIT_WINDOW_SECONDS` (default `60`, accepted `1..3600`). Exceeding the fixed window returns HTTP 429 with `Retry-After`. The in-process bucket table is bounded.
 - The API still binds to loopback only. A production HTTPS edge must independently enforce per-client rate limits and connection/time budgets because requests proxied through loopback can share the same source address. These local controls do not replace TLS, authentication, or external-edge acceptance.
+
+## API credential lifecycle
+
+The local API requires distinct `HG_API_READ_TOKEN` and `HG_API_WRITE_TOKEN` values, distinct non-secret IDs (`HG_API_READ_TOKEN_ID` and `HG_API_WRITE_TOKEN_ID`), and positive Unix-epoch expiry values (`HG_API_READ_TOKEN_EXPIRES_AT` and `HG_API_WRITE_TOKEN_EXPIRES_AT`). `HG_API_REVOKED_TOKEN_IDS` is an optional comma-separated denylist of credential IDs. Missing/invalid IDs or expiries fail startup; expired and revoked credentials fail authorization closed. Credential values are compared in constant time and never returned or logged. There is no legacy-token fallback. This code/test contract does not provision or rotate production credentials.

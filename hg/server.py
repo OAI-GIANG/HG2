@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import math
 import os
 import re
 import socket
@@ -57,9 +58,33 @@ def _bounded_float(name, default, minimum, maximum):
         value = float(os.environ.get(name, str(default)))
     except (TypeError, ValueError) as exc:
         raise RuntimeError(f"{name} must be numeric") from exc
-    if not minimum <= value <= maximum:
+    if not math.isfinite(value) or not minimum <= value <= maximum:
         raise RuntimeError(f"{name} is outside the allowed range")
     return value
+
+
+def _credential_id(name):
+    value = os.environ.get(name, "")
+    if not ID_RE.fullmatch(value) or len(value) > 64:
+        raise RuntimeError(f"{name} must be a valid non-empty credential ID")
+    return value
+
+
+def _credential_expiry(name):
+    try:
+        value = float(os.environ.get(name, ""))
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"{name} must be a Unix timestamp") from exc
+    if not math.isfinite(value) or value <= 0:
+        raise RuntimeError(f"{name} must be a positive Unix timestamp")
+    return value
+
+
+def _revoked_credential_ids():
+    values = [item.strip() for item in os.environ.get("HG_API_REVOKED_TOKEN_IDS", "").split(",") if item.strip()]
+    if any(not ID_RE.fullmatch(item) or len(item) > 64 for item in values):
+        raise RuntimeError("HG_API_REVOKED_TOKEN_IDS contains an invalid credential ID")
+    return frozenset(values)
 
 
 class HGHTTPServer(ThreadingHTTPServer):
@@ -73,6 +98,13 @@ class HGHTTPServer(ThreadingHTTPServer):
         if (not self.read_token or not self.write_token
                 or hmac.compare_digest(self.read_token, self.write_token)):
             raise RuntimeError("HG_API_READ_TOKEN and HG_API_WRITE_TOKEN must be distinct non-empty credentials")
+        self.read_token_id = _credential_id("HG_API_READ_TOKEN_ID")
+        self.write_token_id = _credential_id("HG_API_WRITE_TOKEN_ID")
+        if self.read_token_id == self.write_token_id:
+            raise RuntimeError("HG_API_READ_TOKEN_ID and HG_API_WRITE_TOKEN_ID must be distinct")
+        self.read_token_expires_at = _credential_expiry("HG_API_READ_TOKEN_EXPIRES_AT")
+        self.write_token_expires_at = _credential_expiry("HG_API_WRITE_TOKEN_EXPIRES_AT")
+        self.revoked_token_ids = _revoked_credential_ids()
         self.principal_id = os.environ.get("HG_API_PRINCIPAL_ID", "phone-owner")
         self.read_scopes = _scopes("HG_MEMORY_READ_SCOPES")
         self.write_scopes = _scopes("HG_MEMORY_WRITE_SCOPES")
@@ -170,8 +202,16 @@ class HGRequestHandler(BaseHTTPRequestHandler):
         hdr = self.headers.get("Authorization", "")
         supplied = hdr[7:] if hdr.startswith("Bearer ") else ""
         expected = self.server.write_token if write else self.server.read_token
+        token_id = self.server.write_token_id if write else self.server.read_token_id
+        expires_at = self.server.write_token_expires_at if write else self.server.read_token_expires_at
         if not supplied or not hmac.compare_digest(supplied, expected):
             self._send(401, {"ok": False, "error": {"code": "UNAUTHORIZED"}})
+            return None
+        if token_id in self.server.revoked_token_ids:
+            self._send(401, {"ok": False, "error": {"code": "CREDENTIAL_REVOKED"}})
+            return None
+        if time.time() >= expires_at:
+            self._send(401, {"ok": False, "error": {"code": "CREDENTIAL_EXPIRED"}})
             return None
         scopes = self.server.write_scopes if write else self.server.read_scopes
         if not scopes:

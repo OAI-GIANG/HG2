@@ -6,9 +6,13 @@
   },
   "checks": {
     "connection_budget_503_retry_after": "PASS",
+    "credential_expiry_fail_closed": "PASS",
+    "credential_revocation_fail_closed": "PASS",
     "git_diff_check": "PASS",
     "http_429_retry_after": "PASS",
+    "invalid_credential_metadata_fails_closed": "PASS",
     "invalid_resource_configuration_fails_closed": "PASS",
+    "no_legacy_token_fallback": "PASS_BY_DESIGN",
     "public_cleartext_bind_refused": "PASS",
     "python_ast_syntax": "PASS",
     "slow_body_408_without_state_mutation": "PASS",
@@ -16,29 +20,31 @@
     "slow_request_line_cutoff": "PASS"
   },
   "credential_pattern_scan": {
-    "blobs_scanned": 826,
+    "blobs_scanned": 827,
     "high_confidence_pattern_matches": 0,
-    "private_audit_report_sha256": "7192c873158bc0bebfadb7009885fa2c44c6ff7035f5413b85a87d7f27b27044",
-    "reachable_objects_scanned": 1730,
-    "scope_note": "Fetched branch and pull-request-head objects only; this does not prove that unreferenced historical GitHub objects have been purged or that every external credential is revoked."
+    "private_audit_report_sha256": "db44cbabb7bf66e509989047e311f613211ee95f0fa5c8f54cdfe5bea5dd8e13",
+    "reachable_objects_scanned": 1734,
+    "scan_head_sha": "66fc1ca9caa0a36051434a66d13deb6aa48cd5fa",
+    "scope_note": "Fetched branch and PR-head objects plus current staged source/docs/tests; no credential values were read. This does not prove unreferenced historical GitHub objects have been purged or every external credential revoked.",
+    "working_tree_paths_scanned": 4
   },
-  "focused_resource_bounds_suite": {
-    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest tests.test_limits tests.test_server_limits -v",
-    "log_sha256": "6611251a0037f8717c9e613b298750310aa8b4a2c4c3def7dc812c8c70ae6bfe",
+  "focused_security_resource_suite": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest tests.test_limits tests.test_server_limits tests.test_server.ServerTests.test_credential_expiry_and_revocation_fail_closed tests.test_server.ServerTests.test_startup_fails_without_credential_expiry tests.test_server.ServerTests.test_startup_fails_closed_for_invalid_credential_ids_or_revocation_list -v",
+    "log_sha256": "e054b74cc088b020f722d214076d20a215c56fff98e0695ce3e095ee74efc7d7",
     "result": "PASS",
     "tests_failed": 0,
-    "tests_passed": 11
+    "tests_passed": 14
   },
   "full_suite": {
     "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
-    "log_sha256": "ae01841c224709d6b448f6d55d41c5654f15b0ee51b4c1dfae2bbbe13f6c3772",
+    "log_sha256": "3e4d4af0d242c2b0fe350c158b417ec5f067b1c69b13c47df2cab99fa6f7ae51",
     "resource_warnings_are_errors": true,
     "result": "PASS",
     "tests_failed": 0,
-    "tests_passed": 88
+    "tests_passed": 91
   },
-  "implementation_tree_sha1_excluding_evidence": "f316052a30fccb3b6907a0406e60797613dbc1e1",
-  "parent_candidate_commit": "97690ee901b4dbcabf9227dd7372d458e60d128c",
+  "implementation_tree_sha1_excluding_evidence": "aed659747e8a7cfa3166c4fa824fd984f4424843",
+  "parent_candidate_commit": "66fc1ca9caa0a36051434a66d13deb6aa48cd5fa",
   "release_gate": "NOT_RELEASED; no production cutover, merge, deploy, or deletion authorized by this evidence",
   "runtime": {
     "credential_values_read": false,
