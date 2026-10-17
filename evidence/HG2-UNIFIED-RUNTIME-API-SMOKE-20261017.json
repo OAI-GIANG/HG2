@@ -1,0 +1,36 @@
+{
+  "schema": "HG2_UNIFIED_RUNTIME_API_SMOKE_V1",
+  "status": "PASS",
+  "environment": "isolated Termux staging rehearsal only",
+  "production_touched": false,
+  "bind": "127.0.0.1",
+  "port": 18788,
+  "temporary_test_tokens_used": true,
+  "health": {
+    "http_status": 200,
+    "ok": true,
+    "runtime": "READY",
+    "integrity_ok": true,
+    "events": 127,
+    "head_hash": "4f34b24ac4b300bfd20b076022858c632935e99517ff8827b1bf16a59ddfdacf"
+  },
+  "memory_list": {
+    "http_status": 200,
+    "expected_count": 31,
+    "observed_count": 31,
+    "scope_filter": "global,HG"
+  },
+  "ui": {
+    "http_status": 200,
+    "bytes": 5959
+  },
+  "server_process": {
+    "stopped_after_test": true,
+    "return_code": -15
+  },
+  "limitations": [
+    "No production credentials configured",
+    "No model gateway or durable replication cutover",
+    "No live runtime restart/deploy"
+  ]
+}
