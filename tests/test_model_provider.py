@@ -175,6 +175,32 @@ class ProviderRequestTests(unittest.TestCase):
         self.assertEqual(body["stream"], False)
         self.assertIn("health.read", body["messages"][0]["content"])
 
+    def test_trace_sink_receives_hashed_raw_payloads_without_authorization_header(self):
+        draft = make_contract("model:trace")
+        captured = []
+        instance = provider(trace_sink=captured.append)
+        with patch("hg.model_provider.urlopen", return_value=FakeResponse(valid_api_response(draft))):
+            result = instance("Synthetic trace-capture smoke test; no secrets.")
+        self.assertEqual(result["task_id"].split(":")[:2], ["task", "nl"])
+        self.assertEqual(len(captured), 1)
+        trace = captured[0]
+        self.assertEqual(trace["schema_version"], "hg.model-provider-trace.v1")
+        self.assertEqual(trace["request_sha256"], __import__("hashlib").sha256(trace["request_payload"]).hexdigest())
+        self.assertEqual(trace["response_sha256"], __import__("hashlib").sha256(trace["response_payload"]).hexdigest())
+        self.assertNotIn(b"TEST-ONLY-NOT-A-REAL-KEY", trace["request_payload"])
+        self.assertFalse(trace["authorization_header_captured"])
+        self.assertFalse(trace["credential_captured"])
+
+    def test_trace_sink_failure_fails_closed(self):
+        draft = make_contract("model:trace-failure")
+        def fail_capture(_event):
+            raise OSError("synthetic sink failure")
+        with patch("hg.model_provider.urlopen", return_value=FakeResponse(valid_api_response(draft))):
+            with self.assertRaises(ModelProviderError) as ctx:
+                provider(trace_sink=fail_capture)("Synthetic trace failure test.")
+        self.assertEqual(ctx.exception.code, "MODEL_TRACE_CAPTURE_FAILED")
+        self.assertNotIn("synthetic sink failure", str(ctx.exception))
+
     def test_agentic_intelligence_facade_returns_validated_contract(self):
         draft = make_contract("model:facade")
         plan = compile_request(

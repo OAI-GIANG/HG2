@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+"""Run one isolated live-model provider smoke test with private raw trace capture.
+
+This is not an HNI-30 semantic evaluation and cannot authorize a release.
+No API credential or Authorization header is captured or printed.
+"""
+from __future__ import annotations
+import hashlib
+import json
+import os
+import platform
+import subprocess
+import sys
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlsplit
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from hg.model_provider import DeepSeekTaskDraftProvider, ModelProviderError
+from hg.task_compiler import compile_natural_language
+
+PROMPT = (
+    "Draft a task contract for a read-only operation that checks whether a local test suite "
+    "has a recorded result. Inputs are a test-log path and expected exit code. Output a summary "
+    "of whether evidence is present. Do not execute commands, modify files, access credentials, "
+    "or claim a test ran unless a log is supplied. If needed information is absent, stop and "
+    "mark the task blocked. Return only the structured task-contract JSON."
+)
+
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def write_private(directory: Path, name: str, data: bytes) -> Path:
+    path = directory / name
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
+    fd = os.open(path, flags, 0o600)
+    try:
+        os.fchmod(fd, 0o600)
+        view = memoryview(data)
+        while view:
+            count = os.write(fd, view)
+            view = view[count:]
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+    return path
+
+
+def git_output(*args: str) -> str:
+    return subprocess.run(["git", *args], cwd=ROOT, check=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout.decode().strip()
+
+
+def main() -> int:
+    if git_output("status", "--porcelain"):
+        print(json.dumps({"status": "BLOCKED", "reason": "CANDIDATE_WORKTREE_NOT_CLEAN"}))
+        return 2
+    commit = git_output("rev-parse", "HEAD")
+    tree_bytes = subprocess.run(["git", "archive", "--format=tar", "HEAD"], cwd=ROOT, check=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout
+    source_tree_sha256 = sha(tree_bytes)
+    base = Path.home() / ".cache" / "hg-evidence-first-20261017" / "agentic-evolution-live-e2e"
+    base.mkdir(parents=True, exist_ok=True, mode=0o700)
+    os.chmod(base, 0o700)
+    run_dir = Path(tempfile.mkdtemp(prefix="run-", dir=base))
+    os.chmod(run_dir, 0o700)
+    trace_state = {"captured": False, "request_sha256": None, "response_sha256": None, "http_status": None}
+
+    def trace_sink(event):
+        # Payloads exclude HTTP headers and credentials; raw trace remains private (0600).
+        write_private(run_dir, "provider-request.json", event["request_payload"])
+        write_private(run_dir, "provider-response.json", event["response_payload"])
+        trace_state.update({
+            "captured": True,
+            "request_sha256": event["request_sha256"],
+            "response_sha256": event["response_sha256"],
+            "http_status": event["http_status"],
+            "endpoint_host": event["endpoint_host"],
+            "model_id": event["model_id"],
+            "authorization_header_captured": event["authorization_header_captured"],
+            "credential_captured": event["credential_captured"],
+        })
+
+    result = {
+        "schema_version": "hg.live-model-provider-e2e.v1",
+        "classification": "CANDIDATE_PROVIDER_SMOKE_NOT_HNI30_ACCEPTANCE",
+        "candidate_commit": commit,
+        "source_tree_sha256": source_tree_sha256,
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+        "architecture": platform.machine(),
+        "local_timestamp_utc_unattested": datetime.now(timezone.utc).isoformat(),
+        "credential_contents_read_or_logged": False,
+        "authorization_header_captured": False,
+        "raw_request_response_private_only": True,
+        "raw_trace": trace_state,
+        "hni30_runtime_acceptance": "NOT_RUN",
+        "release_authorized": False,
+    }
+    write_private(run_dir, "user-request.txt", PROMPT.encode("utf-8"))
+    try:
+        provider = DeepSeekTaskDraftProvider.from_env_file(trace_sink=trace_sink)
+        result["model_provider"] = "DeepSeek"
+        result["model_id"] = provider.model_id
+        result["endpoint_host"] = urlsplit(provider._base_url).hostname
+        result["timeout_seconds"] = provider.timeout_seconds
+        result["max_tokens"] = provider.max_tokens
+        sanitized_config = json.dumps({
+            "provider": "DeepSeek", "model_id": provider.model_id,
+            "endpoint_host": urlsplit(provider._base_url).hostname,
+            "timeout_seconds": provider.timeout_seconds, "max_tokens": provider.max_tokens,
+        }, sort_keys=True, separators=(",", ":")).encode()
+        result["nonsecret_model_config_sha256"] = sha(sanitized_config)
+        plan = compile_natural_language(PROMPT, draft_provider=provider)
+        plan_bytes = (json.dumps(plan, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode()
+        write_private(run_dir, "compiled-plan.json", plan_bytes)
+        contract = plan.get("task_contract")
+        if isinstance(contract, dict):
+            contract_bytes = (json.dumps(contract, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode()
+            write_private(run_dir, "validated-contract.json", contract_bytes)
+            result["validated_contract_sha256"] = sha(contract_bytes)
+        result["plan_sha256"] = sha(plan_bytes)
+        result["plan_state"] = plan.get("state")
+        result["executable"] = plan.get("executable")
+        result["run_status"] = "PASS" if plan.get("state") == "VALIDATED" and plan.get("executable") is False and trace_state["captured"] else "FAIL"
+    except ModelProviderError as exc:
+        result["run_status"] = "BLOCKED"
+        result["error_code"] = exc.code
+        result["error_detail"] = exc.detail
+    except Exception as exc:
+        # Never serialize exception text that could contain provider or user data.
+        result["run_status"] = "BLOCKED"
+        result["error_code"] = "UNEXPECTED_" + type(exc).__name__
+    artifacts = []
+    for path in sorted(run_dir.iterdir()):
+        if path.is_file():
+            artifacts.append({"name": path.name, "sha256": sha(path.read_bytes()), "bytes": path.stat().st_size, "mode_octal": oct(path.stat().st_mode & 0o777)})
+    result["private_evidence_artifacts"] = artifacts
+    result["private_evidence_directory"] = str(run_dir)
+    manifest_bytes = (json.dumps(result, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode()
+    write_private(run_dir, "manifest.json", manifest_bytes)
+    print(json.dumps({
+        "run_status": result["run_status"],
+        "classification": result["classification"],
+        "candidate_commit": result["candidate_commit"],
+        "model_provider": result.get("model_provider"),
+        "model_id": result.get("model_id"),
+        "endpoint_host": result.get("endpoint_host"),
+        "http_status": trace_state.get("http_status"),
+        "trace_captured": trace_state["captured"],
+        "request_sha256": trace_state.get("request_sha256"),
+        "response_sha256": trace_state.get("response_sha256"),
+        "plan_state": result.get("plan_state"),
+        "executable": result.get("executable"),
+        "error_code": result.get("error_code"),
+        "hni30_runtime_acceptance": "NOT_RUN",
+        "private_evidence_directory": str(run_dir),
+        "release_authorized": False,
+    }, ensure_ascii=False, sort_keys=True))
+    return 0 if result["run_status"] == "PASS" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

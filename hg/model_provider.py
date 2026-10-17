@@ -13,7 +13,7 @@ import os
 import stat
 import urllib.error
 from datetime import datetime, timezone
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
@@ -51,6 +51,7 @@ class DeepSeekTaskDraftProvider:
         model_id: str = "deepseek-flash",
         timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
         max_tokens: int = DEFAULT_MAX_TOKENS,
+        trace_sink: Callable[[dict[str, Any]], None] | None = None,
     ) -> None:
         if not isinstance(api_key, str) or not api_key.strip():
             raise ModelProviderError("MODEL_PROVIDER_CONFIG_INVALID", "missing API credential")
@@ -80,9 +81,39 @@ class DeepSeekTaskDraftProvider:
         self.model_id = model_id
         self.timeout_seconds = timeout_seconds
         self.max_tokens = max_tokens
+        if trace_sink is not None and not callable(trace_sink):
+            raise ModelProviderError("MODEL_PROVIDER_CONFIG_INVALID", "trace sink must be callable")
+        self._trace_sink = trace_sink
+
+    def _emit_trace(self, request_payload: bytes, response_payload: bytes, status_code: int) -> None:
+        """Send raw request/response bytes to an explicitly configured secure sink.
+
+        The authorization header/API key is never included. The caller is
+        responsible for storing the trace in a private location and for
+        avoiding sensitive user input. If capture fails, the draft is not
+        returned as accepted output.
+        """
+        if self._trace_sink is None:
+            return
+        event = {
+            "schema_version": "hg.model-provider-trace.v1",
+            "endpoint_host": urlsplit(self._base_url).hostname,
+            "model_id": self.model_id,
+            "http_status": status_code,
+            "request_sha256": hashlib.sha256(request_payload).hexdigest(),
+            "response_sha256": hashlib.sha256(response_payload).hexdigest(),
+            "request_payload": bytes(request_payload),
+            "response_payload": bytes(response_payload),
+            "authorization_header_captured": False,
+            "credential_captured": False,
+        }
+        try:
+            self._trace_sink(event)
+        except Exception:
+            raise ModelProviderError("MODEL_TRACE_CAPTURE_FAILED") from None
 
     @classmethod
-    def from_environment(cls, env: Mapping[str, str] | None = None) -> "DeepSeekTaskDraftProvider":
+    def from_environment(cls, env: Mapping[str, str] | None = None, *, trace_sink: Callable[[dict[str, Any]], None] | None = None) -> "DeepSeekTaskDraftProvider":
         values = os.environ if env is None else env
         try:
             timeout_seconds = int(values.get("HG_MODEL_TIMEOUT_SECONDS", str(DEFAULT_TIMEOUT_SECONDS)))
@@ -95,10 +126,11 @@ class DeepSeekTaskDraftProvider:
             model_id=values.get("HG_MODEL_ID", ""),
             timeout_seconds=timeout_seconds,
             max_tokens=max_tokens,
+            trace_sink=trace_sink,
         )
 
     @classmethod
-    def from_env_file(cls, path: str | os.PathLike[str] | None = None) -> "DeepSeekTaskDraftProvider":
+    def from_env_file(cls, path: str | os.PathLike[str] | None = None, *, trace_sink: Callable[[dict[str, Any]], None] | None = None) -> "DeepSeekTaskDraftProvider":
         """Load the operator-managed mode-0600 HG model config without printing credentials."""
         config_path = os.fspath(path) if path is not None else os.path.join(
             os.path.expanduser("~"), ".config", "hg", "secret.env"
@@ -145,7 +177,7 @@ class DeepSeekTaskDraftProvider:
             if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
                 value = value[1:-1]
             values[name] = value
-        return cls.from_environment(values)
+        return cls.from_environment(values, trace_sink=trace_sink)
 
     @staticmethod
     def _system_prompt() -> str:
@@ -245,6 +277,7 @@ class DeepSeekTaskDraftProvider:
             raise ModelProviderError("MODEL_PROVIDER_HTTP_ERROR", f"HTTP {status_code}") from None
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             raise ModelProviderError("MODEL_PROVIDER_UNAVAILABLE", type(exc).__name__) from None
+        self._emit_trace(payload, response_body, status_code)
         if status_code != 200:
             raise ModelProviderError("MODEL_PROVIDER_HTTP_ERROR", f"HTTP {status_code}")
         if len(response_body) > MAX_RESPONSE_BYTES:
