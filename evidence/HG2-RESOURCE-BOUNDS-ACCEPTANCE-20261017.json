@@ -16,10 +16,10 @@
     "slow_request_line_cutoff": "PASS"
   },
   "credential_pattern_scan": {
-    "blobs_scanned": 820,
+    "blobs_scanned": 826,
     "high_confidence_pattern_matches": 0,
-    "private_audit_report_sha256": "38170945b53c51d1f9c30e4f1c1e49460994e052471a03912a225c05af16701b",
-    "reachable_objects_scanned": 1718,
+    "private_audit_report_sha256": "7192c873158bc0bebfadb7009885fa2c44c6ff7035f5413b85a87d7f27b27044",
+    "reachable_objects_scanned": 1730,
     "scope_note": "Fetched branch and pull-request-head objects only; this does not prove that unreferenced historical GitHub objects have been purged or that every external credential is revoked."
   },
   "focused_resource_bounds_suite": {
