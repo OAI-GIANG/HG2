@@ -23,8 +23,9 @@ class ApprovalServiceTests(unittest.TestCase):
             self.assertEqual(approved["status"], "APPROVED")
             self.assertEqual(approved["version"], 2)
             approvals = store.audit_export()["state"]["approvals"].values()
-            self.assertTrue(authorize_with_approvals("alice", "session.create", approvals, now=102, resource="session-A").allowed)
-            self.assertEqual(authorize_with_approvals("alice", "session.create", [approved], now=102, resource="session-B").reason, "APPROVAL_REQUIRED")
+            self.assertTrue(authorize_with_approvals("alice", "session.create", approvals, now=102, resource="session-A", request_digest="a" * 64).allowed)
+            self.assertEqual(authorize_with_approvals("alice", "session.create", [approved], now=102, resource="session-B", request_digest="a" * 64).reason, "APPROVAL_REQUIRED")
+            self.assertEqual(authorize_with_approvals("alice", "session.create", [approved], now=102, resource="session-A", request_digest="f" * 64).reason, "APPROVAL_REQUIRED")
             self.assertTrue(store.verify()["ok"])
 
     def test_request_and_decision_retries_are_idempotent(self):
@@ -75,7 +76,7 @@ class ApprovalServiceTests(unittest.TestCase):
             )
             expired = service.decide(request["approval_id"], decision="APPROVED", approver_id="reviewer", expected_version=1)
             self.assertEqual(expired["status"], "EXPIRED")
-            self.assertFalse(authorize_with_approvals("alice", "session.create", [expired], now=111, resource="session-A").allowed)
+            self.assertFalse(authorize_with_approvals("alice", "session.create", [expired], now=111, resource="session-A", request_digest="d" * 64).allowed)
             self.assertTrue(store.verify()["ok"])
 
     def test_invalid_approval_transition_rolls_back(self):
