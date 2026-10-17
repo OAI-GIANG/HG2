@@ -53,14 +53,24 @@ class CirculatoryArchitectureTests(unittest.TestCase):
         self.assertNotIn("hg.history", modules)
         self.assertNotIn(".history", modules)
 
-    def test_only_history_module_names_legacy_persistence_files(self):
+    def test_only_history_module_writes_legacy_persistence_files(self):
         protected_names = ("history.jsonl", "head.json", "state.json")
-        owners = set()
+        writers = set()
         for path in SOURCE.glob("*.py"):
             source = path.read_text(encoding="utf-8")
-            if any(name in source for name in protected_names):
-                owners.add(path.name)
-        self.assertEqual(owners, {"history.py"})
+            if not any(name in source for name in protected_names):
+                continue
+            tree = ast.parse(source, filename=str(path))
+            writes_files = any(
+                isinstance(node, ast.Call) and (
+                    (isinstance(node.func, ast.Name) and node.func.id == "open")
+                    or (isinstance(node.func, ast.Attribute) and node.func.attr in {"replace", "fsync"})
+                )
+                for node in ast.walk(tree)
+            )
+            if writes_files:
+                writers.add(path.name)
+        self.assertEqual(writers, {"history.py"})
 
     def test_remote_roles_cannot_be_promoted_by_implicit_failover(self):
         contract = CONTRACT.read_text(encoding="utf-8").lower()

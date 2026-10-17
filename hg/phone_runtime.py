@@ -4,6 +4,33 @@ from __future__ import annotations
 import json, os, secrets, urllib.error, urllib.request
 from .authority import authorize
 from .history import StateStore
+from .sqlite_state import SQLiteStateStore
+
+
+def open_state_store(state_dir):
+    """Select one explicit backend and refuse ambiguous mixed-state directories."""
+    backend = os.environ.get("HG_STATE_BACKEND", "legacy").strip().lower()
+    sqlite_path = os.path.join(state_dir, "hg2-state.sqlite3")
+    legacy_paths = (
+        os.path.join(state_dir, "history.jsonl"),
+        os.path.join(state_dir, "head.json"),
+        os.path.join(state_dir, "state.json"),
+        os.path.join(state_dir, "runtime_id"),
+    )
+    legacy_present = any(os.path.exists(path) for path in legacy_paths)
+    sqlite_present = os.path.exists(sqlite_path)
+
+    if backend == "legacy":
+        if sqlite_present:
+            raise RuntimeError("HG_STATE_BACKEND_CONFLICT")
+        return StateStore(state_dir)
+    if backend == "sqlite":
+        if legacy_present and sqlite_present:
+            raise RuntimeError("HG_STATE_BACKEND_CONFLICT")
+        if legacy_present:
+            raise RuntimeError("HG_STATE_MIGRATION_REQUIRED")
+        return SQLiteStateStore(state_dir)
+    raise RuntimeError("UNSUPPORTED_HG_STATE_BACKEND")
 
 
 class PhoneRuntime:
@@ -13,7 +40,7 @@ class PhoneRuntime:
         self.edge_token = edge_token or os.environ.get("HG_EDGE_TOKEN", "")
         self.device_id = device_id or os.environ.get("HG_DEVICE_ID") or "phone-" + secrets.token_hex(4)
         self.timeout = timeout
-        self.store = StateStore(self.state_dir)
+        self.store = open_state_store(self.state_dir)
 
     def health(self):
         return {"ok": True, "product": "HG", "runtime_id": self.store.runtime_id,

@@ -6,6 +6,7 @@ from hg.authority import ALLOWED, FORBIDDEN, authorize
 from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest
 from hg.identity import PRODUCT_ID, identity
 from hg.phone_runtime import PhoneRuntime
+from hg.sqlite_state import SQLiteStateStore
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOKEN = "edge-token-x"
@@ -216,6 +217,40 @@ class PhoneTests(unittest.TestCase):
             s = rt.start_session()
             self.assertEqual(s["product"], "HG")
             self.assertEqual(rt.store.audit_export()["events"], 2)
+
+    def test_sqlite_backend_is_explicit_opt_in_and_offline_capable(self):
+        with tempfile.TemporaryDirectory() as d, patch.dict(os.environ, {"HG_STATE_BACKEND": "sqlite"}, clear=False):
+            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.1)
+            try:
+                self.assertTrue(rt.health()["ok"])
+                self.assertFalse(rt.heartbeat())
+                session = rt.start_session()
+                self.assertEqual(session["product"], "HG")
+                self.assertEqual(rt.store.audit_export()["events"], 2)
+                self.assertTrue(os.path.exists(os.path.join(d, "hg2-state.sqlite3")))
+            finally:
+                rt.store.close()
+
+    def test_sqlite_backend_refuses_legacy_state_without_migration(self):
+        with tempfile.TemporaryDirectory() as d:
+            StateStore(d)
+            with patch.dict(os.environ, {"HG_STATE_BACKEND": "sqlite"}, clear=False):
+                with self.assertRaisesRegex(RuntimeError, "HG_STATE_MIGRATION_REQUIRED"):
+                    PhoneRuntime(state_dir=d)
+
+    def test_mixed_state_backends_fail_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            sqlite_store = SQLiteStateStore(d)
+            sqlite_store.close()
+            StateStore(d)
+            with patch.dict(os.environ, {"HG_STATE_BACKEND": "sqlite"}, clear=False):
+                with self.assertRaisesRegex(RuntimeError, "HG_STATE_BACKEND_CONFLICT"):
+                    PhoneRuntime(state_dir=d)
+
+    def test_unknown_state_backend_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d, patch.dict(os.environ, {"HG_STATE_BACKEND": "invalid"}, clear=False):
+            with self.assertRaisesRegex(RuntimeError, "UNSUPPORTED_HG_STATE_BACKEND"):
+                PhoneRuntime(state_dir=d)
 
     def test_edge_roundtrip(self):
         p = patch.dict(os.environ, {"HG_EDGE_TOKEN": TOKEN}, clear=False)
