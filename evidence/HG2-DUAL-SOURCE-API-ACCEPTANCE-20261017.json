@@ -126,14 +126,14 @@
     }
   },
   "durable_replication_enabled": false,
-  "expected_commit": "d118d48a925b7e046e41cdfd35c3723dae543959",
+  "expected_commit": "f88bf1adb43da3bf102f8536862a3c948f5c7c4a",
   "expected_source_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
-  "finished_at_unix": 1792233710,
+  "finished_at_unix": 1792233820,
   "initial_active_memory_count": 31,
   "library_assets_expected": 4,
   "library_quarantine_count": 13,
   "model_provider_called": false,
-  "process_pid": "18551",
+  "process_pid": "19544",
   "schema": "HG2_SINGLE_SYSTEM_STAGING_ACCEPTANCE_V1",
   "status": "PASS"
 }

@@ -1,13 +1,13 @@
 {
   "api_acceptance": {
-    "candidate_commit": "d118d48a925b7e046e41cdfd35c3723dae543959",
+    "candidate_commit": "f88bf1adb43da3bf102f8536862a3c948f5c7c4a",
     "checks_passed": 17,
     "checks_total": 17,
     "credentials_recorded": false,
     "model_provider_called": false,
     "remote_durable_called": false,
     "source_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
-    "staging_pid": 18551,
+    "staging_pid": 19544,
     "status": "PASS"
   },
   "blockers": [
