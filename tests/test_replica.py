@@ -136,7 +136,7 @@ class ReplicaTests(unittest.TestCase):
         self.addCleanup(server.server_close)
         self.addCleanup(server.shutdown)
         base = "http://127.0.0.1:%d" % server.server_address[1]
-        outbox = DurableOutbox(self.source, base_url=base, token=token, timeout=2)
+        outbox = DurableOutbox(self.source, base_url=base, token=token, allowed_scopes={"private"}, timeout=2)
         result = outbox.deliver_once()
         self.assertEqual(result["status"], "ACKNOWLEDGED")
         self.assertEqual(outbox.status()["pending_count"], 0)

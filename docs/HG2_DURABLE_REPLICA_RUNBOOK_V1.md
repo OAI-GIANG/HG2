@@ -12,6 +12,7 @@ Use a dedicated private environment file owned by the service account, mode 0600
 
 - HG_REPLICA_TOKEN: a dedicated secret with at least 32 characters and only the MEMORY_PERSIST capability.
 - HG_REPLICA_ALLOWED_SCOPES: explicit comma-separated memory scopes accepted by policy; wildcard is forbidden.
+- HG_DURABLE_MEMORY_SCOPES (phone sender): explicit comma-separated allowlist of scopes that the phone may replicate to this receiver. The sender rejects an absent/wildcard allowlist and never sends events outside this set. Excluded events remain only on the phone and are reported separately.
 - HG_REPLICA_DB: SQLite database path on a private durable filesystem.
 - HG_REPLICA_BIND=127.0.0.1 and HG_REPLICA_PORT=8890.
 

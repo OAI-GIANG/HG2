@@ -46,8 +46,9 @@ class HGHTTPServer(ThreadingHTTPServer):
         self.runtime = runtime or PhoneRuntime()
         self.read_token = os.environ.get("HG_API_READ_TOKEN", "")
         self.write_token = os.environ.get("HG_API_WRITE_TOKEN", "")
-        if not self.read_token or not self.write_token:
-            raise RuntimeError("HG_API_READ_TOKEN and HG_API_WRITE_TOKEN must be configured separately")
+        if (not self.read_token or not self.write_token
+                or hmac.compare_digest(self.read_token, self.write_token)):
+            raise RuntimeError("HG_API_READ_TOKEN and HG_API_WRITE_TOKEN must be distinct non-empty credentials")
         self.principal_id = os.environ.get("HG_API_PRINCIPAL_ID", "phone-owner")
         self.read_scopes = _scopes("HG_MEMORY_READ_SCOPES")
         self.write_scopes = _scopes("HG_MEMORY_WRITE_SCOPES")

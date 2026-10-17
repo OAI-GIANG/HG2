@@ -45,7 +45,7 @@ def runtime_identity(root: str | Path | None = None, *, commit: str | None = Non
         "source_file_count": len(manifest["files"]),
         "process_pid": os.getpid(),
         "python_version": platform.python_version(),
-        "entrypoint": str((repo_root / "hg" / "server.py").resolve()),
+        "entrypoint": "hg/server.py",
     }
 
 

@@ -1,7 +1,6 @@
 import json, tempfile, unittest
-from pathlib import Path
 from urllib.error import HTTPError
-from hg.history import StateStore
+from hg.history import StateStore, digest
 from hg.durable import DurableOutbox, DurableNotConfigured, DurableContractMismatch, DurableDeliveryError, CONTRACT
 
 class Resp:
@@ -20,22 +19,55 @@ class FakeProvider:
   body=json.loads(req.data)
   return Resp(self.receipt(body) if callable(self.receipt) else (self.receipt or {}))
 
+def make_record(record_id, scope_id, content):
+ record={"id":record_id,"type":"fact","title":"T","content":content,"scope_id":scope_id,
+         "owner_id":"test-owner","source":"test","provenance":"unit-test","status":"active","version":1}
+ record["checksum"]=digest(record)
+ return record
+
 class DurableTests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
-  self.store=StateStore(self.tmp.name); self.store.emit('memory.mutated',{'record':{'id':'m1','content':'secret user memory'},'idempotency_key':'k'},event_id='memory:test-1')
+  self.store=StateStore(self.tmp.name)
+  self.store.emit('memory.mutated',{'record':make_record('m1','private','secret user memory'),'idempotency_key':'k'},event_id='memory:test-1')
  def test_missing_config_fails_closed(self):
-  d=DurableOutbox(self.store,base_url='',token='')
+  d=DurableOutbox(self.store,base_url='',token='',allowed_scopes={"private"})
   self.assertEqual(d.status()['pending_count'],1)
   with self.assertRaises(DurableNotConfigured): d.deliver_once()
+ def test_missing_scope_allowlist_fails_closed_without_network(self):
+  f=FakeProvider({'contract':CONTRACT,'memory_schema':'HG_MEMORY_V1','supports_tombstones':True,'supports_scopes':True,'required_scope':'MEMORY_PERSIST'},{})
+  d=DurableOutbox(self.store,base_url='https://durable.test',token='least-scope-test-token',opener=f)
+  self.assertEqual(d.status()['status'],'NOT_CONFIGURED')
+  with self.assertRaises(DurableNotConfigured): d.deliver_once()
+  self.assertEqual(f.calls,[])
+ def test_wildcard_scope_allowlist_is_rejected(self):
+  d=DurableOutbox(self.store,base_url='https://durable.test',token='least-scope-test-token',allowed_scopes='*')
+  with self.assertRaises(DurableNotConfigured): d.deliver_once()
+ def test_excluded_scope_is_never_sent(self):
+  self.store.emit('memory.mutated',{'record':make_record('m2','secret','must not leave phone')},event_id='memory:test-2')
+  def receipt(body): return {'ok':True,'contract':CONTRACT,'batch_id':body['batch_id'],'accepted_count':len(body['events'])}
+  caps={'contract':CONTRACT,'memory_schema':'HG_MEMORY_V1','supports_tombstones':True,'supports_scopes':True,'required_scope':'MEMORY_PERSIST'}
+  f=FakeProvider(caps,receipt)
+  d=DurableOutbox(self.store,base_url='https://durable.test',token='least-scope-test-token',allowed_scopes={"private"},opener=f)
+  self.assertEqual(d.status()['pending_count'],1)
+  self.assertEqual(d.status()['excluded_scope_count'],1)
+  self.assertEqual(d.status()['allowed_scope_count'],1)
+  self.assertNotIn('allowed_scopes',d.status())
+  out=d.deliver_once(); self.assertEqual(out['status'],'ACKNOWLEDGED')
+  sent=json.loads(next(x[3] for x in f.calls if x[1]=='POST'))
+  scopes={e['event']['payload']['record']['scope_id'] for e in sent['events']}
+  self.assertEqual(scopes,{'private'})
+  self.assertNotIn('must not leave phone',json.dumps(sent))
+  self.assertEqual(d.status()['excluded_scope_count'],1)
  def test_legacy_backend_contract_mismatch_never_posts(self):
-  f=FakeProvider(); d=DurableOutbox(self.store,base_url='http://127.0.0.1:9099',token='least-scope-test-token',opener=f)
+  f=FakeProvider(); d=DurableOutbox(self.store,base_url='http://127.0.0.1:9099',token='least-scope-test-token',allowed_scopes={"private"},opener=f)
   with self.assertRaises(DurableContractMismatch): d.deliver_once()
   self.assertEqual(len(f.calls),1); self.assertTrue(f.calls[0][0].endswith('/backend/hg2/capabilities'))
  def test_successful_delivery_is_acknowledged_idempotently(self):
   def receipt(body): return {'ok':True,'contract':CONTRACT,'batch_id':body['batch_id'],'accepted_count':len(body['events'])}
-  f=FakeProvider({'contract':CONTRACT,'memory_schema':'HG_MEMORY_V1','supports_tombstones':True,'supports_scopes':True,'required_scope':'MEMORY_PERSIST'},receipt)
-  d=DurableOutbox(self.store,base_url='https://durable.test',token='least-scope-test-token',opener=f)
+  caps={'contract':CONTRACT,'memory_schema':'HG_MEMORY_V1','supports_tombstones':True,'supports_scopes':True,'required_scope':'MEMORY_PERSIST'}
+  f=FakeProvider(caps,receipt)
+  d=DurableOutbox(self.store,base_url='https://durable.test',token='least-scope-test-token',allowed_scopes={"private"},opener=f)
   out=d.deliver_once(); self.assertEqual(out['status'],'ACKNOWLEDGED')
   self.assertEqual(d.status()['pending_count'],0); self.assertEqual(d.status()['acknowledged_count'],1)
   self.assertEqual(d.deliver_once()['status'],'EMPTY')
@@ -43,13 +75,15 @@ class DurableTests(unittest.TestCase):
   sent=json.loads(next(x[3] for x in f.calls if x[1]=='POST'))
   self.assertEqual(sent['contract'],CONTRACT); self.assertEqual(sent['events'][0]['event']['payload']['record']['content'],'secret user memory')
  def test_receipt_mismatch_does_not_acknowledge(self):
-  f=FakeProvider({'contract':CONTRACT,'memory_schema':'HG_MEMORY_V1','supports_tombstones':True,'supports_scopes':True,'required_scope':'MEMORY_PERSIST'},{'ok':True,'contract':CONTRACT,'batch_id':'wrong','accepted_count':1})
-  d=DurableOutbox(self.store,base_url='https://durable.test',token='least-scope-test-token',opener=f)
+  caps={'contract':CONTRACT,'memory_schema':'HG_MEMORY_V1','supports_tombstones':True,'supports_scopes':True,'required_scope':'MEMORY_PERSIST'}
+  f=FakeProvider(caps,{'ok':True,'contract':CONTRACT,'batch_id':'wrong','accepted_count':1})
+  d=DurableOutbox(self.store,base_url='https://durable.test',token='least-scope-test-token',allowed_scopes={"private"},opener=f)
   with self.assertRaises(DurableDeliveryError): d.deliver_once()
   self.assertEqual(d.status()['pending_count'],1)
  def test_non_loopback_cleartext_is_rejected_before_network(self):
-  f=FakeProvider({'contract':CONTRACT,'memory_schema':'HG_MEMORY_V1','supports_tombstones':True,'supports_scopes':True,'required_scope':'MEMORY_PERSIST'},{})
-  d=DurableOutbox(self.store,base_url='http://durable.example',token='least-scope-test-token',opener=f)
+  caps={'contract':CONTRACT,'memory_schema':'HG_MEMORY_V1','supports_tombstones':True,'supports_scopes':True,'required_scope':'MEMORY_PERSIST'}
+  f=FakeProvider(caps,{})
+  d=DurableOutbox(self.store,base_url='http://durable.example',token='least-scope-test-token',allowed_scopes={"private"},opener=f)
   with self.assertRaises(DurableDeliveryError): d.deliver_once()
   self.assertEqual(f.calls,[])
 

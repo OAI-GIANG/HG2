@@ -114,4 +114,9 @@ class ServerTests(unittest.TestCase):
         with patch.dict(os.environ, {"HG_API_READ_TOKEN":"", "HG_API_WRITE_TOKEN":""}, clear=False):
             with self.assertRaises(RuntimeError): HGHTTPServer(("127.0.0.1", 0), runtime=self.rt)
 
+    def test_startup_fails_when_read_and_write_credentials_match(self):
+        with patch.dict(os.environ, {"HG_API_READ_TOKEN":"same", "HG_API_WRITE_TOKEN":"same"}, clear=False):
+            with self.assertRaisesRegex(RuntimeError, "distinct"):
+                HGHTTPServer(("127.0.0.1", 0), runtime=self.rt)
+
 if __name__ == "__main__": unittest.main()

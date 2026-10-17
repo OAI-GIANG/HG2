@@ -34,32 +34,57 @@ class DurableDeliveryError(DurableError):
     code = "DURABLE_DELIVERY_FAILED"
 
 class DurableOutbox:
-    def __init__(self, store, *, base_url=None, token=None, timeout=4, opener=None):
+    def __init__(self, store, *, base_url=None, token=None, allowed_scopes=None, timeout=4, opener=None):
         self.store=store
         self.base_url=(base_url if base_url is not None else os.environ.get("HG_DURABLE_URL", "")).strip().rstrip("/")
         self.token=token if token is not None else os.environ.get("HG_DURABLE_TOKEN", "")
+        raw_scopes = (allowed_scopes if allowed_scopes is not None
+                      else os.environ.get("HG_DURABLE_MEMORY_SCOPES", ""))
+        if isinstance(raw_scopes, str):
+            raw_scopes = raw_scopes.split(",")
+        self.allowed_scopes = frozenset(s.strip() for s in raw_scopes
+                                        if isinstance(s, str) and s.strip() and s.strip() != "*")
         self.timeout=max(1,min(30,int(timeout)))
         self.opener=opener or _urlopen_without_redirect
 
-    def status(self):
+    @staticmethod
+    def _batch_id(event):
+        return hashlib.sha256(canonical({"event_id":event["event_id"],
+                                         "record_hash":event["record_hash"]}).encode()).hexdigest()
+
+    def _pending(self):
         events=self.store.replay()
         acked=set()
         for e in events:
             if e.get("event_type")=="durable.batch.acknowledged":
-                p=e.get("payload",{})
-                acked.update(p.get("event_batch_ids", []))
-        pending=[]
+                acked.update(e.get("payload",{}).get("event_batch_ids", []))
+        pending, excluded = [], 0
         for e in events:
             if e.get("event_type") not in MEMORY_EVENTS: continue
-            bid=hashlib.sha256(canonical({"event_id":e["event_id"],"record_hash":e["record_hash"]}).encode()).hexdigest()
-            if bid not in acked: pending.append({"batch_id":bid,"event":e})
-        return {"configured":bool(self.base_url and self.token),"contract":CONTRACT,
-                "pending_count":len(pending),"acknowledged_count":len(acked),
+            bid=self._batch_id(e)
+            if bid in acked: continue
+            record=(e.get("payload") or {}).get("record")
+            scope=record.get("scope_id") if isinstance(record, dict) else None
+            if not self.allowed_scopes or not isinstance(scope, str) or scope not in self.allowed_scopes:
+                excluded += 1
+                continue
+            pending.append({"batch_id":bid,"event":e})
+        return pending, acked, excluded
+
+    def status(self):
+        pending, acked, excluded = self._pending()
+        configured=bool(self.base_url and self.token and self.allowed_scopes)
+        return {"configured":configured,"contract":CONTRACT,
+                "pending_count":len(pending),"excluded_scope_count":excluded,
+                "scope_allowlist_configured":bool(self.allowed_scopes),
+                "allowed_scope_count":len(self.allowed_scopes),
+                "acknowledged_count":len(acked),
                 "local_authority":"PHONE_EVENT_LOG","remote_is_authority":False,
-                "status":"READY" if self.base_url and self.token else "NOT_CONFIGURED"}
+                "status":"READY" if configured else "NOT_CONFIGURED"}
 
     def deliver_once(self, limit=25):
-        if not self.base_url or not self.token: raise DurableNotConfigured("durable URL/token not configured")
+        if not self.base_url or not self.token or not self.allowed_scopes:
+            raise DurableNotConfigured("durable URL/token/explicit memory scope allowlist required")
         parts = urlsplit(self.base_url)
         if (not parts.hostname or parts.username or parts.password or parts.query or parts.fragment
                 or parts.path not in ("", "/")):
@@ -82,16 +107,12 @@ class DurableOutbox:
             raise DurableDeliveryError("durable capability request failed: "+type(exc).__name__) from None
         if caps.get("contract")!=CONTRACT or caps.get("memory_schema")!="HG_MEMORY_V1" or caps.get("supports_tombstones") is not True or caps.get("supports_scopes") is not True or caps.get("required_scope")!="MEMORY_PERSIST":
             raise DurableContractMismatch("backend capabilities do not satisfy HG2 memory contract")
-        st=self.status(); acked=set()
-        for event in self.store.replay():
-            if event.get("event_type")=="durable.batch.acknowledged": acked.update(event.get("payload",{}).get("event_batch_ids", []))
-        batch=[]
-        for e in self.store.replay():
-            if e.get("event_type") not in MEMORY_EVENTS: continue
-            bid=hashlib.sha256(canonical({"event_id":e["event_id"],"record_hash":e["record_hash"]}).encode()).hexdigest()
-            if bid not in acked: batch.append({"batch_id":bid,"event":e})
-            if len(batch)>=limit: break
-        if not batch: return {"status":"EMPTY","delivered":0,"pending_count":st["pending_count"]}
+        pending, _acked, _excluded = self._pending()
+        st=self.status()
+        batch=pending[:limit]
+        if not batch: return {"status":"EMPTY","delivered":0,
+                              "pending_count":st["pending_count"],
+                              "excluded_scope_count":st["excluded_scope_count"]}
         body={"contract":CONTRACT,"batch_id":hashlib.sha256(canonical([x["batch_id"] for x in batch]).encode()).hexdigest(),"events":batch}
         raw=canonical(body).encode(); post=urllib.request.Request(self.base_url+"/backend/hg2/memory/batch",data=raw,method="POST")
         post.add_header("Authorization","Bearer "+self.token); post.add_header("Content-Type","application/json")
