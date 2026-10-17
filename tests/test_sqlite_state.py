@@ -147,7 +147,7 @@ class SQLiteStateStoreTests(unittest.TestCase):
             store = SQLiteStateStore(directory)
             store.close()
             db = sqlite3.connect(directory + "/hg2-state.sqlite3")
-            db.execute("UPDATE metadata SET value='1' WHERE key='backend_schema'")
+            db.execute("UPDATE metadata SET value='2' WHERE key='backend_schema'")
             db.commit()
             db.close()
             with self.assertRaisesRegex(SQLiteStateError, "state integrity failed"):

@@ -22,11 +22,12 @@ from .contracts import (
     validate_event,
 )
 from .workflow import WorkflowError, transition_task, validate_task
+from .policy import PolicyError, decide_approval, validate_approval_request
 
 _PRODUCT_ID = "HG"
 _OWNER_ID = "phone"
 _REQUIRED_META = ("runtime_id", "state_owner_id", "last_seq", "head_digest", "last_ack_cursor", "last_ack_sequence", "backend_schema")
-_SQLITE_SCHEMA_VERSION = "2"
+_SQLITE_SCHEMA_VERSION = "3"
 
 
 class SQLiteStateError(RuntimeError):
@@ -79,6 +80,45 @@ def _apply_task_event(event: dict[str, Any], tasks: dict[str, dict[str, Any]]) -
         raise WorkflowError("TASK_TRANSITION_RESULT_MISMATCH")
     updated = dict(tasks)
     updated[task_id] = task
+    return updated
+
+
+def _apply_approval_event(event: dict[str, Any], approvals: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Validate approval events against the previous persisted approval projection."""
+    if event["event_type"] == "policy.approval.created":
+        approval = validate_approval_request(event["payload"])
+        approval_id = approval["approval_id"]
+        if approval_id in approvals or approval["status"] != "PENDING" or approval["version"] != 1:
+            raise PolicyError("APPROVAL_CREATE_PROJECTION_INVALID")
+        updated = dict(approvals)
+        updated[approval_id] = approval
+        return updated
+    if event["event_type"] != "policy.approval.decided":
+        return approvals
+    payload = event["payload"]
+    if not isinstance(payload, dict) or set(payload) != {"approval", "transition"}:
+        raise PolicyError("APPROVAL_TRANSITION_EVENT_SCHEMA_INVALID")
+    approval = validate_approval_request(payload["approval"])
+    transition = payload["transition"]
+    if not isinstance(transition, dict) or set(transition) != {"decision", "approver_id", "reason"}:
+        raise PolicyError("APPROVAL_TRANSITION_METADATA_INVALID")
+    approval_id = approval["approval_id"]
+    previous = approvals.get(approval_id)
+    if previous is None:
+        raise PolicyError("APPROVAL_TRANSITION_WITHOUT_REQUEST")
+    if event["actor_id"] != transition["approver_id"]:
+        raise PolicyError("APPROVAL_ACTOR_MISMATCH")
+    expected = decide_approval(
+        previous,
+        decision=transition["decision"],
+        approver_id=transition["approver_id"],
+        now=approval["decided_at"],
+        reason=transition["reason"],
+    )
+    if canonical_json(expected) != canonical_json(approval):
+        raise PolicyError("APPROVAL_TRANSITION_RESULT_MISMATCH")
+    updated = dict(approvals)
+    updated[approval_id] = approval
     return updated
 
 
@@ -140,6 +180,9 @@ class SQLiteStateStore:
                     "CREATE TABLE IF NOT EXISTS tasks (task_id TEXT PRIMARY KEY, task_json TEXT NOT NULL)"
                 )
                 self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS approvals (approval_id TEXT PRIMARY KEY, approval_json TEXT NOT NULL)"
+                )
+                self._conn.execute(
                     "CREATE TABLE IF NOT EXISTS outbox ("
                     "event_id TEXT PRIMARY KEY REFERENCES events(event_id), "
                     "sequence INTEGER NOT NULL UNIQUE, event_digest TEXT NOT NULL, "
@@ -194,6 +237,18 @@ class SQLiteStateStore:
         self._set_meta("head_digest", event["record_digest"])
 
     def _apply_projection(self, event: dict[str, Any]) -> None:
+        if event["event_type"] in ("policy.approval.created", "policy.approval.decided"):
+            actual_approvals = {
+                row["approval_id"]: parse_json_no_duplicate_keys(row["approval_json"])
+                for row in self._conn.execute("SELECT approval_id, approval_json FROM approvals")
+            }
+            projected_approvals = _apply_approval_event(event, actual_approvals)
+            approval_id = event["payload"]["approval_id"] if event["event_type"] == "policy.approval.created" else event["payload"]["approval"]["approval_id"]
+            self._conn.execute(
+                "INSERT INTO approvals(approval_id, approval_json) VALUES(?, ?) "
+                "ON CONFLICT(approval_id) DO UPDATE SET approval_json=excluded.approval_json",
+                (approval_id, canonical_json(projected_approvals[approval_id])),
+            )
         if event["event_type"] in ("workflow.task.created", "workflow.task.transitioned"):
             actual_tasks = {
                 row["task_id"]: parse_json_no_duplicate_keys(row["task_json"])
@@ -254,6 +309,7 @@ class SQLiteStateStore:
                 raise SQLiteStateError("MIGRATION_DIGEST_INVALID")
         previous = ZERO_DIGEST
         task_projection: dict[str, dict[str, Any]] = {}
+        approval_projection: dict[str, dict[str, Any]] = {}
         for expected_sequence, candidate in enumerate(events, 1):
             event = validate_event(candidate)
             if event["sequence"] != expected_sequence or event["previous_digest"] != previous:
@@ -262,8 +318,9 @@ class SQLiteStateStore:
                 raise SQLiteStateError("MIGRATION_TARGET_OWNER_MISMATCH")
             try:
                 task_projection = _apply_task_event(event, task_projection)
-            except (WorkflowError, ContractError, KeyError, TypeError) as exc:
-                raise SQLiteStateError("MIGRATION_TASK_PROJECTION_INVALID") from exc
+                approval_projection = _apply_approval_event(event, approval_projection)
+            except (WorkflowError, PolicyError, ContractError, KeyError, TypeError) as exc:
+                raise SQLiteStateError("MIGRATION_PROJECTION_INVALID") from exc
             previous = event["record_digest"]
 
         with self._lock:
@@ -313,6 +370,20 @@ class SQLiteStateStore:
             return None
         with self._lock:
             return self._event_by_idempotency(key)
+
+    def get_approval(self, approval_id: str) -> dict[str, Any] | None:
+        if not isinstance(approval_id, str) or not approval_id:
+            return None
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT approval_json FROM approvals WHERE approval_id=?", (approval_id,)
+            ).fetchone()
+            if row is None:
+                return None
+            try:
+                return validate_approval_request(parse_json_no_duplicate_keys(row["approval_json"]))
+            except (ContractError, PolicyError) as exc:
+                raise SQLiteStateError("APPROVAL_PROJECTION_INVALID") from exc
 
     def get_task(self, task_id: str) -> dict[str, Any] | None:
         if not isinstance(task_id, str) or not task_id:
@@ -509,6 +580,7 @@ class SQLiteStateStore:
                 expected_counters: dict[str, int] = {}
                 expected_sessions: dict[str, str] = {}
                 expected_tasks: dict[str, dict[str, Any]] = {}
+                expected_approvals: dict[str, dict[str, Any]] = {}
                 migration_last_ref = None
                 rows = self._conn.execute("SELECT * FROM events ORDER BY sequence").fetchall()
                 for row in rows:
@@ -549,6 +621,11 @@ class SQLiteStateStore:
                         return {"ok": False, "events": expected_seq - 1, "reason": "duplicate_event_id"}
                     seen_ids.add(event["event_id"])
                     expected_counters[event["event_type"]] = expected_counters.get(event["event_type"], 0) + 1
+                    if event["event_type"] in ("policy.approval.created", "policy.approval.decided"):
+                        try:
+                            expected_approvals = _apply_approval_event(event, expected_approvals)
+                        except (PolicyError, ContractError, KeyError, TypeError):
+                            return {"ok": False, "events": expected_seq - 1, "reason": "approval_event_projection_invalid"}
                     if event["event_type"] in ("workflow.task.created", "workflow.task.transitioned"):
                         try:
                             expected_tasks = _apply_task_event(event, expected_tasks)
@@ -603,6 +680,13 @@ class SQLiteStateStore:
                         return {"ok": False, "events": last_seq, "reason": "outbox_status_invalid"}
                 if int(meta["last_ack_cursor"]) != last_cursor or int(meta["last_ack_sequence"]) != last_acked_sequence:
                     return {"ok": False, "events": last_seq, "reason": "outbox_checkpoint_mismatch"}
+                actual_approvals = {
+                    row["approval_id"]: row["approval_json"]
+                    for row in self._conn.execute("SELECT approval_id, approval_json FROM approvals")
+                }
+                expected_approval_json = {key: canonical_json(value) for key, value in expected_approvals.items()}
+                if actual_approvals != expected_approval_json:
+                    return {"ok": False, "events": last_seq, "reason": "approval_projection_mismatch"}
                 actual_tasks = {
                     row["task_id"]: row["task_json"]
                     for row in self._conn.execute("SELECT task_id, task_json FROM tasks")
@@ -675,6 +759,10 @@ class SQLiteStateStore:
                 "tasks": {
                     row["task_id"]: validate_task(parse_json_no_duplicate_keys(row["task_json"]))
                     for row in self._conn.execute("SELECT task_id, task_json FROM tasks")
+                },
+                "approvals": {
+                    row["approval_id"]: validate_approval_request(parse_json_no_duplicate_keys(row["approval_json"]))
+                    for row in self._conn.execute("SELECT approval_id, approval_json FROM approvals")
                 },
             },
         }
