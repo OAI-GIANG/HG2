@@ -11,6 +11,7 @@
     "hg.history",
     "hg.sqlite_state",
     "hg.migration",
+    "hg.recovery",
     "hg.sync",
     "hg.workflow",
     "hg.phone_runtime",
