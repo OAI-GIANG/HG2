@@ -24,7 +24,7 @@ from .contracts import (
 
 _PRODUCT_ID = "HG"
 _OWNER_ID = "phone"
-_REQUIRED_META = ("runtime_id", "state_owner_id", "last_seq", "head_digest")
+_REQUIRED_META = ("runtime_id", "state_owner_id", "last_seq", "head_digest", "last_ack_cursor", "last_ack_sequence", "backend_schema")
 
 
 class SQLiteStateError(RuntimeError):
@@ -89,6 +89,14 @@ class SQLiteStateStore:
                 self._conn.execute(
                     "CREATE TABLE IF NOT EXISTS counters (event_type TEXT PRIMARY KEY, count INTEGER NOT NULL CHECK(count >= 0))"
                 )
+                self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS outbox ("
+                    "event_id TEXT PRIMARY KEY REFERENCES events(event_id), "
+                    "sequence INTEGER NOT NULL UNIQUE, event_digest TEXT NOT NULL, "
+                    "status TEXT NOT NULL CHECK(status IN ('pending', 'acked')), "
+                    "attempts INTEGER NOT NULL DEFAULT 0 CHECK(attempts >= 0), "
+                    "created_at REAL NOT NULL, acked_at REAL, remote_cursor INTEGER)"
+                )
                 event_count = self._conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
                 meta = self._meta()
                 if event_count == 0 and not meta:
@@ -97,6 +105,9 @@ class SQLiteStateStore:
                     self._set_meta("state_owner_id", _OWNER_ID)
                     self._set_meta("last_seq", "0")
                     self._set_meta("head_digest", ZERO_DIGEST)
+                    self._set_meta("last_ack_cursor", "0")
+                    self._set_meta("last_ack_sequence", "0")
+                    self._set_meta("backend_schema", "1")
                     genesis = create_event(
                         event_type="hg.genesis",
                         sequence=1,
@@ -169,7 +180,10 @@ class SQLiteStateStore:
         authority_context: dict[str, Any] | None = None,
         idempotency_key: str | None = None,
         evidence_refs: list[str] | None = None,
+        sync_required: bool = False,
     ) -> dict[str, Any]:
+        if not isinstance(sync_required, bool):
+            raise SQLiteStateError("INVALID_SYNC_REQUIRED")
         effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
         with self._lock:
             self._conn.execute("BEGIN IMMEDIATE")
@@ -185,6 +199,9 @@ class SQLiteStateStore:
                         )
                         if not same_operation:
                             raise IdempotencyConflict("EVENT_ID_REUSED")
+                        has_outbox = self._conn.execute("SELECT 1 FROM outbox WHERE event_id=?", (event_id,)).fetchone() is not None
+                        if has_outbox != sync_required:
+                            raise IdempotencyConflict("EVENT_DELIVERY_POLICY_CONFLICT")
                         self._conn.execute("COMMIT")
                         return existing
                 if idempotency_key is not None:
@@ -198,6 +215,9 @@ class SQLiteStateStore:
                         )
                         if not same_operation:
                             raise IdempotencyConflict("IDEMPOTENCY_KEY_REUSED")
+                        has_outbox = self._conn.execute("SELECT 1 FROM outbox WHERE event_id=?", (existing["event_id"],)).fetchone() is not None
+                        if has_outbox != sync_required:
+                            raise IdempotencyConflict("EVENT_DELIVERY_POLICY_CONFLICT")
                         self._conn.execute("COMMIT")
                         return existing
                 meta = self._meta()
@@ -219,8 +239,91 @@ class SQLiteStateStore:
                     recorded_at=self._clock(),
                 )
                 self._insert_event(event)
+                if sync_required:
+                    self._conn.execute(
+                        "INSERT INTO outbox(event_id, sequence, event_digest, status, created_at) VALUES(?, ?, ?, 'pending', ?)",
+                        (event["event_id"], event["sequence"], event["record_digest"], event["recorded_at"]),
+                    )
                 self._conn.execute("COMMIT")
                 return event
+            except Exception:
+                if self._conn.in_transaction:
+                    self._conn.execute("ROLLBACK")
+                raise
+
+    def pending_outbox(self, limit: int = 100) -> list[dict[str, Any]]:
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 1000:
+            raise SQLiteStateError("INVALID_OUTBOX_LIMIT")
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT o.event_id, o.sequence, o.event_digest, o.attempts, o.created_at, e.event_json "
+                "FROM outbox o JOIN events e ON e.event_id=o.event_id "
+                "WHERE o.status='pending' ORDER BY o.sequence LIMIT ?",
+                (limit,),
+            ).fetchall()
+            return [
+                {
+                    "event_id": row["event_id"],
+                    "sequence": row["sequence"],
+                    "event_digest": row["event_digest"],
+                    "attempts": row["attempts"],
+                    "created_at": row["created_at"],
+                    "event": parse_json_no_duplicate_keys(row["event_json"]),
+                }
+                for row in rows
+            ]
+
+    def record_outbox_attempt(self, event_id: str) -> int:
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                row = self._conn.execute(
+                    "SELECT attempts, status FROM outbox WHERE event_id=?", (event_id,)
+                ).fetchone()
+                if row is None or row["status"] != "pending":
+                    raise SQLiteStateError("OUTBOX_EVENT_NOT_PENDING")
+                attempts = row["attempts"] + 1
+                self._conn.execute("UPDATE outbox SET attempts=? WHERE event_id=?", (attempts, event_id))
+                self._conn.execute("COMMIT")
+                return attempts
+            except Exception:
+                if self._conn.in_transaction:
+                    self._conn.execute("ROLLBACK")
+                raise
+
+    def acknowledge_outbox(self, event_id: str, remote_cursor: int) -> bool:
+        if isinstance(remote_cursor, bool) or not isinstance(remote_cursor, int) or remote_cursor < 1:
+            raise SQLiteStateError("INVALID_REMOTE_CURSOR")
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                row = self._conn.execute("SELECT * FROM outbox WHERE event_id=?", (event_id,)).fetchone()
+                if row is None:
+                    raise SQLiteStateError("OUTBOX_EVENT_NOT_FOUND")
+                if row["status"] == "acked":
+                    if row["remote_cursor"] == remote_cursor:
+                        self._conn.execute("COMMIT")
+                        return True
+                    raise SQLiteStateError("OUTBOX_ACK_CONFLICT")
+                meta = self._meta()
+                if remote_cursor <= int(meta["last_ack_cursor"]):
+                    raise SQLiteStateError("REMOTE_CURSOR_NOT_MONOTONIC")
+                if row["sequence"] <= int(meta["last_ack_sequence"]):
+                    raise SQLiteStateError("OUTBOX_SEQUENCE_NOT_MONOTONIC")
+                earlier_pending = self._conn.execute(
+                    "SELECT COUNT(*) FROM outbox WHERE status='pending' AND sequence < ?",
+                    (row["sequence"],),
+                ).fetchone()[0]
+                if earlier_pending:
+                    raise SQLiteStateError("OUTBOX_ACK_OUT_OF_ORDER")
+                self._conn.execute(
+                    "UPDATE outbox SET status='acked', acked_at=?, remote_cursor=? WHERE event_id=?",
+                    (self._clock(), remote_cursor, event_id),
+                )
+                self._set_meta("last_ack_cursor", str(remote_cursor))
+                self._set_meta("last_ack_sequence", str(row["sequence"]))
+                self._conn.execute("COMMIT")
+                return True
             except Exception:
                 if self._conn.in_transaction:
                     self._conn.execute("ROLLBACK")
@@ -290,9 +393,41 @@ class SQLiteStateStore:
                 }
                 if actual_sessions != expected_sessions:
                     return {"ok": False, "events": last_seq, "reason": "session_projection_mismatch"}
+                outbox_rows = self._conn.execute("SELECT * FROM outbox ORDER BY sequence").fetchall()
+                last_cursor = 0
+                last_acked_sequence = 0
+                pending_sequences = []
+                for outbox_row in outbox_rows:
+                    event_row = self._conn.execute(
+                        "SELECT record_digest FROM events WHERE event_id=?", (outbox_row["event_id"],)
+                    ).fetchone()
+                    if event_row is None or event_row["record_digest"] != outbox_row["event_digest"]:
+                        return {"ok": False, "events": last_seq, "reason": "outbox_event_mismatch"}
+                    if outbox_row["status"] == "pending":
+                        if outbox_row["acked_at"] is not None or outbox_row["remote_cursor"] is not None:
+                            return {"ok": False, "events": last_seq, "reason": "outbox_status_order_mismatch"}
+                        pending_sequences.append(outbox_row["sequence"])
+                    elif outbox_row["status"] == "acked":
+                        if any(pending_sequence < outbox_row["sequence"] for pending_sequence in pending_sequences):
+                            return {"ok": False, "events": last_seq, "reason": "outbox_ack_order_mismatch"}
+                        cursor = outbox_row["remote_cursor"]
+                        if cursor is None or cursor <= last_cursor or outbox_row["sequence"] <= last_acked_sequence:
+                            return {"ok": False, "events": last_seq, "reason": "outbox_cursor_not_monotonic"}
+                        if outbox_row["acked_at"] is None:
+                            return {"ok": False, "events": last_seq, "reason": "outbox_ack_time_missing"}
+                        last_cursor = cursor
+                        last_acked_sequence = outbox_row["sequence"]
+                    else:
+                        return {"ok": False, "events": last_seq, "reason": "outbox_status_invalid"}
+                if int(meta["last_ack_cursor"]) != last_cursor or int(meta["last_ack_sequence"]) != last_acked_sequence:
+                    return {"ok": False, "events": last_seq, "reason": "outbox_checkpoint_mismatch"}
+                if meta["backend_schema"] != "1":
+                    return {"ok": False, "events": last_seq, "reason": "unsupported_backend_schema"}
                 return {
                     "ok": True, "events": last_seq, "last_seq": last_seq,
-                    "head_digest": previous, "reason": "chain_ok",
+                    "head_digest": previous, "last_ack_cursor": last_cursor,
+                    "pending_outbox": sum(1 for item in outbox_rows if item["status"] == "pending"),
+                    "reason": "chain_ok",
                 }
             except (sqlite3.DatabaseError, ContractError, ValueError, TypeError):
                 return {"ok": False, "events": 0, "reason": "state_read_failure"}
@@ -316,6 +451,8 @@ class SQLiteStateStore:
             "events": len(events),
             "last_seq": int(meta["last_seq"]),
             "head_digest": meta["head_digest"],
+            "last_ack_cursor": int(meta["last_ack_cursor"]),
+            "pending_outbox": self._conn.execute("SELECT COUNT(*) FROM outbox WHERE status='pending'").fetchone()[0],
             "verify": verification,
             "state": {"sessions": sessions, "counters": counters},
         }

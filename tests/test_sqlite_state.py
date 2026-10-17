@@ -64,11 +64,12 @@ class SQLiteStateStoreTests(unittest.TestCase):
                 raise RuntimeError("simulated projection failure")
             store._apply_projection = fail
             with self.assertRaisesRegex(RuntimeError, "simulated projection failure"):
-                store.emit("task.created", {"task_id": "t1"})
+                store.emit("task.created", {"task_id": "t1"}, sync_required=True)
             store._apply_projection = original
             after = store.audit_export()
             self.assertEqual(after["events"], before["events"])
             self.assertEqual(after["head_digest"], before["head_digest"])
+            self.assertEqual(after["pending_outbox"], 0)
             self.assertTrue(after["verify"]["ok"])
 
     def test_corrupt_event_fails_closed_on_reopen(self):
@@ -93,6 +94,53 @@ class SQLiteStateStoreTests(unittest.TestCase):
             db.close()
             with self.assertRaisesRegex(SQLiteStateError, "state integrity failed"):
                 SQLiteStateStore(directory)
+
+    def test_outbox_event_and_acknowledgement(self):
+        with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory, clock=lambda: 200.0) as store:
+            event = store.emit("task.created", {"task_id": "t1"}, sync_required=True)
+            pending = store.pending_outbox()
+            self.assertEqual(len(pending), 1)
+            self.assertEqual(pending[0]["event_id"], event["event_id"])
+            self.assertEqual(store.record_outbox_attempt(event["event_id"]), 1)
+            self.assertEqual(store.pending_outbox()[0]["attempts"], 1)
+            self.assertTrue(store.acknowledge_outbox(event["event_id"], 1))
+            self.assertEqual(store.pending_outbox(), [])
+            self.assertTrue(store.acknowledge_outbox(event["event_id"], 1))
+            self.assertEqual(store.verify()["last_ack_cursor"], 1)
+            self.assertTrue(store.verify()["ok"])
+
+    def test_outbox_acknowledgements_are_ordered_and_monotonic(self):
+        with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
+            first = store.emit("task.created", {"task_id": "t1"}, sync_required=True)
+            second = store.emit("task.created", {"task_id": "t2"}, sync_required=True)
+            with self.assertRaisesRegex(SQLiteStateError, "OUTBOX_ACK_OUT_OF_ORDER"):
+                store.acknowledge_outbox(second["event_id"], 2)
+            self.assertTrue(store.acknowledge_outbox(first["event_id"], 2))
+            with self.assertRaisesRegex(SQLiteStateError, "REMOTE_CURSOR_NOT_MONOTONIC"):
+                store.acknowledge_outbox(second["event_id"], 1)
+            self.assertTrue(store.acknowledge_outbox(second["event_id"], 3))
+            self.assertTrue(store.verify()["ok"])
+
+    def test_outbox_retry_cannot_change_delivery_policy(self):
+        with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
+            store.emit("task.created", {"task_id": "t1"}, event_id="fixed-id")
+            with self.assertRaisesRegex(IdempotencyConflict, "EVENT_DELIVERY_POLICY_CONFLICT"):
+                store.emit("task.created", {"task_id": "t1"}, event_id="fixed-id", sync_required=True)
+            self.assertEqual(store.pending_outbox(), [])
+
+    def test_outbox_invalid_cursor_and_missing_event_fail_closed(self):
+        with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
+            event = store.emit("task.created", {"task_id": "t1"}, sync_required=True)
+            with self.assertRaisesRegex(SQLiteStateError, "INVALID_REMOTE_CURSOR"):
+                store.acknowledge_outbox(event["event_id"], True)
+            with self.assertRaisesRegex(SQLiteStateError, "OUTBOX_EVENT_NOT_FOUND"):
+                store.acknowledge_outbox("unknown-event", 1)
+
+    def test_outbox_digest_corruption_is_detected(self):
+        with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
+            event = store.emit("task.created", {"task_id": "t1"}, sync_required=True)
+            store._conn.execute("UPDATE outbox SET event_digest=? WHERE event_id=?", ("f" * 64, event["event_id"]))
+            self.assertEqual(store.verify()["reason"], "outbox_event_mismatch")
 
     def test_projection_corruption_is_detected(self):
         with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
