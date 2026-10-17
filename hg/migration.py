@@ -11,7 +11,8 @@ from typing import Any
 
 from .contracts import ContractError, ZERO_DIGEST, canonical_digest, canonical_json, create_event, parse_json_no_duplicate_keys
 from .history import PRODUCT_ID, SCHEMA
-from .sqlite_state import SQLiteStateError, SQLiteStateStore, _apply_task_event
+from .sqlite_state import SQLiteStateError, SQLiteStateStore, _apply_approval_event, _apply_task_event
+from .policy import PolicyError
 
 
 class MigrationError(RuntimeError):
@@ -145,6 +146,7 @@ def _prepare_import_events(records, runtime_id: str) -> list[dict[str, Any]]:
     imported = []
     previous = ZERO_DIGEST
     task_projection: dict[str, dict[str, Any]] = {}
+    approval_projection: dict[str, dict[str, Any]] = {}
     for record in records:
         event_id = "legacy-" + hashlib.sha256(record["event_id"].encode("utf-8")).hexdigest()
         authority = {
@@ -170,7 +172,8 @@ def _prepare_import_events(records, runtime_id: str) -> list[dict[str, Any]]:
                 recorded_at=record["recorded_at"],
             )
             task_projection = _apply_task_event(event, task_projection)
-        except (ContractError, ValueError, TypeError, KeyError) as exc:
+            approval_projection = _apply_approval_event(event, approval_projection)
+        except (ContractError, PolicyError, ValueError, TypeError, KeyError) as exc:
             raise MigrationError("LEGACY_EVENT_NOT_COMPATIBLE_WITH_TARGET_SCHEMA") from exc
         imported.append(event)
         previous = event["record_digest"]
