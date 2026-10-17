@@ -168,7 +168,7 @@ Authenticated GitHub code searches scoped to `OAI-GIANG/HG2` for `HNIF2-18`, `CP
 
 ### Three-cycle isolated runtime restart rehearsal
 
-The copied runtime in `~/.cache/hg-evidence-first-20261017/recovery-lab/full-runtime-lab/` was launched three times using only a minimal environment without inherited credentials, on loopback ephemeral ports. In every cycle, `/api/health`, `/api/plugin/contract`, and `/api/phone/status` returned HTTP 200 with `ok=true`; each isolated process was terminated and exited, and the synthetic state SHA-256 remained unchanged (`518506e752725351d15d453e33c608d3258f09dac77d3c6cf48d4f008431a85f`). Evidence is local at `~/.cache/hg-evidence-first-20261017/recovery-lab/restart-rollback-rehearsal-evidence.json`.
+The copied runtime in `~/.cache/hg-evidence-first-20261017/recovery-lab/full-runtime-lab/` was launched three times using only a minimal environment without inherited credentials, on loopback ephemeral ports. In every cycle, `/api/health`, `/api/plugin/contract`, and `/api/phone/status` returned HTTP 200 with `ok=true`; each isolated process was terminated and exited, and the synthetic state SHA-256 remained unchanged (`518506e752725351d15d453e33c608d3258f09dac77d3c6cf48d4f008431a85f`). Sanitized evidence is committed at `evidence/HG-AGENTIC-INTELLIGENCE-EVOLUTION-20261017/restart-rollback-rehearsal-evidence.json`; the private local copy remains mode 0600.
 
 Classification: `PASS_ISOLATED_LAB_RESTART_HEALTH_SHUTDOWN`. This demonstrates repeatable start/health/shutdown of the copied runtime only. It does not exercise the real Termux supervisor, a prior-version launcher rollback, abrupt power loss, production data restore, or any production cutover. It does not clear runtime provenance or trust-root blockers.
 
