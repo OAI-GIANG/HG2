@@ -49,6 +49,13 @@ class SQLiteStateStoreTests(unittest.TestCase):
                 store.emit("task.created", {"task_id": "t2"}, event_id="fixed-id")
             self.assertEqual(store.verify()["events"], 2)
 
+    def test_idempotency_cannot_cross_actor_boundary(self):
+        with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
+            store.emit("task.created", {"task_id": "t1"}, idempotency_key="same", actor_id="alice")
+            with self.assertRaises(IdempotencyConflict):
+                store.emit("task.created", {"task_id": "t1"}, idempotency_key="same", actor_id="bob")
+            self.assertEqual(store.verify()["events"], 2)
+
     def test_failed_projection_rolls_back_event_and_checkpoint(self):
         with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
             before = store.audit_export()

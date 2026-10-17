@@ -170,6 +170,7 @@ class SQLiteStateStore:
         idempotency_key: str | None = None,
         evidence_refs: list[str] | None = None,
     ) -> dict[str, Any]:
+        effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
         with self._lock:
             self._conn.execute("BEGIN IMMEDIATE")
             try:
@@ -178,6 +179,8 @@ class SQLiteStateStore:
                     if existing is not None:
                         same_operation = (
                             existing["event_type"] == event_type
+                            and existing["actor_id"] == actor_id
+                            and existing["authority_context"] == effective_authority
                             and canonical_json(existing["payload"]) == canonical_json(payload)
                         )
                         if not same_operation:
@@ -189,6 +192,8 @@ class SQLiteStateStore:
                     if existing is not None:
                         same_operation = (
                             existing["event_type"] == event_type
+                            and existing["actor_id"] == actor_id
+                            and existing["authority_context"] == effective_authority
                             and canonical_json(existing["payload"]) == canonical_json(payload)
                         )
                         if not same_operation:
@@ -201,7 +206,7 @@ class SQLiteStateStore:
                     event_type=event_type,
                     sequence=seq,
                     actor_id=actor_id,
-                    authority_context=authority_context or {"principal": actor_id},
+                    authority_context=effective_authority,
                     runtime_id=meta["runtime_id"],
                     state_owner_id=meta["state_owner_id"],
                     payload=payload,
