@@ -149,10 +149,8 @@ class EdgeTests(unittest.TestCase):
             with urllib.request.urlopen(req, timeout=4) as r:
                 return r.status, r.read().decode()
         except urllib.error.HTTPError as e:
-            try:
+            with e:
                 return e.code, e.read().decode()
-            finally:
-                e.close()
 
     def test_edge_behaviour(self):
         self.assertEqual(self.call("/health")[0], 200)
