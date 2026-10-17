@@ -1,0 +1,57 @@
+{
+  "canonical_refs": {
+    "changed": false,
+    "hg_genesis": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+    "main": "dc29622fce50b328fca5673b1d0385be884ec132"
+  },
+  "checks": {
+    "connection_budget_503_retry_after": "PASS",
+    "git_diff_check": "PASS",
+    "http_429_retry_after": "PASS",
+    "invalid_resource_configuration_fails_closed": "PASS",
+    "public_cleartext_bind_refused": "PASS",
+    "python_ast_syntax": "PASS",
+    "slow_body_408_without_state_mutation": "PASS",
+    "slow_header_not_dispatched": "PASS",
+    "slow_request_line_cutoff": "PASS"
+  },
+  "credential_pattern_scan": {
+    "blobs_scanned": 820,
+    "high_confidence_pattern_matches": 0,
+    "private_audit_report_sha256": "38170945b53c51d1f9c30e4f1c1e49460994e052471a03912a225c05af16701b",
+    "reachable_objects_scanned": 1718,
+    "scope_note": "Fetched branch and pull-request-head objects only; this does not prove that unreferenced historical GitHub objects have been purged or that every external credential is revoked."
+  },
+  "focused_resource_bounds_suite": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest tests.test_limits tests.test_server_limits -v",
+    "log_sha256": "6611251a0037f8717c9e613b298750310aa8b4a2c4c3def7dc812c8c70ae6bfe",
+    "result": "PASS",
+    "tests_failed": 0,
+    "tests_passed": 11
+  },
+  "full_suite": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "log_sha256": "ae01841c224709d6b448f6d55d41c5654f15b0ee51b4c1dfae2bbbe13f6c3772",
+    "resource_warnings_are_errors": true,
+    "result": "PASS",
+    "tests_failed": 0,
+    "tests_passed": 88
+  },
+  "implementation_tree_sha1_excluding_evidence": "f316052a30fccb3b6907a0406e60797613dbc1e1",
+  "parent_candidate_commit": "97690ee901b4dbcabf9227dd7372d458e60d128c",
+  "release_gate": "NOT_RELEASED; no production cutover, merge, deploy, or deletion authorized by this evidence",
+  "runtime": {
+    "credential_values_read": false,
+    "environment": "Termux on authorized primary Android phone",
+    "model_provider_called": false,
+    "old_vps_contacted": false,
+    "production_database_mutated": false,
+    "production_process_touched": false,
+    "production_restarted": false,
+    "python": "3.14.6",
+    "remote_durable_endpoint_called": false
+  },
+  "schema": "HG2_RESOURCE_BOUNDS_ACCEPTANCE_V1",
+  "status": "PASS_STAGING_ONLY",
+  "tested_branch": "stt/hg2-single-system-hardening-20261017"
+}

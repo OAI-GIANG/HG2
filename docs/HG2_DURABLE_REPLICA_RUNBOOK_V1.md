@@ -27,3 +27,12 @@ This replica stores replicated event payloads in local SQLite in plaintext. Rest
 ## Test and cutover gates
 
 Run python -m pytest -q, python -m py_compile hg/replica.py, then an isolated client/receiver integration rehearsal. Capture database SHA-256, event and batch counts, receipt IDs, and restored state verification. Do not point production HG_DURABLE_URL at a receiver until a scoped credential exists and TLS, backup/restore, access controls, and rollback are verified.
+
+## Local API resource bounds
+
+The phone-local HG API also enforces bounded request resources before any external edge is considered:
+
+- `HG_MAX_CONNECTIONS` defaults to `32` and accepts `1..256`; excess sockets fail closed with HTTP 503 and `Retry-After: 1`.
+- `HG_REQUEST_TIMEOUT_SECONDS` defaults to `5` and accepts `0.1..60`; slow request lines and headers are closed without dispatching the incomplete request.
+- `HG_RATE_LIMIT_REQUESTS` defaults to `120` per `HG_RATE_LIMIT_WINDOW_SECONDS` (default `60`, accepted `1..3600`). Exceeding the fixed window returns HTTP 429 with `Retry-After`. The in-process bucket table is bounded.
+- The API still binds to loopback only. A production HTTPS edge must independently enforce per-client rate limits and connection/time budgets because requests proxied through loopback can share the same source address. These local controls do not replace TLS, authentication, or external-edge acceptance.

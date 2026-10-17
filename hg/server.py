@@ -6,11 +6,15 @@ import hmac
 import json
 import os
 import re
+import socket
+import threading
+import time
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
 from .provenance import runtime_identity, runtime_manifest, validate_build
+from .limits import FixedWindowRateLimiter
 
 from .memory import MemoryConflict, MemoryDenied, MemoryErrorBase, MemoryIdempotencyConflict, MemoryStore, MemoryValidationError
 from .model_gateway import ModelGatewayError, ModelNotConfigured
@@ -38,6 +42,26 @@ def _scopes(name):
     return frozenset(s.strip() for s in os.environ.get(name, "").split(",") if s.strip() and s.strip() != "*")
 
 
+def _bounded_int(name, default, minimum, maximum):
+    try:
+        value = int(os.environ.get(name, str(default)))
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"{name} must be an integer") from exc
+    if not minimum <= value <= maximum:
+        raise RuntimeError(f"{name} is outside the allowed range")
+    return value
+
+
+def _bounded_float(name, default, minimum, maximum):
+    try:
+        value = float(os.environ.get(name, str(default)))
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"{name} must be numeric") from exc
+    if not minimum <= value <= maximum:
+        raise RuntimeError(f"{name} is outside the allowed range")
+    return value
+
+
 class HGHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = False
@@ -52,26 +76,93 @@ class HGHTTPServer(ThreadingHTTPServer):
         self.principal_id = os.environ.get("HG_API_PRINCIPAL_ID", "phone-owner")
         self.read_scopes = _scopes("HG_MEMORY_READ_SCOPES")
         self.write_scopes = _scopes("HG_MEMORY_WRITE_SCOPES")
+        self.max_connections = _bounded_int("HG_MAX_CONNECTIONS", 32, 1, 256)
+        self.request_timeout = _bounded_float("HG_REQUEST_TIMEOUT_SECONDS", 5.0, 0.1, 60.0)
+        rate_limit = _bounded_int("HG_RATE_LIMIT_REQUESTS", 120, 1, 10000)
+        rate_window = _bounded_float("HG_RATE_LIMIT_WINDOW_SECONDS", 60.0, 1.0, 3600.0)
+        self.rate_limiter = FixedWindowRateLimiter(rate_limit, rate_window)
+        self._connection_slots = threading.BoundedSemaphore(self.max_connections)
         self.build_root = Path(__file__).resolve().parents[1]
         self.build_identity = runtime_identity(self.build_root, commit=os.environ.get("HG_BUILD_COMMIT", "UNDECLARED"))
         super().__init__(address, HGRequestHandler)
+
+    def process_request(self, request, client_address):
+        if not self._connection_slots.acquire(blocking=False):
+            try:
+                request.sendall(b"HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\nContent-Length: 0\r\nRetry-After: 1\r\n\r\n")
+            except OSError:
+                pass
+            finally:
+                self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, client_address)
+        except BaseException:
+            self._connection_slots.release()
+            raise
+
+    def process_request_thread(self, request, client_address):
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self._connection_slots.release()
 
 
 class HGRequestHandler(BaseHTTPRequestHandler):
     server: HGHTTPServer
     protocol_version = "HTTP/1.1"
 
+    def setup(self):
+        super().setup()
+        self.connection.settimeout(self.server.request_timeout)
+
+    def handle_one_request(self):
+        self._request_deadline = time.monotonic() + self.server.request_timeout
+        try:
+            return super().handle_one_request()
+        except (BrokenPipeError, ConnectionResetError, socket.timeout):
+            # A disconnected or slow client must not produce an unhandled worker traceback.
+            self.close_connection = True
+        finally:
+            self._request_deadline = None
+
+    def parse_request(self):
+        started = time.monotonic()
+        try:
+            parsed = super().parse_request()
+        except (socket.timeout, TimeoutError, ConnectionResetError):
+            self.close_connection = True
+            return False
+        # Some buffered readers may return a partial line/header after a socket timeout.
+        # Require a complete request line and enforce a total header-parse deadline too.
+        deadline = self._request_deadline
+        if (not parsed or not getattr(self, "raw_requestline", b"").endswith(b"\n")
+                or time.monotonic() - started >= self.server.request_timeout
+                or (deadline is not None and time.monotonic() >= deadline)):
+            self.close_connection = True
+            return False
+        allowed, retry_after = self.server.rate_limiter.allow(self.client_address[0])
+        if not allowed:
+            self._send(429, {"ok": False, "error": {"code": "RATE_LIMITED"}},
+                       headers={"Retry-After": str(retry_after), "Connection": "close"})
+            self.close_connection = True
+            return False
+        return True
+
     def log_message(self, fmt, *args):
         # Avoid logging memory content, bearer tokens, or request bodies.
         super().log_message("HG_API " + fmt, *args)
 
-    def _send(self, status, obj):
+    def _send(self, status, obj, headers=None):
         body = json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
+        for name, value in (headers or {}).items():
+            if name.lower() not in {"content-length", "transfer-encoding"}:
+                self.send_header(name, str(value))
         self.end_headers()
         self.wfile.write(body)
 
@@ -97,7 +188,23 @@ class HGRequestHandler(BaseHTTPRequestHandler):
             raise OverflowError("body_too_large")
         if self.headers.get("Transfer-Encoding"):
             raise ValueError("transfer_encoding_not_supported")
-        value = _json_no_duplicates(self.rfile.read(n))
+        chunks = []
+        remaining_bytes = n
+        try:
+            while remaining_bytes:
+                deadline = self._request_deadline
+                remaining_time = (deadline - time.monotonic()) if deadline is not None else self.server.request_timeout
+                if remaining_time <= 0:
+                    raise TimeoutError("request_deadline_exceeded")
+                self.connection.settimeout(remaining_time)
+                chunk = self.rfile.read1(min(remaining_bytes, 65536))
+                if not chunk:
+                    raise ValueError("incomplete_request_body")
+                chunks.append(chunk)
+                remaining_bytes -= len(chunk)
+        finally:
+            self.connection.settimeout(self.server.request_timeout)
+        value = _json_no_duplicates(b"".join(chunks))
         if not isinstance(value, dict):
             raise ValueError("json_object_required")
         return value
@@ -238,6 +345,9 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                 body = self._body()
                 result = self.server.runtime.durable.deliver_once(limit=body.get("limit", 25))
                 self._send(200, {"ok": True, "result": result})
+            except TimeoutError:
+                self.close_connection = True
+                self._send(408, {"ok": False, "error": {"code": "REQUEST_TIMEOUT"}}, headers={"Connection": "close"})
             except OverflowError:
                 self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
             except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
@@ -266,6 +376,9 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                     correlation_id=context.get("query_id"), event_id="model-call:" + str(manifest.get("manifest_sha256")))
                 self._send(200, {"ok": True, "answer": result["answer"], "model": result["model"],
                                  "context_manifest": context["manifest"], "model_manifest": manifest})
+            except TimeoutError:
+                self.close_connection = True
+                self._send(408, {"ok": False, "error": {"code": "REQUEST_TIMEOUT"}}, headers={"Connection": "close"})
             except OverflowError:
                 self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
             except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
@@ -293,6 +406,9 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                 expected_version=body.get("expected_version"),
                 correlation_id=body.get("correlation_id"))
             self._send(200 if result.get("version", 1) > 1 else 201, {"ok": True, "memory": result})
+        except TimeoutError:
+            self.close_connection = True
+            self._send(408, {"ok": False, "error": {"code": "REQUEST_TIMEOUT"}}, headers={"Connection": "close"})
         except OverflowError:
             self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
         except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
@@ -319,6 +435,9 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                 expected_version=body.get("expected_version"), idempotency_key=body.get("idempotency_key", ""),
                 correlation_id=body.get("correlation_id"))
             self._send(200, {"ok": True, "memory": result})
+        except TimeoutError:
+            self.close_connection = True
+            self._send(408, {"ok": False, "error": {"code": "REQUEST_TIMEOUT"}}, headers={"Connection": "close"})
         except OverflowError:
             self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
         except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
