@@ -29,6 +29,26 @@ jobs:
             cd tests/fixtures/hg-native-intelligence-v2.1
             python validate_v21.py
             sha256sum -c SHA256SUMS-V2.1.txt
+      - run:
+          name: Run version-pinned HG-native deterministic oracle suite
+          command: |
+            set -eu
+            PYTHONDONTWRITEBYTECODE=1 python scripts/hg-native-oracle /tmp/hg-native-oracle-ci.json
+      - run:
+          name: Run synthetic baseline-candidate control-policy benchmark
+          command: |
+            set -eu
+            PYTHONDONTWRITEBYTECODE=1 python scripts/hg-native-benchmark > /tmp/hg-native-benchmark.json
+            python - <<'PY'
+            import json
+            with open('/tmp/hg-native-benchmark.json', encoding='utf-8') as handle:
+                report = json.load(handle)
+            assert report['observed_model_runs'] == 0
+            assert report['acceptance']['accepted'] is True
+            assert report['regressions'] == []
+            assert report['delta_pass_rate'] >= report['acceptance']['predeclared_minimum_delta']
+            print(json.dumps({key: report[key] for key in ('classification', 'delta_pass_rate', 'paired_cases_improved', 'regressions', 'production_acceptance')}, sort_keys=True))
+            PY
 workflows:
   hg2-p0-strict-verify:
     jobs:

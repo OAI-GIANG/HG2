@@ -1,24 +1,33 @@
 {
   "artifact_sha256": {
-    "docs/HG_NATIVE_INTELLIGENCE_CRITERIA_V1.md": "81738e582fe0d4da7bcb789b49d8aab82861dbf7741702345c72b93d1bfb2180",
-    "evidence/HG-NATIVE-FIRST-20261017/FINAL-STATUS.md": "1da457125bd2aa9204978ee1abe1d63d69b8852c32fde6464fb9d832300ab07d",
+    ".circleci/config.yml": "65424f799ae6b22b7b907ee05bb5b3c87c2deacf0b9521f986eb50c25455ff75",
+    "docs/HG_NATIVE_INTELLIGENCE_CRITERIA_V1.md": "104da2261c3bb382c82ff48c5b2cce512404f182070c4498d2f8bc8c2146c021",
+    "evidence/HG-NATIVE-FIRST-20261017/FINAL-STATUS.md": "9777b939df058e4175d4add4e81a92b17f785ef2c5e4cba3e21dc6fb7b356c83",
     "evidence/HG-NATIVE-FIRST-20261017/criteria-v1.json": "1ccb316b1f9c47a650af7e16880c277f01724eb08df006b7272172e4854f0912",
     "evidence/HG-NATIVE-FIRST-20261017/manifest.json": "SELF_HASH_NOT_EMBEDDED",
+    "evidence/HG-NATIVE-FIRST-20261017/oracle-self-test.json": "e755df653ba9849d10facd75290d523c50e6745f1d0840a49caea9eb36e2a455",
+    "evidence/HG-NATIVE-FIRST-20261017/strict-unittest-native-first.log": "72054236c3c26908e23cfdcafc1bccaec9a01300a24f41e04d5814eba04c9ca9",
+    "evidence/HG-NATIVE-FIRST-20261017/synthetic-benchmark.json": "a1b7fc2e0bdc1750010190e7b8916615a927f77bd9379bddc2f3d4f66610b708",
     "hg/native_criteria.py": "a8101e21d1e253e637525c1f67e2459a12b17f862481c5a7a719983207f43fe0",
+    "scripts/hg-native-benchmark": "7ff0055a90905c68bb223d78598e2e59f489a2694e9852a6a3826ad3e393ebf0",
     "scripts/hg-native-evaluate": "d895d64eb60de0f286cebf2ba7363c7c9538aef99917752e1ce97d7cace50ef0",
+    "scripts/hg-native-oracle": "616569a22994120ac80261397a1df97562d862211b975a42a0d9e629acdfc974",
+    "tests/test_native_benchmark.py": "6547cce57ecf27add87823ec7a61a85b3cb80369c39517bdd76f3a5951a9a9f2",
     "tests/test_native_criteria.py": "a629657e3e56936acf2accc362cb5bbcb10c1749fac6c956edc7fe00771b155c",
     "tests/test_native_improvement_plan.py": "70e728de78b47b7ac46c5aba37b67f35bf241ff1694e46d184f7b904c47893e0",
-    "tests/testdata/hg-native-improvement-plan.v1.json": "9d5dff997619f252e0c4058d35695debebf1a70e717206376a8ac5215506716c"
+    "tests/test_native_oracle.py": "074ae1233217e5c7e37008c9bec795af2824dab4d0ebcba9e2054f99deb6b777",
+    "tests/testdata/hg-native-improvement-plan.v1.json": "9d5dff997619f252e0c4058d35695debebf1a70e717206376a8ac5215506716c",
+    "tests/testdata/hg-native-oracle-cases.v1.json": "cfeb9b2cbdc05ce7238f236e942a167b1d40549af2678d1f879b67253fde9916"
   },
   "baseline": {
     "candidate_branch": "stt/hg-agentic-intelligence-g1-20261017",
-    "candidate_parent_sha_tested_before_evidence_commit": "694f13209f718feae543e28c871c905ae530a135",
+    "candidate_parent_sha_tested_before_evidence_commit": "65a3fd9147ca79a45d66a01c1eca3f75ed34b793",
     "canonical_base_sha": "9d83a113ccdf1aeda656e494593fa55b9078c803",
     "canonical_branch": "hg-genesis",
     "canonical_repository": "OAI-GIANG/HG2",
     "evidence_only_commit_sha": "15bf5d7699cc52e9c6dbaa1a553d0c94048d5631"
   },
-  "candidate_commit_sha": "15bf5d7699cc52e9c6dbaa1a553d0c94048d5631",
+  "candidate_commit_sha": "PENDING_INTEGRATION_COMMIT",
   "captured_environment": {
     "capture_attestation": "LOCAL_UNATTESTED",
     "device": "Termux on Android ARM64",
@@ -39,26 +48,55 @@
     "version": "1.0.0",
     "weight_total": 100
   },
-  "note": "Full suite rerun after code commit: 169/169 PASS. Evidence was then rebound in an evidence-only commit. CircleCI job #140 PASS on the final exact HEAD 15bf5d7699cc52e9c6dbaa1a553d0c94048d5631. The local capture remains unattested; hashes bind bytes but do not authenticate the runner, device clock, trust roots, or oracle quality.",
+  "note": "Current Termux run: 174/174 strict unit tests, 20/20 synthetic deterministic oracle cases, synthetic control-policy benchmark baseline 5/20 vs candidate 20/20 (delta +0.75, 15 improvements, zero regressions, zero live model runs). This is not a live model capability result. Capture is local and unattested; SHA-256 binds bytes but does not authenticate host/clock/runner or oracle semantic quality.",
+  "oracle_suite": {
+    "classification": "SYNTHETIC_ORACLE_IMPLEMENTATION_TEST",
+    "dataset_cases": 20,
+    "dataset_id": "HNO-SYNTH-001",
+    "dataset_sha256": "cfeb9b2cbdc05ce7238f236e942a167b1d40549af2678d1f879b67253fde9916",
+    "dataset_version": "1.0.0",
+    "failed": 0,
+    "oracle_version": "HNO-ORACLE-1.0.0",
+    "passed": 20,
+    "result_sha256": "e755df653ba9849d10facd75290d523c50e6745f1d0840a49caea9eb36e2a455",
+    "run_status": "PASS"
+  },
   "remaining_gates": [
     "live_natural_language_model_e2e_not_accepted",
     "production_trust_roots_blocked",
     "criterion-specific independent oracles and human rubric calibration incomplete",
     "target-device abrupt power-loss test not run",
-    "runtime provenance backup/restore rollback and side-effect acceptance blocked"
+    "runtime provenance backup/restore rollback and side-effect acceptance blocked",
+    "live natural-language model E2E remains NOT_ACCEPTED",
+    "synthetic policy benchmark is not live-model intelligence evidence",
+    "CircleCI for the integration commit added after this manifest update must pass on its exact SHA"
   ],
   "schema_version": "hg.native-first-evidence.v1",
+  "synthetic_benchmark": {
+    "accepted_by_predeclared_synthetic_gate": true,
+    "baseline_passed": 5,
+    "baseline_rate": 0.25,
+    "candidate_passed": 20,
+    "candidate_rate": 1.0,
+    "classification": "SYNTHETIC_CONTROL_POLICY_COMPARISON_NOT_LIVE_MODEL",
+    "delta_pass_rate": 0.75,
+    "observed_model_runs": 0,
+    "paired_cases_improved": 15,
+    "regressions": [],
+    "result_sha256": "a1b7fc2e0bdc1750010190e7b8916615a927f77bd9379bddc2f3d4f66610b708",
+    "total": 20
+  },
   "task": "HG AGENTIC INTELLIGENCE EVOLUTION — NATIVE-FIRST",
   "test_result": {
     "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
     "exit_code": 0,
     "failed": 0,
     "log_file": "strict-unittest-native-first.log",
-    "log_sha256": "0a2d2543e9df49e7dca6de401ce3c40938c6115c138cb2a52ff5e45bf37094b8",
-    "passed": 169,
+    "log_sha256": "72054236c3c26908e23cfdcafc1bccaec9a01300a24f41e04d5814eba04c9ca9",
+    "passed": 174,
     "resource_warning_treated_as_error": true,
     "result": "PASS",
-    "tests_run": 169
+    "tests_run": 174
   },
   "unchanged_scope": {
     "canonical_branch_mutated": false,

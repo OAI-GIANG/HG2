@@ -101,6 +101,8 @@ test_http_error_does_not_leak_response_or_credentials (test_model_provider.Provi
 test_invalid_contract_rejected_locally (test_model_provider.ProviderRequestTests.test_invalid_contract_rejected_locally) ... ok
 test_request_size_bounded_before_network (test_model_provider.ProviderRequestTests.test_request_size_bounded_before_network) ... ok
 test_truncated_response_never_compiles (test_model_provider.ProviderRequestTests.test_truncated_response_never_compiles) ... ok
+test_acceptance_floor_is_predeclared (test_native_benchmark.NativeBenchmarkTests.test_acceptance_floor_is_predeclared) ... ok
+test_candidate_improves_synthetic_control_cases_without_regression (test_native_benchmark.NativeBenchmarkTests.test_candidate_improves_synthetic_control_cases_without_regression) ... ok
 test_cli_emits_valid_rubric (test_native_criteria.NativeCriteriaTests.test_cli_emits_valid_rubric) ... ok
 test_complete_pass_never_authorizes_release (test_native_criteria.NativeCriteriaTests.test_complete_pass_never_authorizes_release) ... ok
 test_critical_failure_dominates_missing_criteria (test_native_criteria.NativeCriteriaTests.test_critical_failure_dominates_missing_criteria) ... ok
@@ -120,6 +122,9 @@ test_plan_is_explicitly_not_run_and_does_not_claim_cp0 (test_native_improvement_
 test_all_fixtures_explicitly_not_run (test_native_intelligence_fixtures.NativeIntelligenceFixturePackageTests.test_all_fixtures_explicitly_not_run) ... ok
 test_fixture_package_regression (test_native_intelligence_fixtures.NativeIntelligenceFixturePackageTests.test_fixture_package_regression) ... ok
 test_static_semantic_validator (test_native_intelligence_fixtures.NativeIntelligenceFixturePackageTests.test_static_semantic_validator) ... ok
+test_all_fixed_expected_oracles (test_native_oracle.NativeOracleTests.test_all_fixed_expected_oracles) ... ok
+test_corrected_brier_expected_value_is_pinned (test_native_oracle.NativeOracleTests.test_corrected_brier_expected_value_is_pinned) ... ok
+test_dataset_is_pinned_and_separate_from_historical_cp0 (test_native_oracle.NativeOracleTests.test_dataset_is_pinned_and_separate_from_historical_cp0) ... ok
 test_acceptance_criterion_rejects_unknown_severity (test_task_contract.ContractP0Tests.test_acceptance_criterion_rejects_unknown_severity) ... ok
 test_action_requiring_authentication_cannot_disable_it (test_task_contract.ContractP0Tests.test_action_requiring_authentication_cannot_disable_it) ... ok
 test_action_requiring_authentication_records_unresolved_verifier (test_task_contract.ContractP0Tests.test_action_requiring_authentication_records_unresolved_verifier) ... ok
@@ -169,6 +174,6 @@ test_too_large_rejected (test_task_contract.StrictJsonTests.test_too_large_rejec
 test_unpaired_surrogate_rejected_during_canonicalization (test_task_contract.StrictJsonTests.test_unpaired_surrogate_rejected_during_canonicalization) ... ok
 
 ----------------------------------------------------------------------
-Ran 169 tests in 5.044s
+Ran 174 tests in 5.340s
 
 OK
