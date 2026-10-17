@@ -39,16 +39,7 @@ jobs:
           command: |
             set -eu
             PYTHONDONTWRITEBYTECODE=1 python scripts/hg-native-benchmark > /tmp/hg-native-benchmark.json
-            python - <<'PY'
-            import json
-            with open('/tmp/hg-native-benchmark.json', encoding='utf-8') as handle:
-                report = json.load(handle)
-            assert report['observed_model_runs'] == 0
-            assert report['acceptance']['accepted'] is True
-            assert report['regressions'] == []
-            assert report['delta_pass_rate'] >= report['acceptance']['predeclared_minimum_delta']
-            print(json.dumps({key: report[key] for key in ('classification', 'delta_pass_rate', 'paired_cases_improved', 'regressions', 'production_acceptance')}, sort_keys=True))
-            PY
+            python -c "import json; r=json.load(open('/tmp/hg-native-benchmark.json', encoding='utf-8')); assert r['observed_model_runs'] == 0; assert r['acceptance']['accepted'] is True; assert r['regressions'] == []; assert r['delta_pass_rate'] >= r['acceptance']['predeclared_minimum_delta']; print(json.dumps({k:r[k] for k in ('classification','delta_pass_rate','paired_cases_improved','regressions','production_acceptance')}, sort_keys=True))"
 workflows:
   hg2-p0-strict-verify:
     jobs:
