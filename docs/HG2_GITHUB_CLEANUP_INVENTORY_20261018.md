@@ -212,3 +212,19 @@ Single-owner changes made in this candidate:
 
 Focused verification after these changes: 54 tests across auth/provider/toolplane/agent/policy pass under ResourceWarning-as-error. Full-suite exact-head verification and evidence recording are pending after final review. The agent/provider modules do not invoke a real external provider in test runs; tests use fake/local transport fixtures. No token was displayed or changed; no real provider request was sent.
 \nAdditional principal-bound rule: PhoneRuntime.start_session always calls authorize_principal. An injected session_authenticator must return a sealed AuthenticatedPrincipal; True/False results and exceptions fail closed. Regression coverage explicitly verifies that a boolean True does not create a session. The old authorize boolean compatibility API is no longer used by the application-session path.\n
+## 15. Single-owner durable StateStore consolidation
+
+The useful durability work from PR #5 has been selected into the existing `hg.history.StateStore`; no second file-backed state store was introduced. The current implementation now provides:
+
+- Cross-process exclusive writer locking with on-disk refresh while locked, so two `StateStore` objects cannot append using the same stale sequence/hash.
+- Atomic replacement for the state projection and checkpoint, with file `fsync` before replacement and directory `fsync` after replacement.
+- A poisoned-store state after a persistence failure; later writes are denied pending investigation instead of implicitly repairing a possibly partial append.
+- Strict JSON event payload snapshots, finite timestamps, strict record field/identity/sequence/hash checks, checkpoint and state-projection parity checks, and fail-closed startup when an artifact is missing or malformed.
+- Detached snapshots for `emit`, `replay`, and `audit_export`, preventing callers from mutating in-memory state through returned objects.
+- One shared JSON/hash implementation in `hg.contracts`, used by the durable history store, provider adapter, and tool plane; private canonicalization/parser/hash copies were removed from those owners.
+
+Regression tests now cover write poisoning, missing history with other durable artifacts, projection corruption without repair, detached read results, and two separate store instances writing in an interleaved sequence.
+
+Evidence `evidence/HG2-STATE-STORE-HARDENING-20261018/summary.json` is tied to tested commit `b524e5747dd2b4cb1891ea01ef15c9be4814384a`: 165 tests passed in 5.868 s on Python 3.14.6 / Android-16 aarch64; `ResourceWarning` was treated as error; exit code 0. The log SHA-256 is recorded in both `summary.json` and `SHA256SUMS.txt`.
+
+Disposition for PR #5: its file-locking, atomic-write and poisoned-store concepts have been integrated into the single StateStore candidate implementation. Its old branch is still preserved while its unrelated product-scope/base skew is assessed; it must not be merged wholesale. PRs #1 and #11 are redundant P0 candidate branches whose core fail-closed behavior is now in the same tested StateStore, but their closure waits until their remaining unique test/value is confirmed and current PR status is rechecked.
