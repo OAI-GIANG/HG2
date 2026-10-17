@@ -1,8 +1,8 @@
 # HG2 Cleanup Decision Matrix — 2026-10-18
 
-**Repository:** `OAI-GIANG/HG2`  
-**Canonical:** `hg-genesis` @ `9d83a113ccdf1aeda656e494593fa55b9078c803`  
-**Candidate:** `stt/hg2-circulatory-architecture-20261018` @ `c62421d5c2b45759dcd9c9e0106237101848201a`  
+**Repository:** `OAI-GIANG/HG2`
+**Canonical:** `hg-genesis` @ `9d83a113ccdf1aeda656e494593fa55b9078c803`
+**Candidate:** `stt/hg2-circulatory-architecture-20261018` @ `208ee92385eed508c0bc5e546635c38661fc18bb`
 **Scope:** GitHub repository cleanup only. No canonical branch mutation, production runtime switch, live-state migration, or deployment.
 
 ## Decision rule
@@ -64,7 +64,7 @@ Use one owner for each runtime responsibility. Keep unique capability/evidence u
 - [x] Refresh exact canonical SHA, candidate SHA and GitHub PR list.
 - [x] Candidate test run on Termux: `PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest discover -s tests -v` → 190 passed, 0 failed.
 - [x] `git diff --check origin/hg-genesis...HEAD` passes.
-- [x] Candidate branch pushed; remote branch SHA equals local `c62421d5c2b45759dcd9c9e0106237101848201a`.
+- [x] Candidate branch pushed; remote branch SHA equals local `208ee92385eed508c0bc5e546635c38661fc18bb`.
 - [x] CircleCI check for PR #25 at current candidate SHA reports PASS.
 - [x] Canonical `hg-genesis` unchanged at `9d83a113ccdf1aeda656e494593fa55b9078c803`.
 - [x] PR #15 closed without merge and branch preserved.
@@ -73,11 +73,11 @@ Use one owner for each runtime responsibility. Keep unique capability/evidence u
 
 ## Final assessment
 
-**CLEANUP_STATUS=PARTIAL_COMPLETION / INTEGRATION_CANDIDATE_VERIFIED**  
-**CANDIDATE_TESTS=PASS (190/190)**  
-**PR25_CIRCLECI=PASS at `c62421d5c2b45759dcd9c9e0106237101848201a`**  
-**CANONICAL_MUTATED=false**  
-**LIVE_RUNTIME_OR_STATE_MUTATED=false**  
+**CLEANUP_STATUS=PARTIAL_COMPLETION / INTEGRATION_CANDIDATE_VERIFIED**
+**CANDIDATE_TESTS=PASS (190/190)**
+**PR25_CIRCLECI=PASS at `c62421d5c2b45759dcd9c9e0106237101848201a`**
+**CANONICAL_MUTATED=false**
+**LIVE_RUNTIME_OR_STATE_MUTATED=false**
 **PRODUCTION_CUTOVER=BLOCKED / NOT_RELEASED**
 
 This matrix deliberately does not equate fewer open PRs with a clean system. Remaining PRs are kept where their content is not proven redundant or where they document real release/security blockers. Close/merge/delete is not a substitute for capability reconciliation.
