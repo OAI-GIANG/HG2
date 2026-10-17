@@ -11,6 +11,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from .memory import MemoryConflict, MemoryDenied, MemoryErrorBase, MemoryIdempotencyConflict, MemoryStore, MemoryValidationError
 from .model_gateway import ModelGatewayError, ModelNotConfigured
+from .durable import DurableError
 from .phone_runtime import PhoneRuntime
 
 MAX_BODY = 256 * 1024
@@ -119,7 +120,13 @@ class HGRequestHandler(BaseHTTPRequestHandler):
             self._send(200 if health.get("ok") and integ.get("ok") else 503,
                        {"ok": bool(health.get("ok") and integ.get("ok")), "product": "HG",
                         "runtime": "READY" if integ.get("ok") else "DEGRADED",
-                        "integrity": integ, "edge_configured": health.get("edge_configured", False)})
+                        "integrity": integ, "edge_configured": health.get("edge_configured", False),
+                        "durable": self.server.runtime.durable.status()})
+            return
+        if path == "/api/durable/status":
+            grants = self._auth(write=False)
+            if grants is None: return
+            self._send(200, {"ok": True, "durable": self.server.runtime.durable.status()})
             return
         if path in ("/api/memory/search", "/api/memory/context"):
             grants = self._auth(write=False)
@@ -165,6 +172,20 @@ class HGRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
+        if path == "/api/durable/sync":
+            grants = self._auth(write=True)
+            if grants is None: return
+            try:
+                body = self._body()
+                result = self.server.runtime.durable.deliver_once(limit=body.get("limit", 25))
+                self._send(200, {"ok": True, "result": result})
+            except OverflowError:
+                self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
+            except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+                self._send(400, {"ok": False, "error": {"code": "INVALID_JSON"}})
+            except DurableError as exc:
+                self._send(503, {"ok": False, "error": {"code": exc.code}})
+            return
         if path == "/api/ask":
             grants = self._auth(write=False)
             if grants is None: return

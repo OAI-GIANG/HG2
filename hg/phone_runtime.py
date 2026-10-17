@@ -6,6 +6,7 @@ from .authority import authorize
 from .history import StateStore
 from .memory import MemoryStore
 from .model_gateway import ModelGateway
+from .durable import DurableOutbox
 
 
 class PhoneRuntime:
@@ -19,6 +20,7 @@ class PhoneRuntime:
         # Memory and model gateway are composed under this one canonical runtime.
         self.memory = MemoryStore(self.store)
         self.model_gateway = ModelGateway(timeout=45)
+        self.durable = DurableOutbox(self.store, timeout=timeout)
 
     def health(self):
         return {"ok": True, "product": "HG", "runtime_id": self.store.runtime_id,
