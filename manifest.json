@@ -6,6 +6,7 @@
   "modules": [
     "hg.identity",
     "hg.authority",
+    "hg.policy",
     "hg.contracts",
     "hg.history",
     "hg.sqlite_state",

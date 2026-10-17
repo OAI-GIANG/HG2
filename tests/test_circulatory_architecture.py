@@ -22,8 +22,9 @@ class CirculatoryArchitectureTests(unittest.TestCase):
         self.assertIn("implementation not yet certified", contract)
         self.assertIn("No gate is passed by documentation alone", contract)
 
-    def test_manifest_registers_contract_and_opt_in_sqlite_backend(self):
+    def test_manifest_registers_policy_and_state_contract_modules(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        self.assertIn("hg.policy", manifest["modules"])
         self.assertIn("hg.contracts", manifest["modules"])
         self.assertIn("hg.sqlite_state", manifest["modules"])
         self.assertEqual(manifest["architecture"]["status"], "DESIGN_BASELINE_NOT_CERTIFIED")
