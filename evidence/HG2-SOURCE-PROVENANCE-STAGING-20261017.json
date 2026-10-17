@@ -107,7 +107,7 @@
         "detail": {
           "commit_matches": true,
           "process_pid_matches": true,
-          "source_manifest_sha256": "26e6b5c5409cec5e7773df6dc562ada14584880dd447e424b1f40128bdeefba2"
+          "source_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6"
         },
         "ok": true
       },
@@ -127,38 +127,38 @@
       }
     },
     "durable_replication_enabled": false,
-    "expected_commit": "17beeb2e134b5c4d9c67370bd1117807f9438aa2",
-    "expected_source_manifest_sha256": "26e6b5c5409cec5e7773df6dc562ada14584880dd447e424b1f40128bdeefba2",
-    "finished_at_unix": 1792229051,
+    "expected_commit": "ac4c6b980befa73aeae989b3543227d85ce0f023",
+    "expected_source_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
+    "finished_at_unix": 1792229446,
     "initial_active_memory_count": 31,
     "library_assets_expected": 4,
     "library_quarantine_count": 13,
     "model_provider_called": false,
-    "process_pid": "30297",
+    "process_pid": "3728",
     "schema": "HG2_SINGLE_SYSTEM_STAGING_ACCEPTANCE_V1",
     "status": "PASS"
   },
   "backup_restore": {
     "backup_byte_identical": true,
-    "history_head_sha256": "16a1cc289b63e82a377b473c61c778de269564bbb466603c9ecc56575c811ccf",
+    "history_head_sha256": "d84b818e0ef16f25cf91638da47c53ac25b74b24245a368ad0d16f2b7dd89212",
     "initial_event_count": 127,
-    "location": "/data/data/com.termux/files/home/tmp/HG2-SINGLE-SYSTEM-STAGING-RESTORE-20261017",
+    "location": "/data/data/com.termux/files/home/tmp/HG2-SINGLE-SYSTEM-STAGING-RESTORE-20261017-R2",
     "restore_event_count": 127,
-    "restore_history_head_sha256": "16a1cc289b63e82a377b473c61c778de269564bbb466603c9ecc56575c811ccf",
+    "restore_history_head_sha256": "d84b818e0ef16f25cf91638da47c53ac25b74b24245a368ad0d16f2b7dd89212",
     "restore_integrity_ok": true,
-    "restored_tree_sha256": "c5838cc6701f47d730d447d75153e259d450f40d6fd7b040577d22571dd689f7",
-    "snapshot_tree_sha256": "c5838cc6701f47d730d447d75153e259d450f40d6fd7b040577d22571dd689f7",
-    "source_bytes": 5077007,
+    "restored_tree_sha256": "41b649b3abb4d75c7aa42a8eaa7732fa32bdda47c9ff6544b08fbf5df1726f97",
+    "snapshot_tree_sha256": "41b649b3abb4d75c7aa42a8eaa7732fa32bdda47c9ff6544b08fbf5df1726f97",
+    "source_bytes": 5077003,
     "source_files": 8
   },
   "branch": "stt/hg2-single-system-20261017",
-  "candidate_commit": "17beeb2e134b5c4d9c67370bd1117807f9438aa2",
+  "candidate_commit": "ac4c6b980befa73aeae989b3543227d85ce0f023",
   "canonical_base": "9d83a113ccdf1aeda656e494593fa55b9078c803",
   "production_blockers": [
-    "Production runtime process/source/artifact provenance does not yet match the HG2 candidate.",
-    "Production API read/write credentials and approved source-manifest values are not provisioned in protected runtime configuration.",
-    "No encrypted remote replica storage, TLS front door, or compatible deployed durable endpoint has passed rehearsal.",
-    "Production rollback/migration must be rehearsed against the exact active state before any service transition."
+    "Production runtime/source/artifact/process provenance is not yet this candidate.",
+    "Production API read/write credentials and approved source-manifest configuration are not provisioned.",
+    "The available legacy backend does not implement HG2 durable batch contract.",
+    "Encrypted replica storage, authenticated HTTPS front door, dedicated scoped credential, and production rollback rehearsal remain unproven."
   ],
   "production_unchanged": {
     "durable_remote_called": false,
@@ -236,9 +236,9 @@
         "sha256": "1531473ebe1f3534a91bb9c992ae8bf7d6944f5f6ce5ebcb48008d8267572068"
       },
       {
-        "bytes": 6992,
+        "bytes": 7898,
         "path": "hg/durable.py",
-        "sha256": "ff8feafd607def5f639ed2dff88b99512064a7270732e5d715062e98924d85fc"
+        "sha256": "11f6580213405f49f4ffd534e58a1a45712fa5ebc31643de1effe5350d1d4cb1"
       },
       {
         "bytes": 6472,
@@ -271,9 +271,9 @@
         "sha256": "238cfc38c1c172cdb967d7b279c969ca986fbce4a93991c34cf9c60d2190ed67"
       },
       {
-        "bytes": 3383,
+        "bytes": 3350,
         "path": "hg/provenance.py",
-        "sha256": "3375df437aeebbf8ccd17fbf8d98d3835c13d1f9571c104aa59e68dd1b04a959"
+        "sha256": "2081ff229d92c4a3b82d1a360f14fb207c98410fad17127c97b2178bcc20f629"
       },
       {
         "bytes": 16068,
@@ -281,9 +281,9 @@
         "sha256": "bff7234ce97b25c2051e959aaad907f420e16c9470b5959b2d6947b3e3c057e5"
       },
       {
-        "bytes": 18532,
+        "bytes": 18617,
         "path": "hg/server.py",
-        "sha256": "0f590908389549012da0aca6239bc1c0e5c348c334f1ab8889f9b68a4cadf3f4"
+        "sha256": "dcdb4f4d69c28d1da53080adced7aec6aa474af498f986a16e0f95d430e01622"
       },
       {
         "bytes": 7436,
@@ -291,7 +291,7 @@
         "sha256": "4a657779befd33a11c8121b07ca609f66c2ec766900d3c56a42c6420d73f4fe9"
       }
     ],
-    "manifest_sha256": "26e6b5c5409cec5e7773df6dc562ada14584880dd447e424b1f40128bdeefba2",
+    "manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
     "schema": "HG_RUNTIME_SOURCE_MANIFEST_V1"
   },
   "schema": "HG2_SOURCE_PROVENANCE_STAGING_V1",
@@ -314,7 +314,7 @@
     },
     "integrity": {
       "events": 127,
-      "head_hash": "16a1cc289b63e82a377b473c61c778de269564bbb466603c9ecc56575c811ccf",
+      "head_hash": "d84b818e0ef16f25cf91638da47c53ac25b74b24245a368ad0d16f2b7dd89212",
       "ok": true,
       "reason": "chain_ok"
     },
