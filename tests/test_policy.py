@@ -10,6 +10,7 @@ from hg.policy import (
     authorize_with_grants,
     create_approval_request,
     decide_approval,
+    authorize_with_approvals,
 )
 
 
@@ -35,6 +36,19 @@ class PolicyTests(unittest.TestCase):
         revoked = CapabilityGrant("g3", "alice", "session.create", 1, revoked_at=5)
         for grant in (expired, future, revoked):
             self.assertFalse(authorize_with_grants("alice", "session.create", [grant], now=10).allowed)
+
+    def test_self_approved_record_never_authorizes(self):
+        approval = create_approval_request(
+            principal_id="alice", action="session.create", resource_id="session-A",
+            request_digest="9" * 64, now=100,
+        )
+        approval.update(status="APPROVED", version=2, decided_by="alice", decided_at=101)
+        result = authorize_with_approvals(
+            "alice", "session.create", [approval], now=102,
+            resource="session-A", request_digest="9" * 64,
+        )
+        self.assertFalse(result.allowed)
+        self.assertEqual(result.reason, "APPROVAL_REQUIRED")
 
     def test_malformed_grant_and_approval_state_fail_closed(self):
         malformed = CapabilityGrant("g1", "alice", "session.create", "bad-time")

@@ -246,13 +246,16 @@ def authorize_with_approvals(
     *,
     now: float,
     resource: str,
+    request_digest: str,
 ) -> Decision:
-    """Allow only an unexpired approved request for the exact principal/action/resource."""
+    """Allow only an unexpired approval for the exact principal/action/resource/request digest."""
     base = authorize(action, authenticated=True)
     if not base.allowed:
         return Decision(False, base.action, base.reason, principal_id if isinstance(principal_id, str) else "")
     if not isinstance(principal_id, str) or not principal_id.strip():
         return Decision(False, action, "PRINCIPAL_REQUIRED")
+    if not isinstance(request_digest, str) or not _DIGEST_RE.fullmatch(request_digest):
+        return Decision(False, action, "REQUEST_DIGEST_INVALID", principal_id)
     if isinstance(now, bool) or not isinstance(now, (int, float)) or not math.isfinite(now):
         return Decision(False, action, "INVALID_POLICY_TIME", principal_id)
     try:
@@ -269,6 +272,8 @@ def authorize_with_approvals(
             and approval["principal_id"] == principal_id
             and approval["action"] == action
             and approval["resource_id"] == resource
+            and approval["request_digest"] == request_digest
+            and approval["decided_by"] != approval["principal_id"]
             and float(now) < approval["expires_at"]
         ):
             return Decision(True, action, "APPROVED_REQUEST", principal_id, approval["approval_id"])
