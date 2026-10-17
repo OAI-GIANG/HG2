@@ -1,0 +1,14 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest discover -s tests -v",
+  "duration_seconds": 5.355,
+  "evidence_id": "HG2-AGENT-PLANE-20261018",
+  "exit_code": 0,
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "python_version": "3.14.6",
+  "result": "PASS",
+  "scope_note": "Isolated candidate checkout only. No network provider call, live runtime modification, or live-state migration occurred.",
+  "test_count": 162,
+  "tested_commit": "5cb8c6206713a6fc5c70f6298b632d6827c39a3e",
+  "unittest_log_sha256": "acb940aa9d4305dd48dc5086f5640c9372f8503808d3243c7b2958fb72f8fe11",
+  "warning_policy": "ResourceWarning treated as error"
+}
