@@ -1,0 +1,180 @@
+{
+  "environment": {
+    "execution": "Termux on the primary Android phone via authorized Remote Desktop Commander",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6"
+  },
+  "external_references_checked": [
+    "https://docs.python.org/3/library/urllib.error.html",
+    "https://docs.python.org/3/library/unittest.html",
+    "https://www.sqlite.org/wal.html",
+    "https://www.sqlite.org/backup.html"
+  ],
+  "github_at_test_time": {
+    "circleci_context": "ci/circleci: verify",
+    "circleci_result": "SUCCESS",
+    "circleci_url": "https://circleci.com/gh/OAI-GIANG/HG2/172",
+    "mergeable": true,
+    "pr_head": "d6b1a12354a36d69820365f3e96c17008ace9e99",
+    "pr_state": "OPEN",
+    "review_records": 0
+  },
+  "isolated_loopback_acceptance": {
+    "acceptance_json_sha256": "b232453392d7737c36138498f7cfba64a586fb93065f9f6210832fa1bc5ec432",
+    "checks": [
+      "durable_outbox_fail_closed_status",
+      "durable_status_authenticated",
+      "durable_sync_not_configured_fail_closed",
+      "health_and_integrity",
+      "imported_memory_projection",
+      "library_metadata_and_blob_hashes",
+      "memory_create",
+      "memory_delete_tombstone",
+      "memory_projection_restored",
+      "memory_read_after_create",
+      "model_gateway_no_network",
+      "no_real_model_call",
+      "read_token_cannot_write",
+      "read_write_credential_separation",
+      "source_to_process_identity",
+      "ui_http",
+      "ui_security_headers"
+    ],
+    "checks_passed": 17,
+    "checks_total": 17,
+    "classification": "STAGING_ONLY",
+    "endpoint": "http://127.0.0.1:8788",
+    "expected_pid": 22672,
+    "local_evidence_dir": "/data/data/com.termux/files/home/.cache/hg2-termux-stage-acceptance-e12d7okh",
+    "model_provider_called": false,
+    "observed_pid_matches": true,
+    "production_mutated": false,
+    "remote_durable_called": false,
+    "result": "PASS",
+    "run_summary_sha256": "c476fbbaf2bfa8b3e3f3d9c785b57fce2e4b2aec66acea8c76f7e9a872d663e2",
+    "server_log_sha256": "83a3a0556386e33d5d50635f57143f9a843a43cec9b567ebd05793d3e9a3efa2",
+    "server_stopped_after_test": true,
+    "smoke_output_log_sha256": "27f2bdd7117fabcc0d91937ae742e22beb900a8235a7dd518eda76639de551b8",
+    "source_file_count": 13,
+    "source_manifest_sha256": "08f40c85e889380329b183e4c271354b8259dfeb2c28e53eaf821beba4773858",
+    "test_state": "fresh isolated temporary state; zero pre-existing active memories and zero library assets; no legacy production snapshot imported in this run",
+    "tested_commit": "d6b1a12354a36d69820365f3e96c17008ace9e99"
+  },
+  "manifest_reconciliation": {
+    "current_manifest_sha256": "08f40c85e889380329b183e4c271354b8259dfeb2c28e53eaf821beba4773858",
+    "note": "Older staging and cutover evidence files describe prior commits. The current d6b1a12 candidate changes hg/durable.py, so its runtime source-manifest digest differs. This report records a fresh exact-commit manifest and a current-source isolated API acceptance run; it does not retroactively rewrite historical evidence.",
+    "older_staging_evidence_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
+    "prior_cutover_report_candidate_commit": "f88bf1adb43da3bf102f8536862a3c948f5c7c4a",
+    "prior_cutover_report_pr_head": "d5cbc25b6be0b5a5624d10862724d2b73e1d9187"
+  },
+  "production_read_only_observations": {
+    "active_processes": {
+      "10804": {
+        "command": "python3 -u /data/data/com.termux/files/home/hg2-service/entry.py",
+        "pid_alive": true,
+        "source_path": "/data/data/com.termux/files/home/hg2-service/entry.py",
+        "source_sha256": "21ea826c3ac170986d186524979a6426334d8af971b01deb330ea7351378d150"
+      },
+      "10805": {
+        "command": "python3 -u /data/data/com.termux/files/home/hg/backend/hg_backend.py",
+        "pid_alive": true,
+        "source_path": "/data/data/com.termux/files/home/hg/backend/hg_backend.py",
+        "source_sha256": "2b6127e26beff90c2cb304b8bee94043d58208507586baa79400291c64f20905"
+      },
+      "10809": {
+        "command": "python3 -u /data/data/com.termux/files/home/hg/core/runtime/hg_runtime.py",
+        "pid_alive": true,
+        "source_path": "/data/data/com.termux/files/home/hg/core/runtime/hg_runtime.py",
+        "source_sha256": "e02f344c11f0e513e4e874fdc35eb6c28ea76d8aa541da7bbde19a1427f10a83"
+      }
+    },
+    "credential_values_read_or_recorded": false,
+    "expected_production_api_and_durable_keys_found_in_known_env_files": [],
+    "known_env_files_checked_for_expected_key_names_only": [
+      "backend.env",
+      "go-ide-test.env",
+      "go.env",
+      "secret.env"
+    ],
+    "production_code_deployed": false,
+    "production_data_migrated_or_mutated": false,
+    "production_files_deleted": false,
+    "production_processes_restarted": false,
+    "protected_json_state_path": "/data/data/com.termux/files/home/hg/core/runtime/data/state.json",
+    "protected_json_state_sha256": "7eee10f17366acb36bd230c1ca7e4b0c7da0ef1bcbb1902f4cec43015936baa0"
+  },
+  "release_gate": {
+    "blockers": [
+      "Production runtime source/artifact/process provenance does not yet match the HG2 candidate.",
+      "Separate production HG_API_READ_TOKEN and HG_API_WRITE_TOKEN are not configured in the reviewed runtime env files/process environment.",
+      "Legacy backend lacks HG2 capability negotiation and compatible batch receipt contract; do not reuse its legacy token.",
+      "Production durable URL/token, encrypted-at-rest replica storage, authenticated HTTPS edge and dedicated scoped replica credential remain unproven/unconfigured.",
+      "Three backend-only records lack scope authority and remain quarantined.",
+      "Production writer freeze, complete data cutover, backup/restore and rollback rehearsal have not been proven."
+    ],
+    "cutover_ready": false,
+    "decision": "Do not merge PR #22 or deploy the candidate until these production cutover gates are proven. Green tests and isolated staging acceptance do not authorize release.",
+    "release_state": "NOT_RELEASED",
+    "status": "BLOCKED_CUTOVER"
+  },
+  "repository": {
+    "base_commit": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+    "branch": "stt/hg2-single-system-20261017",
+    "name": "OAI-GIANG/HG2",
+    "pull_request": 22,
+    "pull_request_url": "https://github.com/OAI-GIANG/HG2/pull/22",
+    "tested_commit": "d6b1a12354a36d69820365f3e96c17008ace9e99",
+    "working_tree_clean_before_evidence_addition": true
+  },
+  "schema": "HG2_TERMUX_REVALIDATION_EVIDENCE_V1",
+  "static_checks": {
+    "commit_diff_whitespace": {
+      "command": "git diff --check HEAD^ HEAD",
+      "exit_code": 0
+    },
+    "launcher_shell_syntax": {
+      "command": "bash -n tools/run_phone_runtime.sh",
+      "exit_code": 0
+    },
+    "native_intelligence_fixture_validation": {
+      "HNIT": "30/30",
+      "SHA256SUMS_verification": "PASS",
+      "XN": "6/6",
+      "aggregation_truth_table": "PASS",
+      "byte_for_byte_preservation_proven": false,
+      "digest_recompute": "PASS",
+      "fixture_count": 26,
+      "oracle_specs": "26/26",
+      "semantic_arithmetic": "PASS",
+      "status": "PASS",
+      "unique_ids": 26
+    },
+    "python_compileall": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python -m compileall -q hg tests tools",
+      "exit_code": 0
+    }
+  },
+  "status": "PASS_STAGING_ONLY_BLOCKED_CUTOVER",
+  "test_suites": {
+    "pytest": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m pytest -q -W error::ResourceWarning",
+      "exit_code": 0,
+      "log_path": "/data/data/com.termux/files/home/.cache/hg2-pr22-current-pytest-20261017.log",
+      "log_sha256": "f1078f54a8e16803e40d378730028df98e78921054d5bde85d7d3d67cfdfdfc6",
+      "resource_warning_as_error": true,
+      "result": "PASS",
+      "subtests_passed": 26,
+      "tests_passed": 89
+    },
+    "unittest": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+      "exit_code": 0,
+      "log_path": "/data/data/com.termux/files/home/.cache/hg2-pr22-current-unittest-20261017.log",
+      "log_sha256": "743a110d4285c080b5c4b268f4f35f668b5fb2a795163578654f9472f1bbb0c3",
+      "resource_warning_as_error": true,
+      "result": "PASS",
+      "tests": 77
+    }
+  },
+  "verified_at_local": "2026-10-17T19:49:06+07:00"
+}
