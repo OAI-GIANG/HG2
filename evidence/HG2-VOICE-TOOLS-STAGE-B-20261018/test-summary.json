@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "stage": "B",
+  "scope": "isolated standalone CLI foundation only",
+  "python": "3.14.6",
+  "stage_b_unit_tests": {"command": "PYTHONPATH=tools/voice python -W error::ResourceWarning -m unittest discover -s tools/voice/tests -v", "tests_run": 11, "failures": 0, "errors": 0, "status": "PASS"},
+  "repository_regression_tests": {"command": "python -W error::ResourceWarning -m unittest discover -s tests -v", "tests_run": 26, "failures": 0, "errors": 0, "status": "PASS"},
+  "doctor": {"status": "FOUNDATION_ONLY", "manifest_valid": true, "microphone_accessed": false, "network_used": false, "downloads_performed": false, "runtime_integration": false},
+  "model_downloaded": false,
+  "microphone_used": false,
+  "canonical_runtime_changed": false,
+  "release_status": "NOT_RELEASED"
+}
