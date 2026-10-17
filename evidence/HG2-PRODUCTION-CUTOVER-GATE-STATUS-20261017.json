@@ -1,0 +1,95 @@
+{
+  "blockers": [
+    "Production runtime source differs from the candidate runtime source; exact artifact-to-process provenance is not established.",
+    "Runtime environment has no separate HG_API_READ_TOKEN or HG_API_WRITE_TOKEN configuration.",
+    "Legacy backend does not expose the HG2 capability negotiation or batch receiver contract; do not reuse its token for the new protocol.",
+    "No production durable URL/token, encrypted replica storage, or verified authenticated TLS edge is configured.",
+    "Three backend-only records lack scope authority and must remain quarantined.",
+    "No production writer freeze, end-to-end cutover, restore, and rollback rehearsal has been proven."
+  ],
+  "candidate": {
+    "branch": "stt/hg2-single-system-20261017",
+    "circleci_verify": "PASS",
+    "code_commit": "f88bf1adb43da3bf102f8536862a3c948f5c7c4a",
+    "pr": "https://github.com/OAI-GIANG/HG2/pull/22",
+    "pr_head_commit": "d5cbc25b6be0b5a5624d10862724d2b73e1d9187",
+    "repository": "OAI-GIANG/HG2"
+  },
+  "checked_from": "Termux on phone",
+  "credential_presence_only": {
+    "api_read_token_configured": false,
+    "api_write_token_configured": false,
+    "backend_env_keys": [
+      "HG_BACKEND_DATA",
+      "HG_BACKEND_HOST",
+      "HG_BACKEND_PORT",
+      "HG_BACKEND_TOKENS"
+    ],
+    "credential_values_disclosed": false,
+    "durable_token_configured": false,
+    "durable_url_configured": false,
+    "runtime_env_keys": [
+      "HG_MODEL_API_KEY",
+      "HG_MODEL_BASE_URL",
+      "HG_MODEL_ID",
+      "HG_TOOL_MAX_ITERS",
+      "HG_VISION_API_KEY",
+      "HG_VISION_BASE_URL",
+      "HG_VISION_MODEL_ID",
+      "HG_VISION_TIMEOUT_SECONDS"
+    ],
+    "runtime_env_path": "/data/data/com.termux/files/home/.config/hg/secret.env"
+  },
+  "cutover_ready": false,
+  "legacy_backend_has_hg2_batch_endpoint": false,
+  "legacy_backend_has_hg2_capability_negotiation": false,
+  "legacy_backend_routes": [],
+  "production_deployed": false,
+  "production_migrated": false,
+  "production_mutated": false,
+  "production_processes": {
+    "10804": {
+      "cmdline": "python3 -u /data/data/com.termux/files/home/hg2-service/entry.py",
+      "present": true
+    },
+    "10805": {
+      "cmdline": "python3 -u /data/data/com.termux/files/home/hg/backend/hg_backend.py",
+      "present": true
+    },
+    "10809": {
+      "cmdline": "python3 -u /data/data/com.termux/files/home/hg/core/runtime/hg_runtime.py",
+      "present": true
+    }
+  },
+  "production_restarted": false,
+  "release_state": "NOT_RELEASED",
+  "schema": "HG2_PRODUCTION_CUTOVER_GATE_STATUS_V1",
+  "source_artifacts": {
+    "candidate_runtime_path": "/data/data/com.termux/files/home/tmp/hg-native-intelligence-v21-integration-20261017/hg/phone_runtime.py",
+    "candidate_runtime_sha256": "238cfc38c1c172cdb967d7b279c969ca986fbce4a93991c34cf9c60d2190ed67",
+    "production_backend_path": "/data/data/com.termux/files/home/hg/backend/hg_backend.py",
+    "production_backend_sha256": "2b6127e26beff90c2cb304b8bee94043d58208507586baa79400291c64f20905",
+    "production_runtime_path": "/data/data/com.termux/files/home/hg/core/runtime/hg_runtime.py",
+    "production_runtime_sha256": "e02f344c11f0e513e4e874fdc35eb6c28ea76d8aa541da7bbde19a1427f10a83",
+    "runtime_source_match": false
+  },
+  "source_reconciliation": {
+    "backend_only_quarantined": 3,
+    "json_backend_overlap_exact": 24,
+    "json_only": 9,
+    "json_state_sha256": "7eee10f17366acb36bd230c1ca7e4b0c7da0ef1bcbb1902f4cec43015936baa0",
+    "overlap_conflicts": 0,
+    "sqlite_quick_check": "ok",
+    "sqlite_sha256": "9b94e180950222b7faddc6d9b910abc5db2e82613edd0af2a968e3f9797d79fc"
+  },
+  "staging_validation": {
+    "active_memory_count": 31,
+    "api_smoke": "17/17 passed",
+    "dual_source_import_events": 186,
+    "production_provider_calls": false,
+    "python_tests": "89 passed, 26 subtests passed",
+    "remote_durable_calls": false,
+    "restore_copy_byte_identical": true
+  },
+  "status": "BLOCKED_CUTOVER"
+}
