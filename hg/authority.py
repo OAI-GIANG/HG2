@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-ALLOWED = frozenset({"health.read", "session.create", "edge.register", "edge.heartbeat", "edge.status"})
-NEEDS_AUTH = frozenset({"session.create", "edge.register", "edge.heartbeat", "edge.status"})
-FORBIDDEN = frozenset({"file.read", "file.write", "shell.exec", "network.fetch", "deploy", "identity.change", "state.import", "provider.invoke"})
+ALLOWED = frozenset({"health.read", "session.create", "edge.register", "edge.heartbeat", "edge.status", "provider.invoke"})
+NEEDS_AUTH = frozenset({"session.create", "edge.register", "edge.heartbeat", "edge.status", "provider.invoke"})
+FORBIDDEN = frozenset({"file.read", "file.write", "shell.exec", "network.fetch", "deploy", "identity.change", "state.import"})
 
 
 @dataclass(frozen=True)
