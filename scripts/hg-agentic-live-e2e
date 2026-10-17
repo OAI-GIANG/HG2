@@ -23,13 +23,9 @@ sys.path.insert(0, str(ROOT))
 from hg.model_provider import DeepSeekTaskDraftProvider, ModelProviderError
 from hg.task_compiler import CompileError, compile_natural_language
 
-PROMPT = (
-    "Draft a task contract for a read-only operation that checks whether a local test suite "
-    "has a recorded result. Inputs are a test-log path and expected exit code. Output a summary "
-    "of whether evidence is present. Do not execute commands, modify files, access credentials, "
-    "or claim a test ran unless a log is supplied. If needed information is absent, stop and "
-    "mark the task blocked. Return only the structured task-contract JSON."
-)
+PROMPT = """Draft one HG Task Contract for a read-only operation that checks whether a supplied local test log exists and whether its recorded exit code matches an expected exit code. Never execute commands, modify files, access credentials, or claim the test ran. If the log is not supplied, stop and mark the task BLOCKED. Return only one JSON object, no markdown or commentary. Preserve this exact field shape and nested keys; replace example text with task-specific text and keep input/dependencies/risks/required_capabilities as empty arrays when no entries are needed:
+{"schema_version":"hg.task-contract.v1","task_id":"draft:example","objective":"Specific measurable objective","scope":{"include":["test-log.inspection"],"exclude":["shell.exec","file.write","credential.read"]},"input":[],"output":[{"output_id":"out:1","media_type":"application/json","description":"Read-only result summary","validation_rule_refs":["rule:json"]}],"acceptance_criteria":[{"criterion_id":"crit:1","description":"No command execution or mutation; result is grounded in supplied log","severity":"P1","oracle_ref":"oracle:task-contract-v1","required":true}],"evidence_requirements":[{"requirement_id":"ev:1","evidence_type":"unit-test-result","source_policy":"local-test-harness","integrity_policy":"bind-to-exact-source-sha","required":true}],"risks":[],"stop_conditions":[{"condition_id":"stop:1","predicate_ref":"predicate:missing-or-invalid-log","reason_code":"BLOCKED","minimum_status":"BLOCKED"}],"next_action":{"action_id":"next:1","description":"Wait for authorized orchestration","preconditions":["valid-supplied-log"],"on_blocked":"stop-and-preserve-evidence"},"dependencies":[],"required_capabilities":[],"authorization_requirement":{"policy_ref":"policy:HG_AUTHORITY_V1","action":"health.read","authenticated_actor_required":false,"approval_required":false,"scope_ref":"scope:read-only-test"},"created_at":"2026-10-17T10:00:00+00:00","created_by":"draft","approval_ref":null,"contract_digest":"placeholder"}
+"""
 
 
 def sha(data: bytes) -> str:
@@ -133,7 +129,11 @@ def main() -> int:
             "timeout_seconds": provider.timeout_seconds, "max_tokens": provider.max_tokens,
         }, sort_keys=True, separators=(",", ":")).encode()
         result["nonsecret_model_config_sha256"] = sha(sanitized_config)
-        plan = compile_natural_language(PROMPT, draft_provider=provider)
+        draft = provider(PROMPT)
+        draft_bytes = (json.dumps(draft, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode()
+        write_private(run_dir, "provider-validated-draft.json", draft_bytes)
+        result["provider_draft_sha256"] = sha(draft_bytes)
+        plan = compile_natural_language(PROMPT, draft_provider=lambda _request: draft)
         plan_bytes = (json.dumps(plan, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode()
         write_private(run_dir, "compiled-plan.json", plan_bytes)
         contract = plan.get("task_contract")
