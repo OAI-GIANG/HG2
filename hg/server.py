@@ -39,9 +39,10 @@ class HGHTTPServer(ThreadingHTTPServer):
 
     def __init__(self, address, runtime=None):
         self.runtime = runtime or PhoneRuntime()
-        self.api_token = os.environ.get("HG_API_TOKEN", "")
-        if not self.api_token:
-            raise RuntimeError("HG_API_TOKEN must be configured; refusing unauthenticated memory API")
+        self.read_token = os.environ.get("HG_API_READ_TOKEN", "")
+        self.write_token = os.environ.get("HG_API_WRITE_TOKEN", "")
+        if not self.read_token or not self.write_token:
+            raise RuntimeError("HG_API_READ_TOKEN and HG_API_WRITE_TOKEN must be configured separately")
         self.principal_id = os.environ.get("HG_API_PRINCIPAL_ID", "phone-owner")
         self.read_scopes = _scopes("HG_MEMORY_READ_SCOPES")
         self.write_scopes = _scopes("HG_MEMORY_WRITE_SCOPES")
@@ -69,7 +70,8 @@ class HGRequestHandler(BaseHTTPRequestHandler):
     def _auth(self, write=False):
         hdr = self.headers.get("Authorization", "")
         supplied = hdr[7:] if hdr.startswith("Bearer ") else ""
-        if not supplied or not hmac.compare_digest(supplied, self.server.api_token):
+        expected = self.server.write_token if write else self.server.read_token
+        if not supplied or not hmac.compare_digest(supplied, expected):
             self._send(401, {"ok": False, "error": {"code": "UNAUTHORIZED"}})
             return None
         scopes = self.server.write_scopes if write else self.server.read_scopes
@@ -197,6 +199,8 @@ class HGRequestHandler(BaseHTTPRequestHandler):
 
 def main():
     host = os.environ.get("HG_BIND", "127.0.0.1")
+    if host not in ("127.0.0.1", "::1", "localhost"):
+        raise RuntimeError("HG phone API must bind to loopback; expose it only through the authenticated HTTPS edge")
     port = int(os.environ.get("HG_PORT", "8787"))
     state_dir = os.environ.get("HG_STATE_DIR")
     runtime = PhoneRuntime(state_dir=state_dir)

@@ -23,9 +23,18 @@ Build one cohesive runtime from canonical HG2 source. Do not mount or import a s
 2. One state owner based on `hg.history.StateStore`; append-only hash-chained events are the durable local authority.
 3. One memory service with server-side identity/scope checks, optimistic version guards, idempotency, checksums, tombstones, and auditable events.
 4. One model gateway that receives only authorized context and emits a source/version/checksum manifest.
-5. One UI served by the same runtime; browser storage is cache/import input, never authority.
+5. One UI served by the same runtime; browser storage is cache/import input, never authority. Read and write tokens are distinct, entered in memory only, and never stored in browser storage.
 6. Optional durable replication uses a narrowly scoped credential and an explicit outbox/reconciliation protocol. Remote acceptance is not local commit; timeout is not success.
 7. One health/diagnostics surface that distinguishes liveness, integrity, storage, model-provider readiness, and source/build identity.
+8. The canonical API binds to loopback only. Remote access must go through an authenticated HTTPS edge; no public cleartext listener is permitted.
+
+## Current implementation branch evidence
+
+- `hg/memory.py`: event-sourced memory with explicit scopes, optimistic version checks, idempotency, checksums, tombstones, and no resurrection.
+- `hg/server.py` + `ui/index.html`: one-process local API/UI; requires separate `HG_API_READ_TOKEN` and `HG_API_WRITE_TOKEN`, explicit read/write scopes, and loopback bind.
+- `tools/legacy_state_preflight.py` + `tools/import_legacy_state.py`: read-only inventory and dry-run-by-default importer. The importer preserves legacy messages/conversations as inert events, copies only verified Library assets inside the canonical root, and redacts device tokens from the event log.
+- Rehearsal against the frozen snapshot imported 31 scoped memories, preserved 2 unscoped records in quarantine, imported 68 messages and 4 conversations, copied 4 verified assets, quarantined 13 unsafe/missing Library metadata records, and recorded 2 device records without tokens. The hash-chained target passed integrity and content/hash reconciliation. This is staging evidence only, not a production cutover.
+- No `HG_API_READ_TOKEN` / `HG_API_WRITE_TOKEN` has been provisioned for this new API. Do not deploy until credential ownership/provisioning is resolved without reusing a credential outside its intended scope.
 
 ## Local component disposition
 

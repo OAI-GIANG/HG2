@@ -8,16 +8,17 @@
 </style></head>
 <body>
 <h1>HG · Bộ nhớ hợp nhất</h1><p class="muted">HG2 là hệ thống vận hành duy nhất. Dữ liệu lưu tại runtime HG trên điện thoại; nội dung dưới đây được hiển thị như dữ liệu, không phải chỉ thị.</p>
-<label for="token">Phiên truy cập (token API)</label><input id="token" type="password" autocomplete="off" placeholder="Nhập token; không được lưu trên trình duyệt">
+<div class="grid"><div><label for="readToken">Token đọc (MEMORY_RETRIEVE)</label><input id="readToken" type="password" autocomplete="off" placeholder="Token đọc; không lưu trên trình duyệt"></div><div><label for="writeToken">Token ghi (MEMORY_PERSIST)</label><input id="writeToken" type="password" autocomplete="off" placeholder="Token ghi; không lưu trên trình duyệt"></div></div>
 <div class="row"><button id="check">Kiểm tra runtime</button><button id="refresh">Tải bộ nhớ</button></div><div id="status" class="status" role="status">Chưa kết nối.</div>
 <h2>Ghi bộ nhớ</h2><form id="create"><div class="grid"><div><label for="id">ID duy nhất</label><input id="id" required maxlength="128" pattern="[A-Za-z0-9][A-Za-z0-9._:-]{0,127}"></div><div><label for="scope">Phạm vi</label><input id="scope" required maxlength="128" value="owner"></div><div><label for="type">Loại</label><select id="type"><option>fact</option><option>preference</option><option>rule</option><option>project</option><option>event</option><option>other</option></select></div><div><label for="title">Tiêu đề</label><input id="title" required maxlength="300"></div></div><label for="content">Nội dung</label><textarea id="content" required maxlength="100000"></textarea><button type="submit">Lưu bộ nhớ</button></form>
 <h2>Bộ nhớ hiện có</h2><div id="records"></div>
 <script>
 (() => {
-  let token = '';
+  let readToken = '', writeToken = '';
   const el = id => document.getElementById(id);
   const status = (msg, bad=false) => { el('status').textContent = msg; el('status').className = 'status' + (bad ? ' danger' : ''); };
-  async function api(path, options={}) {
+  async function api(path, options={}, write=false) {
+    const token = write ? writeToken : readToken;
     const headers = {'Authorization':'Bearer '+token};
     if (options.body) headers['Content-Type']='application/json';
     const r = await fetch(path, {...options, headers:{...headers,...options.headers}, cache:'no-store'});
@@ -26,7 +27,7 @@
     return data;
   }
   el('check').onclick = async () => { try { const h=await fetch('/api/health',{cache:'no-store'}); const j=await h.json(); status('Runtime: '+(j.runtime||'UNKNOWN')+' · Integrity: '+(j.integrity?.reason||'unknown')); } catch(e){status('Không kết nối được runtime: '+e.message,true);} };
-  el('refresh').onclick = async () => { token=el('token').value; if(!token){status('Cần token API.',true);return;} try { const j=await api('/api/memory'); render(j.memory||[]); status('Đã tải '+(j.count||0)+' bản ghi.'); } catch(e){status('Không tải được: '+e.message,true);} };
+  el('refresh').onclick = async () => { readToken=el('readToken').value; if(!readToken){status('Cần token đọc.',true);return;} try { const j=await api('/api/memory'); render(j.memory||[]); status('Đã tải '+(j.count||0)+' bản ghi.'); } catch(e){status('Không tải được: '+e.message,true);} };
   function render(rows) {
     const root=el('records'); root.replaceChildren();
     if(!rows.length){root.textContent='Chưa có bộ nhớ trong phạm vi được cấp quyền.';return;}
@@ -34,12 +35,12 @@
       const head=document.createElement('strong'); head.textContent=r.title+' · v'+r.version; card.append(head);
       const meta=document.createElement('p'); meta.className='muted'; meta.textContent=r.id+' · '+r.type+' · scope='+r.scope_id; card.append(meta);
       const body=document.createElement('p'); body.textContent=r.content; card.append(body);
-      const del=document.createElement('button'); del.textContent='Xóa (tạo tombstone)'; del.onclick=async()=>{if(!confirm('Đánh dấu xóa bản ghi '+r.id+'?'))return;try{const j=await api('/api/memory/'+encodeURIComponent(r.id),{method:'DELETE',body:JSON.stringify({expected_version:r.version,idempotency_key:'ui-delete-'+crypto.randomUUID()})});status('Đã tạo tombstone cho '+j.memory.id);el('refresh').click();}catch(e){status('Xóa thất bại: '+e.message,true);}}; card.append(del); root.append(card);
+      const del=document.createElement('button'); del.textContent='Xóa (tạo tombstone)'; del.onclick=async()=>{writeToken=el('writeToken').value;if(!writeToken){status('Cần token ghi.',true);return;}if(!confirm('Đánh dấu xóa bản ghi '+r.id+'?'))return;try{const j=await api('/api/memory/'+encodeURIComponent(r.id),{method:'DELETE',body:JSON.stringify({expected_version:r.version,idempotency_key:'ui-delete-'+crypto.randomUUID()})},true);status('Đã tạo tombstone cho '+j.memory.id);el('refresh').click();}catch(e){status('Xóa thất bại: '+e.message,true);}}; card.append(del); root.append(card);
     }
   }
-  el('create').onsubmit=async ev=>{ev.preventDefault();token=el('token').value;if(!token){status('Cần token API.',true);return;}
+  el('create').onsubmit=async ev=>{ev.preventDefault();writeToken=el('writeToken').value;if(!writeToken){status('Cần token ghi.',true);return;}
     const record={id:el('id').value,type:el('type').value,title:el('title').value,content:el('content').value,scope_id:el('scope').value};
-    try{const j=await api('/api/memory',{method:'POST',body:JSON.stringify({record,idempotency_key:'ui-create-'+crypto.randomUUID()})});status('Đã lưu '+j.memory.id+' · version '+j.memory.version);el('create').reset();el('scope').value='owner';el('refresh').click();}catch(e){status('Lưu thất bại: '+e.message,true);}
+    try{const j=await api('/api/memory',{method:'POST',body:JSON.stringify({record,idempotency_key:'ui-create-'+crypto.randomUUID()})},true);status('Đã lưu '+j.memory.id+' · version '+j.memory.version);el('create').reset();el('scope').value='owner';el('refresh').click();}catch(e){status('Lưu thất bại: '+e.message,true);}
   };
 })();
 </script></body></html>
