@@ -10,6 +10,7 @@
     "hg.contracts",
     "hg.history",
     "hg.sqlite_state",
+    "hg.sync",
     "hg.workflow",
     "hg.phone_runtime",
     "hg.edge"
