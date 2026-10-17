@@ -27,6 +27,7 @@ class NativeOracleTests(unittest.TestCase):
         self.assertEqual(len(data['cases']),20)
         self.assertEqual(len({x['case_id'] for x in data['cases']}),20)
         self.assertTrue(any(x['criterion_id']=='HNI-04' for x in data['cases']))
+        self.assertEqual({x['criterion_id'] for x in data['cases']}, {f'HNI-{i:02d}' for i in range(1,17)})
         for case in data['cases']:
             self.assertIn('expected',case)
             self.assertIn('criterion_id',case)

@@ -13,7 +13,15 @@
 - Dataset `HNO-SYNTH-001`, oracle `HNO-ORACLE-1.0.0`: 20/20 expected results matched, including explicit DAG topological-order and cycle-detection cases. The Brier expected value was recalculated and pinned as 0.23 after the first run detected an incorrect expected value.
 - Synthetic control-policy comparison: baseline 5/20 (0.25) vs candidate 20/20 (1.0), delta `+0.75`, 15 paired cases improved and zero regressions. The predeclared synthetic gate (delta >= 0.25 and zero regressions) passes. `observed_model_runs=0`; no live model quality improvement is claimed.
 - Termux strict unittest suite: 174/174 PASS, `ResourceWarning` treated as error. The raw full log is retained.
-- CircleCI is configured to rerun the strict suite, historical fixture integrity check, 20-case deterministic oracle and synthetic control-policy benchmark. Hosted CI for the integration commit remains pending until checked by exact SHA.
+- CircleCI config was extended to run the strict suite, historical fixture integrity check, 20-case deterministic oracle and synthetic control-policy benchmark. GitHub reports no status/check run for exact candidate `02c543dc4851d3e45f92a6e520054fb6b3aee41d` after repeated read-only checks; last known passing CircleCI job #141 belongs to the previous HEAD `65a3fd9147ca79a45d66a01c1eca3f75ed34b793`. Hosted CI acceptance for this integration revision is not proven.
+
+## Runtime provenance / trust-root findings (read-only)
+
+- Termux `sv status` reports `hg-backend` (PID 10805) and `hg-runtime` (PID 10809) running. This establishes service-process presence only, not correctness or release readiness.
+- A Python process (PID 10804) has working directory `$HOME/hg2-phone`; that checkout is detached at `4d97c34d8bb7c1091265330aef63dd78d0e72c49` and is dirty with modifications, a deleted source file, and untracked files. This is not the native-first candidate and is not a clean provenance anchor.
+- The candidate worktree is separate. No restart, restore, cutover, or runtime mutation was performed. Runtime provenance remains `BLOCKED_MISMATCH` until the actually running code/process/build is mapped to an approved immutable source and a controlled recovery plan exists.
+- `~/.config/hg/secret.env` was inspected only for metadata (present, 0600, 271 bytes); its content was not read or hashed. File permissions do not establish key validity, signer identity, or a trust root. Production trust remains `BLOCKED`.
+- Existing tests confirm SQLite idempotency, concurrent duplicate handling, restart recovery to `IN_DOUBT`, and that test-only verifier callbacks cannot promote untrusted evidence to trusted. These are test-harness outcomes, not a real-phone abrupt-power-loss result. Actual target-device power-loss recovery remains `NOT_RUN`.
 
 ## Open acceptance gates
 
