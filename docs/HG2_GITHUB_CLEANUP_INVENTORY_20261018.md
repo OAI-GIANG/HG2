@@ -182,3 +182,11 @@ Verification evidence directory: evidence/HG2-CLEANUP-P0-20261018/
 - The test was run in the isolated candidate checkout. The active runtime and live state were not read or modified.
 
 This hardening addresses concrete correctness/security gaps found during cleanup. It is not a claim that every PR or feature group is consolidated, and it does not authorize release or canonical-branch changes.
+
+## 13. GitHub cleanup action completed
+
+- PR #19 (chore: detach HG2 runtime from external host infrastructure) is now CLOSED, not merged, verified through authenticated GitHub CLI on 2026-10-18.
+- Closure comment: https://github.com/OAI-GIANG/HG2/pull/19#issuecomment-6239595380
+- Preserved reference branch: stt/hg2-unification-p0-20261016 @ a64e49d1619f5d83b5741d13c92961df9b07c79a. The branch was not deleted and should be used only as a source for later selective review.
+- Other overlapping feature PRs were not closed. PRs #12/#13/#15 carry narrower candidate scopes and still need product-scope disposition; PRs #21/#22/#24/#25 remain distinct candidate feature groups and must not be merged wholesale without one-owner interface reconciliation.
+- No merge to hg-genesis, no canonical branch mutation, no runtime change, and no live-state migration.
