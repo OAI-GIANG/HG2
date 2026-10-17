@@ -131,3 +131,22 @@ The candidate provider has a credential loader that enforces a private regular f
 - CP0: `BLOCKED_INPUT`.
 - Live model E2E: `NOT_RUN`.
 - PR #21: remain OPEN Draft; no merge, deployment, release or close.
+
+## 11. Remaining-gates recheck (2026-10-17, read-only)
+
+### Loaded runtime/build provenance
+
+- Supervisor launchers were read without displaying environment values. The runtime launcher directly executes `python3 -u ~/hg/core/runtime/hg_runtime.py`; it does not pin a commit, verify a source-tree digest, verify a signed build manifest, or record an immutable build identity before execution.
+- The backend launcher sources a private `~/.config/hg/backend.env` file; its contents were not read. The HG2 service launcher changes into `~/hg2-phone` and executes `~/hg2-service/entry.py`.
+- Active PIDs 10805 (backend), 10809 (runtime), and 10804 (HG2 entrypoint) were present at the read-only check. `/proc` exposed executable and working-directory metadata but no independently usable attestation of the Python source bytes already loaded into each process. No process memory, secret, bearer capability, or credential was read.
+- The runtime source file still differs from the committed blob and the launcher provides no digest/commit verification step. Therefore no valid link is established from approved candidate commit -> launched source -> source actually loaded by production process. Status remains `BLOCKED_MISMATCH`.
+
+### CP0 historical source — additional search
+
+- Searched local Git history and refs in the candidate repository and the phone-side checkout for CP0, HNIF2-18, historical/original criteria and the criteria artifact paths. The only criteria artifact history located was commit `0a1a5e97d57cdee68b696866e29dc0fb07562ec6` (`feat: add HG-native intelligence criteria and evaluator`, 2026-10-17), which introduces the native criteria/evaluator; it is not evidence of the historical source.
+- The HNIF2-18 fixture is explicitly `SYNTHETIC_NON_PRODUCTION`, `NOT_RUN`, describes the primary source as unavailable, and contains zero evidence references. GitHub code searches in `OAI-GIANG/HG2` for the fixture name, CP0 historical criteria and trust-root/revocation terms returned no results. This is a bounded search, not proof that no external source exists.
+- CP0 remains `BLOCKED_INPUT`. Do not substitute the native draft, fixture, benchmark or synthetic dataset for the missing authoritative historical 26-criteria source.
+
+### Gate disposition
+
+No new trust root, key, credential or authority artifact was created. No production process was restarted; no production database write, canonical mutation, merge, deploy, release or PR close occurred. The isolated SQLite/source/runtime lab results remain limited-scope rehearsal evidence only. Runtime provenance, authenticated trust root, CP0, live-model E2E and full-service rollback remain blocking gates.
