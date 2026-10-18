@@ -1,0 +1,10 @@
+test_archive_contains_only_manifest_modules (tests.test_distribution.DistributionBoundaryTests.test_archive_contains_only_manifest_modules) ... ok
+test_archive_is_deterministic (tests.test_distribution.DistributionBoundaryTests.test_archive_is_deterministic) ... ok
+test_distributed_package_imports_phone_runtime_without_dev_tools (tests.test_distribution.DistributionBoundaryTests.test_distributed_package_imports_phone_runtime_without_dev_tools) ... ok
+test_existing_output_is_never_overwritten (tests.test_distribution.DistributionBoundaryTests.test_existing_output_is_never_overwritten) ... ok
+test_output_inside_checkout_is_rejected (tests.test_distribution.DistributionBoundaryTests.test_output_inside_checkout_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.186s
+
+OK

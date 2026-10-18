@@ -1,0 +1,47 @@
+{
+  "repository": "OAI-GIANG/HG2",
+  "target": "stt/hg2-gap-integration-20261018",
+  "target_base": "3641b7dd4446629d37bf74a444e78ed280312c8d",
+  "source": "stt/hg2-unification-p0-20261016",
+  "source_head": "a64e49d1619f",
+  "change": "Ported allowlist-driven deterministic distribution builder and wrote tests adapted to the actual tools-target manifest; no 223-file source branch merge and no archive-only substitution.",
+  "ported_files": [
+    {
+      "path": "tools/build_distribution.py",
+      "sha256": "b93fc14ac5f316c140f83f3e1725019f826c8f4a82c9893ce88d8a4d40206264",
+      "source_exists": true,
+      "source_sha256": "b93fc14ac5f316c140f83f3e1725019f826c8f4a82c9893ce88d8a4d40206264",
+      "adapted_for_target_manifest": false
+    },
+    {
+      "path": "tests/test_distribution.py",
+      "sha256": "3fb014debdb0493acf0b006bb060295b3c723d784d976bc7fd5decfe53a1d479",
+      "source_exists": true,
+      "source_sha256": "86a5428d87c26723336f4fcbcbb55fac2043854e885091c1ac5f7c41a5f8e0a7",
+      "adapted_for_target_manifest": true
+    }
+  ],
+  "tests": {
+    "evidence/HG2-TOOLS-DISTRIBUTION-FOCUSED-TESTS-20261019.log": {
+      "tests": 5,
+      "ok": true,
+      "sha256": "5716a0e7cef86ab25d9c9080bb4de426b5d3c47e389cea988fe8a5884354866b"
+    },
+    "evidence/HG2-TOOLS-DISTRIBUTION-FULL-TESTS-20261019.log": {
+      "tests": 92,
+      "ok": true,
+      "sha256": "0b48e27752c87f6b5d236df2c160f7854110a6311ae138b314a2285245ba3766"
+    }
+  },
+  "diff_check": "PASS",
+  "source_ref_deleted": false,
+  "remote_ref_count_before_push": 25,
+  "acceptance": [
+    "all manifest modules included",
+    "developer/test/docs/evidence trees excluded",
+    "deterministic ZIP hash across independent builds",
+    "runtime import works from extracted distribution",
+    "output inside repository rejected",
+    "existing output never overwritten"
+  ]
+}
