@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class ManifestTests(unittest.TestCase):
     def test_example_manifest_valid(self):
-        self.assertEqual(len(load_manifest(ROOT / "models.example.json")["engines"]), 3)
+        self.assertEqual(len(load_manifest(ROOT / "models.example.json")["engines"]), 4)
     def test_reject_duplicate_ids(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "m.json"
@@ -41,7 +41,7 @@ class ManifestTests(unittest.TestCase):
 
 class RegistryAndAuditTests(unittest.TestCase):
     def test_registry_is_metadata_only(self):
-        self.assertEqual({e.id for e in list_engines()}, {"whisper.cpp", "vieneu-nano", "termux-system-tts"})
+        self.assertEqual({e.id for e in list_engines()}, {"whisper.cpp", "espeak-ng", "vieneu-nano", "termux-system-tts"})
     def test_audit_redacts_content_by_contract(self):
         out = audit_record("op-1", "whisper.cpp", "complete", 10, 20, 5)
         self.assertNotIn("spoken words", out)

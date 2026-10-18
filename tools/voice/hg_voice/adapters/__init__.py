@@ -1,1 +1,1 @@
-"""Optional adapters; core CLI does not import model runtimes."""
+"""Optional, explicitly invoked local speech adapters."""

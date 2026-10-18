@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "task": "HG2-VOICE-ANNOUNCEMENT",
+  "timestamp_local": "2026-10-18T11:27:28.389271+07:00",
+  "classification": "EXECUTED_DEVICE_EVIDENCE",
+  "environment": {
+    "os": "Android / Termux",
+    "architecture": "aarch64",
+    "python": "3.14.6",
+    "espeak_ng_version": "1.52.0",
+    "termux_packages": {
+      "espeak": "1.52.0-1",
+      "play-audio": "0.6-2"
+    },
+    "global_cli": "$PREFIX/bin/hg-voice (installed; mode 0700)",
+    "checkout_branch": "stt/hg2-voice-tools-design-20261018",
+    "checkout_head": "39e5ac14d7b5dcc7b304b823b564b6825330fddc"
+  },
+  "request": {
+    "text_source": "local UTF-8 file with generic non-personal announcement; text omitted from evidence/logs",
+    "voice": "vi-vn-x-central",
+    "rate_wpm": 135
+  },
+  "synthesis": {
+    "exit_code": 0,
+    "result": "PASS",
+    "engine": "espeak-ng",
+    "processing": "LOCAL",
+    "network_used": false,
+    "model_downloaded": false,
+    "microphone_accessed": false,
+    "quality_acceptance": "NOT_ASSESSED"
+  },
+  "audio_artifact": {
+    "format": "RIFF/WAVE PCM",
+    "channels": 1,
+    "sample_width_bits": 16,
+    "sample_rate_hz": 22050,
+    "duration_seconds": 8.053,
+    "size_bytes": 355168,
+    "sha256": "f0fb4aecab152b1da1d763705c3b4f57cf44fce18cd1699d33d4c32a558f8cd6",
+    "private_path": "~/.cache/hg2-voice-announcement/voice-announcement-cli.wav",
+    "shared_download_path": "~/storage/shared/Download/HG2-Voice-Announcement-Test.wav",
+    "shared_copy_sha256": "f0fb4aecab152b1da1d763705c3b4f57cf44fce18cd1699d33d4c32a558f8cd6",
+    "sha256_match_private_vs_shared": true,
+    "audio_committed_to_git": false
+  },
+  "validation": {
+    "ffmpeg_decode_exit_code": 0,
+    "wav_parse": "PASS",
+    "sha256_verification": "PASS"
+  },
+  "playback": {
+    "player": "play-audio",
+    "exit_code": 0,
+    "player_reported_played": true,
+    "human_listening_confirmation": false
+  },
+  "automated_tests": {
+    "command": "cd ~/HG2/tools/voice && python3 -W error::ResourceWarning -m unittest discover -s tests -v",
+    "test_count": 63,
+    "passed": 63,
+    "failed": 0,
+    "exit_code": 0,
+    "final_rerun": true,
+    "log_path_private": "~/.cache/hg2-voice-announcement/test-suite.log",
+    "log_sha256": "4966e0865f72821145d64689fa6c02efe57ef7a9d48833abea8fc214bdfec3e6"
+  },
+  "termux_system_tts": {
+    "result": "BLOCKED_OPTIONAL_PATH",
+    "reason": "Termux:API companion app package com.termux.api was not installed; the client probe timed out (124). The unused termux-api CLI package was then removed. This path was not used for this announcement.",
+    "client_cli_package_removed_after_probe": true
+  },
+  "scope": {
+    "canonical_hg_genesis_changed": false,
+    "core_runtime_modified": false,
+    "merge_or_deploy_performed": false,
+    "remote_audio_upload": false,
+    "release_state": "NOT_RELEASED_QUALITY_ACCEPTANCE_PENDING",
+    "limitations": [
+      "A successful local player exit does not prove that a person heard or approved the audio.",
+      "No independent human listening or Vietnamese naturalness/pronunciation review was performed.",
+      "This is a functional eSpeak NG fallback, not evidence of neural TTS quality."
+    ]
+  },
+  "global_cli_wrapper_e2e": {
+    "command": "hg-voice tts --text-file <private-text-file> --output <private-wav> --voice vi-vn-x-central --rate 135 --play",
+    "exit_code": 0,
+    "synthesis": "PASS",
+    "playback_exit_code": 0,
+    "ffmpeg_decode_exit_code": 0,
+    "audio_sha256": "f0fb4aecab152b1da1d763705c3b4f57cf44fce18cd1699d33d4c32a558f8cd6",
+    "audio_equal_to_shared_test_artifact": true
+  },
+  "implementation": {
+    "adapter": "tools/voice/hg_voice/adapters/espeakng.py",
+    "cli_wrapper": "$PREFIX/bin/hg-voice",
+    "tracked_code_working_tree_tested": true,
+    "no_core_runtime_integration": true,
+    "canonical_base_sha": "9d83a113ccdf1aeda656e494593fa55b9078c803"
+  }
+}

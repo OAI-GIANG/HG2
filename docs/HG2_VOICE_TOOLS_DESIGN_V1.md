@@ -175,3 +175,16 @@ No stage may silently advance if its evidence is missing. Do not merge, deploy, 
 **Recommended:** proceed with Stage B on an isolated branch after this design document is reviewed. Keep TTS engine selection provisional until real Termux TTS inference works and Vietnamese quality/resource evidence exists. The most valuable immediate deliverable is a stable on-demand tool surface with local-first STT and an honest, fail-closed TTS capability report—not a large combined stack.
 
 **Status: DESIGN ONLY — IMPLEMENTATION NOT STARTED IN THIS BRANCH — NOT RELEASED.**
+
+
+## 13. Stage E result — local Vietnamese announcement fallback (2026-10-18)
+
+**Implemented on the working branch:** tools/voice/hg_voice/adapters/espeakng.py adds an explicit eSpeak NG adapter for Vietnamese WAV synthesis and local playback. It is independent of the core HG runtime and does not modify manifest.json, hg/, approvals, or runtime services.
+
+- Voice choices are explicitly allowlisted: vi, vi-vn-x-central, vi-vn-x-south; text is supplied via stdin rather than as a child-process argument.
+- The adapter uses shell=False, timeout and text/audio size bounds; validates PCM WAV properties; hashes the final file; writes owner-only output; refuses overwrite unless explicitly requested; cleans failed temporary outputs.
+- The optional playback step requires local play-audio. It never falls back to Android system TTS or a network service.
+- Termux package runtime was exercised on Android/aarch64 with eSpeak NG and play-audio; one generic non-personal Vietnamese announcement synthesized to valid WAV and the local player returned exit code 0. The artifact and digest are recorded in the dated execution evidence. A separate Termux:API system-engine query timed out because the Termux:API companion app was not installed; that optional route remains unavailable and is not used.
+- Automated Voice Tools suite: 63 tests pass on the device after adding adapter, CLI and safety tests.
+
+**Limitations:** this is a functional local announcement path, not a neural/naturalness acceptance. No trained Vietnamese quality set or independent human listening review was performed. Do not infer pronunciation quality from process success. VieNeu Nano stays blocked-unverified; no model was downloaded. No microphone was accessed, no personal audio used, no runtime integration/deploy performed, and canonical hg-genesis was not changed. The work remains on this PR's draft branch pending acceptance review.

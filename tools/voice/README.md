@@ -1,6 +1,6 @@
-# HG2 Voice Tools — Stage B foundation
+# HG2 Voice Tools — on-demand local speech utilities
 
-Standalone, on-demand CLI. It is not imported by HG runtime modules. Core code uses Python standard library only.
+Standalone, on-demand CLI. It is not imported by HG runtime modules. Core orchestration uses Python standard library only; optional speech engines are invoked explicitly.
 
 From repository root:
 
@@ -8,12 +8,14 @@ From repository root:
 PYTHONPATH=tools/voice python -m hg_voice doctor
 PYTHONPATH=tools/voice python -m hg_voice engines
 PYTHONPATH=tools/voice python -m hg_voice verify PATH --sha256 HEX_DIGEST
+PYTHONPATH=tools/voice python -m hg_voice tts --text-file NOTICE.txt --output NOTICE.wav --voice vi --play
+PYTHONPATH=tools/voice python -m hg_voice play NOTICE.wav
 PYTHONPATH=tools/voice python -m unittest discover -s tools/voice/tests -v
 ```
 
-`doctor` and `engines` are read-only: no network, model download, microphone, or package installation. `models.example.json` is metadata only; no model is included. `verify` only hashes a user-specified local file. No audio/transcript content is accepted or logged by this Stage B foundation.
+`doctor` and `engines` are read-only: no network, model download, microphone, or package installation. The example manifest is metadata only; no model is included. Verify only hashes a user-specified local file. TTS reads UTF-8 text from a file, passes it to the local engine through stdin (not process arguments), creates and validates a PCM WAV, calculates SHA-256, and never writes spoken text to audit logs.
 
-The engines listed are candidates, not ready-to-use capabilities. Whisper.cpp requires a separately installed, hash-pinned executable/model; VieNeu Nano is blocked until Termux inference and Vietnamese quality are verified; Android system TTS has an unknown processing boundary and must not be described as guaranteed offline.
+Engine readiness is per-engine: eSpeak NG is an available-if-installed local fallback for Vietnamese announcement audio; its quality is not accepted merely because synthesis and playback work. Whisper.cpp requires a separately installed, hash-pinned executable/model. VieNeu Nano remains blocked until Termux inference and Vietnamese quality are verified. Android system TTS remains optional and unverified; the Termux:API CLI by itself is insufficient without its companion Android app. Do not describe that path as guaranteed offline.
 
 ## Local whisper.cpp adapter (Stage C)
 
@@ -35,3 +37,22 @@ PYTHONPATH=tools/voice python -m hg_voice.text_stress --output /tmp/hg-voice-tex
 The suite uses seed `20261018`; the fixture and report are reproduced under `evidence/HG2-VOICE-TEXT-STRESS-20261018/`. Case IDs and per-case SHA-256 values make fixture changes visible. Scoring uses the same NFC + casefold + collapsed-whitespace policy as the existing metrics implementation.
 
 **Boundary:** these strings are synthetic and hand-authored, not a representative language benchmark. This tool does not generate/process audio or invoke an ASR model. Its WER/CER only exercise the text evaluation path and are explicitly marked `DIAGNOSTIC_ONLY_NOT_ACCEPTANCE`; they must not be quoted as acoustic recognition performance or release acceptance evidence.
+
+
+## Local Vietnamese TTS — eSpeak NG fallback
+
+The Stage E fallback supports Vietnamese synthesis without a neural model download or a remote provider. It uses the espeak-ng executable and its installed voice data, with vi (Northern), vi-vn-x-central, and vi-vn-x-south selectable. The generated output is a local PCM WAV; default rate is 135 and supported rate values are 90–220.
+
+Example:
+
+~~~sh
+PYTHONPATH=tools/voice python -m hg_voice tts \
+  --text-file /path/to/notice.txt \
+  --output /path/to/notice.wav \
+  --voice vi --rate 135 --play
+PYTHONPATH=tools/voice python -m hg_voice play /path/to/notice.wav
+~~~
+
+The text-file argument is required so spoken content does not appear in the command's argument list. The default refuses to overwrite an existing WAV; --overwrite is a separate explicit opt-in. Input is limited to 10,000 characters; WAV output is bounded and validated for PCM format, channels, sample rate, frame count and duration. Temporary output files use owner-only permissions and are removed on failure. The optional play flag invokes the local play-audio utility without a shell; it does not use termux-tts-speak or an online fallback.
+
+**Acceptance boundary:** a zero process exit, valid WAV, SHA-256, and successful local-player exit prove that the local pipeline ran and the player accepted the file. They do not establish naturalness, pronunciation accuracy, accessibility suitability, or that a person actually heard/approved the audio. Human listening and a predefined Vietnamese quality review are still required before any production quality claim. VieNeu Nano remains a separate blocked research candidate; this adapter does not mark it ready.
