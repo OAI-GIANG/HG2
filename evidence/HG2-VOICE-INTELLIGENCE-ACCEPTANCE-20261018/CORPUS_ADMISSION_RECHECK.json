@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "task": "HG2 Voice Intelligence corpus admission recheck",
+  "review_date_utc": "2026-10-18",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-voice-tools-design-20261018",
+  "reviewed_head_before_recheck_record": "02426488f72a0129e8353389305c2ba6183c06b1",
+  "scope": "Existing corpus payloads and rights records inside the HG2 checkout only; no personal directories inspected",
+  "actions": {
+    "downloaded_corpus_or_model": false,
+    "played_audio_or_ran_inference": false,
+    "modified_manifest_or_core_runtime": false,
+    "merged_or_deployed": false
+  },
+  "local_inventory": {
+    "audio_payload_found": false,
+    "approved_corpus_payload_found": false,
+    "signed_data_user_agreement_found": false,
+    "explicit_rights_approval_for_hg2_benchmark_found": false,
+    "dataset_sha256_manifest_available": false,
+    "evidence_checked": [
+      "evidence/HG2-VOICE-INTELLIGENCE-ACCEPTANCE-20261018/CORPUS_RIGHTS_GATE.json",
+      "evidence/HG2-VOICE-INTELLIGENCE-RESEARCH-20261018/ARCHIVE_AUDIT.json"
+    ]
+  },
+  "candidate_decisions": [
+    {
+      "candidate": "Mozilla Common Voice Vietnamese v23",
+      "status": "BLOCKED_NOT_ADMITTED",
+      "missing_evidence": [
+        "approved local payload and per-file SHA-256 values",
+        "applicable asset-specific terms for the exact payload",
+        "documented privacy/consent assessment and approval for the intended HG2 benchmark run"
+      ]
+    },
+    {
+      "candidate": "VLSP Vietnamese ASR datasets",
+      "status": "BLOCKED_NOT_ADMITTED",
+      "missing_evidence": [
+        "signed applicable data-user agreement",
+        "evidence of dataset receipt under that agreement",
+        "confirmation that local benchmark, storage, and output use are permitted",
+        "speaker consent/privacy evidence applicable to the intended use"
+      ]
+    },
+    {
+      "candidate": "Previously user-provided VieNeu-TTS-main.zip",
+      "status": "BLOCKED_NOT_ADMITTED",
+      "missing_evidence": [
+        "rights for embedded audio recordings",
+        "rights for paired transcripts",
+        "speaker identity/consent and privacy basis",
+        "explicit permission to use the material for HG2 Vietnamese ASR benchmark acceptance"
+      ]
+    }
+  ],
+  "benchmark": {
+    "real_asr_wer_cer": "NOT_RUN_BLOCKED_NO_APPROVED_LOCAL_CORPUS",
+    "dataset_sha256_manifest_created": false,
+    "synthetic_smoke_test_counts_as_acceptance": false
+  },
+  "pr": {
+    "number": 26,
+    "required_state": "OPEN_DRAFT",
+    "merge_or_deploy_authorized_for_this_task": false
+  },
+  "overall_gate": "BLOCKED",
+  "release_status": "NOT_RELEASED"
+}
