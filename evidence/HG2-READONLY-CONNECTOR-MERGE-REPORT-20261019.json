@@ -1,0 +1,14 @@
+{
+  "source_branch": "remediation/hg2-readonly-connector-20261014",
+  "source_sha": "f852bc768290fb2606586b1946a7016140a9371b",
+  "target_branch": "stt/hg2-gap-integration-20261018",
+  "merge_commit": "8b21ccf893412c45800aa820d9404a594d68b51e",
+  "source_path_count": 16,
+  "test_command": "python -m unittest tests.test_audit_chain_legacy_prefix tests.test_phone_hg2_readonly_connector -v",
+  "test_count": 14,
+  "test_result": "OK",
+  "test_log_path": "evidence/HG2-READONLY-CONNECTOR-MERGE-TESTS-20261019.log",
+  "test_log_sha256": "df27f0a47ba189c8d545a3e6cc8e6cb3c2cb5f67bd0f0d4fd3a392e7f269bf4d",
+  "source_ref_prune_gate": "requires target pushed and source SHA ancestor verified",
+  "status": "MERGED_TESTED_PENDING_REMOTE_PUSH"
+}

@@ -1,0 +1,19 @@
+test_broken_previous_hash_is_detected (tests.test_audit_chain_legacy_prefix.AuditChainLegacyPrefixTests.test_broken_previous_hash_is_detected) ... ok
+test_corrupt_hash_is_detected (tests.test_audit_chain_legacy_prefix.AuditChainLegacyPrefixTests.test_corrupt_hash_is_detected) ... ok
+test_legacy_prefix_and_valid_chain_are_distinguished (tests.test_audit_chain_legacy_prefix.AuditChainLegacyPrefixTests.test_legacy_prefix_and_valid_chain_are_distinguished) ... ok
+test_missing_hash_after_chain_start_is_detected (tests.test_audit_chain_legacy_prefix.AuditChainLegacyPrefixTests.test_missing_hash_after_chain_start_is_detected) ... ok
+test_bad_upstream_schema_fails_closed (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_bad_upstream_schema_fails_closed) ... ok
+test_missing_bad_or_permissive_token_fails_closed (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_missing_bad_or_permissive_token_fails_closed) ... ok
+test_missing_or_revoked_capability_fails_closed (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_missing_or_revoked_capability_fails_closed) ... ok
+test_positive_returns_commit_and_manifest_hashes (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_positive_returns_commit_and_manifest_hashes) ... ok
+test_rate_limit_fails_closed (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_rate_limit_fails_closed) ... ok
+test_request_verb_is_get_only (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_request_verb_is_get_only) ... ok
+test_result_contains_no_credential_or_authorization_header (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_result_contains_no_credential_or_authorization_header) ... ok
+test_upstream_401_fails_closed_without_anonymous_fallback (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_upstream_401_fails_closed_without_anonymous_fallback) ... ok
+test_write_permission_or_broadened_target_fails_closed (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_write_permission_or_broadened_target_fails_closed) ... ok
+test_wrong_repository_and_ref_denied_before_any_file_or_network_access (tests.test_phone_hg2_readonly_connector.ConnectorTests.test_wrong_repository_and_ref_denied_before_any_file_or_network_access) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.029s
+
+OK
