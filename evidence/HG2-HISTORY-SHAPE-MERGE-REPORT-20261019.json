@@ -1,0 +1,25 @@
+{
+  "source_branch": "stt/cleanroom-gap-closure-20261015",
+  "source_sha": "dadf599b25005b787d5a9665ce8d8727b7784bef",
+  "target_branch": "stt/hg2-single-system-20261017",
+  "merge_commit": "74561a89bf2ed8dc29a8d2abd201d0110df60bdb",
+  "source_path_count": 3,
+  "integrated_paths": [
+    "hg/history.py",
+    "tests/test_history_malformed_shapes.py",
+    "docs/evidence/HG2_MALFORMED_HISTORY_SHAPE_GUARD_20261015.md"
+  ],
+  "focused_test_command": "python -m unittest tests.test_history_malformed_shapes tests.test_core -v",
+  "focused_test_count": 22,
+  "focused_test_result": "OK",
+  "focused_log": "evidence/HG2-HISTORY-SHAPE-MERGE-FOCUSED-TESTS-20261019.log",
+  "focused_log_sha256": "c05d6f4c72b62a58873d54d1faea69ec1032c84a3976e0e0a1da61ba3ddd055b",
+  "initial_test_selection_issue": {
+    "command_attempted": "python -m unittest tests.test_history_malformed_shapes tests.test_core tests.test_sqlite_state tests.test_phone_runtime_sync_integration tests.test_sync -v",
+    "result": "IMPORT_ERROR because three additional modules do not exist in this older target branch",
+    "log": "evidence/HG2-HISTORY-SHAPE-MERGE-TESTS-20261019.log",
+    "interpretation": "test selection mismatch; focused available module suite rerun and passed."
+  },
+  "source_ref_prune_gate": "verify source commit is an ancestor of target after push",
+  "status": "MERGED_FOCUSED_TESTS_OK_PENDING_PUSH"
+}

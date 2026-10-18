@@ -1,0 +1,60 @@
+test_all_emitted_required_fields_are_required (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_all_emitted_required_fields_are_required) ... ok
+test_blank_line_and_missing_final_newline_fail_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_blank_line_and_missing_final_newline_fail_closed) ... ok
+test_checkpoint_json_non_object_fails_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_checkpoint_json_non_object_fails_closed) ... ok
+test_invalid_field_types_fail_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_field_types_fail_closed) ... ok
+test_invalid_field_values_fail_closed_even_with_recomputed_hash (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_field_values_fail_closed_even_with_recomputed_hash) ... ok
+test_invalid_utf8_fails_closed_without_raw_decode_error (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_utf8_fails_closed_without_raw_decode_error) ... ok
+test_missing_required_field_fails_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_missing_required_field_fails_closed) ... ok
+test_non_object_json_fails_initialization_with_history_error (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_non_object_json_fails_initialization_with_history_error) ... ok
+test_non_object_json_fails_verify_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_non_object_json_fails_verify_closed) ... ok
+test_valid_history_remains_compatible_after_restart (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_valid_history_remains_compatible_after_restart) ... ok
+test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
+test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... ok
+test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
+test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... ok
+test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... ok
+test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
+test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
+test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... ok
+test_identity (tests.test_core.IdentityTests.test_identity) ... ok
+test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... ok
+test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... ok
+test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... ok
+test_sqlite_state (unittest.loader._FailedTest.test_sqlite_state) ... ERROR
+test_phone_runtime_sync_integration (unittest.loader._FailedTest.test_phone_runtime_sync_integration) ... ERROR
+test_sync (unittest.loader._FailedTest.test_sync) ... ERROR
+
+======================================================================
+ERROR: test_sqlite_state (unittest.loader._FailedTest.test_sqlite_state)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_sqlite_state
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/usr/lib/python3.14/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.test_sqlite_state'
+
+
+======================================================================
+ERROR: test_phone_runtime_sync_integration (unittest.loader._FailedTest.test_phone_runtime_sync_integration)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_phone_runtime_sync_integration
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/usr/lib/python3.14/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.test_phone_runtime_sync_integration'
+
+
+======================================================================
+ERROR: test_sync (unittest.loader._FailedTest.test_sync)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_sync
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/usr/lib/python3.14/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.test_sync'
+
+
+----------------------------------------------------------------------
+Ran 25 tests in 1.991s
+
+FAILED (errors=3)
