@@ -4,7 +4,7 @@ import os
 import tempfile
 import unittest
 
-from hg.history import HistoryError, StateStore, canonical, digest
+from hg.history import HistoryError, StateStore, canonical, digest, history_record_contract, _HISTORY_V1_FIELDS, _HISTORY_V2_FIELDS, HISTORY_EVENT_SCHEMA_V2
 
 
 class MalformedHistoryShapeTests(unittest.TestCase):
@@ -54,6 +54,62 @@ class MalformedHistoryShapeTests(unittest.TestCase):
         if head is not None:
             with open(os.path.join(directory, "head.json"), "w", encoding="utf-8") as fh:
                 json.dump(head, fh)
+
+    def _valid_v1_record(self):
+        store, _ = self._valid_store()
+        return dict(store.replay()[0])
+
+    def _valid_v2_record_shape(self):
+        record = self._valid_v1_record()
+        record.update({
+            "event_schema": HISTORY_EVENT_SCHEMA_V2,
+            "actor_id": "principal-a",
+            "authority_context": {"principal": "principal-a", "scope": "audit.append"},
+            "authorization_action": "audit.append",
+            "idempotency_key": "history-contract-test-1",
+        })
+        return record
+
+    def test_history_contract_classifies_legacy_v1_without_changing_record(self):
+        record = self._valid_v1_record()
+        before = dict(record)
+        self.assertEqual(history_record_contract(record), "V1")
+        self.assertEqual(record, before)
+        self.assertEqual(set(record), _HISTORY_V1_FIELDS)
+
+    def test_history_contract_classifies_well_formed_v2_as_structure_only(self):
+        record = self._valid_v2_record_shape()
+        self.assertEqual(history_record_contract(record), "V2")
+        self.assertEqual(set(record), _HISTORY_V2_FIELDS)
+        # Classifying a V2 record is not permission to append it to the legacy V1 store.
+        store, _ = self._valid_store()
+        with self.assertRaises(TypeError):
+            store.emit("audit.note", {"note": "no authority permit provided"},
+                       actor_id="principal-a", authority_context={"principal": "principal-a", "scope": "audit.append"})
+
+    def test_history_contract_rejects_v2_authority_and_idempotency_mismatch(self):
+        invalid = []
+        bad_actor = self._valid_v2_record_shape(); bad_actor["actor_id"] = ""
+        invalid.append((bad_actor, "V2 actor invalid"))
+        bad_scope = self._valid_v2_record_shape(); bad_scope["authority_context"] = {"principal": "principal-a", "scope": "workflow.task.create"}
+        invalid.append((bad_scope, "V2 authority context invalid"))
+        bad_action = self._valid_v2_record_shape()
+        bad_action["authorization_action"] = ""
+        bad_action["authority_context"] = {"principal": "principal-a", "scope": ""}
+        invalid.append((bad_action, "V2 authorization action invalid"))
+        bad_key = self._valid_v2_record_shape(); bad_key["idempotency_key"] = "  "
+        invalid.append((bad_key, "V2 idempotency key invalid"))
+        for record, reason in invalid:
+            with self.subTest(reason=reason), self.assertRaisesRegex(HistoryError, reason):
+                history_record_contract(record)
+
+    def test_history_contract_rejects_ambiguous_or_unknown_schema_fields(self):
+        legacy = self._valid_v1_record(); legacy["unexpected"] = True
+        with self.assertRaisesRegex(HistoryError, "V1 record schema mismatch"):
+            history_record_contract(legacy)
+        v2 = self._valid_v2_record_shape(); v2["unexpected"] = True
+        with self.assertRaisesRegex(HistoryError, "V2 record schema mismatch"):
+            history_record_contract(v2)
 
     def test_all_emitted_required_fields_are_required(self):
         missing_fields = (

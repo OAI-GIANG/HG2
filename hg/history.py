@@ -21,6 +21,47 @@ class HistoryError(Exception):
     pass
 
 
+_HISTORY_V1_FIELDS = frozenset({
+    "seq", "event_id", "event_type", "recorded_at", "correlation_id",
+    "causation_id", "product_id", "runtime_id", "schema", "payload",
+    "prev_hash", "record_hash",
+})
+_HISTORY_V2_FIELDS = _HISTORY_V1_FIELDS | frozenset({
+    "event_schema", "actor_id", "authority_context", "authorization_action", "idempotency_key",
+})
+HISTORY_EVENT_SCHEMA_V2 = "HG_HISTORY_EVENT_V2"
+
+
+def history_record_contract(record):
+    """Classify a history envelope as supported V1 or structurally valid V2.
+
+    This is a read/contract helper only: it never consumes a MutationPermit and never
+    treats structure validation as authorization to append a record. V2 mutation authority
+    remains owned by policy-authorized durable stores until a backend migration is approved.
+    """
+    if not isinstance(record, dict):
+        raise HistoryError("record is not an object")
+    if "event_schema" not in record:
+        if set(record) != _HISTORY_V1_FIELDS:
+            raise HistoryError("V1 record schema mismatch")
+        return "V1"
+    if set(record) != _HISTORY_V2_FIELDS or record.get("event_schema") != HISTORY_EVENT_SCHEMA_V2:
+        raise HistoryError("V2 record schema mismatch")
+    actor = record.get("actor_id")
+    authority = record.get("authority_context")
+    action = record.get("authorization_action")
+    key = record.get("idempotency_key")
+    if not isinstance(actor, str) or not actor.strip():
+        raise HistoryError("V2 actor invalid")
+    if not isinstance(authority, dict) or authority != {"principal": actor, "scope": action}:
+        raise HistoryError("V2 authority context invalid")
+    if not isinstance(action, str) or not action.strip():
+        raise HistoryError("V2 authorization action invalid")
+    if key is not None and (not isinstance(key, str) or not key.strip()):
+        raise HistoryError("V2 idempotency key invalid")
+    return "V2"
+
+
 class StateStore:
     def __init__(self, directory, *, clock=time.time):
         self.dir = str(directory)
