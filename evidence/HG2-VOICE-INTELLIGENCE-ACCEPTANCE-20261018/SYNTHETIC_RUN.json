@@ -1,0 +1,18 @@
+{
+  "purpose": "Deterministic evaluator plumbing smoke test only; not an ASR accuracy benchmark",
+  "input_file_outside_repository": "/data/data/com.termux/files/home/hg2_voice_synth.jsonl",
+  "input_sha256": "3e754802fda9853a7fec12b67509a9c5eaae4f8b0202dc48c5b4b8f54dbcdda1",
+  "result_file_outside_repository": "/data/data/com.termux/files/home/hg2_voice_synth_result.json",
+  "result_sha256": "648e358842b47227f189399df5c29af7fbf0ba25ac302de3489caac83b579fff",
+  "input_utterances": 4,
+  "synthetic_results": {
+    "wer": 0.2,
+    "cer": 0.15,
+    "word_errors": 2,
+    "character_errors": 6
+  },
+  "expected_status": "SCORED_NOT_ACCEPTANCE",
+  "real_vietnamese_asr_benchmark": "BLOCKED_NO_APPROVED_CORPUS",
+  "audio_or_model_inference_performed": false,
+  "network_or_download_performed": false
+}

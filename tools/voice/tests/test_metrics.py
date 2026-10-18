@@ -21,6 +21,22 @@ class MetricsTests(unittest.TestCase):
         self.assertIsNone(result['wer'])
         self.assertIsNone(result['cer'])
 
+    def test_empty_pair_has_undefined_rates(self):
+        result = score_pair('', '')
+        self.assertIsNone(result['wer'])
+        self.assertIsNone(result['cer'])
+        self.assertEqual(result['word_errors'], 0)
+        self.assertEqual(result['character_errors'], 0)
+
+    def test_unicode_composed_and_decomposed_normalize_equally(self):
+        self.assertEqual(normalize_text('má'), normalize_text('ma\u0301'))
+        self.assertEqual(score_pair('má', 'ma\u0301')['cer'], 0)
+
+    def test_edit_distance_empty_and_identity(self):
+        self.assertEqual(edit_distance([], []), 0)
+        self.assertEqual(edit_distance([], ['a', 'b']), 2)
+        self.assertEqual(edit_distance(['a'], ['a']), 0)
+
     def test_edit_distance(self):
         self.assertEqual(edit_distance(list('kitten'), list('sitting')), 3)
 
