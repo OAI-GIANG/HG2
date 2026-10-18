@@ -1,0 +1,227 @@
+{
+  "schema": "HG-CTI-PINNED-LICENSE-AUDIT-V1",
+  "note": "GitHub API license detection at the exact tree-matched commit plus archive license-path scan. Absence of a recognized LICENSE file is not proof that the repository has no license; inspect file-level/package metadata before reuse.",
+  "results": [
+    {
+      "archive": "memXT-main.zip",
+      "repository": "Yupcha/memxt",
+      "commit": "55b81ce235587722a0611b0ca1754914972fae84",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "MIT",
+      "license_name": "MIT License",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/Yupcha/memXT/blob/55b81ce235587722a0611b0ca1754914972fae84/LICENSE",
+      "archive_license_paths": [
+        "memXT-main/LICENSE"
+      ],
+      "archive_license_file_count": 1
+    },
+    {
+      "archive": "friday-main.zip",
+      "repository": "debpalash/friday",
+      "commit": "d731952210a184580318d64fbf55662f239b7313",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "Apache-2.0",
+      "license_name": "Apache License 2.0",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/debpalash/friday/blob/d731952210a184580318d64fbf55662f239b7313/LICENSE",
+      "archive_license_paths": [
+        "friday-main/LICENSE"
+      ],
+      "archive_license_file_count": 1
+    },
+    {
+      "archive": "pp-finder-main.zip",
+      "repository": "yeswehack/pp-finder",
+      "commit": "6e1011ca6bfc0a49ac40f8e6eb3e3e157e649fab",
+      "result": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "detail": "gh: Not Found (HTTP 404)",
+      "archive_license_paths": [],
+      "archive_license_file_count": 0
+    },
+    {
+      "archive": "Dom-Explorer-main.zip",
+      "repository": "yeswehack/Dom-Explorer",
+      "commit": "fdde12fa842fd212cf6f864b1f872a07bd1132b0",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "MIT",
+      "license_name": "MIT License",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/yeswehack/Dom-Explorer/blob/fdde12fa842fd212cf6f864b1f872a07bd1132b0/LICENSE",
+      "archive_license_paths": [
+        "Dom-Explorer-main/LICENSE"
+      ],
+      "archive_license_file_count": 1
+    },
+    {
+      "archive": "vulnerable-code-snippets-main.zip",
+      "repository": "yeswehack/vulnerable-code-snippets",
+      "commit": "90c910e15b9fd2ce7dbc06c7594a050d486b80e8",
+      "result": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "detail": "gh: Not Found (HTTP 404)",
+      "archive_license_paths": [],
+      "archive_license_file_count": 0
+    },
+    {
+      "archive": "PwnFox-master.zip",
+      "repository": "B-i-t-K/PwnFox",
+      "commit": "74d1688f760413430790ac40db72744e2b4a8dbb",
+      "result": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "detail": "gh: Not Found (HTTP 404)",
+      "archive_license_paths": [],
+      "archive_license_file_count": 0
+    },
+    {
+      "archive": "ywh2bugtracker-master.zip",
+      "repository": "yeswehack/ywh2bugtracker",
+      "commit": "9b617f1c349fb3c0e1b0d003552811637f6c47e7",
+      "result": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "detail": "gh: Not Found (HTTP 404)",
+      "archive_license_paths": [],
+      "archive_license_file_count": 0
+    },
+    {
+      "archive": "YesWeBurp-master.zip",
+      "repository": "yeswehack/YesWeBurp",
+      "commit": "67c9499a8148a4a672a90cce433a073d1472d3c7",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "GPL-3.0",
+      "license_name": "GNU General Public License v3.0",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/yeswehack/YesWeBurp/blob/67c9499a8148a4a672a90cce433a073d1472d3c7/LICENSE",
+      "archive_license_paths": [
+        "YesWeBurp-master/LICENSE"
+      ],
+      "archive_license_file_count": 1
+    },
+    {
+      "archive": "yeswecaido-main.zip",
+      "repository": "yeswehack/yeswecaido",
+      "commit": "0fa00adb0bda589ac43938f92023d114878faf68",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "MIT",
+      "license_name": "MIT License",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/yeswehack/yeswecaido/blob/0fa00adb0bda589ac43938f92023d114878faf68/LICENSE",
+      "archive_license_paths": [
+        "yeswecaido-main/LICENSE"
+      ],
+      "archive_license_file_count": 1
+    },
+    {
+      "archive": "myopenvdp-master.zip",
+      "repository": "yeswehack/my-open-vdp",
+      "commit": "03e90e225cb8aee90bd36c5684b97b5298dcbbbb",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "MIT",
+      "license_name": "MIT License",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/yeswehack/myopenvdp/blob/03e90e225cb8aee90bd36c5684b97b5298dcbbbb/LICENSE",
+      "archive_license_paths": [
+        "myopenvdp-master/LICENSE"
+      ],
+      "archive_license_file_count": 1
+    },
+    {
+      "archive": "xsstools-master.zip",
+      "repository": "yeswehack/xsstools",
+      "commit": "115ab6d925b87b302c2a5c81899005d59caaaef5",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "GPL-3.0",
+      "license_name": "GNU General Public License v3.0",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/yeswehack/xsstools/blob/115ab6d925b87b302c2a5c81899005d59caaaef5/LICENSE",
+      "archive_license_paths": [
+        "xsstools-master/LICENSE",
+        "xsstools-master/docgen/xsstools-jsdoc-theme/LICENSE"
+      ],
+      "archive_license_file_count": 2
+    },
+    {
+      "archive": "burp-addon-tutorial-main.zip",
+      "repository": "yeswehack/burp-addon-tutorial",
+      "commit": "6a8b7a5a0ee3836aa227bc2cd287f3e5c2fea38d",
+      "result": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "detail": "gh: Not Found (HTTP 404)",
+      "archive_license_paths": [],
+      "archive_license_file_count": 0
+    },
+    {
+      "archive": "hoglet-main.zip",
+      "repository": "debpalash/hoglet",
+      "commit": "ff5db7ad819e32e1890607080f98be8f86033252",
+      "result": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "detail": "gh: Not Found (HTTP 404)",
+      "archive_license_paths": [],
+      "archive_license_file_count": 0
+    },
+    {
+      "archive": "OpenGTM-main.zip",
+      "repository": "debpalash/OpenGTM",
+      "commit": "9188fc4d040c186f3495902fe77e0d041deba3bd",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "NOASSERTION",
+      "license_name": "Other",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/debpalash/OpenGTM/blob/9188fc4d040c186f3495902fe77e0d041deba3bd/LICENSE",
+      "archive_license_paths": [
+        "OpenGTM-main/LICENSE",
+        "OpenGTM-main/apps/docs/src/content/docs/community/license.md",
+        "OpenGTM-main/scripts/vendor/twenty-ui/LICENSE"
+      ],
+      "archive_license_file_count": 3
+    },
+    {
+      "archive": "VoiceStudio-main.zip",
+      "repository": "debpalash/VoiceStudio",
+      "commit": "c2ef99817fc4f2e0271a223c357e57e8df93cbde",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "NOASSERTION",
+      "license_name": "Other",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/debpalash/VoiceStudio/blob/c2ef99817fc4f2e0271a223c357e57e8df93cbde/LICENSE",
+      "archive_license_paths": [
+        "VoiceStudio-main/LICENSE",
+        "VoiceStudio-main/electron/src/main/fixtures/LICENSE"
+      ],
+      "archive_license_file_count": 2
+    },
+    {
+      "archive": "Opal-main.zip",
+      "repository": "debpalash/Opal",
+      "commit": "3b708aa2bfc791c8885a26b0339ff6318e7d1355",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "GPL-3.0",
+      "license_name": "GNU General Public License v3.0",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/debpalash/Opal/blob/3b708aa2bfc791c8885a26b0339ff6318e7d1355/LICENSE",
+      "archive_license_paths": [
+        "Opal-main/LICENSE"
+      ],
+      "archive_license_file_count": 1
+    },
+    {
+      "archive": "bootable-main.zip",
+      "repository": "debpalash/bootable",
+      "commit": "f4837882be756cc33fda738890a6e382473f926f",
+      "result": "LICENSE_FILE_FOUND_AT_PINNED_COMMIT",
+      "spdx_id": "Apache-2.0",
+      "license_name": "Apache License 2.0",
+      "license_path": "LICENSE",
+      "license_url": "https://github.com/debpalash/bootable/blob/f4837882be756cc33fda738890a6e382473f926f/LICENSE",
+      "archive_license_paths": [
+        "bootable-main/LICENSE"
+      ],
+      "archive_license_file_count": 1
+    },
+    {
+      "archive": "homebrew-memxt-main.zip",
+      "repository": "Yupcha/homebrew-memxt",
+      "commit": "07b8451114302080dcaafc3ae01daa6e2b36a223",
+      "result": "NO_GITHUB_LICENSE_DETECTION_AT_PINNED_COMMIT",
+      "detail": "gh: Not Found (HTTP 404)",
+      "archive_license_paths": [],
+      "archive_license_file_count": 0
+    }
+  ]
+}

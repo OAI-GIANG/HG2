@@ -1,0 +1,61 @@
+{
+  "schema": "HG-CTI-BENCHMARK-SCORING-ATTEMPT-V1",
+  "recorded_utc": "2026-10-14T00:00:00Z",
+  "status": "BLOCKED_SCORING_UNRELIABLE",
+  "inference_run": {
+    "status": "RUN_COMPLETE_PENDING_BLIND_SCORING",
+    "case_count": 40,
+    "paired_case_count": 40,
+    "response_count": 80,
+    "failed_responses": 0,
+    "elapsed_total_seconds": 276.465126,
+    "provider_cost_usd": 0,
+    "raw_runs_sha256": "f2dba0ca145374645265fe22558050edc5b4944a598b8abbadd5bd98c28fe59d",
+    "blind_pairs_sha256": "485cd4695b04f3478e69a8bc04a91144c1ed8b9dd848c5f3109cb948685222e2",
+    "baseline": {
+      "count": 40,
+      "mean_elapsed_seconds": 2.986,
+      "mean_completion_tokens": 102.78,
+      "outputs_at_token_cap": 11
+    },
+    "candidate": {
+      "count": 40,
+      "mean_elapsed_seconds": 3.916,
+      "mean_completion_tokens": 115.65,
+      "outputs_at_token_cap": 16
+    }
+  },
+  "scoring_attempts": [
+    {
+      "method": "Local 500M model asked to produce free-form JSON",
+      "result": "FAILED",
+      "evidence": "CTI-001 returned prose instead of the required JSON score schema."
+    },
+    {
+      "method": "Local 500M model with JSON-object response format",
+      "result": "FAILED",
+      "evidence": "CTI-001 emitted an invalid/overlong score object; CTI-002 returned unrelated keys state/next_action instead of A/B scores."
+    },
+    {
+      "method": "Local 500M model with JSON-schema constrained output",
+      "result": "ABORTED",
+      "evidence": "CTI-001 was accepted by the local validation script, but CTI-002 again returned unrelated keys. The process was terminated before a complete score file was written."
+    }
+  ],
+  "interpretation": [
+    "The 40 paired inference cases completed with no failed inference requests.",
+    "No blind score file was completed or frozen. The partial score held in process memory was not saved and is not used.",
+    "No blind key was opened during scoring attempts.",
+    "No usefulness, unsupported-claim, counterexample-sensitivity, regression, or acceptance-gate result can be reported from the inference run alone.",
+    "The local model is demonstrably not a reliable evaluator for this scoring task under the current context/token limits. Do not treat its partial outputs as benchmark results."
+  ],
+  "required_next_step": "Use a reliable rubric-scoring pass on the existing blind_pairs.jsonl while preserving A/B blinding, save all 40 case scores, freeze the score hash before reading blind_key.json, then run analyze_scores.py. If a reliable scorer is unavailable, keep HG-CTI BLOCKED and the PR Draft.",
+  "governance": {
+    "canonical_changed": false,
+    "merged": false,
+    "deployed": false,
+    "independent_review_gate_added": false,
+    "signatures_added": false,
+    "spending_usd": 0
+  }
+}

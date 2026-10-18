@@ -1,0 +1,45 @@
+{
+  "schema": "HG-CTI-BENCHMARK-EXECUTION-ATTEMPT-V1",
+  "status": "BLOCKED_NOT_RUN",
+  "protocol": "docs/HG_CTI_BENCHMARK_PROTOCOL_V1.md",
+  "observed_repo_head": "58b530b1d07796b4e5ee515ad805080f9ad68678",
+  "preconditions_checked": [
+    {
+      "check": "candidate execution surface",
+      "result": "BLOCKED",
+      "evidence": "hg/creative_assimilation.py explicitly documents that it has no model/runtime/network authority and only evaluates candidate metadata."
+    },
+    {
+      "check": "baseline inference runner",
+      "result": "NOT_FOUND_IN_REPOSITORY_SCAN",
+      "evidence": "Read-only search across runtime, hg, scripts, tests and docs found no baseline/candidate generation or provider entrypoint."
+    },
+    {
+      "check": "candidate generation runner",
+      "result": "NOT_FOUND_IN_REPOSITORY_SCAN",
+      "evidence": "Implemented API exposes validate_source/evaluate_candidate/transition; it does not generate solution outputs."
+    },
+    {
+      "check": "same model/provider/budget control",
+      "result": "IMPOSSIBLE_WITH_AVAILABLE_SURFACE",
+      "evidence": "No model-inference tool is exposed in the current tool surface and no repository runner exists to execute both arms under matched conditions."
+    },
+    {
+      "check": "license-aware source set",
+      "result": "PARTIAL",
+      "evidence": "docs/HG_CREATIVE_ASSIMILATION_LICENSE_AUDIT.md; xsstools conflict and sources without explicit license evidence remain principle-only."
+    }
+  ],
+  "tests_not_substitutes_for_benchmark": {
+    "focused_contract_tests": "25 PASS on clean checkout",
+    "full_repository_tests": "48 PASS on clean checkout",
+    "interpretation": "Correctness/regression tests for metadata evaluation, not novelty/usefulness/creative advantage measurements."
+  },
+  "prohibited_claims": [
+    "No benchmark PASS",
+    "No creativity-improvement claim",
+    "Unit tests do not substitute for protocol"
+  ],
+  "next_technical_prerequisite": "An already-available, authorized, non-paid local baseline and candidate generation runner with fixed provider/model, prompt/context budget and cost logging; then freeze/hash at least 40 cases and run both arms. No signature or independent-review gate is required.",
+  "rechecked_at_commit": "90ba4a7236aca4b278a4c02b68c6bd579d450f7d"
+}

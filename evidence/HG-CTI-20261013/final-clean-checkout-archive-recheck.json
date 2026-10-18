@@ -1,0 +1,30 @@
+{
+  "schema": "HG-CTI-FINAL-CHECKOUT-ARCHIVE-RECHECK-V1",
+  "status": "BLOCKED_EXTERNAL_ARCHIVES_UNAVAILABLE",
+  "checkout_commit": "412af48e787a9de91d61da5925a4085e13f0fd1f",
+  "archive_count_expected": 18,
+  "archives_missing_at_manifest_paths": [
+    "memXT-main.zip",
+    "friday-main.zip",
+    "pp-finder-main.zip",
+    "Dom-Explorer-main.zip",
+    "vulnerable-code-snippets-main.zip",
+    "PwnFox-master.zip",
+    "ywh2bugtracker-master.zip",
+    "YesWeBurp-master.zip",
+    "yeswecaido-main.zip",
+    "myopenvdp-master.zip",
+    "xsstools-master.zip",
+    "burp-addon-tutorial-main.zip",
+    "hoglet-main.zip",
+    "OpenGTM-main.zip",
+    "VoiceStudio-main.zip",
+    "Opal-main.zip",
+    "bootable-main.zip",
+    "homebrew-memxt-main.zip"
+  ],
+  "missing_count": 18,
+  "upstream_tree_matches": 18,
+  "upstream_tree_match_count": 18,
+  "interpretation": "The repository manifest records SHA-256 and ZIP CRC results captured earlier, but the source ZIPs are external to the repository and are not currently available at the manifest absolute paths from this final checkout. Therefore a fresh byte/CRC recheck cannot be claimed from this checkout. The separately recorded upstream tree comparison still shows 18/18 path/blob matches."
+}

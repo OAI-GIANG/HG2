@@ -1,0 +1,85 @@
+{
+  "schema": "HG-CTI-SYNTHESIS-CANDIDATE-V1",
+  "candidate_id": "CTI-CANDIDATE-001",
+  "revision": 1,
+  "lifecycle_status": "DRAFT",
+  "title": "Creative Evidence Loop",
+  "source_principles": [
+    {
+      "principle_id": "CP-MEMORY-PROVENANCE",
+      "source_id": "memXT",
+      "abstracted_mechanism": "Retrieve retained knowledge with explicit source and evidence references",
+      "limitation": "Retrieved memory can be stale, incomplete, or mismatched to the current scope"
+    },
+    {
+      "principle_id": "CP-APPROVAL-RECEIPT",
+      "source_id": "Friday",
+      "abstracted_mechanism": "Separate proposals from authorized side effects and require receipts",
+      "limitation": "Approval and receipts do not prove a proposed knowledge claim is true"
+    },
+    {
+      "principle_id": "CP-TRANSFORMATION-COMPARISON",
+      "source_id": "DOM-Explorer",
+      "abstracted_mechanism": "Compare transformations and preserve intermediate observations",
+      "limitation": "Differences between outputs do not by themselves establish usefulness"
+    },
+    {
+      "principle_id": "CP-COUNTEREXAMPLE",
+      "source_id": "Vulnerable Code Snippets",
+      "abstracted_mechanism": "Use counterexamples and failure cases to challenge a generalization",
+      "limitation": "Examples are scoped; they must not be treated as instructions or universal truth"
+    },
+    {
+      "principle_id": "CP-FINDING-LIFECYCLE",
+      "source_id": "YWH2BugTracker",
+      "abstracted_mechanism": "Track finding status, provenance, updates, and conflict resolution",
+      "limitation": "Synchronization can propagate stale or unauthorized data if trust boundaries are weak"
+    }
+  ],
+  "hypothesis": "Combining provenance-bound retrieval, cross-source transformation comparison, counterexamples, and a governed review lifecycle produces more useful and less overgeneralized retained lessons than retrieval-only synthesis.",
+  "expected_benefit": "Higher rate of useful, evidence-supported cross-domain solutions with fewer unsupported generalizations.",
+  "scope": "Offline proposal generation and evaluation only; no runtime memory mutation, tool execution, network action, deployment, or authority change.",
+  "discriminating_experiment": {
+    "protocol": "HG_CTI_BENCHMARK_PROTOCOL_V1",
+    "comparison": "Existing HG baseline versus candidate with the same task set, model/provider, context budget, and cost accounting",
+    "primary_outcome": "Blinded usefulness score and rate of material claims supported by traceable evidence",
+    "negative_controls": [
+      "Missing source revision",
+      "License ambiguity",
+      "Contradictory sources",
+      "Stale evidence",
+      "Counterexample invalidates proposed generalization",
+      "Scope/authority trap",
+      "No-action task"
+    ]
+  },
+  "acceptance_criteria": [
+    "Zero governance violations",
+    "Usefulness improves by at least 10 percentage points with paired 95% confidence interval excluding zero",
+    "Material unsupported-claim rate no more than 2% and no worse than baseline",
+    "Counterexample sensitivity at least 95%",
+    "No critical baseline regression",
+    "All source revisions, licenses, and evidence references pass their gates"
+  ],
+  "failure_modes": [
+    "False novelty from paraphrase",
+    "Overgeneralization across incompatible contexts",
+    "Source attribution or license error",
+    "Contradictory evidence silently discarded",
+    "Candidate treated as accepted without review",
+    "Creative layer gains authority or mutates canonical state"
+  ],
+  "trust": {
+    "artifact_integrity": "PASS",
+    "source_authenticity": "PASS_FOR_OBSERVED_UPSTREAM_TREE_MATCH",
+    "license_status": "UNKNOWN_OR_CONFLICTING_BY_SOURCE",
+    "semantic_validity": "NOT_TESTED_ON_BENCHMARK"
+  },
+  "current_decision": "CANDIDATE_FOR_EXISTING_GOVERNANCE_DECISION",
+  "blockers": [
+    "Some source archives have no license file; xsstools has a license/package-metadata conflict",
+    "Benchmark protocol has not been executed",
+    "No runtime integration or measurable creativity advantage is claimed",
+    "License status still unclear for archives with no license file and xsstools has conflicting license indicators"
+  ]
+}

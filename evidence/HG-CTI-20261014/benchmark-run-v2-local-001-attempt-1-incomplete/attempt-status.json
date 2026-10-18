@@ -1,0 +1,17 @@
+{
+  "baseline_rows": 35,
+  "candidate_rows": 34,
+  "cause": "Local llama-server process exited during inference; endpoint became unavailable before all 40 paired cases completed.",
+  "disposition": "Preserved raw output unchanged; full benchmark will restart from case 001 in the preregistered output directory after runtime recovery.",
+  "distinct_cases": 35,
+  "expected_rows": 80,
+  "inference_error_rows": 0,
+  "observed_utc": "2026-10-13T18:25:15.323195+00:00",
+  "protocol_version": "V2.2",
+  "raw_rows_preserved": 69,
+  "schema": "HG-CTI-V2.2-INCOMPLETE-ATTEMPT",
+  "scoring_performed": false,
+  "selective_rerun_performed": false,
+  "status": "INVALID_INCOMPLETE_INFRASTRUCTURE_FAILURE",
+  "valid_acceptance_run": false
+}
