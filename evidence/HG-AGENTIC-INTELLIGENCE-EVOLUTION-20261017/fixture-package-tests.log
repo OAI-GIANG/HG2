@@ -1,0 +1,17 @@
+test_all_oracles_are_structured (__main__.FixturePackageTests.test_all_oracles_are_structured) ... ok
+test_correction_chain_is_recomputed (__main__.FixturePackageTests.test_correction_chain_is_recomputed) ... ok
+test_creative_score_and_feasibility_gate (__main__.FixturePackageTests.test_creative_score_and_feasibility_gate) ... ok
+test_critical_failure_dominates_missing_results (__main__.FixturePackageTests.test_critical_failure_dominates_missing_results) ... ok
+test_exact_fixture_inventory (__main__.FixturePackageTests.test_exact_fixture_inventory) ... ok
+test_execution_never_inferred_from_expected_verdict (__main__.FixturePackageTests.test_execution_never_inferred_from_expected_verdict) ... ok
+test_improvement_metrics_are_descriptive_only (__main__.FixturePackageTests.test_improvement_metrics_are_descriptive_only) ... ok
+test_manifest_maps_every_file_and_oracle_version (__main__.FixturePackageTests.test_manifest_maps_every_file_and_oracle_version) ... ok
+test_n_a_exclusion_stays_blocked_without_evidence (__main__.FixturePackageTests.test_n_a_exclusion_stays_blocked_without_evidence) ... ok
+test_production_execution_not_claimed (__main__.FixturePackageTests.test_production_execution_not_claimed) ... ok
+test_synthetic_digest_samples (__main__.FixturePackageTests.test_synthetic_digest_samples) ... ok
+test_test_matrix_traceability_complete (__main__.FixturePackageTests.test_test_matrix_traceability_complete) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.004s
+
+OK

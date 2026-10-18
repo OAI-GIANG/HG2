@@ -1,0 +1,91 @@
+{
+  "schema_version": "hg.runtime-provenance-observation.v1",
+  "classification": "LOCAL_PROCESS_PATH_OBSERVATION_NOT_CRYPTOGRAPHIC_ATTESTATION",
+  "observed_at_utc_unattested": "2026-10-17T05:31:57.351897+00:00",
+  "candidate_commit": "d952be68bdf252e8f814d6cb6b6f3b4acbc6ec53",
+  "canonical_head_observed": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+  "active_processes": [
+    {
+      "pid": 10804,
+      "executable": "/data/data/com.termux/files/usr/bin/python3.14",
+      "working_directory": "/data/data/com.termux/files/home/hg2-phone",
+      "script_path_observed_from_proc": "/data/data/com.termux/files/home/hg2-service/entry.py",
+      "script_path_expected_from_prior_process_observation": "/data/data/com.termux/files/home/hg2-service/entry.py",
+      "script_path_matches": true,
+      "script_sha256_current_file": "21ea826c3ac170986d186524979a6426334d8af971b01deb330ea7351378d150",
+      "git_repository_root_for_script_path": null,
+      "git_metadata_present_for_script_tree": false,
+      "environment_values_read": false,
+      "arguments_after_script_logged": false,
+      "git_root_is_canonical_hg2": false,
+      "script_path_is_in_candidate_checkout": false
+    },
+    {
+      "pid": 10805,
+      "executable": "/data/data/com.termux/files/usr/bin/python3.14",
+      "working_directory": "/data/data/com.termux/files/usr/var/service/hg-backend",
+      "script_path_observed_from_proc": "/data/data/com.termux/files/home/hg/backend/hg_backend.py",
+      "script_path_expected_from_prior_process_observation": "/data/data/com.termux/files/home/hg/backend/hg_backend.py",
+      "script_path_matches": true,
+      "script_sha256_current_file": "2b6127e26beff90c2cb304b8bee94043d58208507586baa79400291c64f20905",
+      "git_repository_root_for_script_path": null,
+      "git_metadata_present_for_script_tree": false,
+      "environment_values_read": false,
+      "arguments_after_script_logged": false,
+      "git_root_is_canonical_hg2": false,
+      "script_path_is_in_candidate_checkout": false
+    },
+    {
+      "pid": 10809,
+      "executable": "/data/data/com.termux/files/usr/bin/python3.14",
+      "working_directory": "/data/data/com.termux/files/usr/var/service/hg-runtime",
+      "script_path_observed_from_proc": "/data/data/com.termux/files/home/hg/core/runtime/hg_runtime.py",
+      "script_path_expected_from_prior_process_observation": "/data/data/com.termux/files/home/hg/core/runtime/hg_runtime.py",
+      "script_path_matches": true,
+      "script_sha256_current_file": "e02f344c11f0e513e4e874fdc35eb6c28ea76d8aa541da7bbde19a1427f10a83",
+      "git_repository_root_for_script_path": "/data/data/com.termux/files/home/hg/core",
+      "git_metadata_present_for_script_tree": true,
+      "environment_values_read": false,
+      "arguments_after_script_logged": false,
+      "git_root_is_canonical_hg2": false,
+      "script_path_is_in_candidate_checkout": false
+    }
+  ],
+  "phone_checkout": {
+    "path": "~/hg2-phone",
+    "head": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+    "branch": "",
+    "detached_head": true,
+    "dirty_path_count": 17,
+    "dirty_paths_only": [
+      "M README.md",
+      " M contract/ARCHITECTURE_V1.md",
+      " M hg/authority.py",
+      " D hg/edge.py",
+      " M hg/history.py",
+      " M hg/phone_runtime.py",
+      " M hg/sync.py",
+      " M manifest.json",
+      " M tests/test_core.py",
+      "?? hg/__pycache__/",
+      "?? hg/provenance.py",
+      "?? hg/sync_auth.py",
+      "?? hg/sync_bootstrap.py",
+      "?? n1.log",
+      "?? n2.log",
+      "?? raw1.log",
+      "?? raw2.log"
+    ],
+    "remote_identity": "OAI-GIANG/HG2 (observed in previous verified remote check)",
+    "source_file_sha256": "2bb9cb4b22d199fd1c5f7bee1ad34071ded60d13aa3f344ca88ff01f783110eb"
+  },
+  "candidate_runtime_binding": {
+    "candidate_repo": "OAI-GIANG/HG2",
+    "candidate_commit": "d952be68bdf252e8f814d6cb6b6f3b4acbc6ec53",
+    "active_process_script_paths_are_candidate_files": false,
+    "source_attestation_verified": false
+  },
+  "secret_values_read_or_recorded": false,
+  "production_processes_restarted_or_modified": false,
+  "conclusion": "Active process entrypoints are not all rooted in a single canonical HG2 checkout. Two script roots have no Git metadata; the third resolves to a non-canonical repository. The phone checkout is detached and dirty. This is local path evidence only, not cryptographic process attestation."
+}

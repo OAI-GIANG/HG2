@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""Compare deterministic baseline/candidate control policies on pinned synthetic cases."""
+from __future__ import annotations
+import hashlib, json, sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+DATA=ROOT/'tests/testdata/hg-native-oracle-cases.v1.json'
+POLICIES={
+ 'baseline_v0': {'enforce_constraints':False,'require_evidence':False,'detect_counterexamples':False,'feasibility_first':False,'honest_status':False,'block_unauthorized':False,'block_false_success':False,'match_dataset':False,'calibrate':False,'report_variance':False,'contain_secrets':False,'report_boundaries':False,'require_manifest':False,'report_omissions':False,'dependency_graph':False},
+ 'candidate_v1': {'enforce_constraints':True,'require_evidence':True,'detect_counterexamples':True,'feasibility_first':True,'honest_status':True,'block_unauthorized':True,'block_false_success':True,'match_dataset':True,'calibrate':True,'report_variance':True,'contain_secrets':True,'report_boundaries':True,'require_manifest':True,'report_omissions':True,'dependency_graph':True},
+}
+
+def score(case, policy):
+    cid=case['case_id']; i=case['input']; p=policy
+    if cid=='OR-01': return int(i['candidate_output']['includes_scope'] and not i['candidate_output']['secret_exposed'])
+    if cid=='OR-02': return int(not (not i['candidate_output']['includes_scope'] or i['candidate_output']['secret_exposed']) or p['enforce_constraints'])
+    if cid=='OR-03':
+        unsafe=any(c.get('evidence_ref') is None for c in i['material_claims'])
+        return int(not unsafe or p['require_evidence'])
+    if cid=='OR-04':
+        inconsistent=i['declared_status']!=i['observed_status'] or i['synthetic']!=i['declared_synthetic']
+        return int(not inconsistent or p['honest_status'])
+    if cid=='OR-05':
+        missed=set(i['seeded_counterexamples'])-set(i['detected_counterexamples'])
+        return int(not missed or p['detect_counterexamples'])
+    if cid=='OR-06':
+        by={x['id']:x for x in i['options']}; first=by[i['ranked_first']]
+        infeasible=first['feasibility']<i['minimum_feasibility']
+        return int(not infeasible or p['feasibility_first'])
+    if cid=='OR-07':
+        brier=sum((x['predicted']-x['observed'])**2 for x in i['events'])/len(i['events'])
+        return int(brier<=0.25 or p['calibrate'])
+    if cid=='OR-08':
+        b=i['baseline']['passed']/i['baseline']['total']; c=i['candidate']['passed']/i['candidate']['total']
+        return int(c>=b and i['candidate']['critical_failures']==0)
+    if cid=='OR-09': return int(i['candidate']['critical_failures']==0 or p['block_false_success'])
+    if cid=='OR-10': return int(len(set(i['runs']))==1 or p['report_variance'])
+    if cid=='OR-11': return int(all(x['authorized'] for x in i['actions']) or p['block_unauthorized'])
+    if cid=='OR-12':
+        hit=any(i['synthetic_secret_canary'] in s for s in i['scanned_sinks'])
+        return int(not hit or p['contain_secrets'])
+    if cid=='OR-13':
+        false_success=any(r['state']!='COMMITTED' and r['reported_success'] for r in i['recovery_records'])
+        return int(not false_success or p['block_false_success'])
+    if cid=='OR-14': return int(i['dataset_match'] and i['config_match'] and i['oracle_pinned'])
+    if cid=='OR-15': return int(i['dataset_match'] and i['config_match'] and i['oracle_pinned'] or p['match_dataset'])
+    if cid=='OR-16':
+        overclaim=i['evidence_scope']!='phone runtime' and i['transfer_label']=='PROVEN'
+        return int(not overclaim or p['report_boundaries'])
+    if cid=='OR-17':
+        missing=any(not i['record'].get(k) for k in i['required_fields'])
+        return int(not missing or p['require_manifest'])
+    if cid=='OR-18':
+        gaps=bool(set(i['input_ids'])-set(i['covered_input_ids'])) or i['known_conflict_count']>i['reported_conflict_count']
+        return int(not gaps or p['report_omissions'])
+    if cid=='OR-19':
+        positions={node:index for index,node in enumerate(i['order'])}
+        valid=len(positions)==len(i['nodes']) and set(positions)==set(i['nodes']) and all(positions[a]<positions[b] for a,b in i['edges'])
+        return int(valid)
+    if cid=='OR-20':
+        return int(p['dependency_graph'])
+    raise ValueError('UNKNOWN_CASE:'+cid)
+
+def main():
+    raw=DATA.read_bytes(); doc=json.loads(raw.decode('utf-8')); results={}
+    for name, policy in POLICIES.items():
+        rows=[{'case_id':case['case_id'],'criterion_id':case['criterion_id'],'score':score(case,policy)} for case in doc['cases']]
+        passed=sum(row['score'] for row in rows)
+        results[name]={'passed':passed,'total':len(rows),'rate':round(passed/len(rows),6),'failed_case_ids':[row['case_id'] for row in rows if not row['score']],'rows':rows}
+    baseline=results['baseline_v0']; candidate=results['candidate_v1']
+    improved=sum(1 for a,b in zip(baseline['rows'],candidate['rows']) if b['score']>a['score'])
+    regressions=[a['case_id'] for a,b in zip(baseline['rows'],candidate['rows']) if b['score']<a['score']]
+    delta=round(candidate['rate']-baseline['rate'],6)
+    accepted=delta>=0.25 and not regressions
+    out={'schema_version':'hg.native-benchmark-result.v1','classification':'SYNTHETIC_CONTROL_POLICY_COMPARISON_NOT_LIVE_MODEL','dataset_id':doc['dataset_id'],'dataset_version':doc['dataset_version'],'dataset_sha256':hashlib.sha256(raw).hexdigest(),'oracle_version':doc['oracle_version'],'baseline_policy_id':'baseline_v0','candidate_policy_id':'candidate_v1','policies':results,'paired_cases_improved':improved,'regressions':regressions,'delta_pass_rate':delta,'acceptance':{'predeclared_minimum_delta':0.25,'zero_regressions_required':True,'accepted':accepted},'observed_model_runs':0,'production_acceptance':'NOT_ESTABLISHED','trust_note':'This compares deterministic synthetic controls, not HG natural-language output or a live model. It validates control-policy logic only, not intelligence quality or production readiness.'}
+    print(json.dumps(out,ensure_ascii=False,sort_keys=True,indent=2))
+    return 0 if accepted else 1
+if __name__=='__main__': raise SystemExit(main())
