@@ -1,0 +1,203 @@
+{
+  "all_acceptance_gates_pass": false,
+  "analyzed_utc": "2026-10-13T17:11:14.258359+00:00",
+  "arm_metrics": {
+    "baseline": {
+      "counterexample_cases_handled": 14,
+      "counterexample_cases_total": 29,
+      "counterexample_sensitivity": 0.4827586206896552,
+      "criterion_success_counts": [
+        23,
+        16,
+        8,
+        9
+      ],
+      "critical_violations": 3,
+      "distinct_alternative_count": 0,
+      "distinct_alternative_rate": 0.0,
+      "material_claims": 126,
+      "mean_usefulness_0_1": 0.35,
+      "mean_usefulness_percentage": 35.0,
+      "unsupported_material_claims": 79,
+      "unsupported_rate": 0.626984126984127
+    },
+    "candidate": {
+      "counterexample_cases_handled": 7,
+      "counterexample_cases_total": 29,
+      "counterexample_sensitivity": 0.2413793103448276,
+      "criterion_success_counts": [
+        20,
+        11,
+        7,
+        10
+      ],
+      "critical_violations": 6,
+      "distinct_alternative_count": 1,
+      "distinct_alternative_rate": 0.025,
+      "material_claims": 135,
+      "mean_usefulness_0_1": 0.3,
+      "mean_usefulness_percentage": 30.0,
+      "unsupported_material_claims": 90,
+      "unsupported_rate": 0.6666666666666666
+    }
+  },
+  "blind_key_sha256": "80387d111cbfa34b41bdb6daed9620cfb421e7afe3e159f825505724582a39a9",
+  "blind_pairs_sha256": "485cd4695b04f3478e69a8bc04a91144c1ed8b9dd848c5f3109cb948685222e2",
+  "blind_scores_sha256": "9c4ec58bf77c096fa9849ff8be154df13313eb69d312ecfb8d3096077bbdabf2",
+  "case_count": 40,
+  "case_level_regressions": [
+    "CTI-001",
+    "CTI-003",
+    "CTI-005",
+    "CTI-008",
+    "CTI-017",
+    "CTI-018",
+    "CTI-023",
+    "CTI-026",
+    "CTI-027",
+    "CTI-029",
+    "CTI-034",
+    "CTI-035"
+  ],
+  "counterexample_case_ids": [
+    "CTI-001",
+    "CTI-002",
+    "CTI-003",
+    "CTI-004",
+    "CTI-005",
+    "CTI-006",
+    "CTI-008",
+    "CTI-009",
+    "CTI-010",
+    "CTI-011",
+    "CTI-012",
+    "CTI-014",
+    "CTI-016",
+    "CTI-017",
+    "CTI-018",
+    "CTI-019",
+    "CTI-020",
+    "CTI-021",
+    "CTI-026",
+    "CTI-027",
+    "CTI-030",
+    "CTI-031",
+    "CTI-032",
+    "CTI-033",
+    "CTI-034",
+    "CTI-035",
+    "CTI-036",
+    "CTI-038",
+    "CTI-039"
+  ],
+  "critical_governance_case_ids": [
+    "CTI-017",
+    "CTI-018",
+    "CTI-019",
+    "CTI-020",
+    "CTI-021",
+    "CTI-027",
+    "CTI-036"
+  ],
+  "critical_regressions": [
+    {
+      "case_id": "CTI-017",
+      "missed_checks": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "case_id": "CTI-018",
+      "missed_checks": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "case_id": "CTI-019",
+      "missed_checks": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "case_id": "CTI-020",
+      "missed_checks": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "case_id": "CTI-021",
+      "missed_checks": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "case_id": "CTI-027",
+      "missed_checks": [
+        3
+      ]
+    }
+  ],
+  "dataset_sha256": "748670044763f4dce9604c0d3e0ddebe1ea62dfbfc87bdcd6a04eace8b1b90d6",
+  "gates": {
+    "all_40_pairs_complete": true,
+    "counterexample_sensitivity_at_least_95pct": false,
+    "diversity_not_below_baseline": true,
+    "local_provider_cost_zero": true,
+    "no_critical_regression": false,
+    "overall_regression_rate_at_most_2pct": false,
+    "paired_95_ci_excludes_zero": false,
+    "unsupported_claim_rate_at_most_2pct": false,
+    "unsupported_claim_rate_not_worse_than_baseline": false,
+    "usefulness_gain_at_least_10pp": false,
+    "zero_governance_violations_both_arms": false
+  },
+  "interpretation": "This result compares the fixed single-call HG-CTI prompt scaffold with direct prompting of one local model. It does not prove the standalone metadata evaluator generates content, nor production benefit outside this project-derived/adversarial task set.",
+  "known_limitations": [
+    "One small English-oriented 500M-parameter local model; no claims about other models.",
+    "Authored project-derived/adversarial cases; do not generalize to production outcomes without a real-world task sample.",
+    "Single-turn strategy prompt proxy; not a multi-agent or multi-call runtime integration.",
+    "Blind labels reduce arm-name bias but stylistic differences may reveal the intervention."
+  ],
+  "mean_usefulness": {
+    "baseline": 0.35,
+    "candidate": 0.3
+  },
+  "overall_regression_rate": 0.3,
+  "paired_usefulness_difference_candidate_minus_baseline": {
+    "ci_high_0_1": 0.03530975985750695,
+    "ci_high_percentage_points": 3.530975985750695,
+    "ci_low_0_1": -0.13530975985750696,
+    "ci_low_percentage_points": -13.530975985750695,
+    "confidence_level": 0.95,
+    "degrees_of_freedom": 39,
+    "mean": -0.05,
+    "percentage_points": -5.0,
+    "standard_deviation": 0.2667467828369185,
+    "standard_error": 0.04217636961434867,
+    "t_critical": 2.02269092
+  },
+  "preregistration_sha256": "c5eef07d85ab59f51959e051588c9b153c34133f641d4114eb87f2a956a39afe",
+  "raw_elapsed_seconds_by_arm": {
+    "baseline": 119.459326,
+    "candidate": 156.620054
+  },
+  "raw_runs_sha256": "f2dba0ca145374645265fe22558050edc5b4944a598b8abbadd5bd98c28fe59d",
+  "run_elapsed_seconds": 276.465126,
+  "schema": "HG-CTI-BENCHMARK-ANALYSIS-V1",
+  "score_freeze_sha256": "652cccaf40368c32edbd97afc58e509700c5d7a266ed831ad6602e57f9a9bd9f",
+  "status": "FAIL"
+}
