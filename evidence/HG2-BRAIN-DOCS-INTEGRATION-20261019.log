@@ -1,0 +1,3 @@
+git diff --check: PASS (no whitespace errors)
+docs/decisions/HG-ADR-001.md	7974	a1049e90406cccb11ae4a80d4e4116d99b0d0b65a20b9e901eb71332b8bcc92d
+docs/HG_SELECTIVE_ABSORPTION_V2_VERIFIED_REFERENCE.md	7625	bf6adc886d896d3ae2671408805ecbba7713a9b5eec1cc25b9e78b949880737b
