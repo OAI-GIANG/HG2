@@ -1249,7 +1249,7 @@
     {
       "branch": "origin/stt/hg2-circulatory-architecture-20261018",
       "sha": "c5b27193baa95e741c0082cae81656a630e24d8d",
-      "relevant_path_count": 59,
+      "relevant_path_count": 63,
       "preserved": [
         {
           "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/history-contract-integration-report.json",
@@ -1604,6 +1604,30 @@
           "blob": "b5190a511b265d95b0e6863d1deae1c578e1c3b7",
           "sha256": "c8b48f511261dbaf0d0f20e830ddc966890c2f69b917a4118209b831a874f372",
           "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/contracts.py"
+        },
+        {
+          "path": "hg/workflow.py",
+          "blob": "047ef7e4867c16ce303a2077f8528abec24151dc",
+          "sha256": "e4140d1473a38bb78a733b7e3b3dd4293125fac2bc73dfd687a5de9e1c6a3f9f",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/workflow.py"
+        },
+        {
+          "path": "hg/policy.py",
+          "blob": "0bf9d122051d0ad17f83dcb42579fd2c8d7b26eb",
+          "sha256": "0513f865ba98840af57fcac07cb5a3f4d9bb95adf892233458596f542d1e4dc8",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/policy.py"
+        },
+        {
+          "path": "tests/test_workflow.py",
+          "blob": "f31617bd72161791a5175179f041054e13962e7a",
+          "sha256": "ed9ab5b4d0d48e0595046949611caab7a1e4c57455c5a5cd44536245bfc41ac9",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/test_workflow.py"
+        },
+        {
+          "path": "tests/test_policy.py",
+          "blob": "6c92b21c89f6a69b7edc53d2d052b29d86e08d7c",
+          "sha256": "117025caf2cc563dc6087801c71688795a9fc2a3e8b4f3a37d3231c207f942b4",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/test_policy.py"
         }
       ]
     },
@@ -2759,5 +2783,5 @@
       ]
     }
   ],
-  "preserved_file_versions": 418
+  "preserved_file_versions": 422
 }
