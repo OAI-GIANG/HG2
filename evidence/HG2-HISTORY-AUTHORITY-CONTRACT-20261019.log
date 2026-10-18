@@ -1,105 +1,105 @@
-test_all_emitted_required_fields_are_required (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_all_emitted_required_fields_are_required) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpn58o3d8c/history.jsonl'>
+test_all_emitted_required_fields_are_required (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_all_emitted_required_fields_are_required) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmb91qmx2/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpn58o3d8c/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmb91qmx2/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpwv0853s8/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpsnqfc5kk/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpwv0853s8/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpsnqfc5kk/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpcqqca2wk/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpyvnmtdn9/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpcqqca2wk/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpyvnmtdn9/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpkk7_iume/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpwudmcqv2/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpkk7_iume/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpwudmcqv2/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpibcxnwod/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp9pa_nwri/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpibcxnwod/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp9pa_nwri/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpxshsx08x/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp9cj1mhqa/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpxshsx08x/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp9cj1mhqa/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpbg0gj3ru/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmh8n5j6w/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpbg0gj3ru/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmh8n5j6w/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp86j_orik/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpfkf7hexe/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp86j_orik/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpfkf7hexe/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphtqxz3yu/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp2vivjhgx/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphtqxz3yu/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp2vivjhgx/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp_m_5h5t2/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpr6vcmr_4/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp_m_5h5t2/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpr6vcmr_4/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpd89rl4h9/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpvh9zjd2c/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpd89rl4h9/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
-test_blank_line_and_missing_final_newline_fail_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_blank_line_and_missing_final_newline_fail_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp7zdkrv74/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp7zdkrv74/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpe4iz70b6/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpe4iz70b6/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpvh9zjd2c/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_checkpoint_json_non_object_fails_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_checkpoint_json_non_object_fails_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpnzsm5mm6/history.jsonl'>
+test_blank_line_and_missing_final_newline_fail_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_blank_line_and_missing_final_newline_fail_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp7ma_3htn/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpnzsm5mm6/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp7ma_3htn/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp385uuc78/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpas8zvy67/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp385uuc78/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpas8zvy67/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpze7rwozv/history.jsonl'>
+ok
+test_checkpoint_json_non_object_fails_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_checkpoint_json_non_object_fails_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpyyto0kig/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpze7rwozv/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpyyto0kig/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpr75gxgu3/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpa58okaey/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpr75gxgu3/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpa58okaey/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpej032tbk/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpej032tbk/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpeidxiodu/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpeidxiodu/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -107,211 +107,211 @@ test_history_contract_classifies_legacy_v1_without_changing_record (tests.test_h
 test_history_contract_classifies_well_formed_v2_as_structure_only (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_history_contract_classifies_well_formed_v2_as_structure_only) ... ok
 test_history_contract_rejects_ambiguous_or_unknown_schema_fields (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_history_contract_rejects_ambiguous_or_unknown_schema_fields) ... ok
 test_history_contract_rejects_v2_authority_and_idempotency_mismatch (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_history_contract_rejects_v2_authority_and_idempotency_mismatch) ... ok
-test_invalid_field_types_fail_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_field_types_fail_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp25me9nd0/history.jsonl'>
+test_invalid_field_types_fail_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_field_types_fail_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp4iiiv55x/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp25me9nd0/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
-test_invalid_field_values_fail_closed_even_with_recomputed_hash (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_field_values_fail_closed_even_with_recomputed_hash) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp2sham39u/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp2sham39u/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp63e0cv6_/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp63e0cv6_/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmppz3urhfn/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmppz3urhfn/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpcd8aembf/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpcd8aembf/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp3zu9sue4/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp3zu9sue4/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpoas9u78j/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpoas9u78j/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpohnfe67b/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpohnfe67b/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpg3wbn1gh/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpg3wbn1gh/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpkju9slss/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpkju9slss/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp3x1iuqr1/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp3x1iuqr1/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpzcgr4k8h/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpzcgr4k8h/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpcuioccfm/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpcuioccfm/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp_e9yt_an/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp_e9yt_an/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmps9gq83mj/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmps9gq83mj/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp4v_cz98z/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp4v_cz98z/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp4iiiv55x/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_invalid_utf8_fails_closed_without_raw_decode_error (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_utf8_fails_closed_without_raw_decode_error) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpwh08ivdj/history.jsonl'>
+test_invalid_field_values_fail_closed_even_with_recomputed_hash (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_field_values_fail_closed_even_with_recomputed_hash) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpnym2q2te/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpwh08ivdj/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpnym2q2te/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpgq7zj2a6/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpgq7zj2a6/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpiozjgqmo/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpiozjgqmo/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpnhvfmk7t/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpnhvfmk7t/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpvjk1av7a/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpvjk1av7a/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmplbb2sx_t/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmplbb2sx_t/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpw2lm3c3w/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpw2lm3c3w/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpju_e0ci8/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpju_e0ci8/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmppzb93cjj/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmppzb93cjj/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpu77mpvkc/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpu77mpvkc/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpw_3wrz7v/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpw_3wrz7v/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpndj6yjel/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpndj6yjel/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp4rgu2um3/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp4rgu2um3/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpf1jlyi9u/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpf1jlyi9u/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp30i8t8ow/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp30i8t8ow/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_missing_required_field_fails_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_missing_required_field_fails_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpe6cjohpl/history.jsonl'>
+test_invalid_utf8_fails_closed_without_raw_decode_error (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_utf8_fails_closed_without_raw_decode_error) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpo_etza5q/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpe6cjohpl/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
-test_non_object_json_fails_initialization_with_history_error (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_non_object_json_fails_initialization_with_history_error) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmprz0r8z5_/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpf9unqjzv/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp_v5k0oc_/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpjpn5j720/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpo_etza5q/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_non_object_json_fails_verify_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_non_object_json_fails_verify_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp8db0mp49/history.jsonl'>
+test_missing_required_field_fails_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_missing_required_field_fails_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmmd21wm5/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp6m0fz9nn/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpu_4npjvb/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpd0x9o00w/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmmd21wm5/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_valid_history_remains_compatible_after_restart (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_valid_history_remains_compatible_after_restart) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp4rz0ttda/history.jsonl'>
+test_non_object_json_fails_initialization_with_history_error (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_non_object_json_fails_initialization_with_history_error) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp7gbqngz0/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp4rz0ttda/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpnbia1lu6/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp5dzcta1t/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmprg5of7em/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_non_object_json_fails_verify_closed (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_non_object_json_fails_verify_closed) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpagoxqyj7/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpb5df70z1/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp9p22zy97/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmph2pmiy7r/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_valid_history_remains_compatible_after_restart (tests.test_history_malformed_shapes.MalformedHistoryShapeTests.test_valid_history_remains_compatible_after_restart) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpj6zidjzo/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpj6zidjzo/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
 test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... ok
 test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
-test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpf09s3c95/history.jsonl'>
+test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpy36tyvrs/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpf09s3c95/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpy36tyvrs/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpglsv94o6/history.jsonl'>
+test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpil3gp2oa/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
 test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
-test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp03gzs136/history.jsonl'>
+test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpokxsbxxt/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp03gzs136/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpokxsbxxt/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpuk6cvlf_/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpdgln3jac/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpuk6cvlf_/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpdgln3jac/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpp0lgcs32/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmph3sv1gaw/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpp0lgcs32/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmph3sv1gaw/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphvqhgnk5/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpo2aiohg9/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphvqhgnk5/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpo2aiohg9/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpi9smjso2/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp67a3pa0t/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpi9smjso2/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp67a3pa0t/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpe6_yxrt2/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpvadhaesd/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpe6_yxrt2/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpvadhaesd/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_identity (tests.test_core.IdentityTests.test_identity) ... ok
 test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... ok
-test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp3r2d86iz/history.jsonl'>
+test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpfkezoz8h/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpp4nofr8q/history.jsonl'>
+test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp08cpvxnf/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -332,30 +332,30 @@ test_outbox_invalid_cursor_and_missing_event_fail_closed (tests.test_sqlite_stat
 test_outbox_mutations_require_policy_permits (tests.test_sqlite_state.SQLiteStateStoreTests.test_outbox_mutations_require_policy_permits) ... ok
 test_outbox_retry_cannot_change_delivery_policy (tests.test_sqlite_state.SQLiteStateStoreTests.test_outbox_retry_cannot_change_delivery_policy) ... ok
 test_projection_corruption_is_detected (tests.test_sqlite_state.SQLiteStateStoreTests.test_projection_corruption_is_detected) ... ok
-test_phone_runtime_explicit_sync_configuration_reuses_single_store (tests.test_phone_runtime_sync_integration.PhoneRuntimeSyncIntegrationTests.test_phone_runtime_explicit_sync_configuration_reuses_single_store) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp889232zf/state/history.jsonl'>
+test_phone_runtime_explicit_sync_configuration_reuses_single_store (tests.test_phone_runtime_sync_integration.PhoneRuntimeSyncIntegrationTests.test_phone_runtime_explicit_sync_configuration_reuses_single_store) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpfh9pczu0/state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_runtime_rejects_authenticated_cursor_inside_state_directory (tests.test_phone_runtime_sync_integration.PhoneRuntimeSyncIntegrationTests.test_runtime_rejects_authenticated_cursor_inside_state_directory) ... ok
-test_sync_reuses_runtime_store_and_two_runtime_contexts_exchange_envelopes (tests.test_phone_runtime_sync_integration.PhoneRuntimeSyncIntegrationTests.test_sync_reuses_runtime_store_and_two_runtime_contexts_exchange_envelopes) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpqrqt_17l/a-state/history.jsonl'>
+test_sync_reuses_runtime_store_and_two_runtime_contexts_exchange_envelopes (tests.test_phone_runtime_sync_integration.PhoneRuntimeSyncIntegrationTests.test_sync_reuses_runtime_store_and_two_runtime_contexts_exchange_envelopes) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp8lr4o1fa/a-state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpqrqt_17l/b-state/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
-test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpnnnbba9j/ctx-b/state/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp8lr4o1fa/b-state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpbhbbvk0i/ctx-a/state/history.jsonl'>
+test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpvn8a7bdl/ctx-b/state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp0iswaevx/ctx-a/state/history.jsonl'>
+test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp5924f819/ctx-a/state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp0iswaevx/ctx-b/state/history.jsonl'>
+ok
+test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpyl35zcmi/ctx-a/state/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpyl35zcmi/ctx-b/state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -363,21 +363,21 @@ test_duplicate_event_id_different_payload_is_conflict (tests.test_t018_sync.Sync
 test_duplicate_event_id_is_idempotent (tests.test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
 test_import_rejects_arbitrary_paths_and_traversal (tests.test_t018_sync.SyncTests.test_import_rejects_arbitrary_paths_and_traversal) ... ok
 test_import_rejects_duplicate_json_keys_and_nan (tests.test_t018_sync.SyncTests.test_import_rejects_duplicate_json_keys_and_nan) ... ok
-test_interrupted_batch_apply_resumes_without_duplicate_events (tests.test_t018_sync.SyncTests.test_interrupted_batch_apply_resumes_without_duplicate_events) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpaefyw8b2/ctx-b/state/history.jsonl'>
+test_interrupted_batch_apply_resumes_without_duplicate_events (tests.test_t018_sync.SyncTests.test_interrupted_batch_apply_resumes_without_duplicate_events) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpniyhnid2/ctx-b/state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_invalid_later_event_does_not_partially_apply_batch (tests.test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
-test_multi_event_batch_preserves_origin_chain (tests.test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp_opzb2ki/ctx-b/state/history.jsonl'>
+test_multi_event_batch_preserves_origin_chain (tests.test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpq1ujylne/ctx-b/state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_origin_sequence_gap_rejected_before_apply (tests.test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
 test_rehashed_payload_without_matching_origin_record_rejected (tests.test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
-test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpbee6a_ih/ctx-b/state/history.jsonl'>
+test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpm1olfh_9/ctx-b/state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpbee6a_ih/ctx-b/state/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpm1olfh_9/ctx-b/state/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -392,66 +392,66 @@ test_dispatch_without_authorized_sync_principal_fails_closed (tests.test_sync.Sy
 test_invalid_acknowledgement_does_not_advance_cursor (tests.test_sync.SyncDispatcherTests.test_invalid_acknowledgement_does_not_advance_cursor) ... ok
 test_invalid_cursor_ack_is_rejected (tests.test_sync.SyncDispatcherTests.test_invalid_cursor_ack_is_rejected) ... ok
 test_transport_failure_leaves_event_pending_and_records_attempt (tests.test_sync.SyncDispatcherTests.test_transport_failure_leaves_event_pending_and_records_attempt) ... ok
-test_bidirectional_a_to_b_and_b_to_a (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_bidirectional_a_to_b_and_b_to_a) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp9bkfsu33/state-a/history.jsonl'>
+test_bidirectional_a_to_b_and_b_to_a (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_bidirectional_a_to_b_and_b_to_a) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmvyjo51f/state-a/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp9bkfsu33/state-b/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
-test_crash_after_import_before_cursor_then_redelivery_recovers (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_crash_after_import_before_cursor_then_redelivery_recovers) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphoyrzcvb/state-a/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphoyrzcvb/state-b/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmvyjo51f/state-b/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_crash_mid_batch_import_then_resume_idempotently (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_crash_mid_batch_import_then_resume_idempotently) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpxpvov79s/state-a/history.jsonl'>
+test_crash_after_import_before_cursor_then_redelivery_recovers (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_crash_after_import_before_cursor_then_redelivery_recovers) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpewpl3oje/state-a/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpxpvov79s/state-b/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
-test_duplicate_delivery_after_commit_is_idempotent_success (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_duplicate_delivery_after_commit_is_idempotent_success) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmusgq92r/state-a/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmusgq92r/state-b/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpewpl3oje/state-b/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_phone_runtime_authenticated_bidirectional_end_to_end (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_phone_runtime_authenticated_bidirectional_end_to_end) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpppi1pker/phone-a/history.jsonl'>
+test_crash_mid_batch_import_then_resume_idempotently (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_crash_mid_batch_import_then_resume_idempotently) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpwtxtr0lw/state-a/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpppi1pker/phone-b/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
-test_restart_recovery_and_cursor_persistence (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_restart_recovery_and_cursor_persistence) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp7tfp169x/state-a/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp7tfp169x/state-b/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpwtxtr0lw/state-b/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_rollback_archive_integrity_and_restore_fixture (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_rollback_archive_integrity_and_restore_fixture) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpqz4mu1va/state-a/history.jsonl'>
+test_duplicate_delivery_after_commit_is_idempotent_success (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_duplicate_delivery_after_commit_is_idempotent_success) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpdmkc4w6a/state-a/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpqz4mu1va/state-b/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
-test_tamper_gap_and_fork_rejected (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_tamper_gap_and_fork_rejected) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpl4czxdt0/state-a/history.jsonl'>
-  raw = open(self.log, "rb").read()
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpl4czxdt0/state-b/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpdmkc4w6a/state-b/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_unknown_peer_rejected_without_state_mutation (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_unknown_peer_rejected_without_state_mutation) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp9934kuqp/state-a/history.jsonl'>
+test_phone_runtime_authenticated_bidirectional_end_to_end (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_phone_runtime_authenticated_bidirectional_end_to_end) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp_ldein4f/phone-a/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp9934kuqp/state-b/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp_ldein4f/phone-b/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_restart_recovery_and_cursor_persistence (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_restart_recovery_and_cursor_persistence) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpfswr2l0q/state-a/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpfswr2l0q/state-b/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_rollback_archive_integrity_and_restore_fixture (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_rollback_archive_integrity_and_restore_fixture) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpw97oh6ss/state-a/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpw97oh6ss/state-b/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_tamper_gap_and_fork_rejected (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_tamper_gap_and_fork_rejected) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpbtl7g2i7/state-a/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpbtl7g2i7/state-b/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_unknown_peer_rejected_without_state_mutation (tests.test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_unknown_peer_rejected_without_state_mutation) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpucjkxn2f/state-a/history.jsonl'>
+  raw = open(self.log, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpucjkxn2f/state-b/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -470,33 +470,33 @@ test_short_key_rejected (tests.test_sync_auth.AuthGateTests.test_short_key_rejec
 test_tamper_rejected (tests.test_sync_auth.AuthGateTests.test_tamper_rejected) ... ok
 test_unknown_peer_rejected (tests.test_sync_auth.AuthGateTests.test_unknown_peer_rejected) ... ok
 test_valid_authenticated_batch_and_checkpoint_chain (tests.test_sync_auth.AuthGateTests.test_valid_authenticated_batch_and_checkpoint_chain) ... ok
-test_bootstrap_creates_new_runtime_with_gate_and_single_store (tests.test_sync_bootstrap.BootstrapTests.test_bootstrap_creates_new_runtime_with_gate_and_single_store) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmp2_4308e4/state-a/history.jsonl'>
+test_bootstrap_creates_new_runtime_with_gate_and_single_store (tests.test_sync_bootstrap.BootstrapTests.test_bootstrap_creates_new_runtime_with_gate_and_single_store) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpbus0uh3c/state-a/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_bootstrapped_runtime_bidirectional_authenticated_sync_and_integrity (tests.test_sync_bootstrap.BootstrapTests.test_bootstrapped_runtime_bidirectional_authenticated_sync_and_integrity) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmyzjhkp5/state-a/history.jsonl'>
+test_bootstrapped_runtime_bidirectional_authenticated_sync_and_integrity (tests.test_sync_bootstrap.BootstrapTests.test_bootstrapped_runtime_bidirectional_authenticated_sync_and_integrity) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphkav1ntb/state-a/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmyzjhkp5/state-b/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphkav1ntb/state-b/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmyzjhkp5/state-a/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphkav1ntb/state-a/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpmyzjhkp5/state-b/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmphkav1ntb/state-b/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
-test_crash_before_cursor_commit_recovers_after_restart (tests.test_sync_bootstrap.BootstrapTests.test_crash_before_cursor_commit_recovers_after_restart) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpr_9q74ch/sender/history.jsonl'>
+test_crash_before_cursor_commit_recovers_after_restart (tests.test_sync_bootstrap.BootstrapTests.test_crash_before_cursor_commit_recovers_after_restart) ... /data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmprcw8unpv/sender/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpr_9q74ch/receiver/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:115: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmprcw8unpv/receiver/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpr_9q74ch/receiver/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmprcw8unpv/receiver/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmpr_9q74ch/sender/history.jsonl'>
+/data/data/com.termux/files/home/HG2-CONSOLIDATION/hg/history.py:256: ResourceWarning: unclosed file <_io.BufferedReader name='/data/data/com.termux/files/usr/tmp/tmprcw8unpv/sender/history.jsonl'>
   raw = open(self.log, "rb").read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -504,6 +504,6 @@ test_fail_closed_for_missing_trust_or_key_provider (tests.test_sync_bootstrap.Bo
 test_manifest_declares_auth_and_bootstrap_modules (tests.test_sync_bootstrap.BootstrapTests.test_manifest_declares_auth_and_bootstrap_modules) ... ok
 
 ----------------------------------------------------------------------
-Ran 99 tests in 4.164s
+Ran 99 tests in 3.956s
 
 OK
