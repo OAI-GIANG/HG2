@@ -1,0 +1,21 @@
+{
+  "repository": "OAI-GIANG/HG2",
+  "target": "stt/hg2-circulatory-architecture-20261018",
+  "base_head": "fc1726e4d0536f55b163920a7d81d3712b585c1d",
+  "source_contract": "docs/t018-remove-signature-scope-20261013",
+  "source_design_conflict": "design/t018-auth-checkpoint-memory-20261013",
+  "contract_file_sha256": "0357482bf7b7a06798e30bc454d4c86f077eb95fbad87e6eaeb2b22c50cb9957",
+  "acceptance_file_sha256": "cf8daa06cd3d0da5872d7d95a48366677eb73920fce23f801ce952ecbd7868ae",
+  "test_log_sha256": "efe7b343d7a251ce09cf85a8ef2f93a78ec812520ec7a8221418357aa09e1501",
+  "tests": 340,
+  "result": "PASS",
+  "decision": "BLOCKED_NO_COMPATIBLE_INCREMENTAL_IMPORT_API",
+  "source_refs_deleted": false,
+  "remote_ref_count_before_push": 25,
+  "sync_api_comparison": {
+    "current": "hg/sync.py SyncDispatcher over SQLiteStateStore; outbound ACK/cursor semantics",
+    "legacy_source": "SyncContext file spool; import_batch; event-at-a-time StateStore.emit; no proven all-or-none transaction",
+    "gate": "authenticated HMAC/checkpoint prototype on brain target; not authorized by later contract to silently replace authentication",
+    "inbound_port": "not performed; fail closed until bootstrap/auth contract is approved"
+  }
+}
