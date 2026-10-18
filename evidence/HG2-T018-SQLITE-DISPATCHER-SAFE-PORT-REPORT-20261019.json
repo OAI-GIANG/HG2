@@ -1,0 +1,69 @@
+{
+  "repository": "OAI-GIANG/HG2",
+  "target_branch": "stt/hg2-circulatory-architecture-20261018",
+  "target_head_before_audit_commit": "4e290e58aa7874add3c2bfec93cf5271c4eb4925",
+  "remote_branch_count_before_audit_commit": 25,
+  "source_refs_modified_or_deleted": false,
+  "five_T018_source_sync_files": {
+    "design/t018-auth-checkpoint-memory-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807
+    },
+    "docs/t018-remove-signature-scope-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807
+    },
+    "feat/hg-t018-cross-context-sync-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807
+    },
+    "remediation/t018-base-reconcile-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807
+    },
+    "review/t018-design-pre-review-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807
+    }
+  },
+  "t018_sync_variants_identical": true,
+  "current_target_code_refs": {
+    "sync_dispatcher": "hg/sync.py:16-118 (outbound SQLite outbox dispatcher, authenticated principal/permit, ACK event+digest+cursor binding)",
+    "phone_runtime": "hg/phone_runtime.py:8,33 (factory selects SQLiteStateStore; no SyncDispatcher wiring)",
+    "outbox_checkpoint": "hg/sqlite_state.py:565-609 (monotonic outgoing ACK cursor persisted transactionally)",
+    "migration_import": "hg/sqlite_state.py:288-378; specifically 341-350 restricts import to a fresh genesis and rejects non-fresh target",
+    "brain_T018_adapter": "origin/stt/hg2-brain-consolidation-20261018:hg/sync.py:57-70,124-130,251-281 (file spool and authenticated batch import; sequential StateStore.emit then cursor gate commit)",
+    "experimental_auth_gate": "origin/stt/hg2-brain-consolidation-20261018:hg/sync_auth.py:1-4,19-28,49-63,140-202,204-225 (candidate-only gate, external key provider, independent anchor, cursor verify/commit)",
+    "contract_conflicts": {
+      "prototype_only": 5,
+      "no_replacement_auth": 11,
+      "initial_cursor_unresolved": 31,
+      "all_or_none_unproven": 35,
+      "runtime_integration_unproven": 48
+    }
+  },
+  "safe_port_decision": "BLOCKED_NO_COMPATIBLE_INCREMENTAL_IMPORT_API",
+  "why_no_runtime_port": [
+    "Legacy T-018 SyncContext owns file-spool paths and imports foreign-origin batches; it is not an implementation of the current SyncTransport.send_event outbound protocol.",
+    "SQLiteStateStore.import_verified_events is an offline migration API restricted to replacing a fresh genesis, not an incremental inbound API.",
+    "Current last_ack_cursor tracks outbound acknowledgements; using it for inbound peer checkpoints would conflate directions and peers.",
+    "T-018 contract explicitly leaves initial trusted cursor unresolved and says not to add replacement auth; the other branch has a candidate HMAC gate requiring an independent rollback anchor, so the contracts cannot be silently combined.",
+    "Legacy inbound import calls StateStore.emit once per event before cursor commit and does not prove all-or-none batch atomicity. Copying it into SQLite as-is would risk partial-prefix acceptance or split state/cursor commits."
+  ],
+  "required_port_contract": [
+    "Keep the existing phone state authority; inbound accepted data must be written as local sync.received envelopes, never by replacing remote records in the local hash chain.",
+    "Add per-peer inbound checkpoint/dedup/conflict state to SQLite, distinct from the outbound outbox cursor.",
+    "Validate and apply the entire batch plus inbound checkpoint in one BEGIN IMMEDIATE transaction with rollback at every failure point.",
+    "Define bootstrap trust for first-time peer checkpoints and the authorized authentication model before coding.",
+    "Handle crash between SQLite commit and any independent anti-rollback anchor update with idempotent recovery semantics.",
+    "Implement quarantined malformed/conflicting batches without treating rejection audit events as accepted remote effects."
+  ],
+  "test_run": {
+    "command": "python -m unittest tests.test_sync tests.test_auth tests.test_core -v",
+    "result": "OK",
+    "test_count": 42,
+    "log_path": "evidence/HG2-T018-SQLITE-DISPATCHER-REGRESSION-20261019.log",
+    "log_sha256": "96329bb7045e43369a1cbe8f4b135b01bbc8d0351a1ecc0f69bd8d33b68c22ff"
+  },
+  "next_gate": "Owner/policy decision required for inbound authentication/trusted checkpoint semantics; after that implement an SQLite-native import boundary and crash/replay tests before any source ref pruning."
+}
