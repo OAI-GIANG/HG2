@@ -5,12 +5,14 @@ import json
 import sys
 from pathlib import Path
 from hg_voice.metrics import score_pair
+from hg_voice.error_atlas import classify_difference
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("jsonl", type=Path, help="UTF-8 JSONL: one object with reference and hypothesis per line")
     args = parser.parse_args(argv)
+    atlas_counts = {}
     totals = {"utterances": 0, "reference_words": 0, "word_errors": 0,
               "reference_characters": 0, "character_errors": 0, "empty_references": 0}
     try:
@@ -22,6 +24,8 @@ def main(argv=None):
                 if not isinstance(item, dict) or not isinstance(item.get("reference"), str) or not isinstance(item.get("hypothesis"), str):
                     raise ValueError(f"line {line_no}: expected string fields reference and hypothesis")
                 result = score_pair(item["reference"], item["hypothesis"])
+                category = classify_difference(item["reference"], item["hypothesis"])
+                atlas_counts[category] = atlas_counts.get(category, 0) + 1
                 totals["utterances"] += 1
                 totals["reference_words"] += result["reference_words"]
                 totals["word_errors"] += result["word_errors"]
@@ -36,6 +40,10 @@ def main(argv=None):
         return 2
     totals["wer"] = totals["word_errors"] / totals["reference_words"] if totals["reference_words"] else None
     totals["cer"] = totals["character_errors"] / totals["reference_characters"] if totals["reference_characters"] else None
+    totals["error_atlas"] = {name: {"count": count, "denominator": totals["utterances"],
+                                     "rate": count / totals["utterances"]}
+                             for name, count in sorted(atlas_counts.items())}
+    totals["error_atlas_scope"] = "observable_text_difference_not_acoustic_causality"
     totals["status"] = "SCORED_NOT_ACCEPTANCE"
     print(json.dumps(totals, ensure_ascii=False, sort_keys=True, indent=2))
     return 0

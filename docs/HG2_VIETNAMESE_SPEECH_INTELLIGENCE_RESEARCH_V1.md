@@ -40,9 +40,9 @@ Before considering on-device execution, measure existing installed engine only (
 
 ## 4. Novel HG contribution
 
-The proposed **Vietnamese Error Atlas (VEA)** is a deterministic diagnostic layer over accepted ASR results. It groups mismatches into auditable buckets without altering the primary WER/CER: diacritic/tone-mark difference, punctuation-only difference, whitespace/tokenization difference, lexical substitution, insertion, deletion, and locale-tagged slice (only when source labels are trustworthy). Each bucket includes count, denominator, and examples only when the corpus license and privacy policy permit excerpts. Otherwise emit aggregate counts only.
+The implemented **Vietnamese Error Atlas (VEA) V1** is a deterministic diagnostic layer over text reference/hypothesis pairs. The JSONL evaluator now emits aggregate class counts and explicit utterance denominators alongside WER/CER. It uses synthetic fixtures in tests; no real corpus is included. It groups mismatches into auditable buckets without altering the primary WER/CER: diacritic/tone-mark difference, punctuation-only difference, whitespace/tokenization difference, lexical substitution, insertion, deletion, and locale-tagged slice (only when source labels are trustworthy). Each bucket includes count, denominator, and examples only when the corpus license and privacy policy permit excerpts. Otherwise emit aggregate counts only.
 
-VEA does not claim phonetic causality from text differences alone. It labels observable differences and keeps causal hypotheses separate from measured evidence. No model fine-tuning or self-learning is automatic.
+VEA V1 currently classifies exact match, Unicode/whitespace normalization, diacritic difference, punctuation-only difference, whitespace/tokenization difference, lexical/word-sequence difference, empty-reference insertion, empty-hypothesis deletion, and mixed/other difference. Categories are heuristic diagnostic labels, not a full alignment-based decomposition; a single utterance receives one category. VEA does not claim phonetic causality from text differences alone. It labels observable differences and keeps causal hypotheses separate from measured evidence. No model fine-tuning or self-learning is automatic.
 
 ## 5. Data and licensing findings — preliminary
 
@@ -70,9 +70,9 @@ Any missing required gate yields `BLOCKED`; it does not block independent design
 
 ## 8. Next implementation increments
 
-1. Add unit tests for VEA categories using synthetic text fixtures only.
-2. Add a metadata-only corpus admission schema and fail-closed validator.
-3. Add report serialization with run IDs and SHA-256 references.
+1. Improve VEA with alignment-based per-token error decomposition and validated locale slices.
+2. Add report serialization with run IDs, source/model/config identities and SHA-256 references.
+3. Keep corpus admission metadata-only until rights and consent are independently reviewed.
 4. Later, if a properly licensed and approved Vietnamese ASR corpus becomes available, run a real benchmark and publish measured WER/CER with all gates and limitations.
 
 ## 9. Evidence classification
