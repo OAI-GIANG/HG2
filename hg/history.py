@@ -29,6 +29,12 @@ class StateStore:
         self.head = os.path.join(self.dir, "head.json")
         self.state = os.path.join(self.dir, "state.json")
         self._clock = clock
+        self._preexisting = {
+            "log": os.path.exists(self.log),
+            "head": os.path.exists(self.head),
+            "state": os.path.exists(self.state),
+            "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id")),
+        }
         self.runtime_id = self._runtime_id()
         self._lock = threading.RLock()
         self._events = []
@@ -87,7 +93,13 @@ class StateStore:
         return None
 
     def _load(self):
-        if not os.path.exists(self.log):
+        have_log = self._preexisting["log"]
+        have_head = self._preexisting["head"]
+        have_state = self._preexisting["state"]
+        have_runtime_id = self._preexisting["runtime_id"]
+        if not have_log:
+            if have_head or have_state or have_runtime_id:
+                raise HistoryError("history log missing while other state artifacts exist")
             return
         prev, seq, seen = ZERO, 0, set()
         try:
@@ -121,19 +133,39 @@ class StateStore:
                     self._apply(rec)
         except (OSError, UnicodeError) as exc:
             raise HistoryError("history unreadable") from exc
-        if os.path.exists(self.head):
-            try:
-                with open(self.head, encoding="utf-8") as fh:
-                    hd = json.load(fh)
-            except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-                raise HistoryError("head checkpoint unreadable") from exc
-            expected_head = {"seq": seq, "head_hash": prev}
-            if not isinstance(hd, dict):
-                raise HistoryError("head checkpoint is not an object")
-            if hd != expected_head:
-                raise HistoryError("log does not match head checkpoint")
+
+        # Validate record structure first so malformed lines retain precise diagnostics;
+        # a structurally valid history still cannot start without its checkpoint.
+        if not have_head:
+            raise HistoryError("head checkpoint missing while history log exists")
+        self._checkpoint_check()
+        if have_state:
+            self._projection_check()
         self._write_state()
         self._write_head()
+
+    def _checkpoint_check(self):
+        try:
+            with open(self.head, encoding="utf-8") as fh:
+                checkpoint = json.load(fh)
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise HistoryError("head checkpoint unreadable") from exc
+        if not isinstance(checkpoint, dict):
+            raise HistoryError("head checkpoint is not an object")
+        seq, head_hash = self._head()
+        if checkpoint != {"seq": seq, "head_hash": head_hash}:
+            raise HistoryError("log does not match head checkpoint")
+
+    def _projection_check(self):
+        try:
+            with open(self.state, encoding="utf-8") as fh:
+                projection = json.load(fh)
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise HistoryError("state projection unreadable") from exc
+        if not isinstance(projection, dict):
+            raise HistoryError("state projection is not an object")
+        if projection != self._doc():
+            raise HistoryError("state projection does not match history")
 
     def _apply(self, rec):
         if rec["event_type"] == "session.created" and "session_id" in rec["payload"]:
@@ -183,6 +215,9 @@ class StateStore:
 
     def verify(self):
         if not os.path.exists(self.log):
+            artifacts = (self.head, self.state, os.path.join(self.dir, "runtime_id"))
+            if any(os.path.exists(path) for path in artifacts):
+                return {"ok": False, "events": 0, "reason": "log_missing_while_state_present"}
             return {"ok": True, "events": 0, "reason": "empty_log"}
         prev, seq, seen, n = ZERO, 0, set(), 0
         try:
@@ -228,16 +263,17 @@ class StateStore:
                     prev, seq, n = rh, rec["seq"], n + 1
         except (OSError, UnicodeError):
             return {"ok": False, "events": n, "reason": "history_unreadable"}
-        if os.path.exists(self.head):
-            try:
-                with open(self.head, encoding="utf-8") as fh:
-                    hd = json.load(fh)
-            except (OSError, UnicodeError, json.JSONDecodeError):
-                return {"ok": False, "events": n, "reason": "checkpoint_unreadable"}
-            if not isinstance(hd, dict):
-                return {"ok": False, "events": n, "reason": "checkpoint_not_object"}
-            if hd != {"seq": seq, "head_hash": prev}:
-                return {"ok": False, "events": n, "reason": "checkpoint_mismatch"}
+        if not os.path.exists(self.head):
+            return {"ok": False, "events": n, "reason": "checkpoint_missing"}
+        try:
+            with open(self.head, encoding="utf-8") as fh:
+                hd = json.load(fh)
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            return {"ok": False, "events": n, "reason": "checkpoint_unreadable"}
+        if not isinstance(hd, dict):
+            return {"ok": False, "events": n, "reason": "checkpoint_not_object"}
+        if hd != {"seq": seq, "head_hash": prev}:
+            return {"ok": False, "events": n, "reason": "checkpoint_mismatch"}
         return {"ok": True, "events": n, "head_hash": prev, "reason": "chain_ok"}
 
     def replay(self):
