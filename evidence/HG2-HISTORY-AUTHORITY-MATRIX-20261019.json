@@ -114,7 +114,7 @@
     "count": 99,
     "result": "OK",
     "log": "evidence/HG2-HISTORY-AUTHORITY-CONTRACT-20261019.log",
-    "log_sha256": "bf393698c022fc790fa9d32f300c83664671674fcd2330af4b17d860f5c7e667"
+    "log_sha256": "4ae01f8d32b7c10110f1630f30bb128a8809fc27b255c3f27bfc63cdef5e233b"
   },
   "known_debt": [
     "The read-only classifier confirms structural shape only. It does not verify a V2 record hash/schema/sequence chain as a full V2 reader would.",
@@ -156,7 +156,7 @@
     },
     {
       "path": "evidence/HG2-HISTORY-AUTHORITY-CONTRACT-20261019.log",
-      "sha256": "bf393698c022fc790fa9d32f300c83664671674fcd2330af4b17d860f5c7e667",
+      "sha256": "4ae01f8d32b7c10110f1630f30bb128a8809fc27b255c3f27bfc63cdef5e233b",
       "bytes": 55447
     }
   ]
