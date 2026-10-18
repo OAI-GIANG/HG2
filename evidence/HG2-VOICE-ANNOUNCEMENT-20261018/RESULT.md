@@ -37,3 +37,14 @@ Machine-readable run details and exact artifact metadata are in EXECUTION.json.
 - Therefore Vietnamese TTS quality remains NOT_ASSESSED; this is not a production-quality acceptance.
 - VieNeu Nano remains blocked/unverified. This task did not download a model or attempt to mark that model ready.
 - The original PR remains Draft pending quality review. No merge, deployment, or change to canonical hg-genesis was performed.
+
+
+## External research and licensing gate
+
+References reviewed:
+- eSpeak NG upstream (feature overview and stated license): https://github.com/espeak-ng/espeak-ng
+- eSpeak NG language/dialect list: https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md
+- Termux eSpeak package source/build metadata: https://github.com/termux/termux-packages/blob/master/packages/espeak/build.sh
+- Termux play-audio (local OpenSL ES player): https://github.com/termux/play-audio
+
+The Termux package recipe labels its eSpeak package GPL-2.0, whereas the eSpeak NG upstream README states GPL-3.0-or-later. This discrepancy is unresolved and blocks bundling/redistribution until the exact source and package licensing is verified. HG2 does not vendor the engine or voice data.

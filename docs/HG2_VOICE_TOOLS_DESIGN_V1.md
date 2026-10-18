@@ -188,3 +188,15 @@ No stage may silently advance if its evidence is missing. Do not merge, deploy, 
 - Automated Voice Tools suite: 63 tests pass on the device after adding adapter, CLI and safety tests.
 
 **Limitations:** this is a functional local announcement path, not a neural/naturalness acceptance. No trained Vietnamese quality set or independent human listening review was performed. Do not infer pronunciation quality from process success. VieNeu Nano stays blocked-unverified; no model was downloaded. No microphone was accessed, no personal audio used, no runtime integration/deploy performed, and canonical hg-genesis was not changed. The work remains on this PR's draft branch pending acceptance review.
+
+
+## 14. External references and eSpeak NG license gate
+
+The implementation uses the installed Termux package and the installed eSpeak NG voice data, not a copied engine binary or downloaded speech model.
+
+- eSpeak NG upstream and its stated license: https://github.com/espeak-ng/espeak-ng
+- Upstream language/dialect identifiers: https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md
+- Termux package recipe, source version and SHA-256 metadata: https://github.com/termux/termux-packages/blob/master/packages/espeak/build.sh
+- Termux play-audio implementation and license: https://github.com/termux/play-audio
+
+**License gate:** the Termux package recipe currently labels the package GPL-2.0, whereas the upstream eSpeak NG README states GPL-3.0-or-later. This discrepancy is not resolved here. No engine binary or voice data is committed to HG2; redistribution/bundling remains blocked until the exact package/source licensing is verified. The local tested command path does not itself establish legal clearance for a future bundled release.

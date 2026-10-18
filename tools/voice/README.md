@@ -56,3 +56,13 @@ PYTHONPATH=tools/voice python -m hg_voice play /path/to/notice.wav
 The text-file argument is required so spoken content does not appear in the command's argument list. The default refuses to overwrite an existing WAV; --overwrite is a separate explicit opt-in. Input is limited to 10,000 characters; WAV output is bounded and validated for PCM format, channels, sample rate, frame count and duration. Temporary output files use owner-only permissions and are removed on failure. The optional play flag invokes the local play-audio utility without a shell; it does not use termux-tts-speak or an online fallback.
 
 **Acceptance boundary:** a zero process exit, valid WAV, SHA-256, and successful local-player exit prove that the local pipeline ran and the player accepted the file. They do not establish naturalness, pronunciation accuracy, accessibility suitability, or that a person actually heard/approved the audio. Human listening and a predefined Vietnamese quality review are still required before any production quality claim. VieNeu Nano remains a separate blocked research candidate; this adapter does not mark it ready.
+
+
+## Upstream references and distribution boundary
+
+- eSpeak NG upstream overview and license statement: https://github.com/espeak-ng/espeak-ng
+- eSpeak NG Vietnamese voice/dialect identifiers: https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md
+- Termux eSpeak package build recipe, source version/hash, and package license metadata: https://github.com/termux/termux-packages/blob/master/packages/espeak/build.sh
+- Termux local audio playback utility (OpenSL ES; upstream repository states Apache-2.0): https://github.com/termux/play-audio
+
+**Supply-chain note:** the current Termux package recipe lists GPL-2.0 package metadata, while the eSpeak NG upstream README describes its project as GPL-3.0-or-later. Treat this as a license-metadata discrepancy requiring exact source/package verification before redistributing or bundling the executable or voice data. HG2 does not commit, vendor, or redistribute either executable or voice files; it invokes the locally installed Termux package. A production bundle requires a separate license review.
