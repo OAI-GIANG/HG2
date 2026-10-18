@@ -972,7 +972,7 @@
     {
       "branch": "origin/stt/hg-agentic-intelligence-g1-20261017",
       "sha": "78f1149c9aa4d3f7920c33c19a8954db0927ddb4",
-      "relevant_path_count": 44,
+      "relevant_path_count": 45,
       "preserved": [
         {
           "path": "evidence/HG-AGENTIC-INTELLIGENCE-EVOLUTION-20261017-R3/runtime-provenance-observation.json",
@@ -1237,13 +1237,19 @@
           "blob": "730d5e8df05faf108724e8103fed01764fc27529",
           "sha256": "e80b223501b264d9bd21310c6288f497812c3c7c0957122d323fb7ed1541fb6a",
           "archive_path": "docs/consolidation/source-branches/origin__stt__hg-agentic-intelligence-g1-20261017/tests/fixtures/hg-native-intelligence-v2.1/validate_v21.py"
+        },
+        {
+          "path": "hg/task_contract.py",
+          "blob": "8d12fbd6fbbe343192f38a43644e507e048c1558",
+          "sha256": "30352276b0f265ad2ee0f67d21f3de8215deb72d51a96916221735bd1b62179f",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg-agentic-intelligence-g1-20261017/hg/task_contract.py"
         }
       ]
     },
     {
       "branch": "origin/stt/hg2-circulatory-architecture-20261018",
       "sha": "c5b27193baa95e741c0082cae81656a630e24d8d",
-      "relevant_path_count": 57,
+      "relevant_path_count": 59,
       "preserved": [
         {
           "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/history-contract-integration-report.json",
@@ -1586,6 +1592,18 @@
           "blob": "730d5e8df05faf108724e8103fed01764fc27529",
           "sha256": "e80b223501b264d9bd21310c6288f497812c3c7c0957122d323fb7ed1541fb6a",
           "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/validate_v21.py"
+        },
+        {
+          "path": "hg/auth.py",
+          "blob": "b4f6b127abdff721af555dc6cb92aad745da12eb",
+          "sha256": "0f5b65d94aa1c4ab1aa1a1ec599b7813229e7579939bcf5ec6f6d6aadeaffe31",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/auth.py"
+        },
+        {
+          "path": "hg/contracts.py",
+          "blob": "b5190a511b265d95b0e6863d1deae1c578e1c3b7",
+          "sha256": "c8b48f511261dbaf0d0f20e830ddc966890c2f69b917a4118209b831a874f372",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/contracts.py"
         }
       ]
     },
@@ -2741,5 +2759,5 @@
       ]
     }
   ],
-  "preserved_file_versions": 415
+  "preserved_file_versions": 418
 }
