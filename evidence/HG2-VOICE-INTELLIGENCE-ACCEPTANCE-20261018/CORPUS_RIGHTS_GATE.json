@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "task": "HG2 Voice Intelligence corpus rights gate",
+  "review_date_utc": "2026-10-18",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-voice-tools-design-20261018",
+  "reviewed_head_before_evidence_commit": "f71f5221591bf841a4da27ccf5151b1d8a3c217b",
+  "policy": {
+    "no_downloads": true,
+    "no_model_downloads": true,
+    "no_audio_playback_or_inference": true,
+    "no_personal_recordings": true,
+    "no_corpus_assets_copied_into_repo": true
+  },
+  "candidate_reviews": [
+    {
+      "candidate": "Mozilla Common Voice Scripted Speech Vietnamese, dataset card version 23.0",
+      "source_url": "https://dev.datacollective.mozillafoundation.org/datasets/cmflnn484oaiy1nwkq2dp76ig",
+      "source_observation": {
+        "license_declared_by_dataset_card": "CC-0",
+        "format": "MP3",
+        "reported_clips": 18777,
+        "reported_total_hours": 22,
+        "reported_validated_hours": 6.3,
+        "reported_speakers": 361,
+        "use_conditions_displayed": [
+          "Do not attempt to determine speaker identities",
+          "Do not re-host or re-share the dataset"
+        ]
+      },
+      "audio_rights": "LICENSE_DECLARED_CC0_BY_DATASET_CARD_BUT_LOCAL_ASSET_TERMS_NOT_VERIFIED",
+      "transcript_rights": "LICENSE_DECLARED_CC0_BY_DATASET_CARD_BUT_LOCAL_ASSET_TERMS_NOT_VERIFIED",
+      "speaker_consent_and_privacy": "PARTIAL_PUBLIC_SUMMARY_ONLY; INDIVIDUAL_CONTRIBUTOR_CONSENT_RECORDS_NOT_REVIEWED",
+      "permitted_hg2_benchmark_purpose": "NOT_YET_APPROVED_FOR_THIS_LOCAL_RUN; must review applicable dataset terms and purpose/privacy fit",
+      "local_copy_available_in_hg2_checkout": false,
+      "local_sha256_manifest_available": false,
+      "decision": "BLOCKED_NOT_ADMITTED",
+      "reason": "Public dataset card is promising evidence of a CC0 declaration but is not the dataset payload or a local, version-pinned manifest; no download is permitted in this task, and the specific asset terms, consent/privacy fit, and local hashes have not been verified."
+    },
+    {
+      "candidate": "VLSP Vietnamese ASR datasets (including historical ASR challenge sets)",
+      "source_urls": [
+        "https://vlsp.org.vn/resources",
+        "https://vlsp.org.vn/vlsp2021/eval/asr",
+        "https://vlsp.org.vn/vlsp2022/eval/asr"
+      ],
+      "audio_rights": "ACCESS_CONDITIONED_BY_DATA_USER_AGREEMENT",
+      "transcript_rights": "ACCESS_CONDITIONED_BY_DATA_USER_AGREEMENT",
+      "speaker_consent": "NOT_ESTABLISHED_FROM_PUBLIC_RESOURCE_PAGES",
+      "permitted_hg2_benchmark_purpose": "NOT_VERIFIED; applicable agreement and allowed purpose must be reviewed",
+      "local_copy_available_in_hg2_checkout": false,
+      "signed_data_user_agreement_evidence_present": false,
+      "local_sha256_manifest_available": false,
+      "decision": "BLOCKED_NOT_ADMITTED",
+      "reason": "VLSP's official resources page says users must complete, sign, and email a data-user agreement to obtain datasets. No signed agreement, received dataset, or approved-purpose evidence is present in this checkout. Challenge descriptions do not independently grant access or rights."
+    },
+    {
+      "candidate": "User-provided VieNeu-TTS-main.zip archive",
+      "prior_evidence": "evidence/HG2-VOICE-INTELLIGENCE-RESEARCH-20261018/ARCHIVE_AUDIT.json",
+      "archive_sha256": "2821d0760a102e0a11810df2e2b6a6727f10da7dab30e2585c57483dd467c5ea",
+      "repository_code_license": "Apache-2.0",
+      "audio_rights": "UNVERIFIED",
+      "transcript_rights": "UNVERIFIED",
+      "speaker_consent": "UNVERIFIED",
+      "model_weight_rights": "UNVERIFIED",
+      "decision": "BLOCKED_NOT_ADMITTED",
+      "reason": "The code license does not establish rights to embedded recordings, transcripts, speaker identities, or model weights. Existing audit remains applicable."
+    }
+  ],
+  "repository_inventory": {
+    "checkout": "/data/data/com.termux/files/home/.cache/hg2-voice-tools-design-work",
+    "tracked_audio_or_corpus_payload_found": false,
+    "tracked_rights_approval_or_signed_vlsp_agreement_found": false,
+    "evidence_basis": "git ls-files filtered for corpus/dataset/speech/audio/transcript and common audio extensions; only design, admission code, tests, and prior metadata evidence found"
+  },
+  "benchmark": {
+    "real_vietnamese_asr_wer_cer": "NOT_RUN_BLOCKED_NO_APPROVED_LOCAL_CORPUS",
+    "dataset_sha256_manifest_created": false,
+    "synthetic_smoke_test_is_not_acceptance_evidence": true
+  },
+  "overall_gate": "BLOCKED",
+  "release_status": "NOT_RELEASED",
+  "merge_or_deploy": false,
+  "manifest_or_core_runtime_changed": false
+}
