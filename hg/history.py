@@ -29,6 +29,9 @@ class StateStore:
         self.head = os.path.join(self.dir, "head.json")
         self.state = os.path.join(self.dir, "state.json")
         self._clock = clock
+        self._preexisting = {"log": os.path.exists(self.log), "head": os.path.exists(self.head),
+                             "state": os.path.exists(self.state),
+                             "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id"))}
         self.runtime_id = self._runtime_id()
         self._lock = threading.RLock()
         self._events = []
@@ -55,8 +58,16 @@ class StateStore:
         return (0, ZERO) if not self._events else (self._events[-1]["seq"], self._events[-1]["record_hash"])
 
     def _load(self):
-        if not os.path.exists(self.log):
+        have_log = self._preexisting["log"]
+        have_head = self._preexisting["head"]
+        have_state = self._preexisting["state"]
+        have_rid = self._preexisting["runtime_id"]
+        if not have_log:
+            if have_head or have_state or have_rid:
+                raise HistoryError("history log missing while other state artifacts exist")
             return
+        if not have_head:
+            raise HistoryError("head checkpoint missing while history log exists")
         prev, seq, seen = ZERO, 0, set()
         with open(self.log, encoding="utf-8") as fh:
             for n, line in enumerate(fh, 1):
@@ -82,14 +93,34 @@ class StateStore:
                 self._events.append(rec)
                 self._by_id[rec["event_id"]] = rec
                 self._apply(rec)
-        if os.path.exists(self.head):
-            with open(self.head, encoding="utf-8") as fh:
-                hd = json.loads(fh.read())
-            s, h = self._head()
-            if hd.get("seq") != s or hd.get("head_hash") != h:
-                raise HistoryError("log does not match head checkpoint")
+        self._checkpoint_check()
+        if have_state:
+            self._projection_check()
         self._write_state()
         self._write_head()
+
+    def _checkpoint_check(self):
+        try:
+            with open(self.head, encoding="utf-8") as fh:
+                hd = json.loads(fh.read())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise HistoryError("head checkpoint unreadable") from exc
+        s, h = self._head()
+        if hd.get("seq") != s or hd.get("head_hash") != h:
+            raise HistoryError("log does not match head checkpoint")
+
+    def _projection_check(self):
+        try:
+            with open(self.state, encoding="utf-8") as fh:
+                doc = json.loads(fh.read())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise HistoryError("state projection unreadable") from exc
+        current = self._doc()
+        # The projection is a derived cache, but any divergence is an integrity
+        # failure. Do not silently repair it during startup: an operator must
+        # explicitly investigate the discrepancy before recovery is permitted.
+        if doc != current:
+            raise HistoryError("state projection does not match history")
 
     def _apply(self, rec):
         if rec["event_type"] == "session.created" and "session_id" in rec["payload"]:
@@ -139,6 +170,8 @@ class StateStore:
 
     def verify(self):
         if not os.path.exists(self.log):
+            if os.path.exists(self.head) or os.path.exists(self.state):
+                return {"ok": False, "events": 0, "reason": "log_missing_while_state_present"}
             return {"ok": True, "events": 0, "reason": "empty_log"}
         prev, seq, seen, n = ZERO, 0, set(), 0
         try:
@@ -163,8 +196,11 @@ class StateStore:
         except json.JSONDecodeError:
             return {"ok": False, "events": n, "reason": "malformed_record"}
         if os.path.exists(self.head):
-            with open(self.head, encoding="utf-8") as fh:
-                hd = json.loads(fh.read())
+            try:
+                with open(self.head, encoding="utf-8") as fh:
+                    hd = json.loads(fh.read())
+            except (OSError, json.JSONDecodeError):
+                return {"ok": False, "events": n, "reason": "checkpoint_unreadable"}
             if hd.get("seq") != seq or hd.get("head_hash") != prev:
                 return {"ok": False, "events": n, "reason": "checkpoint_mismatch"}
         return {"ok": True, "events": n, "head_hash": prev, "reason": "chain_ok"}
