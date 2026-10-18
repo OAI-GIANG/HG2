@@ -1,0 +1,80 @@
+--- a/hg_tool_plane.py
++++ b/hg_tool_plane.py
+@@ -67,19 +67,67 @@
+     return {"errors": len(AUDIT_ERRORS), "last": AUDIT_ERRORS[-1] if AUDIT_ERRORS else None}
+
+ def verify_audit(path=None):
+-    """Kiểm tra tính toàn vẹn chuỗi audit (B5)."""
+-    p = pathlib.Path(path or CFG["audit"]); prev = "GENESIS"; bad = []
+-    try: lines = p.read_text(errors="replace").strip().splitlines()
+-    except OSError: return {"ok": True, "records": 0, "note": "no audit file"}
+-    for i, l in enumerate(lines, 1):
++    """Verify the chained suffix while reporting any legacy prefix that lacks hashes.
++
++    Historical pre-chain records are preserved and counted but are not represented as
++    tamper-evident. The chain starts only at the first record with an `h` field, and
++    that record must explicitly link to GENESIS. `ok` is True only when the whole file
++    is chained and valid; `chain_ok` reports the chained portion separately.
++    """
++    p = pathlib.Path(path or CFG["audit"])
++    prev = "GENESIS"
++    bad = []
++    legacy_prefix_records = 0
++    chained_records = 0
++    chain_start_line = None
++    try:
++        raw = p.read_text(errors="replace")
++        lines = raw.splitlines()
++    except OSError:
++        return {"ok": True, "chain_ok": True, "records": 0,
++                "legacy_prefix_records": 0, "chained_records": 0,
++                "chain_start_line": None, "bad": [], "note": "no audit file"}
++    for i, line in enumerate(lines, 1):
++        if not line.strip():
++            continue
+         try:
+-            r = json.loads(l); h = r.pop("h", None)
+-            if r.get("prev") != prev: bad.append({"line": i, "reason": "prev mismatch"})
+-            if hashlib.sha256(json.dumps(r, sort_keys=True).encode()).hexdigest() != h:
++            record = json.loads(line)
++            if not isinstance(record, dict):
++                raise ValueError("record is not an object")
++            if "h" not in record:
++                if chain_start_line is None:
++                    legacy_prefix_records += 1
++                    continue
++                bad.append({"line": i, "reason": "missing chain hash after chain start"})
++                continue
++            if chain_start_line is None:
++                chain_start_line = i
++            chained_records += 1
++            h = record.pop("h")
++            if record.get("prev") != prev:
++                bad.append({"line": i, "reason": "prev mismatch"})
++            calculated = hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
++            if calculated != h:
+                 bad.append({"line": i, "reason": "hash mismatch"})
+             prev = h
+-        except Exception as e: bad.append({"line": i, "reason": type(e).__name__})
+-    return {"ok": not bad, "records": len(lines), "bad": bad[:5]}
++        except Exception as exc:
++            bad.append({"line": i, "reason": type(exc).__name__})
++    chain_ok = bool(chained_records) and not bad
++    whole_file_ok = chain_ok and legacy_prefix_records == 0
++    result = {
++        "ok": whole_file_ok,
++        "chain_ok": chain_ok,
++        "records": sum(1 for line in lines if line.strip()),
++        "legacy_prefix_records": legacy_prefix_records,
++        "legacy_prefix_status": "UNCHAINED_LEGACY_RECORDS_UNVERIFIABLE" if legacy_prefix_records else "NONE",
++        "chained_records": chained_records,
++        "chain_start_line": chain_start_line,
++        "chain_end_hash": prev if chained_records else None,
++        "bad": bad[:10],
++    }
++    if legacy_prefix_records:
++        result["note"] = "Chained suffix verified; legacy prefix has no chain hashes and is not tamper-evident."
++    return result
+
+ # ---------- thực thi tool (allowlist cứng) ----------
+ def _http(method, url, tok=None, body=None, timeout=40, extra=None):
