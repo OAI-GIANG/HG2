@@ -1,0 +1,51 @@
+{
+  "report_schema": "HG2_CIRCULATORY_RESTRUCTURE_EVIDENCE_V1",
+  "status": "PASS",
+  "scope": "canonical contracts, strict JSON boundaries, opt-in transactional SQLite store, guarded runtime selection, and transactional outbox/cursor checks",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-circulatory-architecture-20261018",
+  "tested_commit": "b260eb23bb1e199a791bcf30cf2448a3e8393c8f",
+  "tested_tree": "0dc7abad75db9705a7306ee07f3cfb52883c2480",
+  "parent_commit": "15817d16ee9601a050fd4c37737cf506f95d4937",
+  "python": "3.14.6",
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "commands": [
+    {
+      "command": "python -m json.tool manifest.json",
+      "status": "PASS"
+    },
+    {
+      "command": "python -m compileall -q hg tests",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "python -m unittest discover -s tests -v",
+      "status": "PASS",
+      "result": "66 tests passed; exit code 0"
+    }
+  ],
+  "changed_source_file_sha256": {
+    "hg/contracts.py": "7d1c99def4f9ad1737007325ac5be6cd772930fda3bae55a513ab949b01ecb78",
+    "hg/history.py": "0d03f24acf1f15b31817cc7e0d4fc3e2dff1b120a8267b245b98c64edbd112db",
+    "hg/edge.py": "1d8a53e22ad807eead4297c0095da7aa1d3d5189b5d1e9e8491523fad17c2e52",
+    "hg/sqlite_state.py": "043ba4c69a54b9f1652cb24efa97421f7bd961664a886198896cd32ae257aa7f",
+    "hg/phone_runtime.py": "05cf97a319a6c29a5816b7a8a3aeaeb20fb2e1aa38ff56b8c6aac3498dc2f255",
+    "tests/test_contracts.py": "cb88b0a5cc288f78b0c568f3c075441d56454933af0caca8910ff446c2a192d2",
+    "tests/test_core.py": "dcb9f44d9c4b15d020bdd0d98cf6d5c8b6da4963c798eeafd00b16a1a20e44b0",
+    "tests/test_edge_schema_guard.py": "6a63051b56ebce58dc36fee79071c1deb2f83cb69ea53bc06895573f52732cd6",
+    "tests/test_sqlite_state.py": "c23a2484503925523f5a8e8a59a60c4edd0466aa78030a962dfcaff7da448aa1",
+    "tests/test_circulatory_architecture.py": "a8e46e28da79f554a0bb9dde28f58ccfb78c5ac9e71925b795b5b3b4a9d38619",
+    "manifest.json": "959b873fcdcf3c45aa59123a5a49779aa09891155f995323d8f045f7bbe7e7ee",
+    "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md": "861c225162b962fb1443a2bba7ad46b2f7ce0bc11645f98d2178b5531e8c3859"
+  },
+  "limitations": [
+    "SQLiteStateStore is opt-in; legacy remains the default runtime backend.",
+    "Legacy state migration and backup/restore drills remain open.",
+    "Outbox transport is not connected to a live relay and no network delivery was attempted.",
+    "No APK build/install, PR creation, merge, or deployment was performed."
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "HG2_UNIFIED_BRAIN_GROUP_G1_G3_EVIDENCE_V2",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-circulatory-architecture-20261018",
+  "tested_source_commit": "ca7bd964ac25871a087eeca281c4c4b864ab89ea",
+  "tested_source_tree": "f2c22a6798e6ff5ae45fecaaba9fb236a0207035",
+  "environment": {
+    "device": "Android / Termux / aarch64",
+    "kernel": "Linux 6.6.118-android15-8-gebdfad32d749-ab15099304-4k",
+    "python": "3.14.6",
+    "observed_at": "2026-10-18T11:38:39+07:00"
+  },
+  "test_command": "PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest discover -s tests",
+  "test_result": "PASS",
+  "test_count": 235,
+  "test_duration_seconds_observed": 6.881,
+  "test_exit_code": 0,
+  "manifest_json_check": "PASS",
+  "manifest_json_exit_code": 0,
+  "commit_diff_check": "PASS",
+  "commit_diff_check_exit_code": 0,
+  "source_contract_static_check": "PASS",
+  "source_contract_static_check_exit_code": 0,
+  "source_contract_checks": [
+    "all production Python files parse as AST",
+    "configured authentication scopes are included in policy allowlist and auth-required scopes",
+    "all service mutation scopes are explicitly configurable",
+    "mutation event action map is immutable",
+    "all production .emit call sites carry mutation_permit except Store bootstrap genesis",
+    "manifest declares hg.agent.HGAgent as the sole command composition root"
+  ],
+  "gates": {
+    "G1": "VERIFIED_REPOSITORY_COMPOSITION_SCOPE",
+    "G2": "VERIFIED_PUBLIC_MUTATION_API_SCOPE",
+    "G3": "VERIFIED_FAIL_CLOSED_CONTRACT_SCOPE"
+  },
+  "overall": "CLOSED_VERIFIED_FOR_G1_G3_IMPLEMENTATION; PRODUCTION_NOT_RELEASED",
+  "limitations": [
+    "provider text remains RESPONSE_ONLY; no production evidence verifier is configured",
+    "trusted runtime identity/scope configuration was not changed during this task",
+    "in-process policy controls are not a sandbox against arbitrary code with raw filesystem or private SQLite access",
+    "expanded B1-B6 cognitive capabilities are not all implemented end-to-end"
+  ],
+  "no_canonical_branch_change_merge_deploy_restart_or_live_state_migration": true
+}

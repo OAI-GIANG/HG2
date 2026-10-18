@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actions": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "none",
+              "read",
+              "write",
+              "delete",
+              "push",
+              "merge",
+              "deploy",
+              "rollback",
+              "spend"
+            ],
+            "type": "string"
+          },
+          "cost_usd": {
+            "minimum": 0,
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "scope",
+          "cost_usd"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "alternative": {
+      "type": "string"
+    },
+    "answer": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "claims": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "disposition": {
+            "enum": [
+              "SUPPORTED",
+              "CONTRADICTED",
+              "UNKNOWN",
+              "UNSUPPORTED"
+            ],
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "span": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "claim_id",
+          "span",
+          "disposition",
+          "evidence_ids"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "decision": {
+      "enum": [
+        "RECOMMEND",
+        "BLOCKED",
+        "NEEDS_EVIDENCE"
+      ],
+      "type": "string"
+    },
+    "next_step": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "reuse_requests": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "reuse_requested": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "reuse_requested"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "decision",
+    "answer",
+    "alternative",
+    "next_step",
+    "unknowns",
+    "actions",
+    "reuse_requests",
+    "claims"
+  ],
+  "title": "HG-CTI V2 Structured Response",
+  "type": "object"
+}

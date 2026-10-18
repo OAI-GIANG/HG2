@@ -1,0 +1,47 @@
+test_batch_limit_is_bounded (tests.test_sync.SyncDispatcherTests.test_batch_limit_is_bounded) ... ok
+test_dispatch_delivers_and_acknowledges_in_order (tests.test_sync.SyncDispatcherTests.test_dispatch_delivers_and_acknowledges_in_order) ... ok
+test_dispatch_without_authorized_sync_principal_fails_closed (tests.test_sync.SyncDispatcherTests.test_dispatch_without_authorized_sync_principal_fails_closed) ... ok
+test_invalid_acknowledgement_does_not_advance_cursor (tests.test_sync.SyncDispatcherTests.test_invalid_acknowledgement_does_not_advance_cursor) ... ok
+test_invalid_cursor_ack_is_rejected (tests.test_sync.SyncDispatcherTests.test_invalid_cursor_ack_is_rejected) ... ok
+test_transport_failure_leaves_event_pending_and_records_attempt (tests.test_sync.SyncDispatcherTests.test_transport_failure_leaves_event_pending_and_records_attempt) ... ok
+test_default_scope_is_provider_only (tests.test_auth.BearerAuthenticatorTests.test_default_scope_is_provider_only) ... ok
+test_environment_configuration_is_data_and_repr_redacts_token (tests.test_auth.BearerAuthenticatorTests.test_environment_configuration_is_data_and_repr_redacts_token) ... ok
+test_invalid_environment_scope_fails_closed (tests.test_auth.BearerAuthenticatorTests.test_invalid_environment_scope_fails_closed) ... ok
+test_missing_malformed_and_wrong_headers_fail_closed (tests.test_auth.BearerAuthenticatorTests.test_missing_malformed_and_wrong_headers_fail_closed) ... ok
+test_missing_principal_id_is_not_mutation_identity (tests.test_auth.BearerAuthenticatorTests.test_missing_principal_id_is_not_mutation_identity) ... ok
+test_principal_cannot_be_forged_without_internal_seal (tests.test_auth.BearerAuthenticatorTests.test_principal_cannot_be_forged_without_internal_seal) ... ok
+test_unconfigured_token_fails_closed (tests.test_auth.BearerAuthenticatorTests.test_unconfigured_token_fails_closed) ... ok
+test_unknown_scope_invalidates_all_scopes (tests.test_auth.BearerAuthenticatorTests.test_unknown_scope_invalidates_all_scopes) ... ok
+test_valid_bearer_returns_scoped_principal (tests.test_auth.BearerAuthenticatorTests.test_valid_bearer_returns_scoped_principal) ... ok
+test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
+test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... ok
+test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
+test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... ok
+test_corrupt_state_projection_fails_closed_without_repair (tests.test_core.HistoryTests.test_corrupt_state_projection_fails_closed_without_repair) ... ok
+test_duplicate_json_keys_in_checkpoint_fail_closed (tests.test_core.HistoryTests.test_duplicate_json_keys_in_checkpoint_fail_closed) ... ok
+test_duplicate_json_keys_in_history_fail_closed (tests.test_core.HistoryTests.test_duplicate_json_keys_in_history_fail_closed) ... ok
+test_event_id_and_idempotency_cannot_be_reused_for_different_operations (tests.test_core.HistoryTests.test_event_id_and_idempotency_cannot_be_reused_for_different_operations) ... ok
+test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... ok
+test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
+test_missing_history_with_other_artifacts_fails_closed_without_repair (tests.test_core.HistoryTests.test_missing_history_with_other_artifacts_fails_closed_without_repair) ... ok
+test_non_standard_json_constant_in_history_fails_closed (tests.test_core.HistoryTests.test_non_standard_json_constant_in_history_fails_closed) ... ok
+test_replayed_events_and_audit_exports_are_detached_snapshots (tests.test_core.HistoryTests.test_replayed_events_and_audit_exports_are_detached_snapshots) ... ok
+test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
+test_separate_store_instances_serialize_writes_and_refresh (tests.test_core.HistoryTests.test_separate_store_instances_serialize_writes_and_refresh) ... ok
+test_store_is_poisoned_after_persistence_failure (tests.test_core.HistoryTests.test_store_is_poisoned_after_persistence_failure) ... ok
+test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... ok
+test_identity (tests.test_core.IdentityTests.test_identity) ... ok
+test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... ok
+test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... ok
+test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... ok
+test_mixed_state_backends_fail_closed (tests.test_core.PhoneTests.test_mixed_state_backends_fail_closed) ... ok
+test_session_creation_fails_closed_when_verifier_rejects_or_raises (tests.test_core.PhoneTests.test_session_creation_fails_closed_when_verifier_rejects_or_raises) ... ok
+test_session_creation_fails_closed_without_verifier (tests.test_core.PhoneTests.test_session_creation_fails_closed_without_verifier) ... ok
+test_sqlite_backend_is_explicit_opt_in_and_offline_capable (tests.test_core.PhoneTests.test_sqlite_backend_is_explicit_opt_in_and_offline_capable) ... ok
+test_sqlite_backend_refuses_legacy_state_without_migration (tests.test_core.PhoneTests.test_sqlite_backend_refuses_legacy_state_without_migration) ... ok
+test_unknown_state_backend_fails_closed (tests.test_core.PhoneTests.test_unknown_state_backend_fails_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 2.893s
+
+OK

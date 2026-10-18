@@ -1,14 +1,49 @@
 {
- "name": "hg",
- "version": "1.0.0",
- "runtime": "python>=3.10",
- "dependencies": {},
- "modules": [
-  "hg.identity",
-  "hg.authority",
-  "hg.history",
-  "hg.phone_runtime",
-  "hg.edge"
- ],
- "origin": "clean_room"
+  "name": "hg",
+  "version": "1.0.0",
+  "runtime": "python>=3.10",
+  "dependencies": {},
+  "modules": [
+    "hg.identity",
+    "hg.auth",
+    "hg.policy",
+    "hg.contracts",
+    "hg.phone_runtime",
+    "hg.agent",
+    "hg.toolplane",
+    "hg.provider",
+    "hg.edge",
+    "hg.history",
+    "hg.sqlite_state",
+    "hg.migration",
+    "hg.recovery",
+    "hg.workflow",
+    "hg.sync"
+  ],
+  "origin": "clean_room",
+  "architecture": {
+    "model": "circulatory",
+    "contract": "contract/CIRCULATORY_ARCHITECTURE_V1.md",
+    "module_map": "docs/HG2_CIRCULATORY_MODULE_MAP_V1.md",
+    "roadmap": "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md",
+    "status": "DESIGN_BASELINE_NOT_CERTIFIED",
+    "unified_brain_group": {
+      "command_root": "hg.agent.HGAgent",
+      "subordinate_turn_router": "hg.toolplane.ToolPlane",
+      "authorization_owner": "hg.policy",
+      "durable_state_owner": "hg.phone_runtime.PhoneRuntime",
+      "provider_boundary": "hg.provider",
+      "state_mutations": "single-use scope-bound MutationPermit required at public storage write interfaces",
+      "contract": "HG_BRAIN_REQUEST_V1 / HG_CAPABILITY_RESULT_V1 / HG_HISTORY_EVENT_V2",
+      "implementation_gates": {
+        "G1": "TESTED_REPOSITORY_SCOPE",
+        "G2": "TESTED_PUBLIC_MUTATION_BOUNDARIES",
+        "G3": "TESTED_FAIL_CLOSED_CONTRACTS"
+      },
+      "production_status": "NOT_RELEASED"
+    }
+  },
+  "compatibility_facades": {
+    "hg.authority": "hg.policy (legacy import path only; no policy logic)"
+  }
 }

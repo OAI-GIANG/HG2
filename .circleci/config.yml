@@ -29,6 +29,11 @@ jobs:
             cd tests/fixtures/hg-native-intelligence-v2.1
             python validate_v21.py
             sha256sum -c SHA256SUMS-V2.1.txt
+      - run:
+          name: Validate cleanup decision matrix is present
+          command: |
+            set -eu
+            python -c 'from pathlib import Path; p=Path("docs/HG2_CLEANUP_DECISION_MATRIX_20261018.md"); s=p.read_text(encoding="utf-8"); assert "## Pull-request disposition" in s; assert "CLEANUP_STATUS=PR_BACKLOG_CONSOLIDATED" in s'
 workflows:
   hg2-p0-strict-verify:
     jobs:

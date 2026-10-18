@@ -1,0 +1,79 @@
+{
+ "task": "HG2-AUTHORITY-RECOVERY-20261014",
+ "utc": "2026-10-13T19:27:20.555Z",
+ "actor": "DEEP@android-u0_a480",
+ "principal": "OAI-GIANG (id 337459912)",
+ "repository": "OAI-GIANG/HG2",
+ "canonical_base": "cdebaeed014371f033f14352f552c6d0d4e69198",
+ "credentials_verified": [
+  {
+   "holder": "DEEP (agent-side private storage)",
+   "fingerprint_sha256_prefix": "d8d1692a09c1d903",
+   "scope": "public_repo",
+   "user_http": 200,
+   "repo_http": 200,
+   "storage": "/data/user/0/com.deepseek.harness/files/private/github_token (0600)"
+  },
+  {
+   "holder": "PHONE HG (~/.config/hg/github_token, termux uid u0_a460)",
+   "fingerprint_sha256_prefix": "708ac2e3e37c4b0f",
+   "scope": "public_repo",
+   "user_http": 200,
+   "repo_http": 200,
+   "storage": "0600",
+   "note": "previous file was dead(401, fp c480e174…) then truncated-empty(fp e3b0c442… = sha256 of empty string); re-issued via GitHub device flow with public client_id Ov23limMNYmNqoIIAbKY"
+  }
+ ],
+ "permission_matrix": [
+  {
+   "action": "github.repo.read",
+   "state": "ACTIVE_VERIFIED",
+   "evidence": "GET /repos/OAI-GIANG/HG2 = 200 (both credentials)"
+  },
+  {
+   "action": "github.contents.write",
+   "state": "ACTIVE_ON_FEATURE_BRANCHES / DENY_ON_hg-genesis",
+   "evidence": "branch protection: PR required, enforce_admins=true, force-push=false, deletions=false"
+  },
+  {
+   "action": "github.push",
+   "state": "ACTIVE_ON_FEATURE_BRANCHES / DENY_ON_CANONICAL",
+   "evidence": "same as above"
+  },
+  {
+   "action": "github.merge",
+   "state": "NOT_GRANTED_BY_POLICY",
+   "evidence": "requires all gates PASS + explicit owner approval; DEEP will not auto-merge"
+  },
+  {
+   "action": "github.deploy",
+   "state": "BLOCKED",
+   "evidence": "no designated deploy executor/environment/approval/rollback"
+  },
+  {
+   "action": "github.delete",
+   "state": "BLOCKED",
+   "evidence": "no designated delete executor, target-impact-backup-approval checks absent"
+  }
+ ],
+ "hg_capability_layer": {
+  "endpoints": [
+   "/api/capability/status",
+   "/api/github/auth/start",
+   "/api/github/auth/poll"
+  ],
+  "http": 404,
+  "state": "NOT_LOADED",
+  "runtime_health": {
+   "url": "http://127.0.0.1:8787/api/health",
+   "http": 200,
+   "body": "runtime=READY, core=HG_LOCAL, phone_bridge=V2"
+  },
+  "blocker": "capability payload (.pth loader / hgcap-.py) not injected; requires owner re-install per HG-CR-CAPABILITY-INSTALL-V1.md §5 + phone reboot",
+  "consequence": "HG cannot call GitHub through its own runtime until the payload is loaded; the restored phone token is not yet usable by HG"
+ },
+ "secret_handling": "No token, device code or user code is stored in this artifact. Only SHA-256 fingerprints and HTTP status codes are recorded.",
+ "immutable_inputs_untouched": [
+  "evidence/HG-CTI-20261013/** (V1 frozen artifacts)"
+ ]
+}

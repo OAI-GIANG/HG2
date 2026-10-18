@@ -1,0 +1,39 @@
+{
+  "PR12_merge_authorized": false,
+  "attempts": [
+    {
+      "baseline_rows": 35,
+      "candidate_rows": 34,
+      "cases": 35,
+      "manifest": "VERIFIED",
+      "path": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-1-incomplete",
+      "rows": 69,
+      "scoring": "NOT_RUN"
+    },
+    {
+      "baseline_rows": 3,
+      "candidate_rows": 2,
+      "cases": 3,
+      "manifest": "VERIFIED",
+      "path": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-2-incomplete",
+      "rows": 5,
+      "scoring": "NOT_RUN"
+    }
+  ],
+  "canonical_branch_modified": false,
+  "decision": "BLOCKED_INCOMPLETE_EXECUTION; NO V2 ACCEPTANCE RESULT",
+  "deploy_performed": false,
+  "expected_pairs": 40,
+  "expected_responses": 80,
+  "merge_performed": false,
+  "model_inference_cost_usd": 0,
+  "next_requirement": "Run the complete 40-pair benchmark in a persistent execution session with process supervision and durable logs; preserve both incomplete attempts unchanged. Do not score or infer acceptance from partial data.",
+  "observed_utc": "2026-10-13T18:26:35.310251+00:00",
+  "preregistration_freeze_sha256": "8631ef84cc7970c63ab4a4e6834b2a78f24fd7d31a71e2b17f0cd18377b85faf",
+  "preregistration_sha256": "7859f28c2105f0d6bb88cfd7f5267dce9976bb009e5d10e66464964e857debfc",
+  "protocol_version": "V2.2",
+  "remote_inference_used": false,
+  "runtime_observation": "llama-server remained healthy at the last check, but runner process terminated before completing the run; no runner-failure.json was emitted. Exact termination cause is not established.",
+  "schema": "HG-CTI-V2.2-RUN-STATUS",
+  "valid_complete_pairs": 0
+}

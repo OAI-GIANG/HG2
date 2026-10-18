@@ -1,0 +1,44 @@
+{
+  "target_branch": "stt/hg2-circulatory-architecture-20261018",
+  "merge_commit": "b99e1e1d5c1059b73968f031a6d887220984e782",
+  "sources": {
+    "remediation/hg2-authority-recovery-20261014": "f1a58eed86b6cfdb10055591323a006ec9ed58c8",
+    "remediation/stt-independent-redteam-review-20261014": "bcec1836df81ac979214094c64e61f03bde5c5f3"
+  },
+  "integration_kind": "documentation and forensic evidence; no runtime code changed in this slice",
+  "integrated_paths": [
+    {
+      "path": "docs/redteam/20261014/ACCEPTANCE_MATRIX.md",
+      "bytes": 3532,
+      "sha256": "9e6ff951dc55bee25e821a330130308f34ecdbfde1b04d8cdce029ba58036f77"
+    },
+    {
+      "path": "docs/redteam/20261014/INDEPENDENT_REDTEAM_REVIEW.md",
+      "bytes": 23535,
+      "sha256": "0f04e380ad2c5a24c1602965861840802eda18a66fb4cbde7ea0df6d3be21008"
+    },
+    {
+      "path": "docs/redteam/20261014/PHONE_GITHUB_READONLY_PROOF.md",
+      "bytes": 1688,
+      "sha256": "2380ae5bebe0460cb121f28613434de8831002f90e4bce5043c17aef57f1396d"
+    },
+    {
+      "path": "docs/redteam/20261014/SHA256SUMS.txt",
+      "bytes": 394,
+      "sha256": "ae6c14c5c82b28a93cd969621c75ac7133d571461adaa4ecdb8cb55600a5f521"
+    },
+    {
+      "path": "docs/redteam/20261014/evidence/PHONE_RUNTIME_AUTH_BLOCK_20261014.json",
+      "bytes": 2361,
+      "sha256": "2b2952bd16c3e8abac88d315f5954d05ff8406fae2a636285668f46dc2265b13"
+    },
+    {
+      "path": "evidence/HG2-AUTHORITY-RECOVERY-20261014/authority-matrix.json",
+      "bytes": 2803,
+      "sha256": "24172f23719a6725a08614e2e52966e0721b42c5be088121a925520a594cee81"
+    }
+  ],
+  "verification": "git diff --check clean; all JSON payloads parsed; hashes recorded.",
+  "source_refs_may_be_pruned_after": "target pushed and both source SHAs verified as ancestors",
+  "log_sha256": "aba5f873ec7be04ae4e49fa0ddfd8471a2a8519e9c926534b127c723d36732a4"
+}

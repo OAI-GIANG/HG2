@@ -1,0 +1,14 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest discover -s tests -v",
+  "duration_seconds": 4.792,
+  "evidence_id": "HG2-CLEANUP-P0-20261018",
+  "exit_code": 0,
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "python_version": "3.14.6",
+  "result": "PASS",
+  "scope_note": "Isolated candidate checkout only; no live runtime/state was read or changed.",
+  "test_count": 112,
+  "tested_commit": "1a57dd088822ab1d1ae7426a3baefc19c6f497bc",
+  "unittest_log_sha256": "7bc77898ac7d15ed8a1fa8e7b0fa376f22aa209f4908319b4a071fad35c9eafd",
+  "warning_policy": "ResourceWarning treated as error"
+}

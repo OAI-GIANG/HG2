@@ -1,38 +1,102 @@
 """Phone-primary HG runtime: the single canonical state owner."""
 from __future__ import annotations
 
-import json, os, secrets, urllib.error, urllib.request
-from .authority import authorize
+import json, os, secrets, urllib.error, urllib.request, uuid
+from .policy import authorize_principal, authorize_service_mutation, issue_mutation_permit
+from .auth import BearerAuthenticator
 from .history import StateStore
+from .sqlite_state import SQLiteStateStore
+
+
+def open_state_store(state_dir):
+    """Select one explicit backend and refuse ambiguous mixed-state directories."""
+    backend = os.environ.get("HG_STATE_BACKEND", "legacy").strip().lower()
+    sqlite_path = os.path.join(state_dir, "hg2-state.sqlite3")
+    legacy_paths = (
+        os.path.join(state_dir, "history.jsonl"),
+        os.path.join(state_dir, "head.json"),
+        os.path.join(state_dir, "state.json"),
+        os.path.join(state_dir, "runtime_id"),
+    )
+    legacy_present = any(os.path.exists(path) for path in legacy_paths)
+    sqlite_present = os.path.exists(sqlite_path)
+
+    if backend == "legacy":
+        if sqlite_present:
+            raise RuntimeError("HG_STATE_BACKEND_CONFLICT")
+        return StateStore(state_dir)
+    if backend == "sqlite":
+        if legacy_present and sqlite_present:
+            raise RuntimeError("HG_STATE_BACKEND_CONFLICT")
+        if legacy_present:
+            raise RuntimeError("HG_STATE_MIGRATION_REQUIRED")
+        return SQLiteStateStore(state_dir)
+    raise RuntimeError("UNSUPPORTED_HG_STATE_BACKEND")
 
 
 class PhoneRuntime:
-    def __init__(self, state_dir=None, edge_url="", edge_token="", device_id=None, timeout=3.0):
+    def __init__(self, state_dir=None, edge_url="", edge_token="", device_id=None, timeout=3.0,
+                 session_authenticator=None):
         self.state_dir = state_dir or os.environ.get("HG_STATE_DIR") or os.path.join(os.getcwd(), "hg-state")
         self.edge_url = edge_url or os.environ.get("HG_EDGE_URL", "")
         self.edge_token = edge_token or os.environ.get("HG_EDGE_TOKEN", "")
         self.device_id = device_id or os.environ.get("HG_DEVICE_ID") or "phone-" + secrets.token_hex(4)
         self.timeout = timeout
-        self.store = StateStore(self.state_dir)
+        # Session creation has no implicit authenticated=True shortcut. The trusted host
+        # must inject a real verifier; missing, rejecting, or failing verifiers deny.
+        self.session_authenticator = session_authenticator
+        self.store = open_state_store(self.state_dir)
 
     def health(self):
         return {"ok": True, "product": "HG", "runtime_id": self.store.runtime_id,
                 "edge_configured": bool(self.edge_url), "integrity": self.store.verify()}
 
-    def start_session(self, correlation_id=None):
-        d = authorize("session.create", authenticated=True)
-        if not d.allowed:
-            raise PermissionError(d.reason)
-        rec = self.store.emit("session.created", {"session_id": secrets.token_urlsafe(18), "product": "HG"},
-                              correlation_id=correlation_id)
-        return dict(rec["payload"])
+    def start_session(self, correlation_id=None, *, credential=None, principal=None):
+        if principal is not None and credential is not None:
+            raise PermissionError("AMBIGUOUS_SESSION_CREDENTIAL")
+        if principal is None:
+            verifier = self.session_authenticator
+            if callable(verifier):
+                try:
+                    principal = verifier(credential)
+                except Exception:
+                    principal = None
+        # A verifier must return a sealed AuthenticatedPrincipal. Boolean True is not
+        # authentication proof and is intentionally rejected by policy.
+        decision = authorize_service_mutation("session.create", principal)
+        if not decision.allowed:
+            raise PermissionError(decision.reason)
+        correlation = correlation_id if correlation_id is not None else uuid.uuid4().hex
+        actor_id = principal.principal_id
+        payload = {
+            "session_id": secrets.token_urlsafe(18), "product": "HG",
+            "principal_id": actor_id,
+        }
+        context = {"principal": actor_id, "scope": "session.create"}
+        permit = issue_mutation_permit(
+            "session.create", principal, event_type="session.created", actor_id=actor_id,
+            payload=payload, correlation_id=correlation, authority_context=context,
+        )
+        rec = self.store.emit(
+            "session.created", payload, correlation_id=correlation, actor_id=actor_id,
+            authority_context=context, mutation_permit=permit,
+        )
+        public_payload = dict(rec["payload"])
+        public_payload.pop("principal_id", None)
+        return public_payload
 
     def _post(self, path, body):
         if not self.edge_url or not self.edge_token:
             return False
-        d = authorize("edge.heartbeat", authenticated=True)
-        if not d.allowed:
-            raise PermissionError(d.reason)
+        action_by_path = {"/edge/register": "edge.register", "/edge/heartbeat": "edge.heartbeat"}
+        action = action_by_path.get(path)
+        if action is None:
+            raise PermissionError("NOT_ALLOWLISTED")
+        service_auth = BearerAuthenticator(self.edge_token, {action}, principal_id=self.device_id)
+        principal = service_auth.authenticate("Bearer " + self.edge_token)
+        decision = authorize_principal(action, principal)
+        if not decision.allowed:
+            raise PermissionError(decision.reason)
         req = urllib.request.Request(self.edge_url.rstrip("/") + path,
                                      data=json.dumps(body).encode(), method="POST")
         req.add_header("Content-Type", "application/json")

@@ -1,0 +1,15 @@
+{
+  "source_branch": "stt/hg2-test-hygiene-20261017",
+  "source_sha": "6c58a332abaae853f63eccac9a6cebacfa11d737",
+  "target_branch": "stt/hg2-circulatory-architecture-20261018",
+  "merge_commit": "19c7cd78ab8ad402f050cfc35a3b748a6ed2f110",
+  "source_paths": [
+    "tests/test_core.py"
+  ],
+  "change_summary": "Use HTTPError as a context manager to ensure response close; 1 added path-level change with no runtime source changes.",
+  "test_command": "python -m unittest tests.test_core -v",
+  "test_count": 27,
+  "test_result": "OK",
+  "test_log_sha256": "e429db937b0a38e0bc2bb43bb6d438159b46fccd33666e396747c39cec21d350",
+  "source_ref_prune_gate": "verify source is an ancestor of target after push"
+}

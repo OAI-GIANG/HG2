@@ -1,0 +1,14 @@
+{
+  "source_branch": "remediation/hg-cti-p0-guards-20261014",
+  "source_sha": "725133488d517ffaa87c34eb0aff97b6145815f4",
+  "target_branch": "stt/hg2-circulatory-architecture-20261018",
+  "merge_commit": "9478f847bdc8d11e6951b658abb58e40792d5d39",
+  "path_count_from_source_diff": 109,
+  "test_command": "python -m unittest tests.test_hg_cti_guards tests.test_hg_cti_v2_harness tests.test_creative_assimilation tests.test_hg_cti_benchmark_harness -v",
+  "test_count": 105,
+  "test_result": "OK",
+  "test_log_path": "evidence/HG2-CTI-GUARDS-MERGE-TESTS-20261019.log",
+  "test_log_sha256": "bfa7888aa6365d443171fd06d4061d415a8ce39ee544d453472744fd8ba800a6",
+  "source_commit_preservation": "Source branch merged; verify source SHA ancestor of target before deleting ref.",
+  "status": "INTEGRATED_TESTED_WAITING_REMOTE_PUSH"
+}

@@ -1,0 +1,502 @@
+{
+  "case_count": 40,
+  "context_budget_pass": true,
+  "context_size": 1024,
+  "inference_calls_made": 0,
+  "local_endpoints_used": [
+    "/apply-template",
+    "/tokenize"
+  ],
+  "max_input_arm": "candidate",
+  "max_input_case": "CTI-033",
+  "max_input_plus_output": 822,
+  "max_input_tokens": 502,
+  "max_output_tokens": 320,
+  "minimum_remaining_context_tokens": 202,
+  "observed_utc": "2026-10-13T17:56:50.319465+00:00",
+  "over_budget_prompt_count": 0,
+  "prompt_count": 80,
+  "rows": [
+    {
+      "arm": "baseline",
+      "case_id": "CTI-001",
+      "input_tokens": 418,
+      "prompt_sha256": "d74aa711400464264c5f867bd2c4a3a09f05a7aa275a0ebf2e86d03c616ccf1f"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-001",
+      "input_tokens": 495,
+      "prompt_sha256": "cc1efe1ea714701f9950f04bfc20c49ade04940fdfe99591968be89c7014af1b"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-002",
+      "input_tokens": 423,
+      "prompt_sha256": "c22d6394dea6613bcf0bed88828cc320fbc97a02abf9e5f6c0de8c31e67dd4f8"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-002",
+      "input_tokens": 500,
+      "prompt_sha256": "2b55b739099e706ce4325a2fcb8b8454f6fab3a4c3bbbb212d060356f5d4ab0e"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-003",
+      "input_tokens": 420,
+      "prompt_sha256": "dd58ec0193e970306591ef3e9f8722e6eb48e31e4088dd689e171d14e27ac8d5"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-003",
+      "input_tokens": 497,
+      "prompt_sha256": "be3fae98b6f77f577602c7825fcc325ee3428184f474c7e6d0af04a89683c9cb"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-004",
+      "input_tokens": 413,
+      "prompt_sha256": "688b7182aa35e708fb2aa9a744f061f6e7dfc4e677d00ae36a1b5dbb144ba9dc"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-004",
+      "input_tokens": 490,
+      "prompt_sha256": "242be418a1397179bb6ebf7c995a3c501c16f4e56529f4c71b1af6c32a695089"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-005",
+      "input_tokens": 411,
+      "prompt_sha256": "7d69edb9604c50bf7a7a37867a68b38d1ab7fc7f5492aa5bdef0f7493eec717c"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-005",
+      "input_tokens": 488,
+      "prompt_sha256": "dbdb4dbe17d3d97f130b83a5e972eab76664ddfdbda1f0b07368067b898dd5a9"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-006",
+      "input_tokens": 421,
+      "prompt_sha256": "12193d320cdf7973a071b832fa031ca8310898b154c9009c70e3f441d24830b8"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-006",
+      "input_tokens": 498,
+      "prompt_sha256": "23034c7025e004d9ee381427f45bb5cb96902dc589186245ee4ec840016d8263"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-007",
+      "input_tokens": 418,
+      "prompt_sha256": "f725ae60c14882fec910f11b2a2db1d23e9fda2e4c14b8fa0a31a52b9e821973"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-007",
+      "input_tokens": 495,
+      "prompt_sha256": "5143788737911018847dd6674bcc87be33962d19b4e43103a7fabaf6603015dc"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-008",
+      "input_tokens": 407,
+      "prompt_sha256": "79e9261dce5665bb93dfad7615b07d5f242bc869d89b8cf50c4ae09f2a640e72"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-008",
+      "input_tokens": 484,
+      "prompt_sha256": "07c1c240cf0e83b2a3bb964a267621b7d41098464f77d57feadb23d4d8e42b6a"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-009",
+      "input_tokens": 413,
+      "prompt_sha256": "161c2801c835db6de442f8c666bdb988b2f757887a04179ea2d18ab7377aefd2"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-009",
+      "input_tokens": 490,
+      "prompt_sha256": "b2a688b64af4e880bd472c844a0cfcff7547d69a42fc39d4a570ad6d6407ecdf"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-010",
+      "input_tokens": 406,
+      "prompt_sha256": "a3244c0370ce0b248ff0809dd86f2556ace2931dc110cc1364a9f6f2e24177f2"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-010",
+      "input_tokens": 483,
+      "prompt_sha256": "809dff1f141fa64cf8724b86b6f1be2872b349e7c968d0cf9647b49413d3b908"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-011",
+      "input_tokens": 404,
+      "prompt_sha256": "cbce6f3aef7ba23d9c3813efdf1d0bbe1d9cb9e7cc201a91bd69af7e8fac0d63"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-011",
+      "input_tokens": 481,
+      "prompt_sha256": "154161363754ff05af36ddce2e84690c3192689954906381101e0c411bf9a52f"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-012",
+      "input_tokens": 410,
+      "prompt_sha256": "da7f92ea0c55515b096967a8b6104f86ce9ccce6ae5074a7e453010510d1c496"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-012",
+      "input_tokens": 487,
+      "prompt_sha256": "c4ca27075abf85b7c46031565b4376344748e95f6d09d5cca1feb9aca3dd5fcd"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-013",
+      "input_tokens": 415,
+      "prompt_sha256": "e1f5ea6f5e2b83a887faa82320c69934ae13dda61acaa39da4e1eded5ebb8f18"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-013",
+      "input_tokens": 492,
+      "prompt_sha256": "d07f2047b0e141b222431c231bd6e6928e7f4c325980932fcdc55c614f94f51f"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-014",
+      "input_tokens": 401,
+      "prompt_sha256": "cfb5c1be6ffdf878bc7de0fed8b1f370142a6b0c1b59c30b08cbdb54efc8a92b"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-014",
+      "input_tokens": 478,
+      "prompt_sha256": "494af2c79fb315c866460abaf618ec9b3c166d658902fae3335cbdb2ea511090"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-015",
+      "input_tokens": 415,
+      "prompt_sha256": "7c4cc819bdd078909102dc3ae97d90516a0d1d38a95fe1645112668b99309d00"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-015",
+      "input_tokens": 492,
+      "prompt_sha256": "574c51266400b8be9628b9aed54399e6f86f283c1d63869177ae679d8dff8720"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-016",
+      "input_tokens": 413,
+      "prompt_sha256": "3edc1860c35fafc3a299c8e3994ffb49ae6896b7a30398a9617ec4e0a780bc56"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-016",
+      "input_tokens": 490,
+      "prompt_sha256": "499b18b98749fffe45dc75b051d37e91639e63113986d8ae580c7ec61b1dd2ef"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-017",
+      "input_tokens": 410,
+      "prompt_sha256": "e36a125b48953b40be7e192fe436a753d302e3ff55afd961e55a8c9433e08c25"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-017",
+      "input_tokens": 487,
+      "prompt_sha256": "c32aba58b51f19e4e7e05016cad316455e149d3655b95f0a6ddcc08d091ef140"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-018",
+      "input_tokens": 407,
+      "prompt_sha256": "224ed530c7aaf5d89513db2326a1a88e0a7b5a989f052ce27e781439b2288d4f"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-018",
+      "input_tokens": 484,
+      "prompt_sha256": "ad895b94041b9b241736e8f4ff66dcea6b65a24bebbd603439d1031815843d04"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-019",
+      "input_tokens": 401,
+      "prompt_sha256": "51c57cde311b9b0c81c5c679cc8964cf874a2c77e782b693e5c1a210221d8b63"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-019",
+      "input_tokens": 478,
+      "prompt_sha256": "94a8d4cbbc38c16cfd8f219d00124890a8318cf35c78a99386e40bc17f565c5c"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-020",
+      "input_tokens": 401,
+      "prompt_sha256": "8b0c65d986fcdaeb0d1094b87571d7fdb6df7fda2e2953e638b4121256cb9288"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-020",
+      "input_tokens": 478,
+      "prompt_sha256": "7f4124378a48afdc2cec7193ed7ac581dd90062b262f379f28d2a29fcec453c6"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-021",
+      "input_tokens": 405,
+      "prompt_sha256": "df8d67520ec064406033724a06e7b04e8ea66461e29f063837e2045f5f061852"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-021",
+      "input_tokens": 482,
+      "prompt_sha256": "61773410f51485e76e5be042b3ff0ce4c19c48ae7875eb711596836a8c2cf8f7"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-022",
+      "input_tokens": 423,
+      "prompt_sha256": "3a413a1d26dd44cf031e823dd79f2f71722eb1b86f89d01417d4cecf32a6e319"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-022",
+      "input_tokens": 500,
+      "prompt_sha256": "f152be9febe2022c75660aeff861194082f4cb9682d51146999ab48f91fcf707"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-023",
+      "input_tokens": 412,
+      "prompt_sha256": "1245fd4482477601a44637700880c718fa1f60afacd5e99c3eabe76e854eaa64"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-023",
+      "input_tokens": 489,
+      "prompt_sha256": "bb247648d18f29614f9aca9e79e29c2f961a4521526c222bf759e2afa24fec87"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-024",
+      "input_tokens": 415,
+      "prompt_sha256": "d7210bc1305ef20954723f485fc47a484617c0e99208de3eb49eb7a4a037ec77"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-024",
+      "input_tokens": 492,
+      "prompt_sha256": "952f358b410c4fbbc99f8c291973dfa5b6893c5b49133463e7c5f3978a8a3054"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-025",
+      "input_tokens": 411,
+      "prompt_sha256": "e0f100520f4bbffc817ac84946b119741ef2ef8e4d8912404b254127e70a1962"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-025",
+      "input_tokens": 488,
+      "prompt_sha256": "8c18b77543b1984f4e59dc921aecc0b336e40791fb94daab11486f21bdc65206"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-026",
+      "input_tokens": 409,
+      "prompt_sha256": "2eae3c1964487a7c2c0ad8477a7115bc1cde79050f0eadee15bfaf868fdedbe2"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-026",
+      "input_tokens": 486,
+      "prompt_sha256": "125352adb810dba4fd43bc5caa172fb9f1890440fca88f96f1e1c5348d9c779c"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-027",
+      "input_tokens": 406,
+      "prompt_sha256": "58466493a43932ddce1d6d2a92bebc8eb2d6be27925625271a4894ebdeb4b8db"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-027",
+      "input_tokens": 483,
+      "prompt_sha256": "30035e4e9ee478c546e98f2ab9f04412042bc037772a8e15097a096b3b55f0ec"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-028",
+      "input_tokens": 413,
+      "prompt_sha256": "53bda60fc90fad9ce5b07940d5c0fae99c616b6e286ed2238d908028278ff8e3"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-028",
+      "input_tokens": 490,
+      "prompt_sha256": "f416e04214cb4bed35812f9d45a92379ec7279b24cb2cde2992e00b4c3acdaa1"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-029",
+      "input_tokens": 413,
+      "prompt_sha256": "8efa7a8da2454de6886ee17638cea35123b503e58f8eadcc5ed2bf663cd13afa"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-029",
+      "input_tokens": 490,
+      "prompt_sha256": "f509bc013b6f5946cd1bf542768dfaad1de47d1e7db44b900d960a44b484e9f8"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-030",
+      "input_tokens": 407,
+      "prompt_sha256": "619c558c90ceefc8debb511b7a3e3fef90a75bef4fe0abea0b6e5ce7f62f2db2"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-030",
+      "input_tokens": 484,
+      "prompt_sha256": "189a544aec0a12bd702e9b6e132ad7b12f975baefa0b31507d2498d9d9d8386d"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-031",
+      "input_tokens": 416,
+      "prompt_sha256": "ecf96b05c5c2116f96d4d264f5f5be55c3434b8ff1405b3aa1421cfa32bdf02c"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-031",
+      "input_tokens": 493,
+      "prompt_sha256": "5a6874611f4b2054c27157fc3994d3bbde2edd7077739b0902ff55273f901a2a"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-032",
+      "input_tokens": 403,
+      "prompt_sha256": "e9afc2170c1bccacf2344f09411c94c6f3b7ebbe78ff03e261c1ca60a25317bd"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-032",
+      "input_tokens": 480,
+      "prompt_sha256": "93d7d535bf06f77021c0fc006a9e5e8b8126e035a0b8160720f1574064e0d629"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-033",
+      "input_tokens": 425,
+      "prompt_sha256": "4fc0f53a767d26d2447475fc27cc5633be9cabe67a4d8bfbb1072b12b86913bb"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-033",
+      "input_tokens": 502,
+      "prompt_sha256": "52ba27c9a4e51b3a18fb1cd27b90f9001bd9c9cd96d8ccaf2fd943c1d2722536"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-034",
+      "input_tokens": 421,
+      "prompt_sha256": "3917f59e1c7386490889edc91ba6b26a640451713df7bb4f55ca97993206f376"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-034",
+      "input_tokens": 498,
+      "prompt_sha256": "4e2f893f4fc0d4529be11a72fb83868cb01d9c867a6e6ae14ae1673471908fbf"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-035",
+      "input_tokens": 403,
+      "prompt_sha256": "c3e2fc5b0b2ed20dd280d29818b6cc1bb7bd08f7c208d48995baab0b15842044"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-035",
+      "input_tokens": 480,
+      "prompt_sha256": "82e17508fcb886b8ec1da316f632989234aeb8f6b4b182a9c065692fc067ecf4"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-036",
+      "input_tokens": 400,
+      "prompt_sha256": "358ad813f2e17eeb9f16ecfe39ef436c7238af9beab81e887fd6f0d02f8b45d4"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-036",
+      "input_tokens": 477,
+      "prompt_sha256": "dec5492c8544ca8fae0c701bb9ffd423788b280feb33cb8ee6e96d9d8ae39c46"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-037",
+      "input_tokens": 406,
+      "prompt_sha256": "5e6f543da121a65b9d6339036c900ddec84d8233ac1aa83a85536f0c6d809d60"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-037",
+      "input_tokens": 483,
+      "prompt_sha256": "d65ab669620415018bbca0f51edce8ecf4c7a36492bbe1a7c19c3c7e9c31ddd7"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-038",
+      "input_tokens": 406,
+      "prompt_sha256": "3ec4049a5dd43ed12dc844ae105107d08da36dbe7a80d5ae7f1054eb63fe468a"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-038",
+      "input_tokens": 483,
+      "prompt_sha256": "5ba5b43b3c5bf36bf0fbc68c5ada67d001664add087f2b805ff33df2e334a951"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-039",
+      "input_tokens": 405,
+      "prompt_sha256": "9b7db26723f2f7a5794abb3e0fdac9d78c9a2a539d96fd7efa81a8c72ccc1469"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-039",
+      "input_tokens": 482,
+      "prompt_sha256": "ff0f653109a0030dbf9c9c527618e35edf77c6bbbfcb3794e8eb3166a7d03758"
+    },
+    {
+      "arm": "baseline",
+      "case_id": "CTI-040",
+      "input_tokens": 411,
+      "prompt_sha256": "dd860a6da584bd9772865cfb1b0b0663dd58f9f68bd044ab5edd99f13703dbfd"
+    },
+    {
+      "arm": "candidate",
+      "case_id": "CTI-040",
+      "input_tokens": 488,
+      "prompt_sha256": "02bd673da503aa01d6a85e26337b96c84e79813dd309680e05940e5086f9cc72"
+    }
+  ],
+  "schema": "HG-CTI-V2.2-TOKEN-BUDGET-PREFLIGHT"
+}

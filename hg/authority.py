@@ -1,24 +1,4 @@
-from dataclasses import dataclass
+"""Compatibility exports for the single fail-closed policy decision point."""
+from .policy import (ALLOWED, FORBIDDEN, NEEDS_AUTH, Decision, authorize, authorize_principal)
 
-ALLOWED = frozenset({"health.read", "session.create", "edge.register", "edge.heartbeat", "edge.status"})
-NEEDS_AUTH = frozenset({"session.create", "edge.register", "edge.heartbeat", "edge.status"})
-FORBIDDEN = frozenset({"file.read", "file.write", "shell.exec", "network.fetch", "deploy", "identity.change", "state.import", "provider.invoke"})
-
-
-@dataclass(frozen=True)
-class Decision:
-    allowed: bool
-    action: str
-    reason: str
-
-
-def authorize(action, *, authenticated=False):
-    if not isinstance(action, str) or not action:
-        return Decision(False, "", "INVALID_ACTION")
-    if action in FORBIDDEN:
-        return Decision(False, action, "EXPLICITLY_FORBIDDEN")
-    if action not in ALLOWED:
-        return Decision(False, action, "NOT_ALLOWLISTED")
-    if action in NEEDS_AUTH and not authenticated:
-        return Decision(False, action, "AUTHENTICATION_REQUIRED")
-    return Decision(True, action, "ALLOWLISTED")
+__all__ = ["ALLOWED", "FORBIDDEN", "NEEDS_AUTH", "Decision", "authorize", "authorize_principal"]

@@ -1,0 +1,50 @@
+{
+  "report_schema": "HG2_CIRCULATORY_RESTRUCTURE_EVIDENCE_V1",
+  "status": "PASS",
+  "scope": "opt-in SQLite backend selection with explicit refusal of legacy/mixed-state directories",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-circulatory-architecture-20261018",
+  "tested_commit": "615a84957a99560acca1e33b8305485ff92720da",
+  "tested_tree": "a60b423a5f8356614b3422f43686c8060a0308fa",
+  "parent_commit": "91047f2acb68c44c662b7f2bf5a784f1d523383c",
+  "python": "3.14.6",
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "commands": [
+    {
+      "command": "python -m json.tool manifest.json",
+      "status": "PASS"
+    },
+    {
+      "command": "python -m compileall -q hg tests",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "python -m unittest discover -s tests -v",
+      "status": "PASS",
+      "result": "61 tests passed; exit code 0"
+    }
+  ],
+  "changed_source_file_sha256": {
+    "hg/contracts.py": "7d1c99def4f9ad1737007325ac5be6cd772930fda3bae55a513ab949b01ecb78",
+    "hg/history.py": "0d03f24acf1f15b31817cc7e0d4fc3e2dff1b120a8267b245b98c64edbd112db",
+    "hg/edge.py": "1d8a53e22ad807eead4297c0095da7aa1d3d5189b5d1e9e8491523fad17c2e52",
+    "hg/sqlite_state.py": "5e38c0ffdbde7e145322ab1290e2647c517e9c26499727c5284d5bce6c2b3c4e",
+    "hg/phone_runtime.py": "05cf97a319a6c29a5816b7a8a3aeaeb20fb2e1aa38ff56b8c6aac3498dc2f255",
+    "tests/test_contracts.py": "cb88b0a5cc288f78b0c568f3c075441d56454933af0caca8910ff446c2a192d2",
+    "tests/test_core.py": "dcb9f44d9c4b15d020bdd0d98cf6d5c8b6da4963c798eeafd00b16a1a20e44b0",
+    "tests/test_edge_schema_guard.py": "6a63051b56ebce58dc36fee79071c1deb2f83cb69ea53bc06895573f52732cd6",
+    "tests/test_sqlite_state.py": "def41c3ddd2d20bc4bcf35bb36ca18e93a3aee2ade32b67ad03e339c0cfb54dd",
+    "tests/test_circulatory_architecture.py": "a8e46e28da79f554a0bb9dde28f58ccfb78c5ac9e71925b795b5b3b4a9d38619",
+    "manifest.json": "959b873fcdcf3c45aa59123a5a49779aa09891155f995323d8f045f7bbe7e7ee",
+    "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md": "f6022800a97b91dd7dbd0dd09f6a7f60df77a662e77af296511780d7d4810adf"
+  },
+  "limitations": [
+    "Legacy state migration has not been implemented or executed.",
+    "HG_STATE_BACKEND defaults to legacy; production configuration was not changed.",
+    "No APK build/install, deployment, PR creation, or merge was performed."
+  ]
+}

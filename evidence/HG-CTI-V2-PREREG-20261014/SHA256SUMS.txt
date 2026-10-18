@@ -1,0 +1,5 @@
+c4bb01f04f27a4bb291ec847565a090cfaaec709a39296f194a277fee844a33f  full-tests.log
+2ae21695018abd4b50232bb723282dca2037c249bd8d3b86f30a8874e54c1fe8  pre-run-verification.json
+62fe3b30c1c4bc785eb13a58901bc89419f46526f46419cfd1bb1c9374b2527d  token-budget-preflight.json
+8b846b155e3be1dbbae39aabe90852909b93f3bdf0c67b860eb8fea37d002ec6  v1-root-manifest-check.log
+ec3207aaa5394ca68961818a8c84934f5a7aa83f23fc96cbbd3db96a8713ce2e  v1-run-manifest-check.log

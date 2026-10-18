@@ -1,0 +1,14 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest discover -s tests -v",
+  "duration_seconds": 7.367,
+  "evidence_id": "HG2-CODE-INTELLIGENCE-20261018",
+  "exit_code": 0,
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "python_version": "3.14.6",
+  "result": "PASS",
+  "scope_note": "Isolated candidate checkout only. Code-intelligence utility reads only the explicitly supplied target tree and never executes target code; no live runtime, live state, or network provider was touched.",
+  "test_count": 190,
+  "tested_commit": "5ca99f5464722170812dff47ec0bb143b8e2ca5a",
+  "unittest_log_sha256": "728d59bc02eb2027af9a2baeef0bf7684ee23f418e09ef1e147aa5b2ead3f53f",
+  "warning_policy": "ResourceWarning treated as error"
+}

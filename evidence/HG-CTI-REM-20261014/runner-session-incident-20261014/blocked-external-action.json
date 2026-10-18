@@ -1,0 +1,27 @@
+{
+  "schema": "HG-CTI-V2.2-RUNNER-SESSION-INCIDENT",
+  "observed_local_date": "2026-10-14",
+  "protocol_version": "V2.2",
+  "status": "BLOCKED_EXTERNAL_ACTION",
+  "acceptance_result": "NOT_EVALUATED",
+  "scoring_performed": false,
+  "canonical_branch_modified": false,
+  "v1_modified": false,
+  "merge_or_deploy_performed": false,
+  "pr_12_disposition": "KEEP_DRAFT_NO_GO",
+  "preregistration_sha256": "7859f28c2105f0d6bb88cfd7f5267dce9976bb009e5d10e66464964e857debfc",
+  "preregistration_freeze_sha256": "8631ef84cc7970c63ab4a4e6834b2a78f24fd7d31a71e2b17f0cd18377b85faf",
+  "protocol_sha256": "34d7ef99ae1698189472d6df8d7d561f99a78abd6f8f6e69b9233ce5a08756f3",
+  "runner_observation": {
+    "pid": 7387,
+    "command_out_dir_argument": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001",
+    "observed_open_fd_3": "evidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-2-incomplete/raw_runs.jsonl",
+    "preregistered_output_directory_state_at_observation": "EMPTY",
+    "runner_log_progress_at_observation": "CTI-017 (17/40)",
+    "raw_rows_at_observation": 36,
+    "disposition": "Runner was stopped after discovering it was writing into the preserved incomplete-attempt directory rather than the preregistered output directory. The original tracked attempt-2 raw file was restored from HEAD and its recorded manifest re-verified. No partial scores were computed."
+  },
+  "termination_cause": "UNVERIFIED",
+  "stable_full_run_session": "NOT_ESTABLISHED",
+  "next_action": "Establish exclusive control of the output directory for the entire run, confirm no concurrent process or rename can move it, then start exactly one full 40-pair run from case 001 in a newly created valid output directory. Verify all 80 responses and manifest before scoring."
+}
