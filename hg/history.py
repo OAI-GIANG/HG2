@@ -112,7 +112,8 @@ class StateStore:
                     "causation_id", "product_id", "runtime_id", "schema", "payload",
                     "prev_hash", "record_hash"}
         try:
-            raw = open(self.log, "rb").read()
+            with open(self.log, "rb") as fh:
+                raw = fh.read()
             if raw and not raw.endswith(b"\n"):
                 raise HistoryError("history log missing final newline")
             text = raw.decode("utf-8")
@@ -253,7 +254,8 @@ class StateStore:
                     "causation_id", "product_id", "runtime_id", "schema", "payload",
                     "prev_hash", "record_hash"}
         try:
-            raw = open(self.log, "rb").read()
+            with open(self.log, "rb") as fh:
+                raw = fh.read()
             if raw and not raw.endswith(b"\n"):
                 return {"ok": False, "events": 0, "reason": "missing_final_newline"}
             text = raw.decode("utf-8")
