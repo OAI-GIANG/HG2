@@ -11,6 +11,8 @@ import uuid
 from typing import Any
 
 from .contracts import SCHEMA_VERSION, canonical_json, parse_json_no_duplicate_keys
+from .policy import authorize_service_mutation, issue_mutation_permit, consume_mutation_permit
+from .auth import AuthenticatedPrincipal
 from .sqlite_state import SQLiteStateError, SQLiteStateStore
 
 _DATABASE = "hg2-state.sqlite3"
@@ -100,7 +102,7 @@ def _copy_database_read_only(source_path: str, target_path: str) -> None:
         source.close()
 
 
-def backup_state(source_dir: str, backup_dir: str, *, clock=time.time) -> dict[str, Any]:
+def backup_state(source_dir: str, backup_dir: str, *, principal: AuthenticatedPrincipal | None = None, clock=time.time) -> dict[str, Any]:
     source = os.path.abspath(str(source_dir))
     target = os.path.abspath(str(backup_dir))
     _separate_paths(source, target)
@@ -111,6 +113,26 @@ def backup_state(source_dir: str, backup_dir: str, *, clock=time.time) -> dict[s
         raise RecoveryError("SOURCE_DATABASE_MISSING")
     target_existed, _ = _target_ready(target)
     source_hash_before = _sha256(source_db)
+    action = "state.backup"
+    decision = authorize_service_mutation(action, principal)
+    if not decision.allowed:
+        raise RecoveryError("BACKUP_AUTHORIZATION_" + decision.reason)
+    actor_id = principal.principal_id
+    authority_context = {"principal": actor_id, "scope": action}
+    operation_payload = {
+        "source_database_sha256": source_hash_before,
+        "target_path_sha256": hashlib.sha256(target.encode("utf-8")).hexdigest(),
+    }
+    correlation_id = "backup:" + source_hash_before
+    permit = issue_mutation_permit(
+        action, principal, event_type=action, actor_id=actor_id, payload=operation_payload,
+        correlation_id=correlation_id, authority_context=authority_context,
+    )
+    if not consume_mutation_permit(
+        permit, event_type=action, actor_id=actor_id, payload=operation_payload,
+        correlation_id=correlation_id, authority_context=authority_context,
+    ):
+        raise RecoveryError("BACKUP_AUTHORIZATION_INVALID")
     try:
         os.makedirs(target, exist_ok=True)
         target_db = os.path.join(target, _DATABASE)
@@ -148,7 +170,7 @@ def backup_state(source_dir: str, backup_dir: str, *, clock=time.time) -> dict[s
         raise RecoveryError("BACKUP_FAILED") from exc
 
 
-def restore_state(backup_dir: str, target_dir: str) -> dict[str, Any]:
+def restore_state(backup_dir: str, target_dir: str, *, principal: AuthenticatedPrincipal | None = None) -> dict[str, Any]:
     backup = os.path.abspath(str(backup_dir))
     target = os.path.abspath(str(target_dir))
     _separate_paths(backup, target)
@@ -175,6 +197,26 @@ def restore_state(backup_dir: str, target_dir: str) -> dict[str, Any]:
     if _sha256(backup_db) != manifest["database_sha256"]:
         raise RecoveryError("BACKUP_DATABASE_HASH_MISMATCH")
     target_existed, _ = _target_ready(target)
+    action = "state.restore"
+    decision = authorize_service_mutation(action, principal)
+    if not decision.allowed:
+        raise RecoveryError("RESTORE_AUTHORIZATION_" + decision.reason)
+    actor_id = principal.principal_id
+    authority_context = {"principal": actor_id, "scope": action}
+    operation_payload = {
+        "backup_database_sha256": manifest["database_sha256"],
+        "target_path_sha256": hashlib.sha256(target.encode("utf-8")).hexdigest(),
+    }
+    correlation_id = "restore:" + manifest["database_sha256"]
+    permit = issue_mutation_permit(
+        action, principal, event_type=action, actor_id=actor_id, payload=operation_payload,
+        correlation_id=correlation_id, authority_context=authority_context,
+    )
+    if not consume_mutation_permit(
+        permit, event_type=action, actor_id=actor_id, payload=operation_payload,
+        correlation_id=correlation_id, authority_context=authority_context,
+    ):
+        raise RecoveryError("RESTORE_AUTHORIZATION_INVALID")
     try:
         os.makedirs(target, exist_ok=True)
         target_db = os.path.join(target, _DATABASE)

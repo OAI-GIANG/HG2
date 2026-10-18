@@ -186,6 +186,124 @@ def validate_event(event: Mapping[str, Any]) -> dict[str, Any]:
     return result
 
 
+BRAIN_REQUEST_V1 = "HG_BRAIN_REQUEST_V1"
+BRAIN_REQUEST_AUDIT_V1 = "HG_BRAIN_REQUEST_AUDIT_V1"
+CAPABILITY_RESULT_V1 = "HG_CAPABILITY_RESULT_V1"
+_RESULT_STATUSES = frozenset({"SUCCESS", "FAIL", "BLOCKED", "PARTIAL", "NOT_RUN", "RESPONSE_ONLY"})
+
+
+def validate_brain_request(request: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate the shared, bounded input envelope accepted by the sole Brain facade."""
+    if not isinstance(request, Mapping):
+        raise ContractError("BRAIN_REQUEST_MUST_BE_OBJECT")
+    required = {"schema_version", "request_id", "correlation_id", "goal", "constraints", "source_revision"}
+    if set(request) != required:
+        raise ContractError("BRAIN_REQUEST_SCHEMA_INVALID")
+    result = dict(request)
+    if result["schema_version"] != BRAIN_REQUEST_V1:
+        raise ContractError("UNSUPPORTED_BRAIN_REQUEST_VERSION")
+    for field in ("request_id", "correlation_id", "goal", "source_revision"):
+        _require_text(result[field], field, max_length=16_000 if field == "goal" else 256)
+    if not isinstance(result["constraints"], dict):
+        raise ContractError("BRAIN_REQUEST_CONSTRAINTS_INVALID")
+    canonical_json(result, max_bytes=64 * 1024)
+    return result
+
+
+def validate_brain_request_audit(record: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate the redacted durable receipt for a Brain request without storing prompt text."""
+    if not isinstance(record, Mapping):
+        raise ContractError("BRAIN_REQUEST_AUDIT_MUST_BE_OBJECT")
+    required = {
+        "schema_version", "request_id", "correlation_id", "goal_sha256",
+        "constraints_sha256", "source_revision", "status",
+    }
+    if set(record) != required:
+        raise ContractError("BRAIN_REQUEST_AUDIT_SCHEMA_INVALID")
+    value = dict(record)
+    if value["schema_version"] != BRAIN_REQUEST_AUDIT_V1:
+        raise ContractError("UNSUPPORTED_BRAIN_REQUEST_AUDIT_VERSION")
+    for field in ("request_id", "correlation_id", "source_revision"):
+        _require_text(value[field], field)
+    for field in ("goal_sha256", "constraints_sha256"):
+        if not isinstance(value[field], str) or not _DIGEST_RE.fullmatch(value[field]):
+            raise ContractError("BRAIN_REQUEST_AUDIT_DIGEST_INVALID")
+    if value["status"] != "ACCEPTED":
+        raise ContractError("BRAIN_REQUEST_AUDIT_STATUS_INVALID")
+    canonical_json(value, max_bytes=16 * 1024)
+    return value
+
+
+def validate_capability_result(
+    result: Mapping[str, Any], *, expected_request_id: str | None = None,
+    expected_correlation_id: str | None = None, expected_source_revision: str | None = None,
+    evidence_verifier=None,
+) -> dict[str, Any]:
+    """Validate a versioned result; SUCCESS additionally requires a trusted evidence verifier.
+
+    A well-formed URI/hash string proves only shape. It is not proof that the referenced
+    artifact exists, matches the claimed digest, or came from an accepted source.
+    """
+    if not isinstance(result, Mapping):
+        raise ContractError("CAPABILITY_RESULT_MUST_BE_OBJECT")
+    required = {
+        "schema_version", "request_id", "correlation_id", "status", "output_digest",
+        "error_code", "evidence_refs", "source_revision",
+    }
+    if set(result) != required:
+        raise ContractError("CAPABILITY_RESULT_SCHEMA_INVALID")
+    value = dict(result)
+    if value["schema_version"] != CAPABILITY_RESULT_V1:
+        raise ContractError("UNSUPPORTED_CAPABILITY_RESULT_VERSION")
+    for field in ("request_id", "correlation_id", "source_revision"):
+        _require_text(value[field], field)
+    if expected_request_id is not None and value["request_id"] != expected_request_id:
+        raise ContractError("CAPABILITY_RESULT_REQUEST_ID_MISMATCH")
+    if expected_correlation_id is not None and value["correlation_id"] != expected_correlation_id:
+        raise ContractError("CAPABILITY_RESULT_CORRELATION_ID_MISMATCH")
+    if expected_source_revision is not None and value["source_revision"] != expected_source_revision:
+        raise ContractError("CAPABILITY_RESULT_SOURCE_REVISION_MISMATCH")
+    if not isinstance(value["status"], str) or value["status"] not in _RESULT_STATUSES:
+        raise ContractError("CAPABILITY_RESULT_STATUS_INVALID")
+    digest = value["output_digest"]
+    if digest is not None and (not isinstance(digest, str) or not _DIGEST_RE.fullmatch(digest)):
+        raise ContractError("CAPABILITY_RESULT_DIGEST_INVALID")
+    error_code = value["error_code"]
+    if error_code is not None and (not isinstance(error_code, str) or not error_code.strip() or len(error_code) > 256):
+        raise ContractError("CAPABILITY_RESULT_ERROR_CODE_INVALID")
+    refs = value["evidence_refs"]
+    if not isinstance(refs, list) or len(refs) > 256 or any(not isinstance(ref, str) or not ref.strip() for ref in refs):
+        raise ContractError("CAPABILITY_RESULT_EVIDENCE_INVALID")
+    if value["status"] == "SUCCESS" and (digest is None or not refs or error_code is not None):
+        raise ContractError("CAPABILITY_SUCCESS_PROVENANCE_REQUIRED")
+    if value["status"] == "RESPONSE_ONLY" and (
+        digest is None or refs or error_code != "PROVIDER_RESPONSE_ONLY_NOT_EXECUTION_PROOF"
+    ):
+        raise ContractError("CAPABILITY_RESPONSE_ONLY_CONTRACT_INVALID")
+    if value["status"] == "SUCCESS" and not re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", value["source_revision"]):
+        raise ContractError("CAPABILITY_SUCCESS_SOURCE_REVISION_UNATTESTED")
+    if value["status"] == "SUCCESS" and any(
+        not re.fullmatch(r"(?:test-artifact:sha256:|evidence:sha256:)[0-9a-f]{64}", ref)
+        for ref in refs
+    ):
+        raise ContractError("CAPABILITY_SUCCESS_EVIDENCE_REFERENCE_INVALID")
+    if value["status"] == "SUCCESS" and any(ref.startswith("test-artifact:") for ref in refs):
+        raise ContractError("CAPABILITY_SUCCESS_TEST_ARTIFACT_NOT_RUNTIME_PROOF")
+    if value["status"] == "SUCCESS":
+        if not callable(evidence_verifier):
+            raise ContractError("CAPABILITY_EVIDENCE_VERIFIER_REQUIRED")
+        try:
+            verified = all(evidence_verifier(ref) is True for ref in refs)
+        except Exception as exc:
+            raise ContractError("CAPABILITY_EVIDENCE_REFERENCE_UNVERIFIED") from exc
+        if not verified:
+            raise ContractError("CAPABILITY_EVIDENCE_REFERENCE_UNVERIFIED")
+    if value["status"] in {"FAIL", "BLOCKED", "PARTIAL", "NOT_RUN"} and error_code is None:
+        raise ContractError("CAPABILITY_FAILURE_REASON_REQUIRED")
+    canonical_json(value, max_bytes=64 * 1024)
+    return value
+
+
 def create_event(
     *,
     event_type: str,

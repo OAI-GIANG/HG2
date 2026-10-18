@@ -38,16 +38,25 @@ class BearerAuthenticatorTests(unittest.TestCase):
         self.assertFalse(principal.allows("session.create"))
 
     def test_environment_configuration_is_data_and_repr_redacts_token(self):
-        with patch.dict(os.environ, {"HG_AUTH_TOKEN": self.token, "HG_AUTH_SCOPES": "provider.invoke,session.create"}, clear=True):
+        with patch.dict(os.environ, {"HG_AUTH_TOKEN": self.token, "HG_AUTH_SCOPES": "provider.invoke,session.create", "HG_AUTH_PRINCIPAL_ID": "env-user"}, clear=True):
             auth = BearerAuthenticator.from_env()
-        self.assertIsNotNone(auth.authenticate("Bearer " + self.token))
+        principal = auth.authenticate("Bearer " + self.token)
+        self.assertIsNotNone(principal)
+        self.assertEqual(principal.principal_id, "env-user")
         self.assertNotIn(self.token, repr(auth))
-        self.assertNotIn(self.token, repr(auth.authenticate("Bearer " + self.token)))
+        self.assertNotIn(self.token, repr(principal))
 
     def test_invalid_environment_scope_fails_closed(self):
         with patch.dict(os.environ, {"HG_AUTH_TOKEN": self.token, "HG_AUTH_SCOPES": "provider.invoke,shell.exec"}, clear=True):
             auth = BearerAuthenticator.from_env()
         self.assertIsNone(auth.authenticate("Bearer " + self.token))
+
+    def test_missing_principal_id_is_not_mutation_identity(self):
+        from hg.policy import authorize_service_mutation
+        principal = self.auth.authenticate("Bearer " + self.token)
+        self.assertEqual(authorize_service_mutation("session.create", principal).reason, "PRINCIPAL_ID_REQUIRED")
+        named = BearerAuthenticator(self.token, {"session.create"}, principal_id="alice").authenticate("Bearer " + self.token)
+        self.assertTrue(authorize_service_mutation("session.create", named).allowed)
 
     def test_principal_cannot_be_forged_without_internal_seal(self):
         forged = AuthenticatedPrincipal(frozenset({"provider.invoke", "session.create"}), object())

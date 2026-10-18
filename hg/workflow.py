@@ -7,6 +7,8 @@ import time
 import uuid
 from typing import Any, Mapping
 
+from .policy import authorize_service_mutation, issue_mutation_permit
+
 _DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
 TASK_STATES = frozenset({
     "PENDING", "RUNNING", "WAITING_APPROVAL", "SUCCEEDED", "FAILED", "CANCELLED", "EXPIRED"
@@ -210,11 +212,12 @@ def transition_task(
 class WorkflowService:
     """Persist task commands through a transactional store implementing the HG2 state-store port."""
 
-    def __init__(self, store, *, actor_id: str = "local-user", authority_context=None, clock=time.time):
+    def __init__(self, store, *, actor_id: str = "local-user", authority_context=None, clock=time.time, principal=None):
         _text(actor_id, "TASK_ACTOR_REQUIRED")
         self.store = store
         self.actor_id = actor_id
-        self.authority_context = authority_context if authority_context is not None else {"principal": actor_id}
+        self.principal = principal
+        # Caller-supplied authority metadata is not trusted; events derive it from the sealed principal.
         self.clock = clock
 
     def create(
@@ -229,6 +232,11 @@ class WorkflowService:
         correlation_id: str | None = None,
         sync_required: bool = False,
     ) -> dict[str, Any]:
+        decision = authorize_service_mutation("workflow.task.create", self.principal)
+        if not decision.allowed:
+            raise WorkflowError(decision.reason)
+        if self.actor_id != self.principal.principal_id:
+            raise WorkflowError("WORKFLOW_ACTOR_PRINCIPAL_MISMATCH")
         existing = self.store.get_event_by_idempotency(idempotency_key)
         if existing is not None:
             payload = existing.get("payload")
@@ -255,13 +263,18 @@ class WorkflowService:
             task_id=task_id,
             correlation_id=correlation_id,
         )
+        action = "workflow.task.create"
+        context = {"principal": self.principal.principal_id, "scope": action}
+        correlation = task["correlation_id"]
+        permit = issue_mutation_permit(
+            action, self.principal, event_type="workflow.task.created", actor_id=self.actor_id,
+            payload=task, correlation_id=correlation, idempotency_key=idempotency_key,
+            authority_context=context, sync_required=sync_required,
+        )
         self.store.emit(
-            "workflow.task.created",
-            task,
-            actor_id=self.actor_id,
-            authority_context=self.authority_context,
-            idempotency_key=idempotency_key,
-            sync_required=sync_required,
+            "workflow.task.created", task, correlation_id=correlation,
+            actor_id=self.actor_id, authority_context=context, idempotency_key=idempotency_key,
+            sync_required=sync_required, mutation_permit=permit,
         )
         return task
 
@@ -279,6 +292,11 @@ class WorkflowService:
         approval_status: str | None = None,
         sync_required: bool = False,
     ) -> dict[str, Any]:
+        decision = authorize_service_mutation("workflow.task.transition", self.principal)
+        if not decision.allowed:
+            raise WorkflowError(decision.reason)
+        if self.actor_id != self.principal.principal_id:
+            raise WorkflowError("WORKFLOW_ACTOR_PRINCIPAL_MISMATCH")
         _text(task_id, "TASK_ID_REQUIRED")
         if isinstance(expected_version, bool) or not isinstance(expected_version, int) or expected_version < 1:
             raise WorkflowError("TASK_VERSION_INVALID")
@@ -329,13 +347,17 @@ class WorkflowService:
                 "reason": reason,
             },
         }
+        action = "workflow.task.transition"
+        context = {"principal": self.principal.principal_id, "scope": action}
+        correlation = updated["correlation_id"]
+        permit = issue_mutation_permit(
+            action, self.principal, event_type="workflow.task.transitioned", actor_id=self.actor_id,
+            payload=event_payload, correlation_id=correlation, idempotency_key=transition_key,
+            authority_context=context, sync_required=sync_required,
+        )
         self.store.emit(
-            "workflow.task.transitioned",
-            event_payload,
-            actor_id=self.actor_id,
-            authority_context=self.authority_context,
-            causation_id=None,
-            idempotency_key=transition_key,
-            sync_required=sync_required,
+            "workflow.task.transitioned", event_payload, correlation_id=correlation,
+            actor_id=self.actor_id, authority_context=context, causation_id=None,
+            idempotency_key=transition_key, sync_required=sync_required, mutation_permit=permit,
         )
         return updated

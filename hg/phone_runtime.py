@@ -1,8 +1,9 @@
 """Phone-primary HG runtime: the single canonical state owner."""
 from __future__ import annotations
 
-import json, os, secrets, urllib.error, urllib.request
-from .policy import authorize, authorize_principal
+import json, os, secrets, urllib.error, urllib.request, uuid
+from .policy import authorize_principal, authorize_service_mutation, issue_mutation_permit
+from .auth import BearerAuthenticator
 from .history import StateStore
 from .sqlite_state import SQLiteStateStore
 
@@ -62,19 +63,40 @@ class PhoneRuntime:
                     principal = None
         # A verifier must return a sealed AuthenticatedPrincipal. Boolean True is not
         # authentication proof and is intentionally rejected by policy.
-        decision = authorize_principal("session.create", principal)
+        decision = authorize_service_mutation("session.create", principal)
         if not decision.allowed:
             raise PermissionError(decision.reason)
-        rec = self.store.emit("session.created", {"session_id": secrets.token_urlsafe(18), "product": "HG"},
-                              correlation_id=correlation_id)
-        return dict(rec["payload"])
+        correlation = correlation_id if correlation_id is not None else uuid.uuid4().hex
+        actor_id = principal.principal_id
+        payload = {
+            "session_id": secrets.token_urlsafe(18), "product": "HG",
+            "principal_id": actor_id,
+        }
+        context = {"principal": actor_id, "scope": "session.create"}
+        permit = issue_mutation_permit(
+            "session.create", principal, event_type="session.created", actor_id=actor_id,
+            payload=payload, correlation_id=correlation, authority_context=context,
+        )
+        rec = self.store.emit(
+            "session.created", payload, correlation_id=correlation, actor_id=actor_id,
+            authority_context=context, mutation_permit=permit,
+        )
+        public_payload = dict(rec["payload"])
+        public_payload.pop("principal_id", None)
+        return public_payload
 
     def _post(self, path, body):
         if not self.edge_url or not self.edge_token:
             return False
-        d = authorize("edge.heartbeat", authenticated=True)
-        if not d.allowed:
-            raise PermissionError(d.reason)
+        action_by_path = {"/edge/register": "edge.register", "/edge/heartbeat": "edge.heartbeat"}
+        action = action_by_path.get(path)
+        if action is None:
+            raise PermissionError("NOT_ALLOWLISTED")
+        service_auth = BearerAuthenticator(self.edge_token, {action}, principal_id=self.device_id)
+        principal = service_auth.authenticate("Bearer " + self.edge_token)
+        decision = authorize_principal(action, principal)
+        if not decision.allowed:
+            raise PermissionError(decision.reason)
         req = urllib.request.Request(self.edge_url.rstrip("/") + path,
                                      data=json.dumps(body).encode(), method="POST")
         req.add_header("Content-Type", "application/json")

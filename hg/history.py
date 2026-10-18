@@ -4,11 +4,46 @@ from __future__ import annotations
 import math, os, threading, time, uuid
 from contextlib import contextmanager
 from .contracts import ContractError, canonical_digest, canonical_json, parse_json_no_duplicate_keys
+from .policy import consume_mutation_permit, MUTATION_EVENT_ACTIONS
 
 SCHEMA = "HG_STATE_V1"
+HISTORY_EVENT_SCHEMA_V2 = "HG_HISTORY_EVENT_V2"
 PRODUCT_ID = "HG"
 GENESIS_EVENT = "hg.genesis"
 ZERO = "0" * 64
+_HISTORY_EVENT_V1_FIELDS = frozenset({
+    "seq", "event_id", "event_type", "recorded_at", "correlation_id",
+    "causation_id", "product_id", "runtime_id", "schema", "payload",
+    "prev_hash", "record_hash",
+})
+_HISTORY_EVENT_V2_FIELDS = _HISTORY_EVENT_V1_FIELDS | frozenset({
+    "event_schema", "actor_id", "authority_context", "authorization_action", "idempotency_key",
+})
+
+
+def _validate_history_record_schema(record):
+    """Accept original V1 history and strict actor-attributed V2 events; reject ambiguous envelopes."""
+    if not isinstance(record, dict):
+        raise ValueError("record is not an object")
+    if "event_schema" not in record:
+        if set(record) != _HISTORY_EVENT_V1_FIELDS:
+            raise ValueError("V1 record schema mismatch")
+        return "V1"
+    if set(record) != _HISTORY_EVENT_V2_FIELDS or record.get("event_schema") != HISTORY_EVENT_SCHEMA_V2:
+        raise ValueError("V2 record schema mismatch")
+    actor_id = record.get("actor_id")
+    authority = record.get("authority_context")
+    action = record.get("authorization_action")
+    if not isinstance(actor_id, str) or not actor_id.strip():
+        raise ValueError("V2 actor invalid")
+    if not isinstance(authority, dict) or authority != {"principal": actor_id, "scope": action}:
+        raise ValueError("V2 authority context invalid")
+    if not isinstance(action, str) or action != MUTATION_EVENT_ACTIONS.get(record.get("event_type"), "audit.append"):
+        raise ValueError("V2 authorization action invalid")
+    key = record.get("idempotency_key")
+    if key is not None and (not isinstance(key, str) or not key.strip()):
+        raise ValueError("V2 idempotency key invalid")
+    return "V2"
 
 
 def canonical(o):
@@ -217,11 +252,10 @@ class StateStore:
                         raise HistoryError("malformed record line %d" % line_no) from exc
                     if not isinstance(rec, dict):
                         raise HistoryError("record is not an object line %d" % line_no)
-                    required = {"seq", "event_id", "event_type", "recorded_at", "correlation_id",
-                                "causation_id", "product_id", "runtime_id", "schema", "payload",
-                                "prev_hash", "record_hash"}
-                    if not required.issubset(rec):
-                        raise HistoryError("record fields missing line %d" % line_no)
+                    try:
+                        _validate_history_record_schema(rec)
+                    except ValueError as exc:
+                        raise HistoryError("record schema invalid line %d" % line_no) from exc
                     if isinstance(rec["seq"], bool) or not isinstance(rec["seq"], int) or rec["seq"] != seq + 1:
                         raise HistoryError("sequence gap line %d" % line_no)
                     if not isinstance(rec["event_id"], str) or not rec["event_id"] or rec["event_id"] in seen:
@@ -314,7 +348,10 @@ class StateStore:
         s, h = self._head()
         _atomic_write(self.head, canonical({"seq": s, "head_hash": h}))
 
-    def emit(self, event_type, payload, *, correlation_id=None, causation_id=None, event_id=None):
+    def emit(
+        self, event_type, payload, *, correlation_id=None, causation_id=None, event_id=None,
+        actor_id=None, authority_context=None, idempotency_key=None, mutation_permit=None,
+    ):
         # Validate caller input before touching the append-only log. Writing an
         # invalid event would make the store fail closed on its next reopen.
         if not isinstance(event_type, str) or not event_type:
@@ -331,6 +368,16 @@ class StateStore:
             raise HistoryError("causation_id must be a non-empty string when provided")
         if event_id is not None and (not isinstance(event_id, str) or not event_id):
             raise HistoryError("event_id must be a non-empty string when provided")
+        if event_type == GENESIS_EVENT:
+            if self._events or os.path.exists(self.log) or actor_id is not None or mutation_permit is not None:
+                raise HistoryError("GENESIS_EVENT_RESERVED")
+        elif not consume_mutation_permit(
+            mutation_permit, event_type=event_type, actor_id=actor_id, payload=payload,
+            correlation_id=correlation_id, causation_id=causation_id,
+            idempotency_key=idempotency_key, event_id=event_id,
+            authority_context=authority_context, evidence_refs=None, sync_required=False,
+        ):
+            raise HistoryError("MUTATION_AUTHORIZATION_REQUIRED")
         with self._lock:
             if self._poisoned:
                 raise HistoryError("state store is poisoned after a persistence failure; reopen only after investigation")
@@ -340,8 +387,36 @@ class StateStore:
                 # exclusively locked so sequence/hash decisions never use stale memory.
                 if self._events or os.path.exists(self.log):
                     self._refresh_from_disk()
+                def same_operation(existing):
+                    try:
+                        return (
+                            existing.get("event_type") == event_type
+                            and canonical(existing.get("payload")) == canonical(payload)
+                            and existing.get("correlation_id") == correlation_id
+                            and existing.get("causation_id") == causation_id
+                            and existing.get("actor_id") == actor_id
+                            and existing.get("authority_context") == authority_context
+                            and existing.get("authorization_action") == getattr(mutation_permit, "action", None)
+                            and existing.get("idempotency_key") == idempotency_key
+                        )
+                    except (TypeError, ValueError):
+                        return False
+
                 if event_id and event_id in self._by_id:
-                    return _json_snapshot(self._by_id[event_id])
+                    existing = self._by_id[event_id]
+                    if not same_operation(existing):
+                        raise HistoryError("EVENT_ID_REUSED")
+                    return _json_snapshot(existing)
+                if idempotency_key is not None:
+                    existing = next((
+                        rec for rec in reversed(self._events)
+                        if rec.get("event_schema") == HISTORY_EVENT_SCHEMA_V2
+                        and rec.get("idempotency_key") == idempotency_key
+                    ), None)
+                    if existing is not None:
+                        if (event_id is not None and existing.get("event_id") != event_id) or not same_operation(existing):
+                            raise HistoryError("IDEMPOTENCY_KEY_REUSED")
+                        return _json_snapshot(existing)
                 seq = (self._events[-1]["seq"] if self._events else 0) + 1
                 prev = self._events[-1]["record_hash"] if self._events else ZERO
                 recorded_at = self._clock()
@@ -351,6 +426,18 @@ class StateStore:
                         "recorded_at": recorded_at, "correlation_id": correlation_id or uuid.uuid4().hex,
                         "causation_id": causation_id, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
                         "schema": SCHEMA, "payload": payload, "prev_hash": prev}
+                if mutation_permit is not None:
+                    core.update({
+                        "event_schema": HISTORY_EVENT_SCHEMA_V2,
+                        "actor_id": actor_id,
+                        "authority_context": authority_context,
+                        "authorization_action": mutation_permit.action,
+                        "idempotency_key": idempotency_key,
+                    })
+                try:
+                    _validate_history_record_schema({**core, "record_hash": "0" * 64})
+                except ValueError as exc:
+                    raise HistoryError("event schema invalid") from exc
                 rec = dict(core)
                 try:
                     rec["record_hash"] = digest(core)
@@ -408,11 +495,10 @@ class StateStore:
                     rec = parse_json_no_duplicate_keys(line)
                     if not isinstance(rec, dict):
                         return {"ok": False, "events": count, "reason": "record_not_object_line_%d" % line_no}
-                    required = {"seq", "event_id", "event_type", "recorded_at", "correlation_id",
-                                "causation_id", "product_id", "runtime_id", "schema", "payload",
-                                "prev_hash", "record_hash"}
-                    if not required.issubset(rec):
-                        return {"ok": False, "events": count, "reason": "record_fields_missing_line_%d" % line_no}
+                    try:
+                        _validate_history_record_schema(rec)
+                    except ValueError:
+                        return {"ok": False, "events": count, "reason": "record_schema_invalid_line_%d" % line_no}
                     if isinstance(rec["seq"], bool) or not isinstance(rec["seq"], int) or rec["seq"] != seq + 1:
                         return {"ok": False, "events": count, "reason": "sequence_gap_line_%d" % line_no}
                     if not isinstance(rec["event_id"], str) or not rec["event_id"] or rec["event_id"] in seen:

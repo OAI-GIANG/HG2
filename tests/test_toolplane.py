@@ -6,6 +6,7 @@ from hg.policy import authorize, authorize_principal
 from hg.history import StateStore
 from hg.provider import ProviderError
 from hg.toolplane import ToolPlane, ToolPlaneError
+from tests._support import authorized_audit_emit
 
 
 class FakeProvider:
@@ -29,7 +30,7 @@ class ToolPlaneTests(unittest.TestCase):
         self.runtime = PhoneRuntime(state_dir=self.temp.name)
         self.store = self.runtime.store
         self.header = "Bearer hg-feature-test-token"
-        self.authenticator = BearerAuthenticator("hg-feature-test-token", {"provider.invoke", "session.create"})
+        self.authenticator = BearerAuthenticator("hg-feature-test-token", {"provider.invoke", "session.create", "brain.request"}, principal_id="alice")
         self.principal = self.authenticator.authenticate(self.header)
 
     def plane(self, provider, **kwargs):
@@ -46,6 +47,27 @@ class ToolPlaneTests(unittest.TestCase):
         with self.assertRaises(ToolPlaneError) as ctx:
             ToolPlane(self.store, FakeProvider([]), authenticator=self.authenticator)
         self.assertEqual(ctx.exception.code, "RUNTIME_INTERFACE_REQUIRED")
+
+    def test_direct_toolplane_entry_cannot_bypass_brain_authority(self):
+        auth = BearerAuthenticator("provider-only", {"provider.invoke"}, principal_id="alice")
+        provider = FakeProvider([{"content": "must not run"}])
+        plane = ToolPlane(self.runtime, provider, authenticator=auth)
+        with self.assertRaises(ToolPlaneError) as ctx:
+            plane.ask("goal", authorization="Bearer provider-only")
+        self.assertEqual(ctx.exception.code, "ACTION_NOT_AUTHORIZED")
+        self.assertEqual(provider.calls, [])
+
+    def test_direct_private_tool_dispatch_cannot_bypass_brain_gate(self):
+        auth = BearerAuthenticator(
+            "capability-only", {"provider.invoke", "session.create"}, principal_id="alice"
+        )
+        principal = auth.authenticate("Bearer capability-only")
+        with self.assertRaises(ToolPlaneError) as ctx:
+            self.plane(FakeProvider([]))._run_tool("session.create", {}, principal=principal)
+        self.assertEqual(ctx.exception.code, "ACTION_NOT_AUTHORIZED")
+        self.assertEqual(
+            [event["event_type"] for event in self.store.replay()].count("session.created"), 0
+        )
 
     def test_provider_requires_authenticated_caller(self):
         provider = FakeProvider([{"content": "should not run"}])
@@ -93,7 +115,7 @@ class ToolPlaneTests(unittest.TestCase):
         self.assertEqual(ctx.exception.code, "AUTHENTICATION_REQUIRED")
 
     def test_history_summary_sanitizes_unknown_event_type(self):
-        self.store.emit("PRIVATE_EVENT_NAME_MUST_NOT_LEAK", {"secret_value": "private payload"})
+        authorized_audit_emit(self.store, "PRIVATE_EVENT_NAME_MUST_NOT_LEAK", {"secret_value": "private payload"})
         result = self.plane(FakeProvider([]))._run_tool("history.summary", {}, principal=self.principal)
         encoded = json.dumps(result)
         self.assertIn("OTHER", encoded)
@@ -101,7 +123,7 @@ class ToolPlaneTests(unittest.TestCase):
         self.assertNotIn("private payload", encoded)
 
     def test_recent_history_omits_event_payload(self):
-        self.store.emit("private.example", {"secret_value": "DO-NOT-RETURN"})
+        authorized_audit_emit(self.store, "private.example", {"secret_value": "DO-NOT-RETURN"})
         result = self.plane(FakeProvider([]))._run_tool("history.recent", {"limit": 5}, principal=self.principal)
         self.assertTrue(any(event["event_type"] == "OTHER" for event in result))
         self.assertNotIn("private.example", json.dumps(result))
@@ -152,7 +174,7 @@ class ToolPlaneTests(unittest.TestCase):
             plane._run_tool("session.create", {}, principal=principal)
         self.assertEqual(ctx.exception.code, "ACTION_NOT_AUTHORIZED")
 
-        explicit = BearerAuthenticator("session-token", {"provider.invoke", "session.create"})
+        explicit = BearerAuthenticator("session-token", {"provider.invoke", "session.create", "brain.request"}, principal_id="alice")
         session_principal = explicit.authenticate("Bearer session-token")
         session = self.plane(FakeProvider([]))._run_tool("session.create", {}, principal=session_principal)
         self.assertTrue(session["session_id"])

@@ -3,10 +3,14 @@ import tempfile
 import unittest
 
 from hg.sqlite_state import SQLiteStateError, SQLiteStateStore
+from hg.auth import BearerAuthenticator
 from hg.workflow import WorkflowError, WorkflowService, create_task, transition_task, validate_task
 
 
 class WorkflowTests(unittest.TestCase):
+    def principal(self):
+        return BearerAuthenticator("workflow-test", {"workflow.task.create", "workflow.task.transition"}, principal_id="alice").authenticate("Bearer workflow-test")
+
     def task(self, **overrides):
         args = {
             "task_type": "text.generate",
@@ -80,10 +84,38 @@ class WorkflowTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkflowError, "TASK_STATE_INVALID"):
             transition_task(self.task(), target_state=["RUNNING"], actor_id="phone", now=101)
 
+    def test_workflow_mutations_fail_closed_without_sealed_principal(self):
+        with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
+            before = store.audit_export()["last_seq"]
+            service = WorkflowService(store, actor_id="alice", clock=lambda: 100.0)
+            with self.assertRaisesRegex(WorkflowError, "AUTHENTICATION_REQUIRED"):
+                service.create(task_type="text.generate", input_digest="a" * 64, idempotency_key="denied-create")
+            self.assertEqual(store.audit_export()["last_seq"], before)
+            principal = BearerAuthenticator("wrong-scope", {"workflow.task.create"}, principal_id="alice").authenticate("Bearer wrong-scope")
+            service = WorkflowService(store, actor_id="alice", clock=lambda: 100.0, principal=principal)
+            task = service.create(task_type="text.generate", input_digest="a" * 64, idempotency_key="allowed-create")
+            before_transition = store.audit_export()["last_seq"]
+            with self.assertRaisesRegex(WorkflowError, "ACTION_NOT_AUTHORIZED"):
+                service.transition(task["task_id"], target_state="RUNNING", expected_version=1)
+            self.assertEqual(store.audit_export()["last_seq"], before_transition)
+            self.assertEqual(store.get_task(task["task_id"])["state"], "PENDING")
+
+    def test_workflow_cannot_mint_an_actor_different_from_authenticated_subject(self):
+        with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
+            before = store.audit_export()["last_seq"]
+            principal = BearerAuthenticator(
+                "alice-only", {"workflow.task.create"}, principal_id="alice"
+            ).authenticate("Bearer alice-only")
+            service = WorkflowService(store, actor_id="bob", clock=lambda: 100.0, principal=principal)
+            with self.assertRaisesRegex(WorkflowError, "WORKFLOW_ACTOR_PRINCIPAL_MISMATCH"):
+                service.create(task_type="text.generate", input_digest="a" * 64, idempotency_key="spoof")
+            self.assertEqual(store.audit_export()["last_seq"], before)
+            self.assertTrue(store.verify()["ok"])
+
     def test_persisted_workflow_lifecycle(self):
         times = iter((100.0, 101.0, 102.0))
         with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
-            service = WorkflowService(store, actor_id="alice", clock=lambda: next(times))
+            service = WorkflowService(store, actor_id="alice", clock=lambda: next(times), principal=self.principal())
             created = service.create(task_type="text.generate", input_digest="a" * 64, idempotency_key="create-1")
             self.assertEqual(store.get_task(created["task_id"]), created)
             running = service.transition(created["task_id"], target_state="RUNNING", expected_version=1)
@@ -96,7 +128,7 @@ class WorkflowTests(unittest.TestCase):
     def test_stale_workflow_version_is_rejected(self):
         times = iter((100.0, 101.0))
         with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
-            service = WorkflowService(store, actor_id="alice", clock=lambda: next(times))
+            service = WorkflowService(store, actor_id="alice", clock=lambda: next(times), principal=self.principal())
             task = service.create(task_type="text.generate", input_digest="a" * 64, idempotency_key="create-2")
             service.transition(task["task_id"], target_state="RUNNING", expected_version=1)
             before = store.audit_export()["events"]
@@ -108,7 +140,7 @@ class WorkflowTests(unittest.TestCase):
     def test_persisted_transition_retry_is_idempotent(self):
         times = iter((100.0, 101.0))
         with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
-            service = WorkflowService(store, actor_id="alice", clock=lambda: next(times))
+            service = WorkflowService(store, actor_id="alice", clock=lambda: next(times), principal=self.principal())
             task = service.create(task_type="text.generate", input_digest="a" * 64, idempotency_key="create-3")
             first = service.transition(task["task_id"], target_state="RUNNING", expected_version=1, idempotency_key="run-1")
             second = service.transition(task["task_id"], target_state="RUNNING", expected_version=1, idempotency_key="run-1")
@@ -118,7 +150,7 @@ class WorkflowTests(unittest.TestCase):
 
     def test_direct_invalid_transition_rolls_back(self):
         with tempfile.TemporaryDirectory() as directory, SQLiteStateStore(directory) as store:
-            service = WorkflowService(store, actor_id="alice", clock=lambda: 100.0)
+            service = WorkflowService(store, actor_id="alice", clock=lambda: 100.0, principal=self.principal())
             task = service.create(task_type="text.generate", input_digest="a" * 64, idempotency_key="create-4")
             before = store.audit_export()["events"]
             bad_task = dict(task)

@@ -10,9 +10,9 @@ import os
 from typing import Any
 
 from .contracts import ContractError, ZERO_DIGEST, canonical_digest, canonical_json, create_event, parse_json_no_duplicate_keys
-from .history import PRODUCT_ID, SCHEMA
+from .history import PRODUCT_ID, SCHEMA, HISTORY_EVENT_SCHEMA_V2, _validate_history_record_schema
 from .sqlite_state import SQLiteStateError, SQLiteStateStore, _apply_approval_event, _apply_task_event
-from .policy import PolicyError
+from .policy import PolicyError, authorize_service_mutation, issue_mutation_permit
 
 
 class MigrationError(RuntimeError):
@@ -64,13 +64,10 @@ def inspect_legacy_state(source_dir: str) -> dict[str, Any]:
                     raise MigrationError("SOURCE_LOG_INVALID_LINE_%d" % line_number) from exc
                 if not isinstance(record, dict):
                     raise MigrationError("SOURCE_RECORD_NOT_OBJECT_LINE_%d" % line_number)
-                required = {
-                    "seq", "event_id", "event_type", "recorded_at", "correlation_id",
-                    "causation_id", "product_id", "runtime_id", "schema", "payload",
-                    "prev_hash", "record_hash",
-                }
-                if set(record) != required:
-                    raise MigrationError("SOURCE_RECORD_SCHEMA_MISMATCH_LINE_%d" % line_number)
+                try:
+                    event_schema = _validate_history_record_schema(record)
+                except ValueError as exc:
+                    raise MigrationError("SOURCE_RECORD_SCHEMA_MISMATCH_LINE_%d" % line_number) from exc
                 if isinstance(record["seq"], bool) or not isinstance(record["seq"], int) or record["seq"] != len(events) + 1:
                     raise MigrationError("SOURCE_SEQUENCE_INVALID_LINE_%d" % line_number)
                 if not isinstance(record["event_id"], str) or not record["event_id"]:
@@ -154,7 +151,15 @@ def _prepare_import_events(records, runtime_id: str) -> list[dict[str, Any]]:
             "source_runtime_id": record["runtime_id"],
             "source_sequence": record["seq"],
             "source_event_id": record["event_id"],
+            "source_event_schema": record.get("event_schema", "HG_HISTORY_EVENT_V1"),
         }
+        if record.get("event_schema") == HISTORY_EVENT_SCHEMA_V2:
+            authority.update({
+                "source_actor_id": record["actor_id"],
+                "source_authority_context": record["authority_context"],
+                "source_authorization_action": record["authorization_action"],
+                "source_idempotency_key": record["idempotency_key"],
+            })
         try:
             event = create_event(
                 event_type=record["event_type"],
@@ -180,7 +185,7 @@ def _prepare_import_events(records, runtime_id: str) -> list[dict[str, Any]]:
     return imported
 
 
-def migrate_legacy_state(source_dir: str, target_dir: str, *, clock=None) -> dict[str, Any]:
+def migrate_legacy_state(source_dir: str, target_dir: str, *, principal=None, clock=None) -> dict[str, Any]:
     """Verify source, preflight all transformed events, then import atomically into an empty target."""
     source = os.path.abspath(str(source_dir))
     target = os.path.abspath(str(target_dir))
@@ -192,6 +197,9 @@ def migrate_legacy_state(source_dir: str, target_dir: str, *, clock=None) -> dic
             raise MigrationError("TARGET_MUST_BE_EMPTY_DIRECTORY")
     report = inspect_legacy_state(source)
     _prepare_import_events(report["events"], "migration-preflight")
+    decision = authorize_service_mutation("state.migration.import", principal)
+    if not decision.allowed:
+        raise MigrationError("MIGRATION_AUTHORIZATION_" + decision.reason)
 
     from time import time as current_time
     store_clock = current_time if clock is None else clock
@@ -207,7 +215,18 @@ def migrate_legacy_state(source_dir: str, target_dir: str, *, clock=None) -> dic
                 "source_state_sha256": report["source_state_sha256"],
                 "source_runtime_id_sha256": report["source_runtime_id_sha256"],
             }
-            store.import_verified_events(imported, metadata)
+            authority_context = {"principal": principal.principal_id, "scope": "state.migration.import"}
+            import_payload = {"events": imported, "source_metadata": metadata}
+            correlation = "migration:" + metadata["source_head_hash"]
+            permit = issue_mutation_permit(
+                "state.migration.import", principal, event_type="state.migration.import",
+                actor_id=principal.principal_id, payload=import_payload, correlation_id=correlation,
+                authority_context=authority_context,
+            )
+            store.import_verified_events(
+                imported, metadata, actor_id=principal.principal_id,
+                authority_context=authority_context, correlation_id=correlation, mutation_permit=permit,
+            )
             verification = store.verify()
             if not verification["ok"]:
                 raise MigrationError("TARGET_VERIFY_FAILED")

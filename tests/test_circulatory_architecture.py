@@ -22,6 +22,16 @@ class CirculatoryArchitectureTests(unittest.TestCase):
         self.assertIn("implementation not yet certified", contract)
         self.assertIn("No gate is passed by documentation alone", contract)
 
+    def test_manifest_declares_one_brain_command_root_and_subordinate_layers(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        brain = manifest["architecture"]["unified_brain_group"]
+        self.assertEqual(brain["command_root"], "hg.agent.HGAgent")
+        self.assertEqual(brain["subordinate_turn_router"], "hg.toolplane.ToolPlane")
+        self.assertEqual(brain["authorization_owner"], "hg.policy")
+        self.assertEqual(brain["durable_state_owner"], "hg.phone_runtime.PhoneRuntime")
+        self.assertEqual(brain["provider_boundary"], "hg.provider")
+        self.assertEqual(brain["production_status"], "NOT_RELEASED")
+
     def test_manifest_registers_policy_contract_workflow_sync_state_migration_and_recovery(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         for module in ("hg.policy", "hg.contracts", "hg.sqlite_state", "hg.migration", "hg.recovery", "hg.workflow", "hg.sync"):
@@ -85,8 +95,106 @@ class CirculatoryArchitectureTests(unittest.TestCase):
     def test_toolplane_routes_session_creation_through_runtime(self):
         source = (SOURCE / "toolplane.py").read_text(encoding="utf-8")
         self.assertNotIn('self.store.emit("session.created"', source)
-        self.assertIn('self.runtime.start_session(principal=principal)', source)
+        self.assertIn('self.runtime.start_session(principal=principal, correlation_id=correlation_id)', source)
         self.assertIn('authorize_principal("provider.invoke", principal)', source)
+
+    def test_workflow_and_approval_mutations_call_the_single_policy_guard(self):
+        policy = (SOURCE / "policy.py").read_text(encoding="utf-8")
+        workflow = (SOURCE / "workflow.py").read_text(encoding="utf-8")
+        agent = (SOURCE / "agent.py").read_text(encoding="utf-8")
+        self.assertIn("def authorize_service_mutation", policy)
+        self.assertIn('authorize_service_mutation("workflow.task.create", self.principal)', workflow)
+        self.assertIn('authorize_service_mutation("workflow.task.transition", self.principal)', workflow)
+        self.assertIn('authorize_service_mutation("policy.approval.request", self.principal)', policy)
+        self.assertIn('authorize_service_mutation("policy.approval.vote", self.principal)', policy)
+        self.assertIn('authorize_service_mutation("brain.request", principal)', agent)
+
+    def test_all_literal_domain_event_emits_carry_single_use_mutation_permit(self):
+        guarded = {
+            "session.created", "workflow.task.created", "workflow.task.transitioned",
+            "policy.approval.created", "policy.approval.decided",
+        }
+        found = []
+        for path in SOURCE.glob("*.py"):
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute) or node.func.attr != "emit":
+                    continue
+                if not node.args or not isinstance(node.args[0], ast.Constant) or node.args[0].value not in guarded:
+                    continue
+                event_type = node.args[0].value
+                self.assertIn("mutation_permit", {kw.arg for kw in node.keywords}, f"{path}:{node.lineno} {event_type}")
+                found.append(event_type)
+        self.assertEqual(set(found), guarded)
+
+    def test_all_store_event_emits_require_a_policy_permit_except_bootstrap_genesis(self):
+        for path in SOURCE.glob("*.py"):
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute) or node.func.attr != "emit":
+                    continue
+                is_bootstrap = (
+                    path.name == "history.py" and isinstance(node.func.value, ast.Name)
+                    and node.func.value.id == "self" and node.args
+                    and isinstance(node.args[0], ast.Name) and node.args[0].id == "GENESIS_EVENT"
+                )
+                if is_bootstrap:
+                    continue
+                self.assertIn("mutation_permit", {kw.arg for kw in node.keywords}, f"{path}:{node.lineno}")
+
+    def test_state_store_mutation_ports_enforce_the_single_policy_guard(self):
+        policy = (SOURCE / "policy.py").read_text(encoding="utf-8")
+        history = (SOURCE / "history.py").read_text(encoding="utf-8")
+        sqlite = (SOURCE / "sqlite_state.py").read_text(encoding="utf-8")
+        sync = (SOURCE / "sync.py").read_text(encoding="utf-8")
+        migration = (SOURCE / "migration.py").read_text(encoding="utf-8")
+        recovery = (SOURCE / "recovery.py").read_text(encoding="utf-8")
+        self.assertIn("def issue_mutation_permit", policy)
+        self.assertIn("def consume_mutation_permit", policy)
+        self.assertIn("consume_mutation_permit(", history)
+        self.assertIn("consume_mutation_permit(", sqlite)
+        for method in ("record_outbox_attempt", "acknowledge_outbox", "import_verified_events"):
+            start = sqlite.index("def " + method)
+            self.assertIn("consume_mutation_permit(", sqlite[start:start + 4500], method)
+        self.assertIn('authorize_service_mutation("state.migration.import", principal)', migration)
+        self.assertIn('authorize_service_mutation(action, principal)', recovery)
+        self.assertIn('for action in ("sync.outbox.attempt", "sync.outbox.acknowledge")', sync)
+
+    def test_only_hgagent_composes_the_runtime_toolplane(self):
+        toolplane_importers = set()
+        toolplane_constructors = set()
+        for path in SOURCE.glob("*.py"):
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ImportFrom) and node.level == 1 and node.module == "toolplane":
+                    if any(alias.name == "ToolPlane" for alias in node.names):
+                        toolplane_importers.add(path.name)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "ToolPlane":
+                    toolplane_constructors.add(path.name)
+        self.assertEqual(toolplane_importers, {"agent.py"})
+        self.assertEqual(toolplane_constructors, {"agent.py"})
+
+    def test_toolplane_is_a_brain_subordinate_not_an_alternate_goal_entry(self):
+        agent = (SOURCE / "agent.py").read_text(encoding="utf-8")
+        toolplane = (SOURCE / "toolplane.py").read_text(encoding="utf-8")
+        self.assertEqual(agent.count("ToolPlane("), 1)
+        self.assertIn('authorize_service_mutation("brain.request", principal)', agent)
+        self.assertIn('authorize_service_mutation("brain.request", principal)', toolplane)
+
+    def test_brain_request_and_result_contracts_are_versioned(self):
+        contracts = (SOURCE / "contracts.py").read_text(encoding="utf-8")
+        agent = (SOURCE / "agent.py").read_text(encoding="utf-8")
+        self.assertIn("BRAIN_REQUEST_V1", contracts)
+        self.assertIn("BRAIN_REQUEST_AUDIT_V1", contracts)
+        self.assertIn("validate_brain_request_audit", agent)
+        self.assertIn("CAPABILITY_RESULT_V1", contracts)
+        self.assertIn("validate_brain_request", agent)
+        self.assertIn("validate_capability_result", agent)
+        self.assertIn('expected_request_id=request_id', agent)
+        self.assertIn('expected_correlation_id=correlation_id', agent)
+        self.assertIn('"brain.request.accepted"', agent)
+        self.assertIn('"brain.request.completed"', agent)
+        self.assertIn("CAPABILITY_SUCCESS_SOURCE_REVISION_UNATTESTED", contracts)
 
     def test_edge_relay_does_not_import_canonical_state_store(self):
         tree = ast.parse((SOURCE / "edge.py").read_text(encoding="utf-8"), filename="edge.py")

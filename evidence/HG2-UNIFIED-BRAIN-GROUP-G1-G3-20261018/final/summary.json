@@ -1,0 +1,26 @@
+{
+  "schema": "HG2_UNIFIED_BRAIN_GROUP_G1_G3_EVIDENCE_V1",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-circulatory-architecture-20261018",
+  "starting_head": "f662b42426b22d2f526c49318adb5cf4089360d5",
+  "starting_tree": "1ff6c4c1e204230ebe2c8588343d8c0d658f2b44",
+  "environment": {
+    "device": "Android / Termux / aarch64",
+    "kernel": "Linux 6.6.118-android15-8-gebdfad32d749-ab15099304-4k",
+    "python": "3.14.6"
+  },
+  "test_command": "PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest discover -s tests",
+  "test_result": "PASS",
+  "test_count": 202,
+  "test_duration_seconds_observed": 7.612,
+  "test_exit_code": 0,
+  "diff_check": "PASS",
+  "contract_ast_scope_check": "PASS",
+  "gates": {
+    "G1": "PARTIAL_NOT_VERIFIED",
+    "G2": "PARTIAL_NOT_VERIFIED",
+    "G3": "PARTIAL_NOT_VERIFIED"
+  },
+  "overall": "TECHNICAL_PROGRESS_VERIFIED_ACCEPTANCE_BLOCKED_NOT_RELEASED",
+  "no_push_merge_deploy_restart_or_live_state_migration": true
+}

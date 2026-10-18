@@ -1,12 +1,13 @@
 """HG-native tool plane: fixed allowlist, bounded orchestration, hash-only audit."""
 from __future__ import annotations
 import hashlib
+import uuid
 from copy import deepcopy
 from collections import Counter
 from typing import Any
 from .auth import AuthenticatedPrincipal, BearerAuthenticator
 from .contracts import ContractError, canonical_digest, canonical_json, parse_json_no_duplicate_keys
-from .policy import authorize_principal
+from .policy import authorize_principal, authorize_service_mutation, issue_mutation_permit
 from .identity import identity
 from .provider import OpenAICompatibleProvider, ProviderError
 
@@ -83,13 +84,32 @@ class ToolPlane:
     def tool_schemas(self) -> list[dict]:
         return deepcopy(_TOOL_SCHEMAS)
 
-    def _audit(self, event_type: str, payload: dict) -> None:
+    def _audit(
+        self, event_type: str, payload: dict, *,
+        principal: AuthenticatedPrincipal, correlation_id: str,
+    ) -> None:
         try:
-            self.store.emit(event_type, payload)
+            actor_id = principal.principal_id
+            authority_context = {"principal": actor_id, "scope": "brain.request"}
+            permit = issue_mutation_permit(
+                "brain.request", principal, event_type=event_type, actor_id=actor_id,
+                payload=payload, correlation_id=correlation_id,
+                authority_context=authority_context,
+            )
+            self.store.emit(
+                event_type, payload, correlation_id=correlation_id, actor_id=actor_id,
+                authority_context=authority_context, mutation_permit=permit,
+            )
         except Exception:
             raise ToolPlaneError("AUDIT_UNAVAILABLE") from None
 
-    def _run_tool(self, name: str, args: dict, *, principal: AuthenticatedPrincipal | None) -> dict | list:
+    def _run_tool(
+        self, name: str, args: dict, *, principal: AuthenticatedPrincipal | None,
+        correlation_id: str | None = None,
+    ) -> dict | list:
+        brain_decision = authorize_service_mutation("brain.request", principal)
+        if not brain_decision.allowed:
+            raise ToolPlaneError(brain_decision.reason)
         caller_decision = authorize_principal("provider.invoke", principal)
         if not caller_decision.allowed:
             raise ToolPlaneError(caller_decision.reason)
@@ -110,7 +130,7 @@ class ToolPlane:
             if not decision.allowed:
                 raise ToolPlaneError(decision.reason)
             try:
-                return self.runtime.start_session(principal=principal)
+                return self.runtime.start_session(principal=principal, correlation_id=correlation_id)
             except PermissionError as error:
                 code = str(error) if str(error) in {
                     "AUTHENTICATION_REQUIRED", "ACTION_NOT_AUTHORIZED", "EXPLICITLY_FORBIDDEN",
@@ -136,17 +156,36 @@ class ToolPlane:
                  "recorded_at": event.get("recorded_at"), "record_hash": event.get("record_hash")}
                 for event in events[-limit:]]
 
-    def ask(self, prompt: str, *, authorization: str | None = None) -> str:
+    def ask(
+        self, prompt: str, *, authorization: str | None = None,
+        request_id: str | None = None, correlation_id: str | None = None,
+    ) -> str:
         principal = self.authenticator.authenticate(authorization)
+        brain_decision = authorize_service_mutation("brain.request", principal)
+        if not brain_decision.allowed:
+            raise ToolPlaneError(brain_decision.reason)
         decision = authorize_principal("provider.invoke", principal)
         if not decision.allowed:
             raise ToolPlaneError(decision.reason)
         if not isinstance(prompt, str) or not prompt.strip() or len(prompt) > MAX_PROMPT_CHARS:
             raise ToolPlaneError("INVALID_PROMPT")
+        if request_id is None:
+            request_id = uuid.uuid4().hex
+        if not isinstance(request_id, str) or not request_id.strip() or len(request_id) > 256:
+            raise ToolPlaneError("INVALID_REQUEST_ID")
+        if correlation_id is None:
+            correlation_id = uuid.uuid4().hex
+        if not isinstance(correlation_id, str) or not correlation_id.strip() or len(correlation_id) > 256:
+            raise ToolPlaneError("INVALID_CORRELATION_ID")
+        def audit(event_type, payload):
+            value = dict(payload)
+            value["request_id"] = request_id
+            value["correlation_id"] = correlation_id
+            return self._audit(event_type, value, principal=principal, correlation_id=correlation_id)
         messages = [{"role": "system", "content": SYSTEM_MESSAGE}, {"role": "user", "content": prompt}]
         previous_signature = None
         for iteration in range(self.max_iterations):
-            self._audit("provider.call.started", {
+            audit("provider.call.started", {
                 "iteration": iteration + 1,
                 "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
             })
@@ -155,27 +194,27 @@ class ToolPlane:
             except ProviderError as error:
                 raw_code = getattr(error, "code", None)
                 code = raw_code if isinstance(raw_code, str) and raw_code in SAFE_PROVIDER_ERRORS else "PROVIDER_ERROR"
-                self._audit("provider.call.completed", {
+                audit("provider.call.completed", {
                     "iteration": iteration + 1, "outcome": "error", "error_code": code})
                 raise ToolPlaneError(code) from None
             except Exception:
-                self._audit("provider.call.completed", {
+                audit("provider.call.completed", {
                     "iteration": iteration + 1, "outcome": "error", "error_code": "PROVIDER_ERROR"})
                 raise ToolPlaneError("PROVIDER_ERROR") from None
             if not isinstance(message, dict):
-                self._audit("provider.call.completed", {
+                audit("provider.call.completed", {
                     "iteration": iteration + 1, "outcome": "error",
                     "error_code": "INVALID_PROVIDER_RESPONSE"})
                 raise ToolPlaneError("INVALID_PROVIDER_RESPONSE")
             calls = message.get("tool_calls") or []
             content = message.get("content") or ""
             if not isinstance(content, str):
-                self._audit("provider.call.completed", {
+                audit("provider.call.completed", {
                     "iteration": iteration + 1, "outcome": "error",
                     "error_code": "INVALID_PROVIDER_CONTENT"})
                 raise ToolPlaneError("INVALID_PROVIDER_CONTENT")
             if not calls:
-                self._audit("provider.call.completed", {
+                audit("provider.call.completed", {
                     "iteration": iteration + 1, "outcome": "ok", "tool_call_count": 0,
                     "content_sha256": hashlib.sha256(content.encode("utf-8")).hexdigest()})
                 return content
@@ -204,7 +243,7 @@ class ToolPlane:
                 parsed_calls.append((call_id, function["name"], args))
             signature = canonical_digest([{"name": name, "args": args} for _, name, args in parsed_calls])
             if signature == previous_signature:
-                self._audit("tool.loop_blocked", {
+                audit("tool.loop_blocked", {
                     "iteration": iteration + 1, "signature_sha256": signature,
                     "outcome": "repeated_tool_call_sequence"})
                 return "HG stopped a repeated tool-call cycle."
@@ -213,24 +252,24 @@ class ToolPlane:
             for call_id, name, args in parsed_calls:
                 args_sha = canonical_digest(args)
                 audit_name = name if name in ALLOWED_TOOL_NAMES else "UNRECOGNIZED"
-                self._audit("tool.call.started", {
+                audit("tool.call.started", {
                     "iteration": iteration + 1, "tool": audit_name, "args_sha256": args_sha})
                 try:
-                    result = self._run_tool(name, args, principal=principal)
+                    result = self._run_tool(name, args, principal=principal, correlation_id=correlation_id)
                 except ToolPlaneError as error:
-                    self._audit("tool.call.completed", {
+                    audit("tool.call.completed", {
                         "iteration": iteration + 1, "tool": audit_name, "args_sha256": args_sha,
                         "outcome": "denied_or_error", "error_code": error.code})
                     result = {"ok": False, "error": error.code}
                 except Exception:
-                    self._audit("tool.call.completed", {
+                    audit("tool.call.completed", {
                         "iteration": iteration + 1, "tool": audit_name, "args_sha256": args_sha,
                         "outcome": "error", "error_code": "TOOL_ERROR"})
                     result = {"ok": False, "error": "TOOL_ERROR"}
                 outcome = "error" if isinstance(result, dict) and result.get("ok") is False else "ok"
-                self._audit("tool.call.completed", {
+                audit("tool.call.completed", {
                     "iteration": iteration + 1, "tool": audit_name, "args_sha256": args_sha,
                     "result_sha256": canonical_digest(result), "outcome": outcome})
                 messages.append({"role": "tool", "tool_call_id": call_id, "content": canonical_json(result)})
-        self._audit("tool.iteration_limit", {"max_iterations": self.max_iterations, "outcome": "limit_reached"})
+        audit("tool.iteration_limit", {"max_iterations": self.max_iterations, "outcome": "limit_reached"})
         return "HG stopped tool execution because the iteration limit was reached."

@@ -20,7 +20,7 @@ from hg.policy import (
 
 class PolicyTests(unittest.TestCase):
     def test_compatibility_authorizer_remains_deny_by_default(self):
-        self.assertTrue(authorize("session.create", authenticated=True).allowed)
+        self.assertFalse(authorize("session.create", authenticated=True).allowed)
         self.assertFalse(authorize("session.create").allowed)
         self.assertFalse(authorize("shell.exec", authenticated=True).allowed)
         self.assertFalse(ALLOWED & FORBIDDEN)
@@ -40,10 +40,19 @@ class PolicyTests(unittest.TestCase):
             "SEALED_PRINCIPAL_REQUIRED",
         )
 
+    def test_service_mutations_require_the_exact_sealed_scope(self):
+        from hg.policy import authorize_service_mutation
+        scoped = BearerAuthenticator("task-create", {"workflow.task.create"}, principal_id="alice").authenticate("Bearer task-create")
+        self.assertTrue(authorize_service_mutation("workflow.task.create", scoped).allowed)
+        self.assertEqual(authorize_service_mutation("workflow.task.transition", scoped).reason, "ACTION_NOT_AUTHORIZED")
+        self.assertEqual(authorize_service_mutation("workflow.task.create", True).reason, "AUTHENTICATION_REQUIRED")
+        self.assertEqual(authorize_service_mutation("shell.exec", scoped).reason, "NOT_ALLOWLISTED")
+        self.assertFalse(authorize("workflow.task.create", authenticated=True).allowed)
+
     def test_configurable_auth_scopes_are_single_sourced_through_policy(self):
         self.assertLessEqual(CONFIGURABLE_SCOPES, ALLOWED)
         self.assertLessEqual(CONFIGURABLE_SCOPES, NEEDS_AUTH)
-        auth = BearerAuthenticator("policy-test-token", CONFIGURABLE_SCOPES)
+        auth = BearerAuthenticator("policy-test-token", CONFIGURABLE_SCOPES, principal_id="policy-test")
         principal = auth.authenticate("Bearer policy-test-token")
         for action in CONFIGURABLE_SCOPES:
             self.assertTrue(authorize_principal(action, principal).allowed)

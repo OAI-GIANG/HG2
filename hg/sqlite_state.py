@@ -22,7 +22,7 @@ from .contracts import (
     validate_event,
 )
 from .workflow import WorkflowError, transition_task, validate_task
-from .policy import PolicyError, decide_approval, validate_approval_request
+from .policy import PolicyError, decide_approval, validate_approval_request, consume_mutation_permit, MUTATION_EVENT_ACTIONS
 
 _PRODUCT_ID = "HG"
 _OWNER_ID = "phone"
@@ -285,8 +285,12 @@ class SQLiteStateStore:
         ).fetchone()
         return None if row is None else parse_json_no_duplicate_keys(row["event_json"])
 
-    def import_verified_events(self, events: list[dict[str, Any]], source_metadata: dict[str, Any]) -> dict[str, Any]:
-        """Replace a fresh genesis with a prevalidated imported chain in one transaction."""
+    def import_verified_events(
+        self, events: list[dict[str, Any]], source_metadata: dict[str, Any], *,
+        actor_id: str | None = None, authority_context: dict[str, Any] | None = None,
+        correlation_id: str | None = None, mutation_permit=None,
+    ) -> dict[str, Any]:
+        """Replace a fresh genesis only with a verified, policy-authorized import permit."""
         if not isinstance(events, list) or not events:
             raise SQLiteStateError("MIGRATION_EVENTS_REQUIRED")
         required_source = {
@@ -322,6 +326,14 @@ class SQLiteStateStore:
             except (WorkflowError, PolicyError, ContractError, KeyError, TypeError) as exc:
                 raise SQLiteStateError("MIGRATION_PROJECTION_INVALID") from exc
             previous = event["record_digest"]
+
+        effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
+        import_payload = {"events": events, "source_metadata": source_metadata}
+        if not consume_mutation_permit(
+            mutation_permit, event_type="state.migration.import", actor_id=actor_id,
+            payload=import_payload, correlation_id=correlation_id, authority_context=effective_authority,
+        ):
+            raise SQLiteStateError("MUTATION_AUTHORIZATION_REQUIRED")
 
         with self._lock:
             self._conn.execute("BEGIN IMMEDIATE")
@@ -410,22 +422,44 @@ class SQLiteStateStore:
         idempotency_key: str | None = None,
         evidence_refs: list[str] | None = None,
         sync_required: bool = False,
+        mutation_permit=None,
     ) -> dict[str, Any]:
         if not isinstance(sync_required, bool):
             raise SQLiteStateError("INVALID_SYNC_REQUIRED")
         effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
+        if event_type == "hg.genesis":
+            raise SQLiteStateError("GENESIS_EVENT_RESERVED")
+        if not consume_mutation_permit(
+            mutation_permit, event_type=event_type, actor_id=actor_id, payload=payload,
+            correlation_id=correlation_id, causation_id=causation_id,
+            idempotency_key=idempotency_key, event_id=event_id,
+            authority_context=effective_authority, evidence_refs=evidence_refs,
+            sync_required=sync_required,
+        ):
+            raise SQLiteStateError("MUTATION_AUTHORIZATION_REQUIRED")
+        def matches_existing_operation(existing):
+            try:
+                normalized_refs = [] if evidence_refs is None else evidence_refs
+                return (
+                    existing["event_type"] == event_type
+                    and existing["actor_id"] == actor_id
+                    and existing["authority_context"] == effective_authority
+                    and canonical_json(existing["payload"]) == canonical_json(payload)
+                    and existing["correlation_id"] == correlation_id
+                    and existing["causation_id"] == causation_id
+                    and existing["idempotency_key"] == idempotency_key
+                    and existing["evidence_refs"] == normalized_refs
+                )
+            except (ContractError, KeyError, TypeError, ValueError):
+                return False
+
         with self._lock:
             self._conn.execute("BEGIN IMMEDIATE")
             try:
                 if event_id is not None:
                     existing = self._event_by_id(event_id)
                     if existing is not None:
-                        same_operation = (
-                            existing["event_type"] == event_type
-                            and existing["actor_id"] == actor_id
-                            and existing["authority_context"] == effective_authority
-                            and canonical_json(existing["payload"]) == canonical_json(payload)
-                        )
+                        same_operation = matches_existing_operation(existing)
                         if not same_operation:
                             raise IdempotencyConflict("EVENT_ID_REUSED")
                         has_outbox = self._conn.execute("SELECT 1 FROM outbox WHERE event_id=?", (event_id,)).fetchone() is not None
@@ -436,12 +470,7 @@ class SQLiteStateStore:
                 if idempotency_key is not None:
                     existing = self._event_by_idempotency(idempotency_key)
                     if existing is not None:
-                        same_operation = (
-                            existing["event_type"] == event_type
-                            and existing["actor_id"] == actor_id
-                            and existing["authority_context"] == effective_authority
-                            and canonical_json(existing["payload"]) == canonical_json(payload)
-                        )
+                        same_operation = matches_existing_operation(existing)
                         if not same_operation:
                             raise IdempotencyConflict("IDEMPOTENCY_KEY_REUSED")
                         has_outbox = self._conn.execute("SELECT 1 FROM outbox WHERE event_id=?", (existing["event_id"],)).fetchone() is not None
@@ -502,7 +531,20 @@ class SQLiteStateStore:
                 for row in rows
             ]
 
-    def record_outbox_attempt(self, event_id: str) -> int:
+    def record_outbox_attempt(
+        self, event_id: str, *, actor_id: str | None = None,
+        authority_context: dict[str, Any] | None = None, correlation_id: str | None = None,
+        mutation_permit=None,
+    ) -> int:
+        if not isinstance(event_id, str) or not event_id.strip():
+            raise SQLiteStateError("OUTBOX_EVENT_ID_INVALID")
+        effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
+        if not consume_mutation_permit(
+            mutation_permit, event_type="sync.outbox.attempt", actor_id=actor_id,
+            payload={"event_id": event_id}, correlation_id=correlation_id,
+            authority_context=effective_authority,
+        ):
+            raise SQLiteStateError("MUTATION_AUTHORIZATION_REQUIRED")
         with self._lock:
             self._conn.execute("BEGIN IMMEDIATE")
             try:
@@ -520,9 +562,22 @@ class SQLiteStateStore:
                     self._conn.execute("ROLLBACK")
                 raise
 
-    def acknowledge_outbox(self, event_id: str, remote_cursor: int) -> bool:
+    def acknowledge_outbox(
+        self, event_id: str, remote_cursor: int, *, actor_id: str | None = None,
+        authority_context: dict[str, Any] | None = None, correlation_id: str | None = None,
+        mutation_permit=None,
+    ) -> bool:
         if isinstance(remote_cursor, bool) or not isinstance(remote_cursor, int) or remote_cursor < 1:
             raise SQLiteStateError("INVALID_REMOTE_CURSOR")
+        if not isinstance(event_id, str) or not event_id.strip():
+            raise SQLiteStateError("OUTBOX_EVENT_ID_INVALID")
+        effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
+        if not consume_mutation_permit(
+            mutation_permit, event_type="sync.outbox.acknowledge", actor_id=actor_id,
+            payload={"event_id": event_id, "remote_cursor": remote_cursor},
+            correlation_id=correlation_id, authority_context=effective_authority,
+        ):
+            raise SQLiteStateError("MUTATION_AUTHORIZATION_REQUIRED")
         with self._lock:
             self._conn.execute("BEGIN IMMEDIATE")
             try:

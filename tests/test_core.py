@@ -8,6 +8,7 @@ from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest
 from hg.identity import PRODUCT_ID, identity
 from hg.phone_runtime import PhoneRuntime
 from hg.sqlite_state import SQLiteStateStore
+from tests._support import authorized_domain_emit, authorized_audit_emit
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOKEN = "edge-token-x"
@@ -45,8 +46,8 @@ class AuthorityTests(unittest.TestCase):
     def test_disjoint_and_deny(self):
         self.assertFalse(ALLOWED & FORBIDDEN)
         self.assertFalse(authorize("shell.exec", authenticated=True).allowed)
-        self.assertEqual(authorize("session.create").reason, "AUTHENTICATION_REQUIRED")
-        self.assertTrue(authorize("session.create", authenticated=True).allowed)
+        self.assertEqual(authorize("session.create").reason, "SEALED_PRINCIPAL_REQUIRED")
+        self.assertFalse(authorize("session.create", authenticated=True).allowed)
 
 
 class HistoryTests(unittest.TestCase):
@@ -57,7 +58,7 @@ class HistoryTests(unittest.TestCase):
             self.assertEqual(len(ev), 1)
             self.assertEqual(ev[0]["event_type"], GENESIS_EVENT)
             self.assertEqual(ev[0]["prev_hash"], ZERO)
-            r = s.emit("session.created", {"session_id": "s1"})
+            r = authorized_domain_emit(s, "session.created", {"session_id": "s1"}, subject_id="fixture", action="session.create")
             self.assertEqual(r["seq"], 2)
             prev = ZERO
             for raw in lines(d):
@@ -71,7 +72,7 @@ class HistoryTests(unittest.TestCase):
     def test_replayed_events_and_audit_exports_are_detached_snapshots(self):
         with tempfile.TemporaryDirectory() as d:
             store = StateStore(d)
-            returned = store.emit("test.snapshot", {"nested": {"value": 1}})
+            returned = authorized_audit_emit(store, "test.snapshot", {"nested": {"value": 1}})
             returned["payload"]["nested"]["value"] = 99
             replayed = store.replay()
             replayed[-1]["payload"]["nested"]["value"] = 88
@@ -87,9 +88,9 @@ class HistoryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             first = StateStore(d)
             second = StateStore(d)
-            first.emit("test.first", {"writer": "first"})
-            second.emit("test.second", {"writer": "second"})
-            first.emit("test.third", {"writer": "first"})
+            authorized_audit_emit(first, "test.first", {"writer": "first"})
+            authorized_audit_emit(second, "test.second", {"writer": "second"})
+            authorized_audit_emit(first, "test.third", {"writer": "first"})
             reopened = StateStore(d)
             records = reopened.replay()
             self.assertEqual([event["seq"] for event in records], [1, 2, 3, 4])
@@ -102,17 +103,42 @@ class HistoryTests(unittest.TestCase):
     def test_idempotent(self):
         with tempfile.TemporaryDirectory() as d:
             s = StateStore(d)
-            a = s.emit("session.created", {"session_id": "s2"}, event_id="fixed")
-            b = s.emit("session.created", {"session_id": "s2"}, event_id="fixed")
+            a = authorized_domain_emit(s, "session.created", {"session_id": "s2"}, subject_id="fixture", action="session.create", event_id="fixed")
+            b = authorized_domain_emit(s, "session.created", {"session_id": "s2"}, subject_id="fixture", action="session.create", event_id="fixed")
             self.assertEqual(a["record_hash"], b["record_hash"])
             self.assertEqual(len(s.replay()), 2)
+
+    def test_event_id_and_idempotency_cannot_be_reused_for_different_operations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store = StateStore(directory)
+            first = authorized_audit_emit(
+                store, "audit.first", {"value": 1}, subject_id="alice", event_id="fixed-event"
+            )
+            before = store.audit_export()["events"]
+            with self.assertRaisesRegex(HistoryError, "EVENT_ID_REUSED"):
+                authorized_audit_emit(
+                    store, "audit.second", {"value": 2}, subject_id="alice", event_id="fixed-event"
+                )
+            original = authorized_audit_emit(
+                store, "audit.idempotent", {"value": 1}, subject_id="alice", idempotency_key="same-key"
+            )
+            retry = authorized_audit_emit(
+                store, "audit.idempotent", {"value": 1}, subject_id="alice", idempotency_key="same-key"
+            )
+            self.assertEqual(original["record_hash"], retry["record_hash"])
+            with self.assertRaisesRegex(HistoryError, "IDEMPOTENCY_KEY_REUSED"):
+                authorized_audit_emit(
+                    store, "audit.idempotent", {"value": 2}, subject_id="alice", idempotency_key="same-key"
+                )
+            self.assertEqual(store.audit_export()["events"], before + 1)
+            self.assertTrue(store.verify()["ok"])
 
     def _case(self, mutate):
         d = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, d, ignore_errors=True)
         s = StateStore(d)
-        s.emit("session.created", {"session_id": "a"})
-        s.emit("session.created", {"session_id": "b"})
+        authorized_domain_emit(s, "session.created", {"session_id": "a"}, subject_id="fixture", action="session.create")
+        authorized_domain_emit(s, "session.created", {"session_id": "b"}, subject_id="fixture", action="session.create")
         shutil.copyfile(os.path.join(d, "history.jsonl"), os.path.join(d, "o.jsonl"))
         shutil.copyfile(os.path.join(d, "head.json"), os.path.join(d, "o-head.json"))
         put(d, mutate(lines(d)))
@@ -166,9 +192,9 @@ class HistoryTests(unittest.TestCase):
             store = StateStore(d)
             with patch.object(store, "_write_state", side_effect=OSError("injected persistence failure")):
                 with self.assertRaisesRegex(OSError, "injected persistence failure"):
-                    store.emit("session.created", {"session_id": "failure-case"})
+                    authorized_domain_emit(store, "session.created", {"session_id": "failure-case"}, subject_id="fixture", action="session.create")
             with self.assertRaisesRegex(HistoryError, "poisoned"):
-                store.emit("session.created", {"session_id": "must-not-append"})
+                authorized_domain_emit(store, "session.created", {"session_id": "must-not-append"}, subject_id="fixture", action="session.create")
             with self.assertRaisesRegex(HistoryError, "log does not match head checkpoint"):
                 StateStore(d)
 
@@ -220,7 +246,9 @@ class HistoryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
             w = ("import sys;sys.path.insert(0,%r);from hg.history import StateStore;"
-                 "s=StateStore(%r);s.emit('session.created',{'session_id':'p'});print(s.audit_export()['events'])" % (ROOT, d))
+                 "from tests._support import authorized_domain_emit, authorized_audit_emit;"
+                 "s=StateStore(%r);authorized_domain_emit(s,'session.created',{'session_id':'p'},subject_id='p',action='session.create',correlation_id='corr-p');"
+                 "print(s.audit_export()['events'])" % (ROOT, d))
             r1 = subprocess.run([sys.executable, "-c", w], capture_output=True, text=True, cwd=ROOT, env=env)
             self.assertEqual(r1.returncode, 0, r1.stderr)
             self.assertEqual(r1.stdout.strip(), "2")
@@ -308,7 +336,7 @@ class PhoneTests(unittest.TestCase):
 
     def test_local_and_offline(self):
         with tempfile.TemporaryDirectory() as d:
-            auth = BearerAuthenticator("session-test-token", {"session.create"})
+            auth = BearerAuthenticator("session-test-token", {"session.create"}, principal_id="session-test-user")
             rt = PhoneRuntime(
                 state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4,
                 session_authenticator=lambda credential: auth.authenticate("Bearer " + credential)
@@ -324,7 +352,7 @@ class PhoneTests(unittest.TestCase):
 
     def test_sqlite_backend_is_explicit_opt_in_and_offline_capable(self):
         with tempfile.TemporaryDirectory() as d, patch.dict(os.environ, {"HG_STATE_BACKEND": "sqlite"}, clear=False):
-            auth = BearerAuthenticator("session-test-token", {"session.create"})
+            auth = BearerAuthenticator("session-test-token", {"session.create"}, principal_id="session-test-user")
             rt = PhoneRuntime(
                 state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.1,
                 session_authenticator=lambda credential: auth.authenticate("Bearer " + credential)
