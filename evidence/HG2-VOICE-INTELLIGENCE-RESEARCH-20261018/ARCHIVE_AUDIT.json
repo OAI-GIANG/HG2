@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "artifact": "VieNeu-TTS-main.zip",
+  "sha256": "2821d0760a102e0a11810df2e2b6a6727f10da7dab30e2585c57483dd467c5ea",
+  "archive_entries": 168,
+  "wav_files": 11,
+  "txt_files": 11,
+  "srt_files": 1,
+  "repository_license_file": "VieNeu-TTS-main/LICENSE",
+  "repository_code_license_declared": "Apache-2.0",
+  "observed_design_principles": [
+    "explicit audio-text metadata pairing",
+    "single-speaker constraint for one fine-tuning workflow",
+    "clip duration checks before encoding/training",
+    "text phonemization aligned with inference normalization",
+    "guard for repeated terminal codec artifact"
+  ],
+  "data_rights_status": "UNVERIFIED",
+  "transcript_rights_status": "UNVERIFIED",
+  "model_weight_license_status": "UNVERIFIED",
+  "approved_as_hg2_asr_acceptance_corpus": false,
+  "audio_played_or_inferred": false,
+  "raw_audio_or_transcripts_copied_to_repo": false,
+  "network_or_model_download_performed": false,
+  "conclusion": "Reference code license does not by itself establish rights to embedded recordings, transcripts, speaker identities, or model weights. Use only as design research until separately approved."
+}

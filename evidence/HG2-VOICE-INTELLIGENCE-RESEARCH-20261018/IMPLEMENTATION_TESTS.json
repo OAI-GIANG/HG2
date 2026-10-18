@@ -1,0 +1,18 @@
+{
+  "branch": "stt/hg2-voice-tools-design-20261018",
+  "base_commit_expected": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+  "implementation": [
+    "docs/HG2_VIETNAMESE_SPEECH_INTELLIGENCE_RESEARCH_V1.md",
+    "tools/voice/hg_voice/corpus_admission.py",
+    "tools/voice/tests/test_corpus_admission.py"
+  ],
+  "voice_tools_tests": {"command": "PYTHONPATH=tools/voice python -W error::ResourceWarning -m unittest discover -s tools/voice/tests -v", "passed": 28, "failed": 0},
+  "repository_regression_tests": {"command": "python -W error::ResourceWarning -m unittest discover -s tests -v", "passed": 26, "failed": 0},
+  "compileall": "PASS",
+  "git_diff_check": "PASS",
+  "admission_validator_scope": "metadata declarations only; does not independently prove legal rights",
+  "vietnamese_wer_cer_benchmark": "NOT_RUN_BLOCKED_NO_APPROVED_CORPUS",
+  "runtime_or_manifest_changed": false,
+  "merge_or_deploy": false,
+  "release_status": "NOT_RELEASED"
+}
