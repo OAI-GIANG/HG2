@@ -1,0 +1,145 @@
+{
+  "task": "HG2 SYNC CONTRACT RECONCILIATION",
+  "base_commit": "757435d529586e709fba818e77995971b88be598",
+  "branch": "stt/hg2-memory-knowledge-history-20261019",
+  "runtime_contract": {
+    "authoritative_store": "PhoneRuntime.store is the one file-backed hg.history.StateStore; SyncContext accepts injection and must receive the same object from PhoneRuntime.",
+    "spool_sync": "SyncContext owns staged inbox/outbox/conflict envelopes and provenance; imports validate the full batch before application and mark consumed inbox files.",
+    "authenticated_spool_sync": "Import requires safe JSON basename in inbox, rejects duplicate keys and NaN/Infinity, verifies AuthenticatedBatchGate, imports same parsed bytes/object, commits cursor after import, and requires cursor file path outside StateStore dir.",
+    "sqlite_outbox": "SQLiteStateStore and SyncDispatcher remain a separate transactional-outbox backend/adapter. This slice does not make file-backed StateStore and SQLiteStateStore one interchangeable class.",
+    "history_v2_blocker": "Actor/authority-attributed file-backed history V2 from circulatory source is not merged into hg/history.py. Its MutationPermit contract and strict cross-process file transaction semantics conflict with the older file-backed API; actor-authorized durable mutations are implemented in SQLiteStateStore. Needs an explicit canonical authority/backend decision."
+  },
+  "changes": [
+    "Added optional explicit authenticated sync wiring to PhoneRuntime while preserving existing edge constructor and methods.",
+    "SyncContext now accepts injected StateStore and validates its directory.",
+    "SyncContext import strictly rejects duplicate JSON keys, NaN/Infinity, arbitrary paths, traversal and symlink/non-inbox source paths.",
+    "Added transactional authenticated import path that validates gate before import and commits trusted cursor after idempotent import.",
+    "Added three source-derived spool hardening/recovery tests and two runtime single-store/cursor-boundary tests.",
+    "Updated manifest to declare current provenance and sync/auth/bootstrap modules."
+  ],
+  "test_runs": [
+    {
+      "command": "python -m unittest tests.test_phone_runtime_sync_integration tests.test_t018_sync tests.test_authenticated_sync_transaction tests.test_sync_auth tests.test_sync_bootstrap -v",
+      "count": 50,
+      "result": "OK",
+      "log": "evidence/HG2-SYNC-CONTRACT-RECONCILIATION-20261019.log"
+    },
+    {
+      "command": "python -m unittest tests.test_core tests.test_phone_runtime_sync_integration tests.test_sync tests.test_t018_sync tests.test_history_malformed_shapes tests.test_sqlite_state tests.test_authenticated_sync_transaction tests.test_sync_auth tests.test_sync_bootstrap -v",
+      "count": 95,
+      "result": "OK",
+      "log": "evidence/HG2-SYNC-CONTRACT-REGRESSION-20261019.log"
+    }
+  ],
+  "known_debt": [
+    "ResourceWarning unclosed files in hg/history.py at current lines 74 and 215 remain; this slice does not touch history storage semantics.",
+    "The seven source versions of hg/history.py remain preserved; V2 schema/actor-attribution variant is not yet integrated.",
+    "The five-branch final layout and cleanup of source refs remain outstanding."
+  ],
+  "source_refs_deleted": false,
+  "hg_genesis_modified": false,
+  "files": [
+    {
+      "path": "hg/history.py",
+      "exists": true,
+      "bytes": 14656,
+      "sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76"
+    },
+    {
+      "path": "hg/sync.py",
+      "exists": true,
+      "bytes": 16859,
+      "sha256": "311c62e97a7122f04cf0f7025e43b9131e80afb2ad466ac3953c942a89328e35"
+    },
+    {
+      "path": "hg/sqlite_state.py",
+      "exists": true,
+      "bytes": 45954,
+      "sha256": "bfe4b33156c2a0ee2356ac1eb3dc0416dcbd0f6a77326c87a2d1a95ddf4366d6"
+    },
+    {
+      "path": "hg/phone_runtime.py",
+      "exists": true,
+      "bytes": 4874,
+      "sha256": "1f1f7cf561aa198b94fdc49da20cad79fa36d5b0d34f1a6480ef4efa30b31852"
+    },
+    {
+      "path": "hg/sync_auth.py",
+      "exists": true,
+      "bytes": 13079,
+      "sha256": "4b36ef364a98a9e36b6924b28a6092b6a0ad091e2c6f0985bd33c999ee077099"
+    },
+    {
+      "path": "hg/sync_bootstrap.py",
+      "exists": true,
+      "bytes": 4536,
+      "sha256": "5698c150a63cd889c380539bdaf3c52ef9e9e70f13da7c78ad124b61d1f8b753"
+    },
+    {
+      "path": "tests/test_t018_sync.py",
+      "exists": true,
+      "bytes": 15113,
+      "sha256": "d6343c1fa68e48c5f31291dcde5b2245713881f13e01d3ec688a06f411d5df31"
+    },
+    {
+      "path": "tests/test_history_malformed_shapes.py",
+      "exists": true,
+      "bytes": 8086,
+      "sha256": "0ab4ea556461eb7ad60c0d521219535ed1b49296481cb9286ec268f3b21c2d98"
+    },
+    {
+      "path": "tests/test_authenticated_sync_transaction.py",
+      "exists": true,
+      "bytes": 13093,
+      "sha256": "02afbd6792758ebf0add12d2a03daa76f8cb84757a8e421d5c9b295619ce8465"
+    },
+    {
+      "path": "tests/test_sync_bootstrap.py",
+      "exists": true,
+      "bytes": 9802,
+      "sha256": "564cf084c6a13c3b5cedb2630ad875c481653a897df427d69d19c2c211e264e8"
+    },
+    {
+      "path": "tests/test_phone_runtime_sync_integration.py",
+      "exists": true,
+      "bytes": 5160,
+      "sha256": "d499807c7925f4b6244e0a4bbc817c45320fb7f196a4dbef984113c8b8a3eebe"
+    },
+    {
+      "path": "manifest.json",
+      "exists": true,
+      "bytes": 314,
+      "sha256": "dcb62f6cc95e64550e07be038e4944b2840d6adc25915ad1d9c946b3adc27897"
+    },
+    {
+      "path": "evidence/HG2-SOURCE-VERSION-INTEGRATION-20261019T0100.json",
+      "exists": true,
+      "bytes": 12999,
+      "sha256": "284cee8321514d8df71d901b232403053122f4625a7e6929b35030bb325cbeba"
+    },
+    {
+      "path": "evidence/HG2-SOURCE-VERSION-INTEGRATION-20261019T0100.log",
+      "exists": true,
+      "bytes": 40915,
+      "sha256": "4ba1f716653fbeca906c580557e168c2e87762fb6b403a33c4b4f31488e2474a"
+    },
+    {
+      "path": "evidence/HG2-SOURCE-VERSION-PROVENANCE-20261019T0100.json",
+      "exists": true,
+      "bytes": 10232,
+      "sha256": "befc0c470d0cd6e1a960abc1859fa0a3d03d1a22172a27e5fc0e9445685197e2"
+    },
+    {
+      "path": "evidence/HG2-SYNC-CONTRACT-RECONCILIATION-20261019.log",
+      "exists": true,
+      "bytes": 19219,
+      "sha256": "3478a9885065c2e29d6c759f4d64749f21644aef8bb862c4e15eec509095bd7e"
+    },
+    {
+      "path": "evidence/HG2-SYNC-CONTRACT-REGRESSION-20261019.log",
+      "exists": true,
+      "bytes": 54575,
+      "sha256": "d0b945b00164134095b314cf8bce4730a46efab16f4f53318bf29a6b1642fd3b"
+    }
+  ]
+}

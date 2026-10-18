@@ -222,6 +222,51 @@ class SyncTests(unittest.TestCase):
         self.assertEqual(len(self.a.store.replay()), 3)
         self.assertEqual(len(self.b.store.replay()), 3)
 
+    def test_import_rejects_arbitrary_paths_and_traversal(self):
+        out = self._publish(self.a, {"note": "safe"})
+        self._move(self.a, self.b, out["file"])
+        for unsafe in ("../outbox/" + out["file"], os.path.join(self.a.spool, "outbox", out["file"]), "/etc/passwd"):
+            with self.subTest(unsafe=unsafe), self.assertRaises(SyncError):
+                self.b.import_batch(unsafe)
+
+    def test_import_rejects_duplicate_json_keys_and_nan(self):
+        for name, raw in (
+            ("duplicate.json", '{"schema":"HG_SYNC_BATCH_V2","schema":"HG_SYNC_BATCH_V2","events":[]}'),
+            ("nan.json", '{"schema":"HG_SYNC_BATCH_V2","context_id":"ctx-a","created_at":NaN,"events":[]}'),
+        ):
+            path = os.path.join(self.b.spool, "inbox", name)
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(raw)
+            with self.subTest(name=name), self.assertRaises(SyncError):
+                self.b.import_batch(name)
+
+    def test_interrupted_batch_apply_resumes_without_duplicate_events(self):
+        first = self.a.local_event("note.created", {"n": 1})
+        second = self.a.local_event("note.created", {"n": 2})
+        name = "interrupted.json"
+        path = os.path.join(self.b.spool, "inbox", name)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
+        original_emit = self.b.store.emit
+        calls = {"n": 0}
+        def fail_once(event_type, payload, **kwargs):
+            if event_type == "sync.received":
+                calls["n"] += 1
+                if calls["n"] == 2:
+                    raise OSError("injected append interruption")
+            return original_emit(event_type, payload, **kwargs)
+        self.b.store.emit = fail_once
+        with self.assertRaises(OSError):
+            self.b.import_batch(name)
+        self.b.store.emit = original_emit
+        self.assertEqual(len([r for r in self.b.store.replay() if r["event_type"] == "sync.received"]), 1)
+        result = self.b.import_batch(name)
+        self.assertEqual(result["accepted"], [second["event_id"]])
+        self.assertEqual(result["duplicates"], [first["event_id"]])
+        received = [r for r in self.b.store.replay() if r["event_type"] == "sync.received"]
+        self.assertEqual([r["payload"]["origin_seq"] for r in received], [first["origin_seq"], second["origin_seq"]])
+        self.assertTrue(self.b.store.verify()["ok"])
+
     def test_restart_recovery_keeps_state_and_no_reapply(self):
         out = self._publish(self.a, {"note": "persist"})
         self._move(self.a, self.b, out["file"])
