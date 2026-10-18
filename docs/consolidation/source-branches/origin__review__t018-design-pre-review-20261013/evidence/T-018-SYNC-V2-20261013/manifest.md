@@ -1,0 +1,31 @@
+# T-018 Sync V2 — Verification Evidence
+
+- Repository: `OAI-GIANG/HG2`
+- Branch: `feat/hg-t018-cross-context-sync-20261013`
+- Tested code commit: `e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e`
+- Tested code tree: `4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b`
+- Parent: `8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0`
+- Environment: Python 3.14.6, Android 15, aarch64
+- T-018 tests: 15/15, exit 0, no `ResourceWarning` or ignored finalizer warnings.
+- Core tests: 12/12, exit 0, no `ResourceWarning` or ignored finalizer warnings.
+- Full suite: 27/27, exit 0, `OK`, zero `ResourceWarning` and zero `Exception ignored`, two working-copy runs and two clean-checkout runs.
+- Normalized full-suite outputs compare equal in both pairs.
+- Normalization changes only the unittest elapsed-time line; no outcomes or warnings are filtered.
+- Scope of code changes in this phase: `hg/sync.py`, `tests/test_t018_sync.py`, and `docs/T-018-SYNC-V2-CONTRACT.md`.
+- Limitations remain: no authenticated peer identity/signature, no trusted first-origin checkpoint, no runtime wiring, and no shared-memory merge. This evidence does not establish `LIVE_VERIFIED`.
+
+## SHA-256
+d19cf4a3143345b001de674677418e31f809007eb290cf7155301a9b8bbef683  clean-suite-1.log
+b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-1.normalized.log
+c55d5c106bce0c330ed8ff4ecbfae67b99c89a2793b552c55588bade5590a2b9  clean-suite-2.log
+b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-2.normalized.log
+55fcdc636a602b4c95e5ed7a35792acafc023c07ab5dcdabf51311c2e4ab176c  core-tests.log
+d08a41db2d4f5ee6adaef07cd74b6fa51d16f6a0b9eaac5af1c6440e30415072  t018-tests.log
+d629a47427d9ab3e5c243735f356bde4badac2c143c7dba12e9c4d3d3e2f77b5  working-suite-1.log
+b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-1.normalized.log
+d5ab5fa948ed4966ca892822ced164a1a0d511f8c1dd1c7476ae6e983fdecef2  working-suite-2.log
+b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-2.normalized.log
+14423faf868f8a209c2a1e5e27f93b9f6cce4fb5e024683c20ffaffc3d42081b  clean-checkout-commit.txt
+ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841  clean-checkout-status.txt
+4c9c66d5a77a5083f108d99e8a72d8d2b2829ea18b63407dc0ece02727febee7  clean-checkout-tree.txt
+0afe76de11223644cda0aeea7f928b577c6c58637399123f9edd0e29c5a33a3c  environment.txt

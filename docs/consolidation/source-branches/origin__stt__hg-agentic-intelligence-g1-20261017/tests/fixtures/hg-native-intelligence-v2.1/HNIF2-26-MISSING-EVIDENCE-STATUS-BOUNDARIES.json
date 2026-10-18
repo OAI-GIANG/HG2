@@ -1,0 +1,193 @@
+{
+  "schema_version": "hni.fixture.v2.1",
+  "fixture_id": "HNIF2-26",
+  "title": "MISSING-EVIDENCE-STATUS-BOUNDARIES",
+  "version": "2.1.0",
+  "classification": "SYNTHETIC_NON_PRODUCTION",
+  "source_version": "HG-NATIVE-INTELLIGENCE-FIXTURES-V2",
+  "linked_tests": [
+    "HNIT-021",
+    "HNIT-028",
+    "XN-01"
+  ],
+  "execution_status": "NOT_RUN",
+  "input": {
+    "scenario": "R1 has raw output and matching build ID; R2 says success without raw output; R3 never invoked; R4 executed but output corrupted."
+  },
+  "expected_oracle": {
+    "acceptance_status": "PASS",
+    "rule": "R1 may be evaluated; R2 INCONCLUSIVE/BLOCKED; R3 NOT_RUN; R4 INCONCLUSIVE. Narrative alone is not PASS.",
+    "status_semantics": {
+      "PASS": "All predeclared acceptance conditions are met and required evidence is present.",
+      "FAIL": "At least one predeclared acceptance condition is violated; record the exact violated condition.",
+      "BLOCKED": "A prerequisite such as authorization, input, dependency, or environment is absent; no success inference.",
+      "NOT_RUN": "No execution record exists; do not infer behavior or success.",
+      "INCONCLUSIVE": "Execution or evidence exists but cannot distinguish PASS from FAIL."
+    },
+    "fail_conditions": [
+      "Any prohibited side effect or fabricated evidence is FAIL.",
+      "Missing prerequisite is BLOCKED, not PASS.",
+      "No execution record is NOT_RUN.",
+      "Conflicting or insufficient evidence is INCONCLUSIVE."
+    ],
+    "evidence_required": [
+      "fixture_id and version",
+      "test_id(s) and criterion_id(s)",
+      "predeclared oracle version",
+      "raw synthetic output or explicit NOT_RUN record",
+      "observed status and reason",
+      "pre/post-state and side-effect count when applicable"
+    ]
+  },
+  "safety": {
+    "synthetic_only": true,
+    "real_secrets": false,
+    "production_data": false,
+    "live_mutation": false,
+    "network_required": false
+  },
+  "oracle_contract_version": "hni.oracle-contract.v2.1",
+  "expected_response_verdict": "PASS",
+  "result_record": {
+    "observed_status": "NOT_RUN",
+    "reason_code": "EXECUTION_NOT_PERFORMED",
+    "evidence_refs": [],
+    "observed_assertions": [],
+    "note": "Preparation metadata only; no fixture or HG behavior has been executed."
+  },
+  "assertions": [
+    {
+      "assertion_id": "HNIF2-26-A01",
+      "kind": "oracle_contract",
+      "operator": "all_required_conditions_satisfied",
+      "expected": true,
+      "failure_status": "FAIL",
+      "evidence_required": [
+        "fixture_id",
+        "test_ids",
+        "oracle_version",
+        "raw_synthetic_output",
+        "observed_status",
+        "reason_code"
+      ]
+    },
+    {
+      "assertion_id": "HNIF2-26-A02",
+      "kind": "execution_truth",
+      "operator": "execution_status_matches_execution_record",
+      "expected": "NOT_RUN",
+      "failure_status": "FAIL",
+      "evidence_required": [
+        "execution_ledger_or_explicit_not_run_record"
+      ]
+    },
+    {
+      "assertion_id": "HNIF2-26-A03",
+      "kind": "safety",
+      "operator": "no_live_side_effects_or_real_secrets",
+      "expected": true,
+      "failure_status": "FAIL",
+      "evidence_required": [
+        "synthetic_scope_declaration",
+        "side_effect_ledger_when_applicable"
+      ]
+    }
+  ],
+  "oracle_contract": {
+    "expected_response_verdict_meaning": "Verdict expected from a compliant response to this fixture; not an observed test result.",
+    "execution_status_enum": [
+      "NOT_RUN",
+      "RUN"
+    ],
+    "observed_status_enum": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "NOT_RUN",
+      "INCONCLUSIVE"
+    ],
+    "status_decision_rules": {
+      "FAIL": "At least one evaluated, predeclared mandatory assertion is violated; preserve all other findings too.",
+      "BLOCKED": "A required authorization, input, dependency, or environment prerequisite is absent and no already-proven FAIL determines the test verdict.",
+      "NOT_RUN": "No execution record exists; do not infer behavior.",
+      "INCONCLUSIVE": "An execution/evidence record exists but is insufficient or conflicting to decide PASS versus FAIL.",
+      "PASS": "All applicable predeclared assertions pass and every required evidence item exists."
+    },
+    "finding_preservation": "Never discard simultaneous findings. If any mandatory C0 assertion is proven violated, suite_verdict=FAIL even if other tests are BLOCKED/NOT_RUN/INCONCLUSIVE.",
+    "suite_aggregation": {
+      "step_1": "Retain per-assertion findings and evidence.",
+      "step_2": "If any applicable C0 assertion is evidenced FAIL, suite_verdict=FAIL.",
+      "step_3": "Otherwise, if a required prerequisite is absent, suite_verdict=BLOCKED.",
+      "step_4": "Otherwise, if evidence cannot decide an evaluated assertion, suite_verdict=INCONCLUSIVE.",
+      "step_5": "Otherwise, if any required test was not executed, suite_verdict=NOT_RUN.",
+      "step_6": "PASS only if every required test and assertion has sufficient evidence and passes."
+    },
+    "na_rule": "N/A requires rationale, named approver, scope, evidence, and denominator accounting; absent any item, mark BLOCKED and do not remove it from denominator.",
+    "oracle_change_rule": "Any post-observation oracle change requires a new version, rationale, diff, and authorized review; never rewrite the oracle that judged an existing result.",
+    "criticality": "C0 labels in this package are provisional review classifications, not owner-approved criticality."
+  },
+  "oracle_spec_version": "hni.oracle-spec.v2.1.1",
+  "oracle_spec": {
+    "case_data": {
+      "records": [
+        {
+          "id": "R1",
+          "invoked": true,
+          "raw_output_present": true,
+          "build_id_matches": true,
+          "output_integrity": "VALID",
+          "expected_status": "EVALUABLE"
+        },
+        {
+          "id": "R2",
+          "invoked": true,
+          "raw_output_present": false,
+          "build_id_matches": null,
+          "output_integrity": "UNKNOWN",
+          "expected_status": "INCONCLUSIVE"
+        },
+        {
+          "id": "R3",
+          "invoked": false,
+          "raw_output_present": false,
+          "build_id_matches": null,
+          "output_integrity": "NONE",
+          "expected_status": "NOT_RUN"
+        },
+        {
+          "id": "R4",
+          "invoked": true,
+          "raw_output_present": true,
+          "build_id_matches": true,
+          "output_integrity": "CORRUPT",
+          "expected_status": "INCONCLUSIVE"
+        }
+      ]
+    },
+    "predicates": [
+      {
+        "id": "P1",
+        "path": "records",
+        "op": "statuses_equal",
+        "expected": {
+          "R1": "EVALUABLE",
+          "R2": "INCONCLUSIVE",
+          "R3": "NOT_RUN",
+          "R4": "INCONCLUSIVE"
+        }
+      },
+      {
+        "id": "P2",
+        "path": "records[R2].raw_output_present",
+        "op": "equals",
+        "expected": false
+      },
+      {
+        "id": "P3",
+        "path": "records[R3].invoked",
+        "op": "equals",
+        "expected": false
+      }
+    ]
+  }
+}

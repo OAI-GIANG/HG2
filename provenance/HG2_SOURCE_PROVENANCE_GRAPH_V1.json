@@ -1,0 +1,185 @@
+{
+  "base_commit": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+  "candidate_branch": "stt/hg2-gap-integration-20261018",
+  "canonical_branch": "hg-genesis",
+  "claim_level": "CONTENT_HASH_INTEGRITY_ONLY",
+  "integrity_scope": "selected source, tests and contract/documentation files listed by this generator",
+  "limitations": [
+    "This graph is generated from the candidate worktree and is not a signed or independent attestation.",
+    "Matching SHA-256 and Git blob IDs establish content integrity for listed files, not semantic equivalence or clean-room origin.",
+    "The graph excludes its own hash to avoid self-reference; the Git commit/tree binds the graph file.",
+    "AI semantic behavior remains unverified until HG is evaluated against the V2.1 fixtures."
+  ],
+  "nodes": [
+    {
+      "bytes": 1784,
+      "git_blob_sha": "21564371a3ba65d8e0e22aff2a16b3a3565d353d",
+      "path": "README.md",
+      "role": "contract-or-documentation",
+      "sha256": "1250f4f06e9bc113ee66a311ff50e489ec587df5da88b937ca60de8a9fa1e71b"
+    },
+    {
+      "bytes": 303,
+      "git_blob_sha": "96edd2735d7cae90ca05db39ef41f323fa85f6fb",
+      "path": "manifest.json",
+      "role": "contract-or-documentation",
+      "sha256": "2141b732cef133a0da157f7ef55da41cc12c7d5d01efeb441de5fc631672e663"
+    },
+    {
+      "bytes": 1812,
+      "git_blob_sha": "1ea22cc5bb0fe617dc97fa4694a08197e3279b36",
+      "path": "contract/ARCHITECTURE_V1.md",
+      "role": "contract-or-documentation",
+      "sha256": "3689b2461cdf24ffb749d7bf4503b9382a471f2e8bba17e50499ca19c2d80327"
+    },
+    {
+      "bytes": 2273,
+      "git_blob_sha": "fa7d2dcbfeadd0f621bd3320b14e5048b97c68f6",
+      "path": "contract/AUTHENTICATION_V1.md",
+      "role": "contract-or-documentation",
+      "sha256": "33a68b56ca2bbca48969c4e56e3f63f819bd71713f2cd16f05d93cb52d249742"
+    },
+    {
+      "bytes": 1174,
+      "git_blob_sha": "39b44fca27e06b8e944cd35b8c30b9aefc75384b",
+      "path": "contract/STATE_V1.md",
+      "role": "contract-or-documentation",
+      "sha256": "431494f52c40bb5cba0343144a2a691844853ce3fa277459b7e9e5965f21742d"
+    },
+    {
+      "bytes": 4529,
+      "git_blob_sha": "477fca2eacc42f6ce4ddae64291124ee8966e9a0",
+      "path": "contract/ACCEPTANCE_MATRIX_V1.md",
+      "role": "contract-or-documentation",
+      "sha256": "2581c0da175fc4e20abb817c066e76662d927c086962f6f8eba3e6cc7d039a9d"
+    },
+    {
+      "bytes": 235,
+      "git_blob_sha": "58df90a6b7d69d87df75bead52a3b3435a88f23f",
+      "path": "hg/identity.py",
+      "role": "source",
+      "sha256": "128211f8cb18cf8f8359721097244fe5fcc008b41cbb6b73dac64ee61e68a227"
+    },
+    {
+      "bytes": 2657,
+      "git_blob_sha": "8b6edf70472a21f69875c3741e8147038dfdc711",
+      "path": "hg/auth.py",
+      "role": "source",
+      "sha256": "912ec66f4517dd2888e35da05d6c53af95e56bdd832bde37f6e6534d1a9780bf"
+    },
+    {
+      "bytes": 987,
+      "git_blob_sha": "859fc749dd802b12886a748d77fe8ec8de320ca8",
+      "path": "hg/authority.py",
+      "role": "source",
+      "sha256": "43a9d5f2268a36b2e5d64a1a3836467eabf628b17d8a282266b885aa2f1416ab"
+    },
+    {
+      "bytes": 7666,
+      "git_blob_sha": "acb466e8a4c2b8882db58b783028b59804ecc812",
+      "path": "hg/history.py",
+      "role": "source",
+      "sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc"
+    },
+    {
+      "bytes": 2535,
+      "git_blob_sha": "75fa6bcda1e29bf08aeb5341dbe8f0e124684199",
+      "path": "hg/phone_runtime.py",
+      "role": "source",
+      "sha256": "4a788efdbe0427ca36f8d497073dcdbab55b87c70b418dafa7a8373345751b22"
+    },
+    {
+      "bytes": 6472,
+      "git_blob_sha": "bbaabef7aef68385c96679a63cb7e6620c119f4b",
+      "path": "hg/edge.py",
+      "role": "source",
+      "sha256": "489eecdaa7166143416db81d0ed4ae4787c6da6a39f86b8d129468543307a6c1"
+    },
+    {
+      "bytes": 8002,
+      "git_blob_sha": "667ccf1f25bd56d71fb3c480da8eeb856ea838cb",
+      "path": "hg/provider.py",
+      "role": "source",
+      "sha256": "56e0f5f2202194729e5e1e174a2c88011f6f594b749c5101179651d81454808f"
+    },
+    {
+      "bytes": 14198,
+      "git_blob_sha": "04720eb43c832740728e80ca112041236b7721a8",
+      "path": "hg/toolplane.py",
+      "role": "source",
+      "sha256": "79c6b145208961d24843e6ae493b761b70e9764862f820b541418fec3539059b"
+    },
+    {
+      "bytes": 1159,
+      "git_blob_sha": "2f14a55eeb55ade5fed847be202ed478d46bb723",
+      "path": "hg/agent.py",
+      "role": "source",
+      "sha256": "3d7d9e255293b0764202ed350baa255f8693f83a7db418a40e52ec23712476ca"
+    },
+    {
+      "bytes": 9438,
+      "git_blob_sha": "9322675834ae33844599389d519405979e0a5f1c",
+      "path": "tests/test_core.py",
+      "role": "test",
+      "sha256": "a54022d503090ea023dd482bc907af63aacc7edab5a4612d436cf5d5cdf62a9d"
+    },
+    {
+      "bytes": 7425,
+      "git_blob_sha": "86c221f152615c69238e40b130fab0dca6f92084",
+      "path": "tests/test_edge_schema_guard.py",
+      "role": "test",
+      "sha256": "6a63051b56ebce58dc36fee79071c1deb2f83cb69ea53bc06895573f52732cd6"
+    },
+    {
+      "bytes": 1592,
+      "git_blob_sha": "ad496d532cb925b25c170c9cb1dc88ffa165ef15",
+      "path": "tests/test_native_intelligence_fixtures.py",
+      "role": "test",
+      "sha256": "aa2db773cf39ffa7d2dbf272ce7de3248aebbd240204a83be75031ce947a443a"
+    },
+    {
+      "bytes": 2915,
+      "git_blob_sha": "e7fa8e74eae8901baf018be2289254c0cca17795",
+      "path": "tests/test_auth.py",
+      "role": "test",
+      "sha256": "36f53020e77153ca4a2c2654862c1ecb64920a8a78fbbe0ea9e087d6a975ced4"
+    },
+    {
+      "bytes": 6154,
+      "git_blob_sha": "78bf19434dd41f99d1c63e237a4a5835367e036a",
+      "path": "tests/test_provider.py",
+      "role": "test",
+      "sha256": "90ee046709edfb33148cf657eb860a49faf109db3a3f9f0acc788c5ad73a83d8"
+    },
+    {
+      "bytes": 12375,
+      "git_blob_sha": "f3664de43eed9076e9a52bff11d46f556cb9ae14",
+      "path": "tests/test_toolplane.py",
+      "role": "test",
+      "sha256": "4d55c39d5b19dd2eb5bb5038b367d307d8801d35dc09f86446af6ee27a783ccb"
+    },
+    {
+      "bytes": 2350,
+      "git_blob_sha": "93ec14f21551f6e36272dfd2b48b5aabeb62ac42",
+      "path": "tests/test_agent.py",
+      "role": "test",
+      "sha256": "1ebfc135e08d6305ec8c010f9a669a3f347b987a26ce8305e5e1fe652376a818"
+    },
+    {
+      "bytes": 2476,
+      "git_blob_sha": "aea85558d3fbeb9a485e2ebe201a85c17144073d",
+      "path": "tests/test_contract_completeness.py",
+      "role": "test",
+      "sha256": "179070952513ee57bbb54218acd01c7f0f2d8ea528249949da28e9f06e9d1e3f"
+    },
+    {
+      "bytes": 3447,
+      "git_blob_sha": "96f6d4a7aee468a6d0b41016b045633d3c5e367d",
+      "path": "scripts/update_provenance_graph.py",
+      "role": "contract-or-documentation",
+      "sha256": "bceaab413361489dca57cb923ee9d07e30da0c40e1003b24bbac701e8e07cdb6"
+    }
+  ],
+  "repository": "OAI-GIANG/HG2",
+  "schema": "HG2_SOURCE_PROVENANCE_GRAPH_V1"
+}

@@ -1,0 +1,14 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest discover -s tests -v",
+  "duration_seconds": 5.868,
+  "evidence_id": "HG2-STATE-STORE-HARDENING-20261018",
+  "exit_code": 0,
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "python_version": "3.14.6",
+  "result": "PASS",
+  "scope_note": "Candidate checkout only. No live runtime, live state, canonical branch, or remote provider was touched.",
+  "test_count": 165,
+  "tested_commit": "b524e5747dd2b4cb1891ea01ef15c9be4814384a",
+  "unittest_log_sha256": "9111d25622c6d63998c9f655dd6e3984068b4a403e9e4183ff7ff30b78b8008c",
+  "warning_policy": "ResourceWarning treated as error"
+}

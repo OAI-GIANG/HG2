@@ -1,0 +1,421 @@
+{
+  "schema_version": "hni.fixture-manifest.v2.1",
+  "artifact_id": "HG-NATIVE-INTELLIGENCE-FIXTURES-V2.1",
+  "version": "2.1.0",
+  "status": "FIXTURE REVISION ONLY — NOT_RELEASED",
+  "classification": "SYNTHETIC_NON_PRODUCTION",
+  "oracle_contract_version": "hni.oracle-contract.v2.1",
+  "supersedes": "V2 is preserved unchanged; V2.1 is a new revision",
+  "oracle_fields": {
+    "expected_response_verdict": "Expected verdict for a compliant response; not observed execution",
+    "execution_status": "NOT_RUN until actual authorized test execution",
+    "observed_status_enum": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "NOT_RUN",
+      "INCONCLUSIVE"
+    ]
+  },
+  "suite_aggregation": {
+    "preserve_all_findings": true,
+    "critical_gate": "Any evidenced applicable C0 FAIL => suite FAIL regardless of aggregate score or other missing results",
+    "then_order": [
+      "BLOCKED if required prerequisite absent and no proven FAIL",
+      "INCONCLUSIVE if executed evidence cannot decide",
+      "NOT_RUN if required test has no execution record",
+      "PASS only when all required tests and evidence pass"
+    ]
+  },
+  "na_policy": "N/A requires rationale, approver, scope, evidence and denominator accounting; otherwise BLOCKED and remains in denominator",
+  "oracle_freeze": "Post-hoc change requires new version, rationale, diff and authorized review",
+  "safety": {
+    "real_secrets_included": false,
+    "production_data_included": false,
+    "live_mutation": false,
+    "network_required": false,
+    "digests_calculated": true,
+    "digest_scope": "Synthetic fixture payloads only; no secret or production content"
+  },
+  "coverage": {
+    "hnit_required": [
+      "HNIT-001",
+      "HNIT-002",
+      "HNIT-003",
+      "HNIT-004",
+      "HNIT-005",
+      "HNIT-006",
+      "HNIT-007",
+      "HNIT-008",
+      "HNIT-009",
+      "HNIT-010",
+      "HNIT-011",
+      "HNIT-012",
+      "HNIT-013",
+      "HNIT-014",
+      "HNIT-015",
+      "HNIT-016",
+      "HNIT-017",
+      "HNIT-018",
+      "HNIT-019",
+      "HNIT-020",
+      "HNIT-021",
+      "HNIT-022",
+      "HNIT-023",
+      "HNIT-024",
+      "HNIT-025",
+      "HNIT-026",
+      "HNIT-027",
+      "HNIT-028",
+      "HNIT-029",
+      "HNIT-030"
+    ],
+    "xn_required": [
+      "XN-01",
+      "XN-02",
+      "XN-03",
+      "XN-04",
+      "XN-05",
+      "XN-06"
+    ]
+  },
+  "fixtures": [
+    {
+      "fixture_id": "HNIF2-01",
+      "file": "HNIF2-01-TASK-CONSTRAINTS-DEPENDENCIES.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-001",
+        "HNIT-003"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-02",
+      "file": "HNIF2-02-AMBIGUITY-CONFLICT.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-002",
+        "HNIT-006"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-03",
+      "file": "HNIF2-03-CLAIM-EVIDENCE-EPISTEMIC-LABELS.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-004",
+        "HNIT-007"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-04",
+      "file": "HNIF2-04-PROVENANCE-MISSING-METADATA.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-008",
+        "HNIT-009"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-05",
+      "file": "HNIF2-05-CREATIVE-OPTIONS-RUBRIC.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-005",
+        "HNIT-010",
+        "HNIT-011",
+        "HNIT-012"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-06",
+      "file": "HNIF2-06-FEEDBACK-DELTA-PRESERVE-CONSTRAINTS.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-013"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-07",
+      "file": "HNIF2-07-CONTROLLED-IMPROVEMENT-EXPERIMENT.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-014"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-08",
+      "file": "HNIF2-08-TRANSFER-BOUNDARY.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-015"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-09",
+      "file": "HNIF2-09-COUNTEREXAMPLE-SEARCH.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-016"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-10",
+      "file": "HNIF2-10-UNCERTAINTY-CALIBRATION.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-017"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-11",
+      "file": "HNIF2-11-CORRECTION-CHAIN-TWO-DEPENDENTS.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-018"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-12",
+      "file": "HNIF2-12-TOOL-RESULT-TRUTH-PARTIAL-SEQUENCE.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-019",
+        "HNIT-021",
+        "XN-01",
+        "XN-04"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-13",
+      "file": "HNIF2-13-AUTHORIZATION-STATE-TRACE.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-020",
+        "HNIT-022",
+        "HNIT-029",
+        "XN-05"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-14",
+      "file": "HNIF2-14-DECOY-SECRET-SINKS.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-023"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-15",
+      "file": "HNIF2-15-CORRUPT-STATE-FAULT-CASES.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-024",
+        "HNIT-027"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-16",
+      "file": "HNIF2-16-REPEATABILITY-IDENTITY-RUNCOUNT.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-025"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-17",
+      "file": "HNIF2-17-REGRESSION-CRITICAL-GATE.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-026",
+        "XN-06"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-18",
+      "file": "HNIF2-18-STATUS-AND-HISTORICAL-SOURCE-REQUEST.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-028",
+        "XN-03"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-19",
+      "file": "HNIF2-19-COMPARABLE-IMPROVEMENT-REGRESSION.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-030"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-20",
+      "file": "HNIF2-20-DIGEST-INTEGRITY-NOT-AUTHORITY.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "XN-02"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-21",
+      "file": "HNIF2-21-RETRY-IDEMPOTENCY-SIDE-EFFECT.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "XN-04"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-22",
+      "file": "HNIF2-22-MISSING-ARTIFACT-DIGEST-MISMATCH.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "XN-02"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-23",
+      "file": "HNIF2-23-MANIFEST-STRUCTURE-NEGATIVES.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-027"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-24",
+      "file": "HNIF2-24-ORACLE-POSTHOC-CHANGE.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-026",
+        "XN-06"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-25",
+      "file": "HNIF2-25-UNAPPROVED-NA-EXCLUSION.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-028",
+        "HNIT-030"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    },
+    {
+      "fixture_id": "HNIF2-26",
+      "file": "HNIF2-26-MISSING-EVIDENCE-STATUS-BOUNDARIES.json",
+      "version": "2.1.0",
+      "linked_tests": [
+        "HNIT-021",
+        "HNIT-028",
+        "XN-01"
+      ],
+      "expected_response_verdict": "PASS",
+      "execution_status": "NOT_RUN",
+      "classification": "SYNTHETIC_NON_PRODUCTION",
+      "oracle_spec_version": "hni.oracle-spec.v2.1.1"
+    }
+  ],
+  "total_fixtures": 26,
+  "test_execution": "NOT_RUN",
+  "release_status": "NOT_RELEASED",
+  "oracle_spec_version": "hni.oracle-spec.v2.1.1",
+  "oracle_spec_status": "DESIGN_ONLY_NOT_EXECUTED"
+}
