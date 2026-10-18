@@ -1,14 +1,18 @@
+import contextlib
+import io
 import json
 import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from tools.hg_code_intelligence import (
     CodeIntelligenceError,
     ResourceLimitError,
     compare_staleness,
     index_repository,
+    _cli,
 )
 
 
@@ -79,6 +83,7 @@ class CodeIntelligenceTests(unittest.TestCase):
         report = index_repository(self.root, source_revision="rev")
         serialized = json.dumps(report)
         self.assertEqual(report["coverage"]["secret_files_excluded_count"], 3)
+        self.assertFalse(report["coverage"]["coverage_complete_for_all_repository_source"])
         self.assertNotIn("do-not-leak", serialized)
         self.assertNotIn("private.pem", serialized)
         self.assertNotIn("credentials.json", serialized)
@@ -89,6 +94,7 @@ class CodeIntelligenceTests(unittest.TestCase):
         (self.root / "link.py").symlink_to(outside)
         report = index_repository(self.root, source_revision="rev")
         self.assertEqual(report["coverage"]["symlink_entries_excluded_count"], 1)
+        self.assertFalse(report["coverage"]["coverage_complete_for_all_repository_source"])
         self.assertFalse(any(rec["path"] == "link.py" for rec in report["files"]))
 
     def test_file_count_limit_fails_without_partial_report(self):
@@ -169,6 +175,74 @@ class CodeIntelligenceTests(unittest.TestCase):
         self.assertEqual(report["source"]["source_revision_status"], "CALLER_DECLARED_NOT_VERIFIED")
         with self.assertRaisesRegex(CodeIntelligenceError, "SOURCE_REVISION_REQUIRED"):
             index_repository(self.root, source_revision="")
+
+
+    def test_unrecognized_extension_is_reported_and_forces_incomplete_coverage(self):
+        self.put("app.py", "VALUE = 1\n")
+        unrecognized = self.put("unrecognized_runtime.dart", "void main() {}\n")
+        first = index_repository(self.root, source_revision="rev", changed_paths=["app.py"])
+        self.assertFalse(first["coverage"]["coverage_complete_for_all_repository_source"])
+        self.assertEqual(first["coverage"]["unclassified_files_count"], 1)
+        record = next(item for item in first["files"] if item["path"] == "unrecognized_runtime.dart")
+        self.assertEqual(record["status"], "UNCLASSIFIED_FILE_TYPE")
+        self.assertEqual(record["analysis_support"], "UNCLASSIFIED_FILE_TYPE")
+        self.assertEqual(len(record["sha256"]), 64)
+        self.assertEqual(first["impact"]["status"], "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE")
+        unrecognized.write_text("void main() { }\n", encoding="utf-8")
+        second = index_repository(self.root, source_revision="rev", changed_paths=["app.py"])
+        self.assertNotEqual(first["snapshot_sha256"], second["snapshot_sha256"])
+        self.assertEqual(compare_staleness(first, second)["status"], "STALE")
+
+
+    def test_duplicate_module_names_force_incomplete_coverage(self):
+        self.put("shared.py", "VALUE = 1\n")
+        self.put("shared/__init__.py", "VALUE = 2\n")
+        self.put("consumer.py", "import shared\n")
+        report = index_repository(self.root, source_revision="rev", changed_paths=["shared.py"])
+        self.assertEqual(report["coverage"]["duplicate_module_names_count"], 1)
+        self.assertFalse(report["coverage"]["coverage_complete_for_all_repository_source"])
+        self.assertEqual(report["impact"]["status"], "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE")
+
+    def test_encoding_error_is_disclosed_and_forces_incomplete_coverage(self):
+        path = self.root / "invalid_encoding.py"
+        path.write_bytes(b"VALUE = '\xff'\n")
+        report = index_repository(self.root, source_revision="rev")
+        self.assertFalse(report["coverage"]["coverage_complete_for_all_repository_source"])
+        self.assertEqual(report["coverage"]["python_files_parse_failed"], 1)
+        record = next(item for item in report["files"] if item["path"] == "invalid_encoding.py")
+        self.assertEqual(record["status"], "PARSE_ERROR_ENCODING")
+
+    def test_oversize_unclassified_file_is_reported_without_claiming_coverage(self):
+        self.put("app.py", "VALUE = 1\n")
+        self.put("unknown.blob", "x" * 64)
+        report = index_repository(self.root, source_revision="rev", max_file_bytes=16)
+        record = next(item for item in report["files"] if item["path"] == "unknown.blob")
+        self.assertEqual(record["status"], "UNCLASSIFIED_FILE_TYPE_SIZE_LIMIT")
+        self.assertNotIn("sha256", record)
+        self.assertFalse(report["coverage"]["coverage_complete_for_all_repository_source"])
+
+    def test_analyzer_version_change_marks_index_stale(self):
+        self.put("app.py", "VALUE = 1\n")
+        first = index_repository(self.root, source_revision="rev")
+        changed_version = dict(first)
+        changed_version["analyzer_version"] = "future-test-version"
+        result = compare_staleness(first, changed_version)
+        self.assertEqual(result["status"], "STALE")
+        self.assertIn("ANALYZER_VERSION_CHANGED", result["reasons"])
+
+    def test_cli_rejects_output_inside_repository_and_allows_outside(self):
+        self.put("app.py", "VALUE = 1\n")
+        inside = self.root / "report.json"
+        with patch("sys.argv", ["hg-code-intelligence", "--repo", str(self.root), "--revision", "rev", "--output", str(inside)]):
+            with contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(_cli(), 2)
+        self.assertFalse(inside.exists())
+        outside = Path(self.temp.name) / "external-report.json"
+        with patch("sys.argv", ["hg-code-intelligence", "--repo", str(self.root), "--revision", "rev", "--output", str(outside)]):
+            with contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(_cli(), 0)
+        self.assertTrue(outside.is_file())
+        self.assertEqual(json.loads(outside.read_text(encoding="utf-8"))["schema"], "HG_CODE_INTELLIGENCE_V1")
 
 
 if __name__ == "__main__":

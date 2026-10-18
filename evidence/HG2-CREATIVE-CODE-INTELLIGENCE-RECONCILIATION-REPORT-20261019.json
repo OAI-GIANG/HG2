@@ -1,0 +1,29 @@
+{
+  "repository": "OAI-GIANG/HG2",
+  "target": "stt/hg2-voice-tools-design-20261018",
+  "target_base": "313149d3028b7a6aa4eb2c96fd93cd3981b866f1",
+  "source": "fix/hg2-code-intelligence-coverage-failclosed-20261014",
+  "source_head": "b64aaf52233d7a8a5d1c25a4e1a0eaf3b8c6e6c0",
+  "integration": "merge source code-intelligence fail-closed coverage and benchmark fixtures into existing creative/research target; retained target .circleci/config.yml to avoid introducing CI dependency",
+  "changed_paths_count": 55,
+  "conflicts": "Only .circleci/config.yml; resolved in favor of existing target config; no unresolved conflicts remain",
+  "test": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v",
+    "result": "PASS",
+    "count": 254,
+    "log_sha256": "5e8978f3cdd1c545c7b422f56dd6b198c78d34a32d91a079d1e4501958016686"
+  },
+  "json_validation": "PASS for all staged JSON files",
+  "diff_check": "PASS",
+  "source_ref_deleted": false,
+  "remote_ref_count_before_push": 25,
+  "functional_files": [
+    "tools/hg_code_intelligence.py",
+    "tests/test_code_intelligence.py",
+    "tools/run_code_intelligence_benchmark.py",
+    "tools/run_real_repo_benchmark.py",
+    "tools/run_real_repo_benchmark_v2.py",
+    "tests/fixtures/code_intelligence_benchmark/"
+  ],
+  "note": "Evidence includes registration/result records and fixtures; benchmark records remain historical evidence and are not represented as fresh benchmark execution."
+}

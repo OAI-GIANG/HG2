@@ -1,0 +1,57 @@
+{
+  "candidate_revision_before_benchmark": "252f0c4d58db8d83646ad85f6a3e8bc774cbf296",
+  "candidate_sha256": "bee7216245f01491c111d43e1c11efae131a0be5757e6f9e910b5e263eb92342",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python tools/run_code_intelligence_benchmark.py",
+  "environment": {
+    "machine": "aarch64",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
+    "system": "Android"
+  },
+  "receipt_id": "HG2-CI-GROUND-TRUTH-RECEIPT-V2",
+  "registration_sha256": "f0b0ba7ab1b4c176149ad0f72f08b0e9ab2582acc2a839b79a9d65d01874940b",
+  "result_recorded_registration_sha256": "f0b0ba7ab1b4c176149ad0f72f08b0e9ab2582acc2a839b79a9d65d01874940b",
+  "result_sha256": "658645faa6a67f8b6eab02c01d55cdb7911d2304b61ced4dd9ba8875fc363bd5",
+  "scope_limitation": "Eight synthetic fixtures, 28 fixture source files. Passing does not establish accuracy for arbitrary real-world or production repositories; independent code/security review and upstream archive provenance remain open.",
+  "scorer_sha256": "e32bc8be0e658923aceab7dcfd9986b1f2de351bacbaf81be113ba8c41c03046",
+  "source_zip_sha256": {
+    "awesome-mcp-servers-3-main.zip": "a2f620afa4e41dc33689c3cef9d46fd17fb9fe7cdaf7bc18bed33a82197d7b78",
+    "codebase-memory-mcp-main.zip": "9f537d98fdcc1e6e9f5b9f834cc49ca8c097dc130bc88a83c4b2f5b9e3ef35c4",
+    "myopenvdp-master.zip": "964b23fc6e87bbf48cb178e732270984380583ee1e88c9d0f182c6e28aa40f45",
+    "public-apis-master.zip": "e4cfb5a7593bcde80448c72f4cab7d1366bc87bc16a19e9f32732f805d202127"
+  },
+  "status": "PASS_FOR_REGISTERED_SYNTHETIC_FIXTURES_ONLY",
+  "summary": {
+    "benchmark_pass": true,
+    "case_count": 8,
+    "case_fail_count": 0,
+    "case_pass_count": 8,
+    "clean_case_dependent_precision": 1.0,
+    "clean_case_dependent_recall": 1.0,
+    "clean_case_edge_precision": 1.0,
+    "clean_case_edge_recall": 1.0,
+    "fail_closed_recall": 1.0,
+    "overall_coverage_state_accuracy": 1.0,
+    "overall_edge_precision": 1.0,
+    "overall_edge_recall": 1.0,
+    "overall_impact_status_accuracy": 1.0,
+    "overall_known_dependent_precision": 1.0,
+    "overall_known_dependent_recall": 1.0,
+    "thresholds_met": {
+      "all_cases_pass": true,
+      "clean_cases_dependent_precision_min": true,
+      "clean_cases_dependent_recall_min": true,
+      "clean_cases_edge_precision_min": true,
+      "clean_cases_edge_recall_min": true,
+      "fail_closed_recall_min": true,
+      "minimum_cases": true,
+      "overall_coverage_state_accuracy_min": true,
+      "overall_impact_status_accuracy_min": true,
+      "overall_known_dependent_precision_min": true,
+      "overall_known_dependent_recall_min": true,
+      "overall_static_edge_precision_min": true,
+      "overall_static_edge_recall_min": true
+    }
+  },
+  "working_tree_status_before_benchmark": "?? docs/evidence/HG2_CI_BENCHMARK_ITERATION_EXPLORATORY_V1_REGISTRATION.json\n?? docs/evidence/HG2_CI_BENCHMARK_ITERATION_EXPLORATORY_V1_RESULT.json\n?? docs/evidence/HG2_CI_GROUND_TRUTH_REGISTRATION_V1.json\n?? docs/evidence/HG2_CI_GROUND_TRUTH_REGISTRATION_V2.json\n?? docs/evidence/HG2_CI_GROUND_TRUTH_RESULT_V1.json\n?? tests/fixtures/\n?? tools/__pycache__/\n?? tools/run_code_intelligence_benchmark.py"
+}

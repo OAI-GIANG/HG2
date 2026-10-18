@@ -1,0 +1,130 @@
+{
+  "acceptance_thresholds": {
+    "all_cases_must_pass": true,
+    "coverage_state_accuracy_min": 1.0,
+    "impact_status_accuracy_min": 1.0,
+    "minimum_cases": 2,
+    "overall_dependent_precision_min": 1.0,
+    "overall_dependent_recall_min": 1.0,
+    "overall_edge_precision_min": 1.0,
+    "overall_edge_recall_min": 1.0
+  },
+  "analyzer_path": "tools/hg_code_intelligence.py",
+  "analyzer_sha256": "bee7216245f01491c111d43e1c11efae131a0be5757e6f9e910b5e263eb92342",
+  "benchmark_id": "HG2-CI-REAL-REPO-GROUND-TRUTH-20261014-V2",
+  "cases": [
+    {
+      "archive_sha256": "c4e96b4921aeebcd2b590c2645017ae7c8873104db4d7f228197f89f94249306",
+      "changed_path": "src/iniconfig/exceptions.py",
+      "commit": "316fbfaf2752d89326e1e75b45cd070f5b5ace9a",
+      "expected_coverage_complete": false,
+      "expected_dependents": [
+        "src/iniconfig/__init__.py",
+        "src/iniconfig/_parse.py"
+      ],
+      "expected_edges": [
+        {
+          "source": "src/iniconfig/__init__.py",
+          "target": "src/iniconfig/__init__.py"
+        },
+        {
+          "source": "src/iniconfig/__init__.py",
+          "target": "src/iniconfig/_parse.py"
+        },
+        {
+          "source": "src/iniconfig/__init__.py",
+          "target": "src/iniconfig/exceptions.py"
+        },
+        {
+          "source": "src/iniconfig/_parse.py",
+          "target": "src/iniconfig/exceptions.py"
+        }
+      ],
+      "expected_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "id": "iniconfig-316fbfa",
+      "local_path": "/data/data/com.termux/files/usr/tmp/hg2-real-repo-benchmark-20261014/iniconfig",
+      "repo_url": "https://github.com/pytest-dev/iniconfig",
+      "tree": "aa54aaecaf1b811eb342ec0ca68ce3b71756d26c"
+    },
+    {
+      "archive_sha256": "52b135977f2d7a94058232d53466674d3e8b0163326c9cd67bde61d82a995110",
+      "changed_path": "src/tomli/_re.py",
+      "commit": "43a86ade8b795c6ef9b4ec53372a607cd1ed426f",
+      "expected_coverage_complete": false,
+      "expected_dependents": [
+        "src/tomli/__init__.py",
+        "src/tomli/_parser.py"
+      ],
+      "expected_edges": [
+        {
+          "source": "src/tomli/__init__.py",
+          "target": "src/tomli/_parser.py"
+        },
+        {
+          "source": "src/tomli/_parser.py",
+          "target": "src/tomli/_re.py"
+        },
+        {
+          "source": "src/tomli/_parser.py",
+          "target": "src/tomli/_types.py"
+        },
+        {
+          "source": "src/tomli/_re.py",
+          "target": "src/tomli/_types.py"
+        },
+        {
+          "source": "tests/test_data.py",
+          "target": "tests/__init__.py"
+        },
+        {
+          "source": "tests/test_data.py",
+          "target": "tests/burntsushi.py"
+        },
+        {
+          "source": "tests/test_error.py",
+          "target": "tests/__init__.py"
+        },
+        {
+          "source": "tests/test_misc.py",
+          "target": "tests/__init__.py"
+        }
+      ],
+      "expected_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "id": "tomli-43a86ad",
+      "local_path": "/data/data/com.termux/files/usr/tmp/hg2-real-repo-benchmark-20261014/tomli",
+      "repo_url": "https://github.com/hukkin/tomli",
+      "tree": "45107c0973cfef7355190d03de3dd44a7a02fac0"
+    }
+  ],
+  "corpus_archive_sha256_algorithm": "SHA-256 of the git archive --format=tar HEAD bytes from the pinned, clean checkout.",
+  "execution_constraints": [
+    "Do not execute code from the analyzed repositories.",
+    "Do not modify the pinned repositories.",
+    "Verify HEAD, tree, clean working tree, and git-archive SHA-256 before every case.",
+    "Analyzer output is written outside the analyzed repository.",
+    "Do not change thresholds or expected values after execution."
+  ],
+  "expected_results_source": "Manual re-audit of exact pinned source statements. V2 explicitly counts every statically resolvable local module edge produced by the registered AST import model, including relative imports under TYPE_CHECKING and relative-from-package imports resolving to package __init__.py. This audit followed V1 failure and is not represented as blind or independent; V1 is retained unchanged.",
+  "limitations": [
+    "Only two repositories; not representative of all project layouts or languages.",
+    "Static import edges are not runtime call/data-flow edges.",
+    "Exact-name module resolution does not model src-layout package installation.",
+    "A pass does not establish source authenticity beyond the pinned Git commit/tree and measured archive hash."
+  ],
+  "metric_definitions": {
+    "case_pass": "All four precision/recall values equal 1.0, exact edge and dependent sets, and exact coverage and impact states",
+    "coverage_state_accuracy": "Fraction of cases where coverage_complete_for_all_repository_source exactly equals the registered boolean",
+    "dependent_precision": "intersection(predicted, expected)/len(predicted), with 1.0 if predicted set empty",
+    "dependent_recall": "intersection(predicted, expected)/len(expected), with 1.0 if expected set empty",
+    "edge_precision": "TP/(TP+FP), with 1.0 if both sets empty",
+    "edge_recall": "TP/(TP+FN), with 1.0 if expected set empty",
+    "impact_status_accuracy": "Fraction of cases where impact.status exactly equals the registered status"
+  },
+  "registered_scope": "Two pinned public Python repositories; exact static local-import edges, reverse dependent closure, repository-wide coverage state, and fail-closed impact status.",
+  "registration_rule": "V1 failure prompted a manual source-level re-audit of all relative imports, including imports under TYPE_CHECKING and package imports that resolve to __init__.py. The expected edges below were enumerated from the pinned source statements before V2 execution. V1 result remains preserved as failed; thresholds are unchanged and no expected values may be edited after V2 execution.",
+  "runner_path": "tools/run_real_repo_benchmark_v2.py",
+  "runner_sha256": "66c72f47f85666dc07fcbf21f6e488d0b72d1d010b9a2886584cfeb1473e5c19",
+  "schema": "HG2_CI_REAL_REPO_GROUND_TRUTH_REGISTRATION_V2",
+  "status": "PRE_REGISTERED",
+  "supersedes": "V1 remains immutable and failed; V2 is a new registration, not a rewrite or rescoring of V1."
+}

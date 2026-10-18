@@ -1,0 +1,315 @@
+{
+  "benchmark_id": "HG2-CI-GROUND-TRUTH-20261014-V1",
+  "candidate": {
+    "git_head_before_run": "252f0c4d58db8d83646ad85f6a3e8bc774cbf296",
+    "source_path": "tools/hg_code_intelligence.py",
+    "source_sha256": "bee7216245f01491c111d43e1c11efae131a0be5757e6f9e910b5e263eb92342",
+    "working_tree_status_before_run": "?? docs/evidence/HG2_CI_GROUND_TRUTH_REGISTRATION_V1.json\n?? docs/evidence/HG2_CI_GROUND_TRUTH_RESULT_V1.json\n?? tests/fixtures/\n?? tools/__pycache__/\n?? tools/run_code_intelligence_benchmark.py"
+  },
+  "cases": [
+    {
+      "candidate_report_sha256": "e919355333951fbbf9d8aa430585441e4e306a828f4144baa541b16867d52146",
+      "candidate_snapshot_sha256": "05edcf7d7066fdc0ffcdc0749fe5bf368ea880b4284a10759de6fa561331b729",
+      "case_id": "case01_basic",
+      "edge_fn": 2,
+      "edge_fp": 0,
+      "edge_tp": 0,
+      "expected_dependents": [
+        "src/app.py",
+        "src/entry.py"
+      ],
+      "expected_edges": 2,
+      "metrics": {
+        "coverage_state_correct": true,
+        "dependent_f1": 0.0,
+        "dependent_precision": 1.0,
+        "dependent_recall": 0.0,
+        "edge_f1": 0.0,
+        "edge_precision": 1.0,
+        "edge_recall": 0.0,
+        "impact_status_correct": true,
+        "minimum_duplicate_module_names_met": true,
+        "minimum_dynamic_import_sites_met": true,
+        "minimum_parse_failures_met": true,
+        "minimum_unclassified_files_met": true,
+        "minimum_unsupported_source_files_met": true
+      },
+      "pass": true,
+      "predicted_dependents": [],
+      "predicted_edges": 0,
+      "truth_type": "clean_python"
+    },
+    {
+      "candidate_report_sha256": "5d9d449494b5adb347b4c6e859d613d4c3fb1062e6f3b735fd1d038ea98884db",
+      "candidate_snapshot_sha256": "29ffd0548e509b9904b6255e1e58787acdbcbf11f89ec3e36598773bff82c398",
+      "case_id": "case02_package",
+      "edge_fn": 0,
+      "edge_fp": 0,
+      "edge_tp": 3,
+      "expected_dependents": [
+        "pkg/__init__.py",
+        "pkg/consumer.py",
+        "pkg/entry.py"
+      ],
+      "expected_edges": 3,
+      "metrics": {
+        "coverage_state_correct": true,
+        "dependent_f1": 1.0,
+        "dependent_precision": 1.0,
+        "dependent_recall": 1.0,
+        "edge_f1": 1.0,
+        "edge_precision": 1.0,
+        "edge_recall": 1.0,
+        "impact_status_correct": true,
+        "minimum_duplicate_module_names_met": true,
+        "minimum_dynamic_import_sites_met": true,
+        "minimum_parse_failures_met": true,
+        "minimum_unclassified_files_met": true,
+        "minimum_unsupported_source_files_met": true
+      },
+      "pass": true,
+      "predicted_dependents": [
+        "pkg/__init__.py",
+        "pkg/consumer.py",
+        "pkg/entry.py"
+      ],
+      "predicted_edges": 3,
+      "truth_type": "clean_python_package"
+    },
+    {
+      "candidate_report_sha256": "6e675b83e1750b9ad0396f3ae7f3c2a765f80cf0cb24132c9a882a554ac12f09",
+      "candidate_snapshot_sha256": "e03520a6490a2522431ccad0db0517515f564eca5481ff552e8defe9cf814d99",
+      "case_id": "case03_dynamic",
+      "edge_fn": 0,
+      "edge_fp": 0,
+      "edge_tp": 1,
+      "expected_dependents": [],
+      "expected_edges": 1,
+      "metrics": {
+        "coverage_state_correct": true,
+        "dependent_f1": 1.0,
+        "dependent_precision": 1.0,
+        "dependent_recall": 1.0,
+        "edge_f1": 1.0,
+        "edge_precision": 1.0,
+        "edge_recall": 1.0,
+        "impact_status_correct": true,
+        "minimum_duplicate_module_names_met": true,
+        "minimum_dynamic_import_sites_met": true,
+        "minimum_parse_failures_met": true,
+        "minimum_unclassified_files_met": true,
+        "minimum_unsupported_source_files_met": true
+      },
+      "pass": true,
+      "predicted_dependents": [],
+      "predicted_edges": 1,
+      "truth_type": "dynamic_import"
+    },
+    {
+      "candidate_report_sha256": "711c2c903d0b87cfd77dbcc04ac0aa3990b3cefc4c0264f52f842bfb6e4938a5",
+      "candidate_snapshot_sha256": "08d3db2668ec1fd3ba2505fa57ec880fbcb5bd15d3184152724c677f89b4c3da",
+      "case_id": "case04_nonpython",
+      "edge_fn": 0,
+      "edge_fp": 0,
+      "edge_tp": 1,
+      "expected_dependents": [
+        "consumer.py"
+      ],
+      "expected_edges": 1,
+      "metrics": {
+        "coverage_state_correct": true,
+        "dependent_f1": 1.0,
+        "dependent_precision": 1.0,
+        "dependent_recall": 1.0,
+        "edge_f1": 1.0,
+        "edge_precision": 1.0,
+        "edge_recall": 1.0,
+        "impact_status_correct": true,
+        "minimum_duplicate_module_names_met": true,
+        "minimum_dynamic_import_sites_met": true,
+        "minimum_parse_failures_met": true,
+        "minimum_unclassified_files_met": true,
+        "minimum_unsupported_source_files_met": true
+      },
+      "pass": true,
+      "predicted_dependents": [
+        "consumer.py"
+      ],
+      "predicted_edges": 1,
+      "truth_type": "unsupported_source_language"
+    },
+    {
+      "candidate_report_sha256": "d35e93220af8ec4605ba3c5ced377a49b2a165bacd71750e82ec07c79b226b1e",
+      "candidate_snapshot_sha256": "e6be63b943dcfae19b8a65d3cadb3796f5667c6aa19fce5f14c4a00543073507",
+      "case_id": "case05_unclassified",
+      "edge_fn": 0,
+      "edge_fp": 0,
+      "edge_tp": 1,
+      "expected_dependents": [
+        "consumer.py"
+      ],
+      "expected_edges": 1,
+      "metrics": {
+        "coverage_state_correct": true,
+        "dependent_f1": 1.0,
+        "dependent_precision": 1.0,
+        "dependent_recall": 1.0,
+        "edge_f1": 1.0,
+        "edge_precision": 1.0,
+        "edge_recall": 1.0,
+        "impact_status_correct": true,
+        "minimum_duplicate_module_names_met": true,
+        "minimum_dynamic_import_sites_met": true,
+        "minimum_parse_failures_met": true,
+        "minimum_unclassified_files_met": true,
+        "minimum_unsupported_source_files_met": true
+      },
+      "pass": true,
+      "predicted_dependents": [
+        "consumer.py"
+      ],
+      "predicted_edges": 1,
+      "truth_type": "unclassified_source_like_file"
+    },
+    {
+      "candidate_report_sha256": "b65cab575c63a9bc0e6ccf7c3f20e919fb735e31dee6721976b1b5504c2ea9e5",
+      "candidate_snapshot_sha256": "380edabe1059703935112d9d2bab053738a6b79d5d10afc59c1bcfcb5a5e3a52",
+      "case_id": "case06_syntax",
+      "edge_fn": 0,
+      "edge_fp": 0,
+      "edge_tp": 1,
+      "expected_dependents": [
+        "consumer.py"
+      ],
+      "expected_edges": 1,
+      "metrics": {
+        "coverage_state_correct": true,
+        "dependent_f1": 1.0,
+        "dependent_precision": 1.0,
+        "dependent_recall": 1.0,
+        "edge_f1": 1.0,
+        "edge_precision": 1.0,
+        "edge_recall": 1.0,
+        "impact_status_correct": true,
+        "minimum_duplicate_module_names_met": true,
+        "minimum_dynamic_import_sites_met": true,
+        "minimum_parse_failures_met": true,
+        "minimum_unclassified_files_met": true,
+        "minimum_unsupported_source_files_met": true
+      },
+      "pass": true,
+      "predicted_dependents": [
+        "consumer.py"
+      ],
+      "predicted_edges": 1,
+      "truth_type": "python_syntax_error"
+    },
+    {
+      "candidate_report_sha256": "2ec96d3436ca3bfb509b6f2f7760f909c7a57674e3d0116a35fc90bd5b8bf1ad",
+      "candidate_snapshot_sha256": "27691d98bab2c347b758be10ec7817ec097dbccfd3271a0db4b9ae18c5823a73",
+      "case_id": "case07_duplicate",
+      "edge_fn": 0,
+      "edge_fp": 0,
+      "edge_tp": 0,
+      "expected_dependents": [],
+      "expected_edges": 0,
+      "metrics": {
+        "coverage_state_correct": true,
+        "dependent_f1": 1.0,
+        "dependent_precision": 1.0,
+        "dependent_recall": 1.0,
+        "edge_f1": 1.0,
+        "edge_precision": 1.0,
+        "edge_recall": 1.0,
+        "impact_status_correct": true,
+        "minimum_duplicate_module_names_met": true,
+        "minimum_dynamic_import_sites_met": true,
+        "minimum_parse_failures_met": true,
+        "minimum_unclassified_files_met": true,
+        "minimum_unsupported_source_files_met": true
+      },
+      "pass": true,
+      "predicted_dependents": [],
+      "predicted_edges": 0,
+      "truth_type": "duplicate_python_module_identity"
+    },
+    {
+      "candidate_report_sha256": "43e101948e2a82c85cfe0636ae3a23cdf406aeb4449098405ecf24d96f10f5d8",
+      "candidate_snapshot_sha256": "c95280b212a08eb9ae3007729c813f8b5980be535b3931e3664f77abd93fddd6",
+      "case_id": "case08_impact",
+      "edge_fn": 0,
+      "edge_fp": 0,
+      "edge_tp": 3,
+      "expected_dependents": [
+        "mid.py",
+        "side.py",
+        "top.py"
+      ],
+      "expected_edges": 3,
+      "metrics": {
+        "coverage_state_correct": true,
+        "dependent_f1": 1.0,
+        "dependent_precision": 1.0,
+        "dependent_recall": 1.0,
+        "edge_f1": 1.0,
+        "edge_precision": 1.0,
+        "edge_recall": 1.0,
+        "impact_status_correct": true,
+        "minimum_duplicate_module_names_met": true,
+        "minimum_dynamic_import_sites_met": true,
+        "minimum_parse_failures_met": true,
+        "minimum_unclassified_files_met": true,
+        "minimum_unsupported_source_files_met": true
+      },
+      "pass": true,
+      "predicted_dependents": [
+        "mid.py",
+        "side.py",
+        "top.py"
+      ],
+      "predicted_edges": 3,
+      "truth_type": "transitive_reverse_dependents"
+    }
+  ],
+  "command": "PYTHONDONTWRITEBYTECODE=1 python tools/run_code_intelligence_benchmark.py",
+  "environment": {
+    "machine": "aarch64",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
+    "system": "Android"
+  },
+  "limitations": [
+    "Synthetic, hand-authored toy fixtures only; not representative of large or production repositories.",
+    "No claim about JavaScript/TypeScript/Dart graph analysis; unsupported files are a fail-closed signal only.",
+    "This benchmark does not verify source provenance, package resolution, dynamic import target resolution, runtime call edges, or semantic correctness.",
+    "The current analyzer resolves exact module names only; benchmark fixtures deliberately conform to that model."
+  ],
+  "registration_self_hash": "NOT_IN_REGISTRATION; SHA256 is stored in detached preregistration receipt",
+  "registration_sha256": "c4e893cde1cbdbcc27bec9c165abeb9beed37b10c6df307c07ff0af89fc0dc6b",
+  "summary": {
+    "benchmark_pass": true,
+    "case_count": 8,
+    "case_fail_count": 0,
+    "case_pass_count": 8,
+    "clean_case_dependent_precision": 1.0,
+    "clean_case_dependent_recall": 0.75,
+    "clean_case_edge_precision": 1.0,
+    "clean_case_edge_recall": 0.75,
+    "fail_closed_recall": 1.0,
+    "overall_coverage_state_accuracy": 1.0,
+    "overall_edge_precision": 1.0,
+    "overall_edge_recall": 0.833333,
+    "overall_impact_status_accuracy": 1.0,
+    "thresholds_met": {
+      "all_cases_pass": true,
+      "clean_cases_dependent_precision_min": true,
+      "clean_cases_dependent_recall_min": true,
+      "clean_cases_edge_precision_min": true,
+      "clean_cases_edge_recall_min": true,
+      "fail_closed_recall_min": true,
+      "minimum_cases": true,
+      "overall_coverage_state_accuracy_min": true,
+      "overall_impact_status_accuracy_min": true
+    }
+  }
+}

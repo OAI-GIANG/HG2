@@ -63,3 +63,8 @@ The selected implementation is a clean-room developer-side candidate in `tools/h
 - Android compatibility of Codebase Memory's native engine is UNKNOWN and not needed by this candidate.
 - The candidate graph is Python-only and not a complete impact oracle. It must not be used to claim production safety or replace tests/review.
 - Benchmark against ground truth on representative repositories is still required before proposing merge or release.
+
+
+## Provenance correction — 2026-10-14
+
+The earlier statements above that exact upstream commit/tree equivalence remained UNKNOWN are superseded by the completed immutable-commit and Git-blob comparison recorded in docs/evidence/HG2_SOURCE_PROVENANCE_RESULT_20261014.json and docs/evidence/HG2_SOURCE_PROVENANCE_LICENSE_AUDIT.md. All four archives are now proven to correspond to their identified upstream commit trees, with the Public APIs archive's 11 omitted paths fully explained by upstream export-ignore rules. This correction changes provenance status only; it does not change any source disposition or claim that upstream implementation code was copied.
