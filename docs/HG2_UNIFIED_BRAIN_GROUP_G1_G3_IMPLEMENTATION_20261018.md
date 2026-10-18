@@ -5,6 +5,8 @@
 **Working branch:** `stt/hg2-circulatory-architecture-20261018`
 **Runtime used for verification:** Termux on Android / aarch64; Python 3.14.6
 **Production state:** `NOT_RELEASED`
+**Implementation commit tested:** `ca7bd964ac25871a087eeca281c4c4b864ab89ea`
+**Implementation tree tested:** `f2c22a6798e6ff5ae45fecaaba9fb236a0207035`
 
 ## 1. Baseline, ownership and safety
 
@@ -101,7 +103,7 @@ Previously, workflow and approval services called `store.emit` directly, and raw
 - `docs/HG2_UNIFIED_BRAIN_GROUP_G1_G3_IMPLEMENTATION_20261018.md`
 - `evidence/HG2-UNIFIED-BRAIN-GROUP-G1-G3-20261018/prechange/` — checkpoint, original matrix copy and pre-change hashes.
 - `evidence/HG2-UNIFIED-BRAIN-GROUP-G1-G3-20261018/final/` — preserved historical evidence from the earlier 202-test iteration; it is not the evidence for this hardened candidate.
-- `evidence/HG2-UNIFIED-BRAIN-GROUP-G1-G3-20261018/final-hardening-20261018-02/` — exact-run output, exit codes, revision/tree record and SHA-256 verification for this implementation.
+- `evidence/HG2-UNIFIED-BRAIN-GROUP-G1-G3-20261018/final-hardening-20261018-02/` — exact-run output, exit codes, tested commit/tree, machine-readable summary and SHA-256 verification for this implementation (235 tests; exit 0).
 
 ## 5. Negative and regression coverage
 
@@ -129,7 +131,7 @@ Tests exercise at least the following failure conditions:
 
 ## 7. Exact-run evidence and revision binding
 
-The earlier `final/` evidence folder is preserved as a historical run; do not use it as proof for this hardened code. Final verification for this implementation is captured in `evidence/HG2-UNIFIED-BRAIN-GROUP-G1-G3-20261018/final-hardening-20261018-02/`. The final files record:
+The earlier `final/` evidence folder is preserved as a historical 202-test run; do not use it as proof for this hardened code. Final verification for the tested source commit `ca7bd964ac25871a087eeca281c4c4b864ab89ea` is captured in `evidence/HG2-UNIFIED-BRAIN-GROUP-G1-G3-20261018/final-hardening-20261018-02/`. The full suite ran 235 tests and exited 0 in 6.881 seconds. The final files record:
 
 - exact source commit/tree and branch;
 - environment: Android/Termux/aarch64, kernel and Python version;
