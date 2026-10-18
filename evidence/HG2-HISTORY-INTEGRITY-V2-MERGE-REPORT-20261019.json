@@ -1,0 +1,24 @@
+{
+  "source_branch": "fix/history-integrity-v2",
+  "source_sha": "b28fff890f2d879a77e1fda3ce26c87f3bec7a45",
+  "target_branch": "stt/hg2-single-system-20261017",
+  "merge_commit": "759f26a9e3aee80c0902a49a3b0f3289983ab91a",
+  "source_changed_paths": [
+    ".circleci/config.yml",
+    "hg/history.py",
+    "tests/test_core.py",
+    "tests/test_integrity_v2.py"
+  ],
+  "integration_decisions": {
+    "hg/history.py": "Combined strict _record_shape_error checks with fail-closed preexisting-artifact, checkpoint, and projection validation. Record-specific diagnostics run before missing-checkpoint error so malformed history remains diagnosable.",
+    "tests/test_core.py": "Integrated source resource-safe file handles and HTTPError close behavior.",
+    "tests/test_integrity_v2.py": "Added source test suite in full.",
+    ".circleci/config.yml": "Kept target branch version rather than adopting conflicting CI configuration; this change is not required runtime code and no CI dependency was enabled. Source commit remains a merge parent."
+  },
+  "test_command": "python -m unittest tests.test_integrity_v2 tests.test_history_malformed_shapes tests.test_core -v",
+  "test_count": 33,
+  "test_result": "OK",
+  "test_log_path": "evidence/HG2-HISTORY-INTEGRITY-V2-COMPOSED-TESTS-20261019.log",
+  "test_log_sha256": "e5cabc89f80e134905d05d535da5cc1ee9fb600e9c3a34169c7fb418f37605dd",
+  "source_commit_preservation": "Merge commit has source SHA as second parent; verify ancestry after push before deleting source ref."
+}
