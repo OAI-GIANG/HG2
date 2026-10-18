@@ -1,0 +1,1310 @@
+{
+  "title": "HG2 Branch 5 - Security Policy Verification Synchronization Inventory",
+  "date": "2026-10-18",
+  "scope": "Inventory of security, policy, verification, synchronization, authority and evidence sources. No fixes, optimization, or tests; hg-genesis untouched.",
+  "source_branches": [
+    "origin/ci/deep-strict-verify-pr1-20261013",
+    "origin/ci/deep-strict-verify-pr2-20261013",
+    "origin/ci/verify-pr1-snapshot-20261013",
+    "origin/ci/verify-pr2-snapshot-20261013",
+    "origin/feat/hexis-edge-schema-guard-20261013",
+    "origin/fix/hg2-p0-v3-integrity-20261013",
+    "origin/fix/hg2-single-product-readiness-20261013",
+    "origin/fix/history-integrity-v2",
+    "origin/remediation/hg2-authority-recovery-20261014",
+    "origin/remediation/hg2-readonly-connector-20261014",
+    "origin/remediation/stt-independent-redteam-review-20261014",
+    "origin/stt-p0-integration-20261013",
+    "origin/stt/hg2-circulatory-architecture-20261018",
+    "origin/stt/hg2-unification-p0-20261016"
+  ],
+  "source_branch_count": 14,
+  "unique_logical_paths": 78,
+  "missing_active_paths": [],
+  "missing_active_path_count": 0,
+  "conflicted_paths": [
+    {
+      "path": "hg/history.py",
+      "active_exists": true,
+      "active_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "source_versions": 14,
+      "distinct_source_hashes": 6,
+      "variants": [
+        {
+          "branch": "origin/ci/deep-strict-verify-pr1-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__ci__deep-strict-verify-pr1-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/ci/deep-strict-verify-pr2-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__ci__deep-strict-verify-pr2-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/ci/verify-pr1-snapshot-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__ci__verify-pr1-snapshot-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/ci/verify-pr2-snapshot-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__ci__verify-pr2-snapshot-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/feat/hexis-edge-schema-guard-20261013",
+          "sha256": "5e7b0446893ceadeb33d7529f316be546db357b2d8f15fc802604712e04ea09e",
+          "archive_path": "docs/consolidation/source-branches/origin__feat__hexis-edge-schema-guard-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/fix/hg2-p0-v3-integrity-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__fix__hg2-p0-v3-integrity-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/fix/hg2-single-product-readiness-20261013",
+          "sha256": "5e7b0446893ceadeb33d7529f316be546db357b2d8f15fc802604712e04ea09e",
+          "archive_path": "docs/consolidation/source-branches/origin__fix__hg2-single-product-readiness-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/fix/history-integrity-v2",
+          "sha256": "73fba9344fd9d75a02df66e0950ac1c038efd38ed4142b0b14bcf15b13d2cd9e",
+          "archive_path": "docs/consolidation/source-branches/origin__fix__history-integrity-v2/hg/history.py"
+        },
+        {
+          "branch": "origin/remediation/hg2-authority-recovery-20261014",
+          "sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc",
+          "archive_path": "docs/consolidation/source-branches/origin__remediation__hg2-authority-recovery-20261014/hg/history.py"
+        },
+        {
+          "branch": "origin/remediation/hg2-readonly-connector-20261014",
+          "sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc",
+          "archive_path": "docs/consolidation/source-branches/origin__remediation__hg2-readonly-connector-20261014/hg/history.py"
+        },
+        {
+          "branch": "origin/remediation/stt-independent-redteam-review-20261014",
+          "sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc",
+          "archive_path": "docs/consolidation/source-branches/origin__remediation__stt-independent-redteam-review-20261014/hg/history.py"
+        },
+        {
+          "branch": "origin/stt-p0-integration-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__stt-p0-integration-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "c148aa51ca1d60b352a3324b710e9a1b63354798092f57f90adbc343f313279a",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/history.py"
+        },
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "8979e48f9d94c571d5e90691be16fc1b719a1cd8e4f51240f1a1ece254f92495",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/hg/history.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/sync.py",
+      "active_exists": true,
+      "active_sha256": "63a2580bbb9fd8531826be2d51437aad3ecdde006c77ffa958270ec5915dcfd2",
+      "source_versions": 2,
+      "distinct_source_hashes": 2,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "2b50c4968303102a072b2605cd2d33495f7dd37b634887494acd34ff18348158",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/sync.py"
+        },
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "e13fc80aedaae50a262245ba87078d442e9f326128389d60bd9d4a8e94e1bb76",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/hg/sync.py"
+        }
+      ]
+    }
+  ],
+  "conflicted_path_count": 2,
+  "records": [
+    {
+      "path": "contract/PROVENANCE_CONTRACT_V1.md",
+      "active_exists": true,
+      "active_sha256": "0346f3b9f540f3c9e2d8b73a76e22c8c88d19dc7aa47f894867c5fbb4a749f11",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "0346f3b9f540f3c9e2d8b73a76e22c8c88d19dc7aa47f894867c5fbb4a749f11",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/contract/PROVENANCE_CONTRACT_V1.md"
+        }
+      ]
+    },
+    {
+      "path": "contract/T018_SYNC_V2.md",
+      "active_exists": true,
+      "active_sha256": "b514debb173a250e7bddb11ed693a90160e319e413f10d5e03372fb6b5072200",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "b514debb173a250e7bddb11ed693a90160e319e413f10d5e03372fb6b5072200",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/contract/T018_SYNC_V2.md"
+        }
+      ]
+    },
+    {
+      "path": "docs/evidence/HG2_MALFORMED_HISTORY_SHAPE_GUARD_20261015.md",
+      "active_exists": true,
+      "active_sha256": "4054bdb89df07c668958de2d3421dc6e47e7b57b73945cbd0ca3ed7d74266795",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "6910a91477dae5fc2f65702781a64dc9e8500864faa99f4a86a17620453bdf36",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/docs/evidence/HG2_MALFORMED_HISTORY_SHAPE_GUARD_20261015.md"
+        }
+      ]
+    },
+    {
+      "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/history-contract-integration-report.json",
+      "active_exists": true,
+      "active_sha256": "267279a398250077044ab69203550d6d1f18639757dc19e3382b2c72f78f6e3e",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "267279a398250077044ab69203550d6d1f18639757dc19e3382b2c72f78f6e3e",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/CIRCULATORY-RESTRUCTURE-20261018/history-contract-integration-report.json"
+        }
+      ]
+    },
+    {
+      "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/history-contract-integration-unittest.log",
+      "active_exists": true,
+      "active_sha256": "5b64f941417b1507e158dfb7dbc2121530769ce94f693998c5d9a971f0720362",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "5b64f941417b1507e158dfb7dbc2121530769ce94f693998c5d9a971f0720362",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/CIRCULATORY-RESTRUCTURE-20261018/history-contract-integration-unittest.log"
+        }
+      ]
+    },
+    {
+      "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/history-contract-integration.exit_code.txt",
+      "active_exists": true,
+      "active_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/CIRCULATORY-RESTRUCTURE-20261018/history-contract-integration.exit_code.txt"
+        }
+      ]
+    },
+    {
+      "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/sqlite-state-backend-report.json",
+      "active_exists": true,
+      "active_sha256": "388b2c14bc318664db0f8af87a7aaa13aa6b64d81180b31565d29dba9531e252",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "388b2c14bc318664db0f8af87a7aaa13aa6b64d81180b31565d29dba9531e252",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/CIRCULATORY-RESTRUCTURE-20261018/sqlite-state-backend-report.json"
+        }
+      ]
+    },
+    {
+      "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/sqlite-state-backend-unittest.log",
+      "active_exists": true,
+      "active_sha256": "5fd38f7ae14d75271350beb3ec36ced10b85356e64f4f36c2328b2418107bcc3",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "5fd38f7ae14d75271350beb3ec36ced10b85356e64f4f36c2328b2418107bcc3",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/CIRCULATORY-RESTRUCTURE-20261018/sqlite-state-backend-unittest.log"
+        }
+      ]
+    },
+    {
+      "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/sqlite-state-backend.exit_code.txt",
+      "active_exists": true,
+      "active_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/CIRCULATORY-RESTRUCTURE-20261018/sqlite-state-backend.exit_code.txt"
+        }
+      ]
+    },
+    {
+      "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/sync-dispatcher-report.json",
+      "active_exists": true,
+      "active_sha256": "1015e0421b83ffb9aefa7565d31599d98f74436d3d30157780780d2ac3631029",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "1015e0421b83ffb9aefa7565d31599d98f74436d3d30157780780d2ac3631029",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/CIRCULATORY-RESTRUCTURE-20261018/sync-dispatcher-report.json"
+        }
+      ]
+    },
+    {
+      "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/sync-dispatcher-unittest.log",
+      "active_exists": true,
+      "active_sha256": "4f637a690ac4d8409b594d0cedca810dcf3464c5b2238157bb5b820edfa9d335",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "4f637a690ac4d8409b594d0cedca810dcf3464c5b2238157bb5b820edfa9d335",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/CIRCULATORY-RESTRUCTURE-20261018/sync-dispatcher-unittest.log"
+        }
+      ]
+    },
+    {
+      "path": "evidence/CIRCULATORY-RESTRUCTURE-20261018/sync-dispatcher.exit_code.txt",
+      "active_exists": true,
+      "active_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/CIRCULATORY-RESTRUCTURE-20261018/sync-dispatcher.exit_code.txt"
+        }
+      ]
+    },
+    {
+      "path": "evidence/HG2-STATE-STORE-HARDENING-20261018/SHA256SUMS.txt",
+      "active_exists": true,
+      "active_sha256": "1ae4a962966ff94900fb158c32c55c500b3405bdf31327687e610f7aaf847e25",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "1ae4a962966ff94900fb158c32c55c500b3405bdf31327687e610f7aaf847e25",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/HG2-STATE-STORE-HARDENING-20261018/SHA256SUMS.txt"
+        }
+      ]
+    },
+    {
+      "path": "evidence/HG2-STATE-STORE-HARDENING-20261018/exit_code.txt",
+      "active_exists": true,
+      "active_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/HG2-STATE-STORE-HARDENING-20261018/exit_code.txt"
+        }
+      ]
+    },
+    {
+      "path": "evidence/HG2-STATE-STORE-HARDENING-20261018/summary.json",
+      "active_exists": true,
+      "active_sha256": "38c9c2e90178705e728b60760129f52d8fa894d3a0a7cf721485098a60f309ee",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "38c9c2e90178705e728b60760129f52d8fa894d3a0a7cf721485098a60f309ee",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/HG2-STATE-STORE-HARDENING-20261018/summary.json"
+        }
+      ]
+    },
+    {
+      "path": "evidence/HG2-STATE-STORE-HARDENING-20261018/unittest.log",
+      "active_exists": true,
+      "active_sha256": "9111d25622c6d63998c9f655dd6e3984068b4a403e9e4183ff7ff30b78b8008c",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "9111d25622c6d63998c9f655dd6e3984068b4a403e9e4183ff7ff30b78b8008c",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/HG2-STATE-STORE-HARDENING-20261018/unittest.log"
+        }
+      ]
+    },
+    {
+      "path": "evidence/HG2-UNIFIED-BRAIN-GROUP-G1-G3-20261018/prechange/checkpoint.txt",
+      "active_exists": true,
+      "active_sha256": "5496f13b7038dd621a57a733a013281caae94a18f4443c1c38c7dc0a7fec23f7",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "5496f13b7038dd621a57a733a013281caae94a18f4443c1c38c7dc0a7fec23f7",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/evidence/HG2-UNIFIED-BRAIN-GROUP-G1-G3-20261018/prechange/checkpoint.txt"
+        }
+      ]
+    },
+    {
+      "path": "hg/auth.py",
+      "active_exists": true,
+      "active_sha256": "0f5b65d94aa1c4ab1aa1a1ec599b7813229e7579939bcf5ec6f6d6aadeaffe31",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "0f5b65d94aa1c4ab1aa1a1ec599b7813229e7579939bcf5ec6f6d6aadeaffe31",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/auth.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/contracts.py",
+      "active_exists": true,
+      "active_sha256": "c8b48f511261dbaf0d0f20e830ddc966890c2f69b917a4118209b831a874f372",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "c8b48f511261dbaf0d0f20e830ddc966890c2f69b917a4118209b831a874f372",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/contracts.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/history.py",
+      "active_exists": true,
+      "active_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "source_versions": 14,
+      "distinct_source_hashes": 6,
+      "variants": [
+        {
+          "branch": "origin/ci/deep-strict-verify-pr1-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__ci__deep-strict-verify-pr1-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/ci/deep-strict-verify-pr2-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__ci__deep-strict-verify-pr2-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/ci/verify-pr1-snapshot-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__ci__verify-pr1-snapshot-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/ci/verify-pr2-snapshot-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__ci__verify-pr2-snapshot-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/feat/hexis-edge-schema-guard-20261013",
+          "sha256": "5e7b0446893ceadeb33d7529f316be546db357b2d8f15fc802604712e04ea09e",
+          "archive_path": "docs/consolidation/source-branches/origin__feat__hexis-edge-schema-guard-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/fix/hg2-p0-v3-integrity-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__fix__hg2-p0-v3-integrity-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/fix/hg2-single-product-readiness-20261013",
+          "sha256": "5e7b0446893ceadeb33d7529f316be546db357b2d8f15fc802604712e04ea09e",
+          "archive_path": "docs/consolidation/source-branches/origin__fix__hg2-single-product-readiness-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/fix/history-integrity-v2",
+          "sha256": "73fba9344fd9d75a02df66e0950ac1c038efd38ed4142b0b14bcf15b13d2cd9e",
+          "archive_path": "docs/consolidation/source-branches/origin__fix__history-integrity-v2/hg/history.py"
+        },
+        {
+          "branch": "origin/remediation/hg2-authority-recovery-20261014",
+          "sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc",
+          "archive_path": "docs/consolidation/source-branches/origin__remediation__hg2-authority-recovery-20261014/hg/history.py"
+        },
+        {
+          "branch": "origin/remediation/hg2-readonly-connector-20261014",
+          "sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc",
+          "archive_path": "docs/consolidation/source-branches/origin__remediation__hg2-readonly-connector-20261014/hg/history.py"
+        },
+        {
+          "branch": "origin/remediation/stt-independent-redteam-review-20261014",
+          "sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc",
+          "archive_path": "docs/consolidation/source-branches/origin__remediation__stt-independent-redteam-review-20261014/hg/history.py"
+        },
+        {
+          "branch": "origin/stt-p0-integration-20261013",
+          "sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+          "archive_path": "docs/consolidation/source-branches/origin__stt-p0-integration-20261013/hg/history.py"
+        },
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "c148aa51ca1d60b352a3324b710e9a1b63354798092f57f90adbc343f313279a",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/history.py"
+        },
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "8979e48f9d94c571d5e90691be16fc1b719a1cd8e4f51240f1a1ece254f92495",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/hg/history.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/policy.py",
+      "active_exists": true,
+      "active_sha256": "0513f865ba98840af57fcac07cb5a3f4d9bb95adf892233458596f542d1e4dc8",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "0513f865ba98840af57fcac07cb5a3f4d9bb95adf892233458596f542d1e4dc8",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/policy.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/provenance.py",
+      "active_exists": true,
+      "active_sha256": "2081ff229d92c4a3b82d1a360f14fb207c98410fad17127c97b2178bcc20f629",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "6c211bcebb7255d4ff6496872b4df60de500bae4de43e234292eaab1d4e1112b",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/hg/provenance.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/sqlite_state.py",
+      "active_exists": true,
+      "active_sha256": "bfe4b33156c2a0ee2356ac1eb3dc0416dcbd0f6a77326c87a2d1a95ddf4366d6",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "bfe4b33156c2a0ee2356ac1eb3dc0416dcbd0f6a77326c87a2d1a95ddf4366d6",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/sqlite_state.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/sync.py",
+      "active_exists": true,
+      "active_sha256": "63a2580bbb9fd8531826be2d51437aad3ecdde006c77ffa958270ec5915dcfd2",
+      "source_versions": 2,
+      "distinct_source_hashes": 2,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "2b50c4968303102a072b2605cd2d33495f7dd37b634887494acd34ff18348158",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/sync.py"
+        },
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "e13fc80aedaae50a262245ba87078d442e9f326128389d60bd9d4a8e94e1bb76",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/hg/sync.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/sync_auth.py",
+      "active_exists": true,
+      "active_sha256": "4b36ef364a98a9e36b6924b28a6092b6a0ad091e2c6f0985bd33c999ee077099",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "4b36ef364a98a9e36b6924b28a6092b6a0ad091e2c6f0985bd33c999ee077099",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/hg/sync_auth.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/sync_bootstrap.py",
+      "active_exists": true,
+      "active_sha256": "5698c150a63cd889c380539bdaf3c52ef9e9e70f13da7c78ad124b61d1f8b753",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "5698c150a63cd889c380539bdaf3c52ef9e9e70f13da7c78ad124b61d1f8b753",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/hg/sync_bootstrap.py"
+        }
+      ]
+    },
+    {
+      "path": "hg/workflow.py",
+      "active_exists": true,
+      "active_sha256": "e4140d1473a38bb78a733b7e3b3dd4293125fac2bc73dfd687a5de9e1c6a3f9f",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "e4140d1473a38bb78a733b7e3b3dd4293125fac2bc73dfd687a5de9e1c6a3f9f",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/workflow.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-FIXTURE-V2.1-REVISION-REPORT.md",
+      "active_exists": true,
+      "active_sha256": "d6341f018c568df337da56515d450cc6b056fdd0b4ade5ce3da1c84c1a127968",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "d6341f018c568df337da56515d450cc6b056fdd0b4ade5ce3da1c84c1a127968",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-FIXTURE-V2.1-REVISION-REPORT.md"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-V2.1-CHECKPOINT-20261017.md",
+      "active_exists": true,
+      "active_sha256": "42add413cd29cd6929805daf8294594d7f044e3e946033c2d5f3e756b46bd127",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "42add413cd29cd6929805daf8294594d7f044e3e946033c2d5f3e756b46bd127",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-V2.1-CHECKPOINT-20261017.md"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-V2.1-CLOSURE-REPORT.md",
+      "active_exists": true,
+      "active_sha256": "9dd300c3ae5c2f656ce0a7362d459777dac95c46c5c571708491ed10bd1b0130",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "9dd300c3ae5c2f656ce0a7362d459777dac95c46c5c571708491ed10bd1b0130",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-V2.1-CLOSURE-REPORT.md"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-V2.1-INTEGRATION-NOTE.md",
+      "active_exists": true,
+      "active_sha256": "949325286e6aa3d62c2aebb1e652acb817429e88794672eb72325d426ccf5c4c",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "949325286e6aa3d62c2aebb1e652acb817429e88794672eb72325d426ccf5c4c",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-V2.1-INTEGRATION-NOTE.md"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-V2.1-SEMANTIC-REVIEW-REPORT.md",
+      "active_exists": true,
+      "active_sha256": "2b4f53618b0e2a04109a04b6d3e23de728e6183b7bfcdfc3b92a888d6eef7fcf",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "2b4f53618b0e2a04109a04b6d3e23de728e6183b7bfcdfc3b92a888d6eef7fcf",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HG-NATIVE-INTELLIGENCE-V2.1-SEMANTIC-REVIEW-REPORT.md"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-01-TASK-CONSTRAINTS-DEPENDENCIES.json",
+      "active_exists": true,
+      "active_sha256": "11ece62f3189e04fd4e73d0fc70dc97ac015abb8adf2ac23ca58475b18149484",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "11ece62f3189e04fd4e73d0fc70dc97ac015abb8adf2ac23ca58475b18149484",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-01-TASK-CONSTRAINTS-DEPENDENCIES.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-02-AMBIGUITY-CONFLICT.json",
+      "active_exists": true,
+      "active_sha256": "9c411fadb7775780522a57d6f24239953167ddd6c163415515324b51019a1ad8",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "9c411fadb7775780522a57d6f24239953167ddd6c163415515324b51019a1ad8",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-02-AMBIGUITY-CONFLICT.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-03-CLAIM-EVIDENCE-EPISTEMIC-LABELS.json",
+      "active_exists": true,
+      "active_sha256": "73996c93c824318cd25e0cd5d500c2324ea7ba81f9327bdcf81d19cd12bb3b83",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "73996c93c824318cd25e0cd5d500c2324ea7ba81f9327bdcf81d19cd12bb3b83",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-03-CLAIM-EVIDENCE-EPISTEMIC-LABELS.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-04-PROVENANCE-MISSING-METADATA.json",
+      "active_exists": true,
+      "active_sha256": "fbc5c8b9717329dc26d68734d83455a39556d7946b2be432c8fa7ed56529028e",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "fbc5c8b9717329dc26d68734d83455a39556d7946b2be432c8fa7ed56529028e",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-04-PROVENANCE-MISSING-METADATA.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-05-CREATIVE-OPTIONS-RUBRIC.json",
+      "active_exists": true,
+      "active_sha256": "6507f6819fb155835e4da4251a73e59898fd3ee929480f168ae73a0f33628551",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "6507f6819fb155835e4da4251a73e59898fd3ee929480f168ae73a0f33628551",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-05-CREATIVE-OPTIONS-RUBRIC.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-06-FEEDBACK-DELTA-PRESERVE-CONSTRAINTS.json",
+      "active_exists": true,
+      "active_sha256": "2a82976feafba5e556664aba7e96f24c4469c462d4fb7806d71befc1b78af063",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "2a82976feafba5e556664aba7e96f24c4469c462d4fb7806d71befc1b78af063",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-06-FEEDBACK-DELTA-PRESERVE-CONSTRAINTS.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-07-CONTROLLED-IMPROVEMENT-EXPERIMENT.json",
+      "active_exists": true,
+      "active_sha256": "71970cc04a30c3f9adda5968b0d650b2dab69717ddda0132e831ad8bbd7d538d",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "71970cc04a30c3f9adda5968b0d650b2dab69717ddda0132e831ad8bbd7d538d",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-07-CONTROLLED-IMPROVEMENT-EXPERIMENT.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-08-TRANSFER-BOUNDARY.json",
+      "active_exists": true,
+      "active_sha256": "2e86803edccfc18d1d6fb27b3001269022156abde285150214fd75b7fd153eda",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "2e86803edccfc18d1d6fb27b3001269022156abde285150214fd75b7fd153eda",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-08-TRANSFER-BOUNDARY.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-09-COUNTEREXAMPLE-SEARCH.json",
+      "active_exists": true,
+      "active_sha256": "dec2790fb3aa1fe74ba6227265c7f86be27db0f4eacb8efe3cf3842c6562f3ac",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "dec2790fb3aa1fe74ba6227265c7f86be27db0f4eacb8efe3cf3842c6562f3ac",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-09-COUNTEREXAMPLE-SEARCH.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-10-UNCERTAINTY-CALIBRATION.json",
+      "active_exists": true,
+      "active_sha256": "e063880e4f2c24cc476d6d01c5fb3c401ba36cafa3563f69c5b1de94d1a07e87",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "e063880e4f2c24cc476d6d01c5fb3c401ba36cafa3563f69c5b1de94d1a07e87",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-10-UNCERTAINTY-CALIBRATION.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-11-CORRECTION-CHAIN-TWO-DEPENDENTS.json",
+      "active_exists": true,
+      "active_sha256": "8de3908895dfd1cdcbe93784c7839ef506d21ec38ef9fc349b6b69b041a658eb",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "8de3908895dfd1cdcbe93784c7839ef506d21ec38ef9fc349b6b69b041a658eb",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-11-CORRECTION-CHAIN-TWO-DEPENDENTS.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-12-TOOL-RESULT-TRUTH-PARTIAL-SEQUENCE.json",
+      "active_exists": true,
+      "active_sha256": "788158a796edb74d0e32ffce6db73c6673cc98398934f81dfd5e4d0e3e5ffbc1",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "788158a796edb74d0e32ffce6db73c6673cc98398934f81dfd5e4d0e3e5ffbc1",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-12-TOOL-RESULT-TRUTH-PARTIAL-SEQUENCE.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-13-AUTHORIZATION-STATE-TRACE.json",
+      "active_exists": true,
+      "active_sha256": "d3784322fda47ccbec672f01021b0734a0b16490d80c40e8c00519c1c096849c",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "d3784322fda47ccbec672f01021b0734a0b16490d80c40e8c00519c1c096849c",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-13-AUTHORIZATION-STATE-TRACE.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-14-DECOY-SECRET-SINKS.json",
+      "active_exists": true,
+      "active_sha256": "cdfb874de1966ef54d3d68d08f1079e106afa9d49d6733dfde27bf1256d734d3",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "cdfb874de1966ef54d3d68d08f1079e106afa9d49d6733dfde27bf1256d734d3",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-14-DECOY-SECRET-SINKS.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-15-CORRUPT-STATE-FAULT-CASES.json",
+      "active_exists": true,
+      "active_sha256": "26f8e694b4c239f8ddf2d458f83a98d681f4df7a41dc9cc6100d9891f2c4ea87",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "26f8e694b4c239f8ddf2d458f83a98d681f4df7a41dc9cc6100d9891f2c4ea87",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-15-CORRUPT-STATE-FAULT-CASES.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-16-REPEATABILITY-IDENTITY-RUNCOUNT.json",
+      "active_exists": true,
+      "active_sha256": "4edb9139a3e2592b3b0d698e15ea3c858fb859bb33498ab77eddeea485fef406",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "4edb9139a3e2592b3b0d698e15ea3c858fb859bb33498ab77eddeea485fef406",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-16-REPEATABILITY-IDENTITY-RUNCOUNT.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-17-REGRESSION-CRITICAL-GATE.json",
+      "active_exists": true,
+      "active_sha256": "d5c7c9e10ed19b242e73541eada04b0db2fd2950372304fd970024e6537569cf",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "d5c7c9e10ed19b242e73541eada04b0db2fd2950372304fd970024e6537569cf",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-17-REGRESSION-CRITICAL-GATE.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-18-STATUS-AND-HISTORICAL-SOURCE-REQUEST.json",
+      "active_exists": true,
+      "active_sha256": "67c343c92bdfdfcbe653e6eb9d871cedaf02973c020ede50dab7457dc2590467",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "67c343c92bdfdfcbe653e6eb9d871cedaf02973c020ede50dab7457dc2590467",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-18-STATUS-AND-HISTORICAL-SOURCE-REQUEST.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-19-COMPARABLE-IMPROVEMENT-REGRESSION.json",
+      "active_exists": true,
+      "active_sha256": "21c481141b01b0eb48154ed5dc262396481864402383b838137c2bc4c3642c0d",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "21c481141b01b0eb48154ed5dc262396481864402383b838137c2bc4c3642c0d",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-19-COMPARABLE-IMPROVEMENT-REGRESSION.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-20-DIGEST-INTEGRITY-NOT-AUTHORITY.json",
+      "active_exists": true,
+      "active_sha256": "8f7f057ac93faa74fec872d4ad0a83a9fd6677bab342d33c1bcf7e441991b3c2",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "8f7f057ac93faa74fec872d4ad0a83a9fd6677bab342d33c1bcf7e441991b3c2",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-20-DIGEST-INTEGRITY-NOT-AUTHORITY.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-21-RETRY-IDEMPOTENCY-SIDE-EFFECT.json",
+      "active_exists": true,
+      "active_sha256": "f354c8c95883fd3e6cfd8f2273dfd64770a6d39a65e1b7d1f4dd70969fcc0461",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "f354c8c95883fd3e6cfd8f2273dfd64770a6d39a65e1b7d1f4dd70969fcc0461",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-21-RETRY-IDEMPOTENCY-SIDE-EFFECT.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-22-MISSING-ARTIFACT-DIGEST-MISMATCH.json",
+      "active_exists": true,
+      "active_sha256": "b897ecfa23a6faad45488cba7a005d709fd99a7f9d058794dc2c7a5f72aeb0a2",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "b897ecfa23a6faad45488cba7a005d709fd99a7f9d058794dc2c7a5f72aeb0a2",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-22-MISSING-ARTIFACT-DIGEST-MISMATCH.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-23-MANIFEST-STRUCTURE-NEGATIVES.json",
+      "active_exists": true,
+      "active_sha256": "317a1594f69451c588cea397b890c2c0aac02619075913e9196c49e5b2fb2669",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "317a1594f69451c588cea397b890c2c0aac02619075913e9196c49e5b2fb2669",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-23-MANIFEST-STRUCTURE-NEGATIVES.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-24-ORACLE-POSTHOC-CHANGE.json",
+      "active_exists": true,
+      "active_sha256": "b85c9338fd695403b98fa8203477a544eb6947c2565269537b630770e4642531",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "b85c9338fd695403b98fa8203477a544eb6947c2565269537b630770e4642531",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-24-ORACLE-POSTHOC-CHANGE.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-25-UNAPPROVED-NA-EXCLUSION.json",
+      "active_exists": true,
+      "active_sha256": "178008eff6101d153e39fde79bfd6f8f3ce9ccacad0de9ce9e00f0770e2ee7bb",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "178008eff6101d153e39fde79bfd6f8f3ce9ccacad0de9ce9e00f0770e2ee7bb",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-25-UNAPPROVED-NA-EXCLUSION.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/HNIF2-26-MISSING-EVIDENCE-STATUS-BOUNDARIES.json",
+      "active_exists": true,
+      "active_sha256": "2272b7202e918b4e332864ace4a348a78bc14fbfdb49a29cf12be2c57d52cdda",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "2272b7202e918b4e332864ace4a348a78bc14fbfdb49a29cf12be2c57d52cdda",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/HNIF2-26-MISSING-EVIDENCE-STATUS-BOUNDARIES.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/README.md",
+      "active_exists": true,
+      "active_sha256": "a59550bac60d3694dadfcc06a7d534c7cc4b81e197228297f94f80fa94a98cdc",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "a59550bac60d3694dadfcc06a7d534c7cc4b81e197228297f94f80fa94a98cdc",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/README.md"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/SHA256SUMS-V2.1.txt",
+      "active_exists": true,
+      "active_sha256": "d84bf8759bcb7aaebe0967ad22022add828caf5bd92ff29edcd1f0fff9ffae29",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "d84bf8759bcb7aaebe0967ad22022add828caf5bd92ff29edcd1f0fff9ffae29",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/SHA256SUMS-V2.1.txt"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/build_v21.py",
+      "active_exists": true,
+      "active_sha256": "399949a865a5b0cc3b41c4c5b4720271d4ae6adaaf095bc438a3593400cccf7f",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "399949a865a5b0cc3b41c4c5b4720271d4ae6adaaf095bc438a3593400cccf7f",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/build_v21.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/complete_oracles_v21.py",
+      "active_exists": true,
+      "active_sha256": "d566d4d1d3f8be230b7fa847e206a2285e5c7665fa494727faaf7dd4f5c1a6d1",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "d566d4d1d3f8be230b7fa847e206a2285e5c7665fa494727faaf7dd4f5c1a6d1",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/complete_oracles_v21.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/manifest.json",
+      "active_exists": true,
+      "active_sha256": "e3589fef55fe749478e41f14b46205d894bd8e7583ce01fe81797f6d0202b021",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "e3589fef55fe749478e41f14b46205d894bd8e7583ce01fe81797f6d0202b021",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/manifest.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/test_fixture_package_v21.py",
+      "active_exists": true,
+      "active_sha256": "be5e6cad764dea3102594a8ca9955206ea16dbd519059b2128ebcb283a5e2ef5",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "be5e6cad764dea3102594a8ca9955206ea16dbd519059b2128ebcb283a5e2ef5",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/test_fixture_package_v21.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg-native-intelligence-v2.1/validate_v21.py",
+      "active_exists": true,
+      "active_sha256": "e80b223501b264d9bd21310c6288f497812c3c7c0957122d323fb7ed1541fb6a",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "e80b223501b264d9bd21310c6288f497812c3c7c0957122d323fb7ed1541fb6a",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/fixtures/hg-native-intelligence-v2.1/validate_v21.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg_store_pre_mapping/history.jsonl",
+      "active_exists": true,
+      "active_sha256": "9f5296d8d9e06a71f7768f7cc09085268d75c1d52f4bda13cc9c6a0bf69c9faf",
+      "source_versions": 3,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/feat/hexis-edge-schema-guard-20261013",
+          "sha256": "9f5296d8d9e06a71f7768f7cc09085268d75c1d52f4bda13cc9c6a0bf69c9faf",
+          "archive_path": "docs/consolidation/source-branches/origin__feat__hexis-edge-schema-guard-20261013/tests/fixtures/hg_store_pre_mapping/history.jsonl"
+        },
+        {
+          "branch": "origin/fix/hg2-single-product-readiness-20261013",
+          "sha256": "9f5296d8d9e06a71f7768f7cc09085268d75c1d52f4bda13cc9c6a0bf69c9faf",
+          "archive_path": "docs/consolidation/source-branches/origin__fix__hg2-single-product-readiness-20261013/tests/fixtures/hg_store_pre_mapping/history.jsonl"
+        },
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "9f5296d8d9e06a71f7768f7cc09085268d75c1d52f4bda13cc9c6a0bf69c9faf",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/fixtures/hg_store_pre_mapping/history.jsonl"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/hg_store_pre_mapping/state.json",
+      "active_exists": true,
+      "active_sha256": "8983a94a29a885fa984fb9700586ec9b7de05fffd9e8090036f299da18ebb75a",
+      "source_versions": 3,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/feat/hexis-edge-schema-guard-20261013",
+          "sha256": "8983a94a29a885fa984fb9700586ec9b7de05fffd9e8090036f299da18ebb75a",
+          "archive_path": "docs/consolidation/source-branches/origin__feat__hexis-edge-schema-guard-20261013/tests/fixtures/hg_store_pre_mapping/state.json"
+        },
+        {
+          "branch": "origin/fix/hg2-single-product-readiness-20261013",
+          "sha256": "8983a94a29a885fa984fb9700586ec9b7de05fffd9e8090036f299da18ebb75a",
+          "archive_path": "docs/consolidation/source-branches/origin__fix__hg2-single-product-readiness-20261013/tests/fixtures/hg_store_pre_mapping/state.json"
+        },
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "8983a94a29a885fa984fb9700586ec9b7de05fffd9e8090036f299da18ebb75a",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/fixtures/hg_store_pre_mapping/state.json"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_authenticated_sync_transaction.py",
+      "active_exists": true,
+      "active_sha256": "02afbd6792758ebf0add12d2a03daa76f8cb84757a8e421d5c9b295619ce8465",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "02afbd6792758ebf0add12d2a03daa76f8cb84757a8e421d5c9b295619ce8465",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/test_authenticated_sync_transaction.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_history_malformed_shapes.py",
+      "active_exists": true,
+      "active_sha256": "0ab4ea556461eb7ad60c0d521219535ed1b49296481cb9286ec268f3b21c2d98",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "8222785164c727bcc0123a5c1a3d7ced717efbc614c8df34ad99302ce12df157",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/test_history_malformed_shapes.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_phone_runtime_sync_integration.py",
+      "active_exists": true,
+      "active_sha256": "862ef82a0956f61eb730741a252776f6ec065555b654ff6588eb7658b0bf6387",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "862ef82a0956f61eb730741a252776f6ec065555b654ff6588eb7658b0bf6387",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/test_phone_runtime_sync_integration.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_policy.py",
+      "active_exists": true,
+      "active_sha256": "117025caf2cc563dc6087801c71688795a9fc2a3e8b4f3a37d3231c207f942b4",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "117025caf2cc563dc6087801c71688795a9fc2a3e8b4f3a37d3231c207f942b4",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/test_policy.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_provenance.py",
+      "active_exists": true,
+      "active_sha256": "051fa1e67605beef9233685e9a4fe8ba4adca056f88a4b449788ac980afc243f",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "b2b2fd708416d64676e899593e42d252d5707f892eded21bcb20e04267562fb7",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/test_provenance.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_sqlite_state.py",
+      "active_exists": true,
+      "active_sha256": "bdde3e077b3ec2e4157ab1972585e343775b127d556669db3646efe128de43c8",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "bdde3e077b3ec2e4157ab1972585e343775b127d556669db3646efe128de43c8",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/test_sqlite_state.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_sync.py",
+      "active_exists": true,
+      "active_sha256": "8a988c95c17b7fd9426198c792a9b558cd9943040ab89c3159d21f8c21e281dd",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "8a988c95c17b7fd9426198c792a9b558cd9943040ab89c3159d21f8c21e281dd",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/test_sync.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_sync_auth.py",
+      "active_exists": true,
+      "active_sha256": "c78ebb60236245941484a7e17f88c3b231e6f8f8241c0ddb102f0e9f955ac669",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "c78ebb60236245941484a7e17f88c3b231e6f8f8241c0ddb102f0e9f955ac669",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/test_sync_auth.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_sync_bootstrap.py",
+      "active_exists": true,
+      "active_sha256": "564cf084c6a13c3b5cedb2630ad875c481653a897df427d69d19c2c211e264e8",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "564cf084c6a13c3b5cedb2630ad875c481653a897df427d69d19c2c211e264e8",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/test_sync_bootstrap.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_t018_sync.py",
+      "active_exists": true,
+      "active_sha256": "3551e0a3d36780ba1e5658a0ab6a030f162a3546aedd0e8b800370d7080223aa",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-unification-p0-20261016",
+          "sha256": "3139d35e5bdc05eb2354df353c0262f20f836a59d8c60e420504b053b621a79b",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/test_t018_sync.py"
+        }
+      ]
+    },
+    {
+      "path": "tests/test_workflow.py",
+      "active_exists": true,
+      "active_sha256": "ed9ab5b4d0d48e0595046949611caab7a1e4c57455c5a5cd44536245bfc41ac9",
+      "source_versions": 1,
+      "distinct_source_hashes": 1,
+      "variants": [
+        {
+          "branch": "origin/stt/hg2-circulatory-architecture-20261018",
+          "sha256": "ed9ab5b4d0d48e0595046949611caab7a1e4c57455c5a5cd44536245bfc41ac9",
+          "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/tests/test_workflow.py"
+        }
+      ]
+    }
+  ]
+}
