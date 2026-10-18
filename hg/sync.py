@@ -228,3 +228,7 @@ class SyncContext:
                 fh.write(raw)
         self._audit({"op": "conflict", "file": name, "reason": reason, "at": self._clock()})
         self.store.emit("sync.conflict", {"file": name, "reason": reason})
+
+
+# Keep the durable outbox dispatcher available alongside T-018 cross-context sync.
+from .sync_dispatcher import SyncDispatcher  # noqa: E402
