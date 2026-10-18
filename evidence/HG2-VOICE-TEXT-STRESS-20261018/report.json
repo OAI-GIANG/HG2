@@ -1,0 +1,241 @@
+{
+  "by_category": {
+    "casefold": {
+      "cases": 1,
+      "cer": 0.0,
+      "character_errors": 0,
+      "reference_characters": 8,
+      "reference_words": 2,
+      "wer": 0.0,
+      "word_errors": 0
+    },
+    "code_switch": {
+      "cases": 1,
+      "cer": 0.4,
+      "character_errors": 8,
+      "reference_characters": 20,
+      "reference_words": 4,
+      "wer": 0.5,
+      "word_errors": 2
+    },
+    "deletion": {
+      "cases": 1,
+      "cer": 0.2777777777777778,
+      "character_errors": 5,
+      "reference_characters": 18,
+      "reference_words": 4,
+      "wer": 0.25,
+      "word_errors": 1
+    },
+    "digit_spelling": {
+      "cases": 2,
+      "cer": 1.0,
+      "character_errors": 28,
+      "reference_characters": 28,
+      "reference_words": 6,
+      "wer": 1.0,
+      "word_errors": 6
+    },
+    "empty_hypothesis": {
+      "cases": 1,
+      "cer": 1.0,
+      "character_errors": 17,
+      "reference_characters": 17,
+      "reference_words": 4,
+      "wer": 1.0,
+      "word_errors": 4
+    },
+    "empty_reference": {
+      "cases": 1,
+      "cer": null,
+      "character_errors": 8,
+      "reference_characters": 0,
+      "reference_words": 0,
+      "wer": null,
+      "word_errors": 2
+    },
+    "exact": {
+      "cases": 1,
+      "cer": 0.0,
+      "character_errors": 0,
+      "reference_characters": 8,
+      "reference_words": 2,
+      "wer": 0.0,
+      "word_errors": 0
+    },
+    "homophone_context": {
+      "cases": 2,
+      "cer": 0.11764705882352941,
+      "character_errors": 2,
+      "reference_characters": 17,
+      "reference_words": 4,
+      "wer": 0.5,
+      "word_errors": 2
+    },
+    "insertion": {
+      "cases": 1,
+      "cer": 1.0,
+      "character_errors": 10,
+      "reference_characters": 10,
+      "reference_words": 3,
+      "wer": 0.6666666666666666,
+      "word_errors": 2
+    },
+    "lexical_near_miss": {
+      "cases": 1,
+      "cer": 0.09090909090909091,
+      "character_errors": 1,
+      "reference_characters": 11,
+      "reference_words": 3,
+      "wer": 0.3333333333333333,
+      "word_errors": 1
+    },
+    "long_context": {
+      "cases": 1,
+      "cer": 0.05660377358490566,
+      "character_errors": 3,
+      "reference_characters": 53,
+      "reference_words": 12,
+      "wer": 0.08333333333333333,
+      "word_errors": 1
+    },
+    "numbers_and_units": {
+      "cases": 1,
+      "cer": 0.7692307692307693,
+      "character_errors": 10,
+      "reference_characters": 13,
+      "reference_words": 4,
+      "wer": 1.0,
+      "word_errors": 4
+    },
+    "place_name": {
+      "cases": 1,
+      "cer": 0.10526315789473684,
+      "character_errors": 2,
+      "reference_characters": 19,
+      "reference_words": 4,
+      "wer": 0.25,
+      "word_errors": 1
+    },
+    "proper_name": {
+      "cases": 1,
+      "cer": 0.09090909090909091,
+      "character_errors": 1,
+      "reference_characters": 11,
+      "reference_words": 3,
+      "wer": 0.3333333333333333,
+      "word_errors": 1
+    },
+    "punctuation": {
+      "cases": 2,
+      "cer": 0.1111111111111111,
+      "character_errors": 2,
+      "reference_characters": 18,
+      "reference_words": 4,
+      "wer": 0.5,
+      "word_errors": 2
+    },
+    "regional_spelling": {
+      "cases": 1,
+      "cer": 0.1111111111111111,
+      "character_errors": 1,
+      "reference_characters": 9,
+      "reference_words": 2,
+      "wer": 0.5,
+      "word_errors": 1
+    },
+    "sentence_boundary": {
+      "cases": 1,
+      "cer": 0.08,
+      "character_errors": 2,
+      "reference_characters": 25,
+      "reference_words": 5,
+      "wer": 0.4,
+      "word_errors": 2
+    },
+    "token_boundary": {
+      "cases": 1,
+      "cer": 0.1111111111111111,
+      "character_errors": 1,
+      "reference_characters": 9,
+      "reference_words": 2,
+      "wer": 1.0,
+      "word_errors": 2
+    },
+    "tone_mark": {
+      "cases": 5,
+      "cer": 0.3333333333333333,
+      "character_errors": 5,
+      "reference_characters": 15,
+      "reference_words": 5,
+      "wer": 1.0,
+      "word_errors": 5
+    },
+    "unicode_combining": {
+      "cases": 1,
+      "cer": 0.0625,
+      "character_errors": 1,
+      "reference_characters": 16,
+      "reference_words": 4,
+      "wer": 0.25,
+      "word_errors": 1
+    },
+    "unicode_composition": {
+      "cases": 1,
+      "cer": 0.25,
+      "character_errors": 2,
+      "reference_characters": 8,
+      "reference_words": 2,
+      "wer": 0.5,
+      "word_errors": 1
+    },
+    "whitespace": {
+      "cases": 1,
+      "cer": 0.0,
+      "character_errors": 0,
+      "reference_characters": 12,
+      "reference_words": 3,
+      "wer": 0.0,
+      "word_errors": 0
+    },
+    "word_order": {
+      "cases": 1,
+      "cer": 0.8947368421052632,
+      "character_errors": 17,
+      "reference_characters": 19,
+      "reference_words": 5,
+      "wer": 0.8,
+      "word_errors": 4
+    }
+  },
+  "case_count": 30,
+  "known_limitations": [
+    "No audio is generated or processed.",
+    "Cases are hand-authored synthetic strings, not a representative sample.",
+    "Numbers, names, dialect, homophone and code-switch cases need human review before interpreting as linguistic benchmarks.",
+    "Metrics validate the text scoring path only; no inference about acoustic model quality is valid."
+  ],
+  "observed_difference_classes": {
+    "deletion_or_empty_hypothesis": 1,
+    "diacritic_difference": 12,
+    "exact_match": 3,
+    "insertion_or_empty_reference": 1,
+    "lexical_or_word_sequence_difference": 2,
+    "mixed_or_other_difference": 7,
+    "punctuation_only_difference": 3,
+    "whitespace_or_tokenization_difference": 1
+  },
+  "overall": {
+    "cases": 30,
+    "cer": 0.34615384615384615,
+    "character_errors": 126,
+    "reference_characters": 364,
+    "reference_words": 87,
+    "wer": 0.5172413793103449,
+    "word_errors": 45
+  },
+  "schema_version": "hg2.vi-text-stress.v1",
+  "scope": "synthetic_text_path_only_not_audio_or_asr_quality",
+  "seed": 20261018,
+  "status": "DIAGNOSTIC_ONLY_NOT_ACCEPTANCE"
+}
