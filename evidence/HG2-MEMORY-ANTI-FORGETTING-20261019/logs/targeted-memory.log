@@ -1,0 +1,45 @@
+test_aliases_are_bounded_and_validated (tests.test_memory.MemoryTests.test_aliases_are_bounded_and_validated) ... ok
+test_claimed_verified_provenance_is_presented_as_unverified_context (tests.test_memory.MemoryTests.test_claimed_verified_provenance_is_presented_as_unverified_context) ... ok
+test_conflicting_provenance_memories_are_labeled_not_auto_resolved (tests.test_memory.MemoryTests.test_conflicting_provenance_memories_are_labeled_not_auto_resolved) ... ok
+test_create_read_and_replay (tests.test_memory.MemoryTests.test_create_read_and_replay) ... ok
+test_curated_aliases_recall_paraphrased_memory (tests.test_memory.MemoryTests.test_curated_aliases_recall_paraphrased_memory) ... ok
+test_expired_provenance_is_blocked_by_api_context_evidence_gate (tests.test_memory.MemoryTests.test_expired_provenance_is_blocked_by_api_context_evidence_gate) ... ok
+test_expired_provenance_memory_is_suppressed_from_retrieval (tests.test_memory.MemoryTests.test_expired_provenance_memory_is_suppressed_from_retrieval) ... ok
+test_expiry_metadata_digest_tampering_is_rejected (tests.test_memory.MemoryTests.test_expiry_metadata_digest_tampering_is_rejected) ... ok
+test_history_integrity_covers_memory_mutation (tests.test_memory.MemoryTests.test_history_integrity_covers_memory_mutation) ... ok
+test_idempotency_and_conflict (tests.test_memory.MemoryTests.test_idempotency_and_conflict) ... ok
+test_missing_expiry_provenance_is_suppressed_from_retrieval (tests.test_memory.MemoryTests.test_missing_expiry_provenance_is_suppressed_from_retrieval) ... ok
+test_retrieval_empty_or_punctuation_only_query_fails_closed (tests.test_memory.MemoryTests.test_retrieval_empty_or_punctuation_only_query_fails_closed) ... ok
+test_retrieval_matches_composed_and_decomposed_vietnamese (tests.test_memory.MemoryTests.test_retrieval_matches_composed_and_decomposed_vietnamese) ... ok
+test_retrieve_and_context_manifest (tests.test_memory.MemoryTests.test_retrieve_and_context_manifest) ... ok
+test_scope_denied (tests.test_memory.MemoryTests.test_scope_denied) ... ok
+test_tombstone_not_resurrected (tests.test_memory.MemoryTests.test_tombstone_not_resurrected) ... ok
+test_update_requires_exact_version (tests.test_memory.MemoryTests.test_update_requires_exact_version) ... ok
+test_caller_cannot_promote_memory_to_verified (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_caller_cannot_promote_memory_to_verified) ... ok
+test_caller_verified_label_stays_effectively_unverified (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_caller_verified_label_stays_effectively_unverified) ... ok
+test_conflicts_are_unresolved_not_silently_selected (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_conflicts_are_unresolved_not_silently_selected) ... ok
+test_database_refuses_symlink_path (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_database_refuses_symlink_path) ... ok
+test_expiry_is_explicit_and_never_promoted (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_expiry_is_explicit_and_never_promoted) ... ok
+test_modified_record_digest_fails_closed (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_modified_record_digest_fails_closed) ... ok
+test_revoked_memory_stays_revoked (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_revoked_memory_stays_revoked) ... ok
+test_sensitive_memories_are_not_written_without_encryption_adapter (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_sensitive_memories_are_not_written_without_encryption_adapter) ... ok
+test_store_restart_integrity_and_conflict_are_durable (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_store_restart_integrity_and_conflict_are_durable) ... ok
+test_conflicting_batch_id_fails_closed (tests.test_replica.ReplicaTests.test_conflicting_batch_id_fails_closed) ... ok
+test_happy_path_atomic_receipt_and_restart_persistence (tests.test_replica.ReplicaTests.test_happy_path_atomic_receipt_and_restart_persistence) ... ok
+test_http_authentication_and_capability_endpoint (tests.test_replica.ReplicaTests.test_http_authentication_and_capability_endpoint) ... ok
+test_real_http_outbox_to_replica_round_trip (tests.test_replica.ReplicaTests.test_real_http_outbox_to_replica_round_trip) ... ok
+test_record_checksum_is_mandatory (tests.test_replica.ReplicaTests.test_record_checksum_is_mandatory) ... ok
+test_sqlite_backup_restore_preserves_replica_evidence (tests.test_replica.ReplicaTests.test_sqlite_backup_restore_preserves_replica_evidence) ... ok
+test_tampered_event_hash_rejected (tests.test_replica.ReplicaTests.test_tampered_event_hash_rejected) ... ok
+test_tombstone_is_replicated_as_append_only_event (tests.test_replica.ReplicaTests.test_tombstone_is_replicated_as_append_only_event) ... ok
+test_wrong_scope_rejected_without_writing (tests.test_replica.ReplicaTests.test_wrong_scope_rejected_without_writing) ... ok
+test_ask_uses_authorized_context_and_audits_call (tests.test_server.ServerTests.test_ask_uses_authorized_context_and_audits_call) ... 127.0.0.1 - - [19/Oct/2026 23:48:26] HG_API "POST /api/ask HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:48:26] HG_API "POST /api/ask HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:48:26] HG_API "POST /api/ask HTTP/1.1" 409 -
+127.0.0.1 - - [19/Oct/2026 23:48:26] HG_API "POST /api/ask HTTP/1.1" 409 -
+ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 3.501s
+
+OK

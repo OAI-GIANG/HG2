@@ -22,6 +22,7 @@ except ImportError:  # The phone-primary production runtime requires an OS proce
     _fcntl = None
 
 from .provenance import runtime_identity, runtime_manifest, validate_build
+from .provenance_memory import effective_memory_trust
 from .limits import FixedWindowRateLimiter
 
 from .memory import MemoryConflict, MemoryDenied, MemoryErrorBase, MemoryIdempotencyConflict, MemoryStore, MemoryValidationError
@@ -504,9 +505,28 @@ class HGRequestHandler(BaseHTTPRequestHandler):
             terms = normalized_terms(query)
             if not terms:
                 return False
+            provenance_records = [record["provenance_metadata"] for record in visible
+                                  if isinstance(record.get("provenance_metadata"), dict)]
+            conflict_keys = set()
+            if provenance_records:
+                from .provenance_memory import detect_memory_conflicts
+                conflict_keys = {(item["source_ref"], item["memory_key"])
+                                 for item in detect_memory_conflicts(provenance_records)}
             matches = []
             for record in visible:
-                text = unicodedata.normalize("NFC", str(record.get("title", "")) + " " + str(record.get("content", "")))
+                freshness_status = "FRESHNESS_UNKNOWN"
+                provenance = record.get("provenance_metadata")
+                if isinstance(provenance, dict):
+                    from .provenance_memory import memory_freshness
+                    freshness = memory_freshness(provenance)
+                    freshness_status = freshness["status"]
+                    if not freshness["usable"]:
+                        continue
+                searchable = [str(record.get("title", "")), str(record.get("content", ""))]
+                aliases = record.get("aliases", [])
+                if isinstance(aliases, list):
+                    searchable.extend(item for item in aliases if isinstance(item, str))
+                text = unicodedata.normalize("NFC", " ".join(searchable))
                 words = normalized_terms(text)
                 overlap = terms & words
                 if not overlap:
@@ -514,7 +534,13 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                 score = len(overlap) / len(terms)
                 if score <= 0.5:
                     continue
-                matches.append({**record, "score": round(score, 6)})
+                conflict_key = (
+                    provenance.get("source_ref"), provenance.get("memory_key")
+                ) if isinstance(provenance, dict) else None
+                conflict_status = "CONFLICT_UNRESOLVED" if conflict_key in conflict_keys else "NO_KNOWN_CONFLICT"
+                matches.append({**record, "score": round(score, 6),
+                                "freshness_status": freshness_status,
+                                "memory_conflict_status": conflict_status})
             matches.sort(key=lambda item: (-item["score"], item["id"]))
             matches = matches[:10]
             expected_selected = [
@@ -530,6 +556,7 @@ class HGRequestHandler(BaseHTTPRequestHandler):
             expected_blocks = []
             used = 0
             for record in matches:
+                provenance = record.get("provenance_metadata")
                 block = {
                     "source_id": record["id"],
                     "version": record["version"],
@@ -537,6 +564,12 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                     "checksum": record["checksum"],
                     "title": record["title"],
                     "content": record["content"],
+                    "freshness_status": record.get("freshness_status", "FRESHNESS_UNKNOWN"),
+                    "trust_status": (
+                        effective_memory_trust(provenance)
+                        if isinstance(provenance, dict) else "UNVERIFIED"
+                    ),
+                    "memory_conflict_status": record.get("memory_conflict_status", "NO_KNOWN_CONFLICT"),
                     "content_is_untrusted_data": True,
                 }
                 size = len(block["title"]) + len(block["content"])

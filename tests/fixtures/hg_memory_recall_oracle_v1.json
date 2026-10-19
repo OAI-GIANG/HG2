@@ -74,6 +74,50 @@
       "labels": [
         "acl_negative"
       ]
+    },
+    {
+      "id": "mem-favorite-color",
+      "scope_id": "owner",
+      "title": "Favorite color",
+      "content": "Cerulean",
+      "aliases": [
+        "favorite hue",
+        "hue liked",
+        "preferred shade"
+      ],
+      "labels": [
+        "curated_alias_recall"
+      ]
+    },
+    {
+      "id": "mem-expired-status",
+      "scope_id": "owner",
+      "title": "Stale project status",
+      "content": "The old project status was active",
+      "provenance_fixture": {
+        "statement": "The old project status was active",
+        "memory_key": "project.status",
+        "observed_at": "2026-01-01T00:00:00+00:00",
+        "expires_at": "2026-06-01T00:00:00+00:00"
+      },
+      "labels": [
+        "expiry_suppression"
+      ]
+    },
+    {
+      "id": "mem-unknown-expiry",
+      "scope_id": "owner",
+      "title": "Undated project status",
+      "content": "An undated project status claim",
+      "provenance_fixture": {
+        "statement": "An undated project status claim",
+        "memory_key": "project.status.undated",
+        "observed_at": "2026-01-01T00:00:00+00:00",
+        "expires_at": null
+      },
+      "labels": [
+        "unknown_freshness_suppression"
+      ]
     }
   ],
   "cases": [
@@ -235,6 +279,35 @@
       ],
       "relevant": [],
       "kind": "no_match"
+    },
+    {
+      "id": "Q16",
+      "query": "Which hue is liked?",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-favorite-color"
+      ],
+      "kind": "curated_alias_paraphrase"
+    },
+    {
+      "id": "Q17",
+      "query": "stale project status",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [],
+      "kind": "expired_memory_suppression"
+    },
+    {
+      "id": "Q18",
+      "query": "undated project status claim",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [],
+      "kind": "unknown_freshness_suppression"
     }
   ],
   "acceptance": {
@@ -248,7 +321,8 @@
       "Q07",
       "Q08",
       "Q09",
-      "Q12"
+      "Q12",
+      "Q16"
     ],
     "absolute_acl_isolation": true,
     "known_limit_cases": [

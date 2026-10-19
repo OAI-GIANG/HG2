@@ -7,6 +7,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from hg.history import StateStore
 from hg.memory import MemoryStore
+from hg.provenance_memory import create_memory_record
 FIXTURE = ROOT / "tests/fixtures/hg_memory_recall_oracle_v1.json"
 
 
@@ -15,8 +16,24 @@ def main():
     with tempfile.TemporaryDirectory(prefix="hg-memory-oracle-") as td:
         store = MemoryStore(StateStore(td))
         for doc in oracle["documents"]:
+            record = {k: doc[k] for k in ("id", "title", "content", "scope_id")}
+            if "aliases" in doc:
+                record["aliases"] = doc["aliases"]
+            provenance = doc.get("provenance_fixture")
+            if isinstance(provenance, dict):
+                record["provenance_metadata"] = create_memory_record(
+                    memory_id="metadata:" + doc["id"],
+                    statement=provenance["statement"],
+                    source_ref="oracle-source:" + doc["id"],
+                    source_digest=hashlib.sha256(("source:" + doc["id"]).encode("utf-8")).hexdigest(),
+                    authority_ref="oracle-authority",
+                    observed_at=provenance["observed_at"],
+                    expires_at=provenance.get("expires_at"),
+                    memory_key=provenance["memory_key"],
+                    sensitivity="PUBLIC",
+                )
             store.remember(
-                {k: doc[k] for k in ("id", "title", "content", "scope_id")},
+                record,
                 principal_id="oracle-fixture",
                 grants={doc["scope_id"]},
                 idempotency_key="oracle:" + doc["id"],

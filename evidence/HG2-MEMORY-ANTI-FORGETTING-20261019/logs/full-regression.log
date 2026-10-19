@@ -116,9 +116,17 @@ test_bounds_client_state (test_limits.FixedWindowRateLimiterTests.test_bounds_cl
 test_enforces_limit_and_returns_retry_after (test_limits.FixedWindowRateLimiterTests.test_enforces_limit_and_returns_retry_after) ... ok
 test_rejects_invalid_configuration (test_limits.FixedWindowRateLimiterTests.test_rejects_invalid_configuration) ... ok
 test_resets_after_window (test_limits.FixedWindowRateLimiterTests.test_resets_after_window) ... ok
+test_aliases_are_bounded_and_validated (test_memory.MemoryTests.test_aliases_are_bounded_and_validated) ... ok
+test_claimed_verified_provenance_is_presented_as_unverified_context (test_memory.MemoryTests.test_claimed_verified_provenance_is_presented_as_unverified_context) ... ok
+test_conflicting_provenance_memories_are_labeled_not_auto_resolved (test_memory.MemoryTests.test_conflicting_provenance_memories_are_labeled_not_auto_resolved) ... ok
 test_create_read_and_replay (test_memory.MemoryTests.test_create_read_and_replay) ... ok
+test_curated_aliases_recall_paraphrased_memory (test_memory.MemoryTests.test_curated_aliases_recall_paraphrased_memory) ... ok
+test_expired_provenance_is_blocked_by_api_context_evidence_gate (test_memory.MemoryTests.test_expired_provenance_is_blocked_by_api_context_evidence_gate) ... ok
+test_expired_provenance_memory_is_suppressed_from_retrieval (test_memory.MemoryTests.test_expired_provenance_memory_is_suppressed_from_retrieval) ... ok
+test_expiry_metadata_digest_tampering_is_rejected (test_memory.MemoryTests.test_expiry_metadata_digest_tampering_is_rejected) ... ok
 test_history_integrity_covers_memory_mutation (test_memory.MemoryTests.test_history_integrity_covers_memory_mutation) ... ok
 test_idempotency_and_conflict (test_memory.MemoryTests.test_idempotency_and_conflict) ... ok
+test_missing_expiry_provenance_is_suppressed_from_retrieval (test_memory.MemoryTests.test_missing_expiry_provenance_is_suppressed_from_retrieval) ... ok
 test_retrieval_empty_or_punctuation_only_query_fails_closed (test_memory.MemoryTests.test_retrieval_empty_or_punctuation_only_query_fails_closed) ... ok
 test_retrieval_matches_composed_and_decomposed_vietnamese (test_memory.MemoryTests.test_retrieval_matches_composed_and_decomposed_vietnamese) ... ok
 test_retrieve_and_context_manifest (test_memory.MemoryTests.test_retrieve_and_context_manifest) ... ok
@@ -150,6 +158,15 @@ test_service_mutations_require_the_exact_sealed_scope (test_policy.PolicyTests.t
 test_build_accepts_matching_commit_and_manifest (test_provenance.ProvenanceTests.test_build_accepts_matching_commit_and_manifest) ... ok
 test_build_rejects_missing_or_mismatching_identity (test_provenance.ProvenanceTests.test_build_rejects_missing_or_mismatching_identity) ... ok
 test_manifest_is_deterministic_and_covers_runtime_source (test_provenance.ProvenanceTests.test_manifest_is_deterministic_and_covers_runtime_source) ... ok
+test_caller_cannot_promote_memory_to_verified (test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_caller_cannot_promote_memory_to_verified) ... ok
+test_caller_verified_label_stays_effectively_unverified (test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_caller_verified_label_stays_effectively_unverified) ... ok
+test_conflicts_are_unresolved_not_silently_selected (test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_conflicts_are_unresolved_not_silently_selected) ... ok
+test_database_refuses_symlink_path (test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_database_refuses_symlink_path) ... ok
+test_expiry_is_explicit_and_never_promoted (test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_expiry_is_explicit_and_never_promoted) ... ok
+test_modified_record_digest_fails_closed (test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_modified_record_digest_fails_closed) ... ok
+test_revoked_memory_stays_revoked (test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_revoked_memory_stays_revoked) ... ok
+test_sensitive_memories_are_not_written_without_encryption_adapter (test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_sensitive_memories_are_not_written_without_encryption_adapter) ... ok
+test_store_restart_integrity_and_conflict_are_durable (test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_store_restart_integrity_and_conflict_are_durable) ... ok
 test_conflicting_batch_id_fails_closed (test_replica.ReplicaTests.test_conflicting_batch_id_fails_closed) ... ok
 test_happy_path_atomic_receipt_and_restart_persistence (test_replica.ReplicaTests.test_happy_path_atomic_receipt_and_restart_persistence) ... ok
 test_http_authentication_and_capability_endpoint (test_replica.ReplicaTests.test_http_authentication_and_capability_endpoint) ... ok
@@ -159,68 +176,68 @@ test_sqlite_backup_restore_preserves_replica_evidence (test_replica.ReplicaTests
 test_tampered_event_hash_rejected (test_replica.ReplicaTests.test_tampered_event_hash_rejected) ... ok
 test_tombstone_is_replicated_as_append_only_event (test_replica.ReplicaTests.test_tombstone_is_replicated_as_append_only_event) ... ok
 test_wrong_scope_rejected_without_writing (test_replica.ReplicaTests.test_wrong_scope_rejected_without_writing) ... ok
-test_ask_fails_closed_when_precall_audit_write_fails (test_server.ServerTests.test_ask_fails_closed_when_precall_audit_write_fails) ... 127.0.0.1 - - [19/Oct/2026 23:01:59] HG_API "POST /api/ask HTTP/1.1" 503 -
+test_ask_fails_closed_when_precall_audit_write_fails (test_server.ServerTests.test_ask_fails_closed_when_precall_audit_write_fails) ... 127.0.0.1 - - [19/Oct/2026 23:49:12] HG_API "POST /api/ask HTTP/1.1" 503 -
 ok
-test_ask_requires_client_idempotency_key (test_server.ServerTests.test_ask_requires_client_idempotency_key) ... 127.0.0.1 - - [19/Oct/2026 23:01:59] HG_API "POST /api/ask HTTP/1.1" 400 -
+test_ask_requires_client_idempotency_key (test_server.ServerTests.test_ask_requires_client_idempotency_key) ... 127.0.0.1 - - [19/Oct/2026 23:49:13] HG_API "POST /api/ask HTTP/1.1" 400 -
 ok
-test_ask_uses_authorized_context_and_audits_call (test_server.ServerTests.test_ask_uses_authorized_context_and_audits_call) ... 127.0.0.1 - - [19/Oct/2026 23:02:00] HG_API "POST /api/ask HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:00] HG_API "POST /api/ask HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:00] HG_API "POST /api/ask HTTP/1.1" 409 -
-127.0.0.1 - - [19/Oct/2026 23:02:00] HG_API "POST /api/ask HTTP/1.1" 409 -
+test_ask_uses_authorized_context_and_audits_call (test_server.ServerTests.test_ask_uses_authorized_context_and_audits_call) ... 127.0.0.1 - - [19/Oct/2026 23:49:13] HG_API "POST /api/ask HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:13] HG_API "POST /api/ask HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:13] HG_API "POST /api/ask HTTP/1.1" 409 -
+127.0.0.1 - - [19/Oct/2026 23:49:13] HG_API "POST /api/ask HTTP/1.1" 409 -
 ok
-test_ask_without_provider_config_fails_closed (test_server.ServerTests.test_ask_without_provider_config_fails_closed) ... 127.0.0.1 - - [19/Oct/2026 23:02:01] HG_API "POST /api/ask HTTP/1.1" 503 -
+test_ask_without_provider_config_fails_closed (test_server.ServerTests.test_ask_without_provider_config_fails_closed) ... 127.0.0.1 - - [19/Oct/2026 23:49:14] HG_API "POST /api/ask HTTP/1.1" 503 -
 ok
-test_concurrent_duplicate_ask_is_not_dispatched_twice (test_server.ServerTests.test_concurrent_duplicate_ask_is_not_dispatched_twice) ... 127.0.0.1 - - [19/Oct/2026 23:02:01] HG_API "POST /api/ask HTTP/1.1" 409 -
-127.0.0.1 - - [19/Oct/2026 23:02:01] HG_API "POST /api/ask HTTP/1.1" 200 -
+test_concurrent_duplicate_ask_is_not_dispatched_twice (test_server.ServerTests.test_concurrent_duplicate_ask_is_not_dispatched_twice) ... 127.0.0.1 - - [19/Oct/2026 23:49:15] HG_API "POST /api/ask HTTP/1.1" 409 -
+127.0.0.1 - - [19/Oct/2026 23:49:15] HG_API "POST /api/ask HTTP/1.1" 200 -
 ok
-test_create_list_read_delete (test_server.ServerTests.test_create_list_read_delete) ... 127.0.0.1 - - [19/Oct/2026 23:02:02] HG_API "POST /api/memory HTTP/1.1" 201 -
-127.0.0.1 - - [19/Oct/2026 23:02:02] HG_API "GET /api/memory HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:02] HG_API "GET /api/memory/api-fact HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:02] HG_API "GET /api/memory/search?q=Single+system HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:02] HG_API "GET /api/memory/context?q=Single+system HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:02] HG_API "DELETE /api/memory/api-fact HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:02] HG_API "GET /api/memory/api-fact HTTP/1.1" 404 -
+test_create_list_read_delete (test_server.ServerTests.test_create_list_read_delete) ... 127.0.0.1 - - [19/Oct/2026 23:49:15] HG_API "POST /api/memory HTTP/1.1" 201 -
+127.0.0.1 - - [19/Oct/2026 23:49:15] HG_API "GET /api/memory HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:15] HG_API "GET /api/memory/api-fact HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:15] HG_API "GET /api/memory/search?q=Single+system HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:15] HG_API "GET /api/memory/context?q=Single+system HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:15] HG_API "DELETE /api/memory/api-fact HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:15] HG_API "GET /api/memory/api-fact HTTP/1.1" 404 -
 ok
-test_credential_expiry_and_revocation_fail_closed (test_server.ServerTests.test_credential_expiry_and_revocation_fail_closed) ... 127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET /api/memory HTTP/1.1" 401 -
-127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET /api/memory HTTP/1.1" 401 -
+test_credential_expiry_and_revocation_fail_closed (test_server.ServerTests.test_credential_expiry_and_revocation_fail_closed) ... 127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET /api/memory HTTP/1.1" 401 -
 ok
-test_health_and_auth (test_server.ServerTests.test_health_and_auth) ... 127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET /api/health HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET /api/library HTTP/1.1" 401 -
-127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET /api/library HTTP/1.1" 401 -
-127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET /api/library HTTP/1.1" 403 -
-127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET /api/memory HTTP/1.1" 401 -
-127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET /api/memory HTTP/1.1" 401 -
-127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "GET /api/memory HTTP/1.1" 401 -
-127.0.0.1 - - [19/Oct/2026 23:02:03] HG_API "POST /api/memory HTTP/1.1" 401 -
+test_health_and_auth (test_server.ServerTests.test_health_and_auth) ... 127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET /api/health HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET /api/library HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET /api/library HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET /api/library HTTP/1.1" 403 -
+127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 23:49:16] HG_API "POST /api/memory HTTP/1.1" 401 -
 ok
-test_library_endpoint_empty_state_and_path_integrity_fail_closed (test_server.ServerTests.test_library_endpoint_empty_state_and_path_integrity_fail_closed) ... 127.0.0.1 - - [19/Oct/2026 23:02:04] HG_API "GET /api/library HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:04] HG_API "GET /api/library HTTP/1.1" 503 -
+test_library_endpoint_empty_state_and_path_integrity_fail_closed (test_server.ServerTests.test_library_endpoint_empty_state_and_path_integrity_fail_closed) ... 127.0.0.1 - - [19/Oct/2026 23:49:17] HG_API "GET /api/library HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:17] HG_API "GET /api/library HTTP/1.1" 503 -
 ok
 test_memory_evidence_verifier_rejects_tampered_context (test_server.ServerTests.test_memory_evidence_verifier_rejects_tampered_context) ... ok
 test_phone_runtime_restart_marks_orphan_provider_call_in_doubt (test_server.ServerTests.test_phone_runtime_restart_marks_orphan_provider_call_in_doubt) ... ok
 test_production_server_creates_fresh_state_under_process_lock (test_server.ServerTests.test_production_server_creates_fresh_state_under_process_lock) ... ok
-test_scope_enforced_and_no_duplicate_json_keys (test_server.ServerTests.test_scope_enforced_and_no_duplicate_json_keys) ... 127.0.0.1 - - [19/Oct/2026 23:02:06] HG_API "POST /api/memory HTTP/1.1" 403 -
-127.0.0.1 - - [19/Oct/2026 23:02:06] HG_API "POST /api/memory HTTP/1.1" 400 -
+test_scope_enforced_and_no_duplicate_json_keys (test_server.ServerTests.test_scope_enforced_and_no_duplicate_json_keys) ... 127.0.0.1 - - [19/Oct/2026 23:49:19] HG_API "POST /api/memory HTTP/1.1" 403 -
+127.0.0.1 - - [19/Oct/2026 23:49:19] HG_API "POST /api/memory HTTP/1.1" 400 -
 ok
 test_second_http_server_cannot_own_same_state_directory (test_server.ServerTests.test_second_http_server_cannot_own_same_state_directory) ... ok
-test_source_provenance_mismatch_degrades_health (test_server.ServerTests.test_source_provenance_mismatch_degrades_health) ... 127.0.0.1 - - [19/Oct/2026 23:02:07] HG_API "GET /api/health HTTP/1.1" 503 -
+test_source_provenance_mismatch_degrades_health (test_server.ServerTests.test_source_provenance_mismatch_degrades_health) ... 127.0.0.1 - - [19/Oct/2026 23:49:20] HG_API "GET /api/health HTTP/1.1" 503 -
 ok
 test_startup_fails_closed_for_invalid_credential_ids_or_revocation_list (test_server.ServerTests.test_startup_fails_closed_for_invalid_credential_ids_or_revocation_list) ... ok
 test_startup_fails_when_read_and_write_credentials_match (test_server.ServerTests.test_startup_fails_when_read_and_write_credentials_match) ... ok
 test_startup_fails_without_credential_expiry (test_server.ServerTests.test_startup_fails_without_credential_expiry) ... ok
 test_startup_fails_without_token (test_server.ServerTests.test_startup_fails_without_token) ... ok
 test_connection_budget_returns_503_and_retry_after (test_server_limits.ServerLimitTests.test_connection_budget_returns_503_and_retry_after) ... ok
-test_http_429_has_retry_after (test_server_limits.ServerLimitTests.test_http_429_has_retry_after) ... 127.0.0.1 - - [19/Oct/2026 23:02:11] HG_API "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:11] HG_API "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [19/Oct/2026 23:02:11] HG_API "GET / HTTP/1.1" 429 -
+test_http_429_has_retry_after (test_server_limits.ServerLimitTests.test_http_429_has_retry_after) ... 127.0.0.1 - - [19/Oct/2026 23:49:24] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:24] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 23:49:24] HG_API "GET / HTTP/1.1" 429 -
 ok
 test_invalid_connection_configuration_fails_closed (test_server_limits.ServerLimitTests.test_invalid_connection_configuration_fails_closed) ... ok
 test_main_refuses_public_cleartext_bind (test_server_limits.ServerLimitTests.test_main_refuses_public_cleartext_bind) ... ok
 test_slow_headers_are_not_dispatched (test_server_limits.ServerLimitTests.test_slow_headers_are_not_dispatched) ... ok
-test_slow_request_body_times_out_without_mutation (test_server_limits.ServerLimitTests.test_slow_request_body_times_out_without_mutation) ... 127.0.0.1 - - [19/Oct/2026 23:02:12] HG_API "POST /api/memory HTTP/1.1" 408 -
+test_slow_request_body_times_out_without_mutation (test_server_limits.ServerLimitTests.test_slow_request_body_times_out_without_mutation) ... 127.0.0.1 - - [19/Oct/2026 23:49:25] HG_API "POST /api/memory HTTP/1.1" 408 -
 ok
-test_slow_request_line_is_closed_by_socket_deadline (test_server_limits.ServerLimitTests.test_slow_request_line_is_closed_by_socket_deadline) ... 127.0.0.1 - - [19/Oct/2026 23:02:13] HG_API Request timed out: TimeoutError('timed out')
+test_slow_request_line_is_closed_by_socket_deadline (test_server_limits.ServerLimitTests.test_slow_request_line_is_closed_by_socket_deadline) ... 127.0.0.1 - - [19/Oct/2026 23:49:26] HG_API Request timed out: TimeoutError('timed out')
 ok
 test_backend_schema_upgrade_requires_explicit_migration (test_sqlite_state.SQLiteStateStoreTests.test_backend_schema_upgrade_requires_explicit_migration) ... ok
 test_checkpoint_mismatch_fails_closed_on_reopen (test_sqlite_state.SQLiteStateStoreTests.test_checkpoint_mismatch_fails_closed_on_reopen) ... ok
@@ -320,6 +337,6 @@ test_workflow_cannot_mint_an_actor_different_from_authenticated_subject (test_wo
 test_workflow_mutations_fail_closed_without_sealed_principal (test_workflow.WorkflowTests.test_workflow_mutations_fail_closed_without_sealed_principal) ... ok
 
 ----------------------------------------------------------------------
-Ran 283 tests in 36.353s
+Ran 300 tests in 36.999s
 
 OK

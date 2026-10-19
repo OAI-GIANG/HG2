@@ -95,6 +95,26 @@ class MemoryStore:
             raise MemoryDenied("scope not granted")
         if kind not in VALID_TYPES:
             raise MemoryValidationError("invalid type")
+        aliases = record.get("aliases", [])
+        if not isinstance(aliases, list) or len(aliases) > 32:
+            raise MemoryValidationError("aliases must be a list containing at most 32 strings")
+        normalized_aliases = []
+        for alias in aliases:
+            if not isinstance(alias, str) or not alias.strip() or len(alias) > 300:
+                raise MemoryValidationError("each alias must be a non-empty string up to 300 characters")
+            normalized_aliases.append(unicodedata.normalize("NFC", alias.strip()))
+        normalized_aliases = sorted(set(normalized_aliases), key=str.casefold)
+        provenance_metadata = record.get("provenance_metadata")
+        if provenance_metadata is not None:
+            if type(provenance_metadata) is not dict:
+                raise MemoryValidationError("provenance_metadata must be an object")
+            from .provenance_memory import memory_freshness
+            if provenance_metadata.get("schema_version") != "hg.provenance-memory.v1":
+                raise MemoryValidationError("unsupported provenance_metadata schema")
+            freshness = memory_freshness(provenance_metadata)
+            if "MEMORY_RECORD_DIGEST_MISMATCH" in freshness["reasons"]:
+                raise MemoryValidationError("provenance_metadata digest mismatch")
+
         with self._lock, self.store._lock:
             active, keys = self._projection()
             normalized = {"id": rec_id, "type": kind, "title": title.strip(), "content": content,
@@ -102,6 +122,10 @@ class MemoryStore:
                           "source": str(record.get("source", "user"))[:256],
                           "provenance": str(record.get("provenance", "phone-runtime"))[:1000],
                           "status": "active"}
+            if normalized_aliases:
+                normalized["aliases"] = normalized_aliases
+            if provenance_metadata is not None:
+                normalized["provenance_metadata"] = dict(provenance_metadata)
             fingerprint = _sha({"op": "remember", "record": normalized, "expected_version": expected_version,
                                 "principal_id": principal_id})
             if idempotency_key in keys:
@@ -216,9 +240,31 @@ class MemoryStore:
         if not terms:
             raise MemoryValidationError("query must contain at least one searchable token")
         visible = self.list_active(grants=grants, limit=500)
+        provenance_records = [rec["provenance_metadata"] for rec in visible
+                              if isinstance(rec.get("provenance_metadata"), dict)]
+        conflict_keys = set()
+        if provenance_records:
+            from .provenance_memory import detect_memory_conflicts
+            conflict_keys = {(item["source_ref"], item["memory_key"])
+                             for item in detect_memory_conflicts(provenance_records)}
         matches = []
         for rec in visible:
-            text = unicodedata.normalize("NFC", str(rec.get("title", "")) + " " + str(rec.get("content", "")))
+            # If optional provenance metadata is supplied by a newer or imported record,
+            # never return stale/unknown items as if current. V1 MemoryStore records without
+            # provenance remain supported and are visibly classified as freshness unknown.
+            provenance = rec.get("provenance_metadata")
+            freshness_status = "FRESHNESS_UNKNOWN"
+            if isinstance(provenance, dict):
+                from .provenance_memory import memory_freshness
+                freshness = memory_freshness(provenance)
+                freshness_status = freshness["status"]
+                if not freshness["usable"]:
+                    continue
+            searchable = [str(rec.get("title", "")), str(rec.get("content", ""))]
+            aliases = rec.get("aliases", [])
+            if isinstance(aliases, list):
+                searchable.extend(item for item in aliases if isinstance(item, str))
+            text = unicodedata.normalize("NFC", " ".join(searchable))
             words = tokens(text)
             overlap = terms & words
             if not overlap:
@@ -227,10 +273,16 @@ class MemoryStore:
             # Minimum overlap threshold suppresses records matching only incidental terms.
             if score <= 0.5:
                 continue
+            conflict_key = (
+                provenance.get("source_ref"), provenance.get("memory_key")
+            ) if isinstance(provenance, dict) else None
+            conflict_status = "CONFLICT_UNRESOLVED" if conflict_key in conflict_keys else "NO_KNOWN_CONFLICT"
             matches.append({**rec, "score": round(score, 6),
                             "retrieval_method": "unicode_normalized_lexical_overlap",
                             "query_term_coverage": round(score, 6),
-                            "matched_terms": sorted(overlap)})
+                            "matched_terms": sorted(overlap),
+                            "freshness_status": freshness_status,
+                            "memory_conflict_status": conflict_status})
         matches.sort(key=lambda x: (-x["score"], x["id"]))
         matches = matches[:limit]
         query_id = _sha({"query": query, "state_head": self.store.audit_export()["head_hash"]})
@@ -249,8 +301,14 @@ class MemoryStore:
         result = self.retrieve(query, grants=grants, limit=limit)
         blocks = []; used = 0
         for rec in result["matches"]:
+            provenance = rec.get("provenance_metadata")
+            from .provenance_memory import effective_memory_trust
+            trust_status = effective_memory_trust(provenance) if isinstance(provenance, dict) else "UNVERIFIED"
             block = {"source_id": rec["id"], "version": rec["version"], "scope_id": rec["scope_id"],
                      "checksum": rec["checksum"], "title": rec["title"], "content": rec["content"],
+                     "freshness_status": rec.get("freshness_status", "FRESHNESS_UNKNOWN"),
+                     "trust_status": trust_status,
+                     "memory_conflict_status": rec.get("memory_conflict_status", "NO_KNOWN_CONFLICT"),
                      "content_is_untrusted_data": True}
             size = len(block["title"]) + len(block["content"])
             if used + size > max_chars:

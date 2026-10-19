@@ -1,9 +1,9 @@
 {
   "schema_version": "hg.memory-recall-evaluation.v1",
-  "oracle_sha256": "65bf2dc5557e770ab388a368130d285b527d095eda85fcb7efa4627acb9f7061",
+  "oracle_sha256": "db12594a54ae1008fc6aa13c602680d0c9219aca3309253b900236e1ddc1f445",
   "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
-  "cases_total": 15,
-  "cases_passed": 15,
+  "cases_total": 18,
+  "cases_passed": 18,
   "cases_failed": 0,
   "micro_precision": 1.0,
   "micro_recall": 1.0,
@@ -34,8 +34,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "12089f027731e7f67042be7cfdbeec05ac4d38c14bd69f3454a8a1457c92ac47",
-      "manifest_sha256": "f7f25212ae5e47b1228a9728b7a6162c4b0171cf67aee23690fac2b367fcc7fc"
+      "query_id": "f2bb9fd12613ee64af2810f12cab84aa942fe6bff1a797b682b9d73f5c29a1fe",
+      "manifest_sha256": "4a50ca243dceb83830fa294a35c625213e832cd1cf7c591087830b429c846f36"
     },
     {
       "id": "Q02",
@@ -53,8 +53,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "38bfaf488bb80cb4974d6eb97e23f7bc2499147e48566e9066b37e9f38e5667b",
-      "manifest_sha256": "ce7255cdb2f3cb6e35c5f0d4d3daf7a28165591da75db0c6bfdb3957650796d4"
+      "query_id": "ab74441d2404c60c7c6fc91c70b1d8975d96058cb760fe2cde96dfca18959d31",
+      "manifest_sha256": "188000bb9ffcdcdd1a7764b1954034da75ffa7ebdf280f18553c60a717559265"
     },
     {
       "id": "Q03",
@@ -72,8 +72,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "490a22a15266a44b5f29218f13a59c1aa76f3d2bf0645924e4fc0ef1b6895855",
-      "manifest_sha256": "f2485aa16d97d693fe148accdba75ecadfaab99c4719a80a4499157675187461"
+      "query_id": "ded868164885a6e975906aa6dd2602646f70a7cc350087c5fbffc470a606f4f6",
+      "manifest_sha256": "d00245bb492595820cfad30f777847a39feaccce1e8bdf26bd99ce4365392c1e"
     },
     {
       "id": "Q04",
@@ -91,8 +91,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "e26ca7780c68f689e0548c547382eaf2db53bd45b8e04bde7df391f504a72229",
-      "manifest_sha256": "d217af947e1084da7024c972279d91abe75e19fe16658928c20e7eb39ba5f2a6"
+      "query_id": "55db79785f979af7596bf0dee195e694d71cf11b9b743256e97082e90be9a901",
+      "manifest_sha256": "f0200c712e95d3d79d494f5c5596b42f761c9a2f802331562d554819cd35ef82"
     },
     {
       "id": "Q05",
@@ -110,8 +110,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "e9a09d99854fcc2d132d2ef0637c62bb3f1558922c4b842f9e50d697b6b9dc4f",
-      "manifest_sha256": "6a2fbfb21259044a25dcebd19d9de96454cadd04cc04280c06db4ed19d47d042"
+      "query_id": "b4d1301c4cf0c316c45032b53ec33f75d3fe020e3f8c4c67114dd497ba383a30",
+      "manifest_sha256": "98bc0381c9fffa3479485ab0812cdefdd9353ed712c832b8f8e9d035046ad270"
     },
     {
       "id": "Q06",
@@ -129,8 +129,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "cc21883948149a0db82d732b64048e989d10276b1d3376df6f4caaf6faf87467",
-      "manifest_sha256": "6cfeca5f7fb3f74f9a32090f691396e5734383d00fadf7d35d5fd5a5cbf469d6"
+      "query_id": "a7a632423b6366ba989fce65c8085c490f0583658ab0fdd96311d8ee9857cccb",
+      "manifest_sha256": "eae3fd6603ece15921c168bc974113f4839d6a26665765c1d30a522c221bd538"
     },
     {
       "id": "Q07",
@@ -148,8 +148,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "919e0d316624b525ce143fbd4c000404cbb4c724c892098001a73d5925e8f466",
-      "manifest_sha256": "01171f9dc8360130a165bfddd507af82cae3074a180e2b4811895a2d814fd426"
+      "query_id": "99001a1cbc8a73f87557f51f76a4271c2f08ce9e776c5125a334332582918f03",
+      "manifest_sha256": "aa3e3d83217dd18ec5dbd565a2dc1d773ea3c38a211426ea2b94e137911044a1"
     },
     {
       "id": "Q08",
@@ -167,8 +167,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "fa9b7ff899d484d3928fdf7b00f98d39319cdf286acd36b4236e889f697a4773",
-      "manifest_sha256": "7cf5892636334eb0c5aca18742667199db2f28bc2ebaa9a8d81ca1e14fe8da0d"
+      "query_id": "0d714ee7a25551c3e081c0d5d92b27c1190c35722d685b6be348df4769972a15",
+      "manifest_sha256": "4e39b37f09d2a8eb3b33da56d29f2d43116bf3b3bd9efa2c42187606e65ab3e7"
     },
     {
       "id": "Q09",
@@ -186,8 +186,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "8e0c3ba9f9e7e37e70a4b05102f704d139c5caf41d44247f78a018e39fe42b4b",
-      "manifest_sha256": "f93ba476314c04de213bf87c9917d126f22342298dc17383074e6056d18e5d33"
+      "query_id": "f02a3f2ed0a3dc5df0a7676b3fb8757220f8bfd7aaf99188bcfa6505e666a852",
+      "manifest_sha256": "af82c723fb577442eb498a79f1849467facdb8c816d7df7e51a49f1d717e2e2d"
     },
     {
       "id": "Q10",
@@ -201,8 +201,8 @@
       "first_relevant_rank": null,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "4ce35785d917b16050b2f2b8713a63837ed4811af1b40700878bd1107a80f12d",
-      "manifest_sha256": "37b6f89a0633ddd9387c8e7015f7bb1a58b6f93d255713e266c7dc097d126c6b"
+      "query_id": "83389ca0913283be7a24793b458b1deef85a53f275872ca857b40728d0fc5f38",
+      "manifest_sha256": "07e48280f6f074d47ba8beeffcedf0c111773868c6f32b3f5aaec4c1606c63d9"
     },
     {
       "id": "Q11",
@@ -216,8 +216,8 @@
       "first_relevant_rank": null,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "c455a55eda175195a5fefce838cb108b73989d195f8ccb16a3034263c8e6f9ff",
-      "manifest_sha256": "70e4a30528aea08508fbdfbd37fb7b08ebfd507a4324d1989b246799a13a5a06"
+      "query_id": "8a45897a7e6906c8e5f0a2bd47e19b781fd5a08bca2e7f1eb4223f230081e3ed",
+      "manifest_sha256": "ee061403b4f283c04ad0385ee8db7d8781ca614ec67a83121fb6cc3242fc4a2f"
     },
     {
       "id": "Q12",
@@ -235,8 +235,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "62db715bdfd34ca1f15297ceee4d838fa98fbbef7ad9550fd3d8829d5a4e81fc",
-      "manifest_sha256": "2c9782c841e8b763e7fa67fa1934074a71e3f7e7042dfbb3bc2b8fb8183e077c"
+      "query_id": "b8db63836a891ca5d2ad14619629c56ba485a285c101544ad314317aec9a89ab",
+      "manifest_sha256": "5c08ab9e9ba2e94b68f66d5b0108a35934f79662921b0004020ef298118a2e0c"
     },
     {
       "id": "Q13",
@@ -254,8 +254,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "26148d78c084e1a585562bb45f7dc805cbbf60aad042c9e90aea07f8fb12d62c",
-      "manifest_sha256": "3b712bea0d687531322cd2d0c4665491fcac0be32a6e0ae3cac37ccedea66459"
+      "query_id": "8f3e4bdf6a913b1d81538684f767dcfff4b965db9a7b7c2efb07e0969f74f0d1",
+      "manifest_sha256": "f184243e5fc5ec37d67694414b72ad79ff1b8daba781a20eaa942efb419bfbae"
     },
     {
       "id": "Q14",
@@ -273,8 +273,8 @@
       "first_relevant_rank": 1,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "22db06731eb9320cad9b906a619b6b40c9836553f83aca54f2e028469eaddd8f",
-      "manifest_sha256": "cfd6a884a6f2dfa2c58475e63b1a3e72b8027ed5339996a974c658fd5ce22969"
+      "query_id": "cbe1c6a7250234ca06344159708ea5d6922db58bc1a9d7d48f519e38c94ba279",
+      "manifest_sha256": "d1543c95490303a4b2d226ecbef10a7672f91865057084da81bd0a1e33149e96"
     },
     {
       "id": "Q15",
@@ -288,8 +288,57 @@
       "first_relevant_rank": null,
       "forbidden_ids": [],
       "case_pass": true,
-      "query_id": "5223aa9a038094fcb738573d9f5be3442bdd098d6584e3437c04c47a88186cd6",
-      "manifest_sha256": "a934c19b2bb8b58633045918c23cd58fca6d37c504c2b05c58135a752bf1882e"
+      "query_id": "febc8733b65667ea9e2ea75f10d7fc63603a4c996e11791c370e59c95831d392",
+      "manifest_sha256": "db81b2553f21d4d4d54f20e83995c35cc6759bf80aab6537596cecfccc168a64"
+    },
+    {
+      "id": "Q16",
+      "kind": "curated_alias_paraphrase",
+      "query": "Which hue is liked?",
+      "relevant_ids": [
+        "mem-favorite-color"
+      ],
+      "retrieved_ids": [
+        "mem-favorite-color"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "06be9cdc2798c94c67f8fb9c6617ff8d226d81ea8dfb25e74c5e1a4b0b8f423c",
+      "manifest_sha256": "37db6694987236a92b8094551a8ef09f4154788bb8c959b6c98d3d818426e40c"
+    },
+    {
+      "id": "Q17",
+      "kind": "expired_memory_suppression",
+      "query": "stale project status",
+      "relevant_ids": [],
+      "retrieved_ids": [],
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": null,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "9cbf59544be029e34c4fc50c8e16eecd96ccbbad900ed4271c3155f99d8a7f04",
+      "manifest_sha256": "e6fb625eb8a672b00b4ce3c3c71e8c9268e580940cecf45d8b67d86e6daa5265"
+    },
+    {
+      "id": "Q18",
+      "kind": "unknown_freshness_suppression",
+      "query": "undated project status claim",
+      "relevant_ids": [],
+      "retrieved_ids": [],
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": null,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "6749c9be76426ef499c9caeb9214113e0ce064cc92e2c11eca2440e50dc8d88b",
+      "manifest_sha256": "1b081c2c1000a84fca4fd271d325f2c6c1da5fd180cf2b0e435e5bc1419f6286"
     }
   ]
 }
