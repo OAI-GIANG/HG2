@@ -1,0 +1,44 @@
+{
+  "report_schema": "HG2_CIRCULATORY_RESTRUCTURE_EVIDENCE_V1",
+  "status": "PASS",
+  "scope": "shared canonical JSON parser, HG_EVENT_V1 envelope, strict history parsing, opt-in transactional SQLite state prototype",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-circulatory-architecture-20261018",
+  "tested_commit": "5ae397dbeea3a38539e1ce55c03487dde5f92be2",
+  "tested_tree": "1b95d3ec4b618e64079914941e6edbf1120f6aa7",
+  "parent_commit": "282871530be9db4b90b9ed155e95fe394167c985",
+  "python": "3.14.6",
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "commands": [
+    {
+      "command": "python -m json.tool manifest.json",
+      "status": "PASS"
+    },
+    {
+      "command": "python -m compileall -q hg tests",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "python -m unittest discover -s tests -v",
+      "status": "PASS",
+      "result": "57 tests passed; exit code 0"
+    }
+  ],
+  "changed_source_file_sha256": {
+    "hg/contracts.py": "7d1c99def4f9ad1737007325ac5be6cd772930fda3bae55a513ab949b01ecb78",
+    "hg/history.py": "0d03f24acf1f15b31817cc7e0d4fc3e2dff1b120a8267b245b98c64edbd112db",
+    "hg/edge.py": "1d8a53e22ad807eead4297c0095da7aa1d3d5189b5d1e9e8491523fad17c2e52",
+    "hg/sqlite_state.py": "5e38c0ffdbde7e145322ab1290e2647c517e9c26499727c5284d5bce6c2b3c4e",
+    "tests/test_contracts.py": "cb88b0a5cc288f78b0c568f3c075441d56454933af0caca8910ff446c2a192d2",
+    "tests/test_core.py": "28cf64fd6e8fdfac15ff07b3fae440c2b7924481cd75fd1f3e6827478f5b2302",
+    "tests/test_edge_schema_guard.py": "6a63051b56ebce58dc36fee79071c1deb2f83cb69ea53bc06895573f52732cd6",
+    "tests/test_sqlite_state.py": "def41c3ddd2d20bc4bcf35bb36ca18e93a3aee2ade32b67ad03e339c0cfb54dd",
+    "manifest.json": "959b873fcdcf3c45aa59123a5a49779aa09891155f995323d8f045f7bbe7e7ee",
+    "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md": "328edfc1eb6ca371b68d52ae2a9bd9ac7918e82b99ac681d33872d980a9dd140"
+  },
+  "limitations": [
+    "SQLiteStateStore is an opt-in prototype and is not wired into PhoneRuntime.",
+    "No migration of the existing state directory was attempted.",
+    "No APK build/install, deployment, PR creation, or merge was performed."
+  ]
+}

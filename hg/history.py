@@ -21,6 +21,47 @@ class HistoryError(Exception):
     pass
 
 
+_HISTORY_V1_FIELDS = frozenset({
+    "seq", "event_id", "event_type", "recorded_at", "correlation_id",
+    "causation_id", "product_id", "runtime_id", "schema", "payload",
+    "prev_hash", "record_hash",
+})
+_HISTORY_V2_FIELDS = _HISTORY_V1_FIELDS | frozenset({
+    "event_schema", "actor_id", "authority_context", "authorization_action", "idempotency_key",
+})
+HISTORY_EVENT_SCHEMA_V2 = "HG_HISTORY_EVENT_V2"
+
+
+def history_record_contract(record):
+    """Classify a history envelope as supported V1 or structurally valid V2.
+
+    This is a read/contract helper only: it never consumes a MutationPermit and never
+    treats structure validation as authorization to append a record. V2 mutation authority
+    remains owned by policy-authorized durable stores until a backend migration is approved.
+    """
+    if not isinstance(record, dict):
+        raise HistoryError("record is not an object")
+    if "event_schema" not in record:
+        if set(record) != _HISTORY_V1_FIELDS:
+            raise HistoryError("V1 record schema mismatch")
+        return "V1"
+    if set(record) != _HISTORY_V2_FIELDS or record.get("event_schema") != HISTORY_EVENT_SCHEMA_V2:
+        raise HistoryError("V2 record schema mismatch")
+    actor = record.get("actor_id")
+    authority = record.get("authority_context")
+    action = record.get("authorization_action")
+    key = record.get("idempotency_key")
+    if not isinstance(actor, str) or not actor.strip():
+        raise HistoryError("V2 actor invalid")
+    if not isinstance(authority, dict) or authority != {"principal": actor, "scope": action}:
+        raise HistoryError("V2 authority context invalid")
+    if not isinstance(action, str) or not action.strip():
+        raise HistoryError("V2 authorization action invalid")
+    if key is not None and (not isinstance(key, str) or not key.strip()):
+        raise HistoryError("V2 idempotency key invalid")
+    return "V2"
+
+
 class StateStore:
     def __init__(self, directory, *, clock=time.time):
         self.dir = str(directory)
@@ -29,6 +70,9 @@ class StateStore:
         self.head = os.path.join(self.dir, "head.json")
         self.state = os.path.join(self.dir, "state.json")
         self._clock = clock
+        self._preexisting = {"log": os.path.exists(self.log), "head": os.path.exists(self.head),
+                             "state": os.path.exists(self.state),
+                             "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id"))}
         self.runtime_id = self._runtime_id()
         self._lock = threading.RLock()
         self._events = []
@@ -55,26 +99,61 @@ class StateStore:
         return (0, ZERO) if not self._events else (self._events[-1]["seq"], self._events[-1]["record_hash"])
 
     def _load(self):
-        if not os.path.exists(self.log):
+        have_log = self._preexisting["log"]
+        have_head = self._preexisting["head"]
+        have_state = self._preexisting["state"]
+        have_rid = self._preexisting["runtime_id"]
+        if not have_log:
+            if have_head or have_state or have_rid:
+                raise HistoryError("history log missing while other state artifacts exist")
             return
         prev, seq, seen = ZERO, 0, set()
-        with open(self.log, encoding="utf-8") as fh:
-            for n, line in enumerate(fh, 1):
-                line = line.strip()
-                if not line:
-                    continue
+        required = {"seq", "event_id", "event_type", "recorded_at", "correlation_id",
+                    "causation_id", "product_id", "runtime_id", "schema", "payload",
+                    "prev_hash", "record_hash"}
+        try:
+            with open(self.log, "rb") as fh:
+                raw = fh.read()
+            if raw and not raw.endswith(b"\n"):
+                raise HistoryError("history log missing final newline")
+            text = raw.decode("utf-8")
+            for n, line in enumerate(text.splitlines(), 1):
+                if not line.strip():
+                    raise HistoryError("blank history record line %d" % n)
                 try:
                     rec = json.loads(line)
                 except json.JSONDecodeError as exc:
                     raise HistoryError("malformed record line %d" % n) from exc
-                rh = rec.get("record_hash")
+                if not isinstance(rec, dict):
+                    raise HistoryError("record is not an object line %d" % n)
+                if not required.issubset(rec):
+                    raise HistoryError("record missing required fields line %d" % n)
+                if (not isinstance(rec["seq"], int) or isinstance(rec["seq"], bool)):
+                    raise HistoryError("record has invalid field types line %d" % n)
+                if rec["seq"] != seq + 1:
+                    raise HistoryError("sequence gap or invalid sequence line %d" % n)
+                if not isinstance(rec["event_id"], str) or not rec["event_id"].strip():
+                    raise HistoryError("invalid event_id line %d" % n)
+                if not isinstance(rec["event_type"], str) or not rec["event_type"].strip():
+                    raise HistoryError("invalid event_type line %d" % n)
+                if (not isinstance(rec["recorded_at"], (int, float)) or isinstance(rec["recorded_at"], bool)
+                        or not __import__("math").isfinite(rec["recorded_at"])
+                        or not isinstance(rec["correlation_id"], str) or not rec["correlation_id"].strip()
+                        or rec["causation_id"] is not None and not isinstance(rec["causation_id"], str)
+                        or rec["product_id"] != PRODUCT_ID
+                        or not isinstance(rec["runtime_id"], str) or not rec["runtime_id"].strip()
+                        or rec["runtime_id"] != self.runtime_id
+                        or rec["schema"] != SCHEMA
+                        or not isinstance(rec["prev_hash"], str)):
+                    raise HistoryError("invalid field values line %d" % n)
+                if not isinstance(rec["payload"], dict):
+                    raise HistoryError("invalid payload line %d" % n)
+                rh = rec["record_hash"]
                 core = {k: v for k, v in rec.items() if k != "record_hash"}
-                if not rh or digest(core) != rh:
+                if not isinstance(rh, str) or not rh or digest(core) != rh:
                     raise HistoryError("record hash mismatch line %d" % n)
                 if rec["prev_hash"] != prev:
                     raise HistoryError("chain break line %d" % n)
-                if rec["seq"] != seq + 1:
-                    raise HistoryError("sequence gap line %d" % n)
                 if rec["event_id"] in seen:
                     raise HistoryError("duplicate event_id line %d" % n)
                 seen.add(rec["event_id"])
@@ -82,14 +161,42 @@ class StateStore:
                 self._events.append(rec)
                 self._by_id[rec["event_id"]] = rec
                 self._apply(rec)
-        if os.path.exists(self.head):
-            with open(self.head, encoding="utf-8") as fh:
-                hd = json.loads(fh.read())
-            s, h = self._head()
-            if hd.get("seq") != s or hd.get("head_hash") != h:
-                raise HistoryError("log does not match head checkpoint")
+        except UnicodeDecodeError as exc:
+            raise HistoryError("history unreadable: invalid UTF-8") from exc
+        except OSError as exc:
+            raise HistoryError("history log unreadable") from exc
+        self._checkpoint_check()
+        if have_state:
+            self._projection_check()
         self._write_state()
         self._write_head()
+
+    def _checkpoint_check(self):
+        if not os.path.exists(self.head):
+            raise HistoryError("head checkpoint missing while history log exists")
+        try:
+            with open(self.head, encoding="utf-8") as fh:
+                hd = json.loads(fh.read())
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise HistoryError("head checkpoint unreadable") from exc
+        if not isinstance(hd, dict):
+            raise HistoryError("head checkpoint is not an object")
+        s, h = self._head()
+        if hd.get("seq") != s or hd.get("head_hash") != h:
+            raise HistoryError("log does not match head checkpoint")
+
+    def _projection_check(self):
+        try:
+            with open(self.state, encoding="utf-8") as fh:
+                doc = json.loads(fh.read())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise HistoryError("state projection unreadable") from exc
+        current = self._doc()
+        # The projection is a derived cache, but any divergence is an integrity
+        # failure. Do not silently repair it during startup: an operator must
+        # explicitly investigate the discrepancy before recovery is permitted.
+        if doc != current:
+            raise HistoryError("state projection does not match history")
 
     def _apply(self, rec):
         if rec["event_type"] == "session.created" and "session_id" in rec["payload"]:
@@ -139,32 +246,69 @@ class StateStore:
 
     def verify(self):
         if not os.path.exists(self.log):
+            if os.path.exists(self.head) or os.path.exists(self.state):
+                return {"ok": False, "events": 0, "reason": "log_missing_while_state_present"}
             return {"ok": True, "events": 0, "reason": "empty_log"}
         prev, seq, seen, n = ZERO, 0, set(), 0
+        required = {"seq", "event_id", "event_type", "recorded_at", "correlation_id",
+                    "causation_id", "product_id", "runtime_id", "schema", "payload",
+                    "prev_hash", "record_hash"}
         try:
-            with open(self.log, encoding="utf-8") as fh:
-                for lineno, line in enumerate(fh, 1):
-                    line = line.strip()
-                    if not line:
-                        continue
-                    rec = json.loads(line)
-                    rh = rec.get("record_hash")
-                    core = {k: v for k, v in rec.items() if k != "record_hash"}
-                    if not rh or digest(core) != rh:
-                        return {"ok": False, "events": n, "reason": "record_hash_mismatch_line_%d" % lineno}
-                    if rec["prev_hash"] != prev:
-                        return {"ok": False, "events": n, "reason": "chain_break_line_%d" % lineno}
-                    if rec["seq"] != seq + 1:
-                        return {"ok": False, "events": n, "reason": "sequence_gap_line_%d" % lineno}
-                    if rec["event_id"] in seen:
-                        return {"ok": False, "events": n, "reason": "duplicate_event_id_line_%d" % lineno}
-                    seen.add(rec["event_id"])
-                    prev, seq, n = rh, rec["seq"], n + 1
-        except json.JSONDecodeError:
+            with open(self.log, "rb") as fh:
+                raw = fh.read()
+            if raw and not raw.endswith(b"\n"):
+                return {"ok": False, "events": 0, "reason": "missing_final_newline"}
+            text = raw.decode("utf-8")
+            for lineno, line in enumerate(text.splitlines(), 1):
+                if not line.strip():
+                    return {"ok": False, "events": n, "reason": "blank_line_%d" % lineno}
+                rec = json.loads(line)
+                if not isinstance(rec, dict):
+                    return {"ok": False, "events": n, "reason": "record_not_object_line_%d" % lineno}
+                if not required.issubset(rec):
+                    return {"ok": False, "events": n, "reason": "record_missing_fields_line_%d" % lineno}
+                if not isinstance(rec["seq"], int) or isinstance(rec["seq"], bool):
+                    return {"ok": False, "events": n, "reason": "record_invalid_field_types_line_%d" % lineno}
+                if rec["seq"] != seq + 1:
+                    return {"ok": False, "events": n, "reason": "sequence_gap_line_%d" % lineno}
+                if not isinstance(rec["event_id"], str) or not rec["event_id"].strip():
+                    return {"ok": False, "events": n, "reason": "invalid_event_id_line_%d" % lineno}
+                if not isinstance(rec["event_type"], str) or not rec["event_type"].strip():
+                    return {"ok": False, "events": n, "reason": "invalid_event_type_line_%d" % lineno}
+                if (not isinstance(rec["recorded_at"], (int, float)) or isinstance(rec["recorded_at"], bool)
+                        or not __import__("math").isfinite(rec["recorded_at"])
+                        or not isinstance(rec["correlation_id"], str) or not rec["correlation_id"].strip()
+                        or rec["causation_id"] is not None and not isinstance(rec["causation_id"], str)
+                        or rec["product_id"] != PRODUCT_ID
+                        or not isinstance(rec["runtime_id"], str) or not rec["runtime_id"].strip()
+                        or rec["runtime_id"] != self.runtime_id
+                        or rec["schema"] != SCHEMA
+                        or not isinstance(rec["prev_hash"], str)):
+                    return {"ok": False, "events": n, "reason": "record_invalid_field_types_line_%d" % lineno}
+                if not isinstance(rec["payload"], dict):
+                    return {"ok": False, "events": n, "reason": "record_invalid_field_types_line_%d" % lineno}
+                rh = rec["record_hash"]
+                core = {k: v for k, v in rec.items() if k != "record_hash"}
+                if not isinstance(rh, str) or not rh or digest(core) != rh:
+                    return {"ok": False, "events": n, "reason": "record_hash_mismatch_line_%d" % lineno}
+                if rec["prev_hash"] != prev:
+                    return {"ok": False, "events": n, "reason": "chain_break_line_%d" % lineno}
+                if rec["event_id"] in seen:
+                    return {"ok": False, "events": n, "reason": "duplicate_event_id_line_%d" % lineno}
+                seen.add(rec["event_id"])
+                prev, seq, n = rh, rec["seq"], n + 1
+        except UnicodeDecodeError:
+            return {"ok": False, "events": n, "reason": "history_unreadable"}
+        except (OSError, json.JSONDecodeError, TypeError, ValueError, KeyError, AttributeError):
             return {"ok": False, "events": n, "reason": "malformed_record"}
         if os.path.exists(self.head):
-            with open(self.head, encoding="utf-8") as fh:
-                hd = json.loads(fh.read())
+            try:
+                with open(self.head, encoding="utf-8") as fh:
+                    hd = json.loads(fh.read())
+                if not isinstance(hd, dict):
+                    return {"ok": False, "events": n, "reason": "checkpoint_not_object"}
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+                return {"ok": False, "events": n, "reason": "checkpoint_unreadable"}
             if hd.get("seq") != seq or hd.get("head_hash") != prev:
                 return {"ok": False, "events": n, "reason": "checkpoint_mismatch"}
         return {"ok": True, "events": n, "head_hash": prev, "reason": "chain_ok"}

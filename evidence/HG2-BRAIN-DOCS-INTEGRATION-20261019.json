@@ -1,0 +1,26 @@
+{
+  "target_branch": "stt/hg2-brain-consolidation-20261018",
+  "merge_commit": "d091c46f9f94078dc2edd078981514ac49852cbf",
+  "sources": {
+    "docs/hg-adr-001-primary-platform-20261013": "0338b0fa2777239a6e143663ac8827a2ee638ca6",
+    "docs/hg-selective-absorption-v2-20261013": "0503337200157d3cde0f424ce4c5635b1e42185f"
+  },
+  "content": [
+    {
+      "path": "docs/decisions/HG-ADR-001.md",
+      "bytes": 7974,
+      "sha256": "a1049e90406cccb11ae4a80d4e4116d99b0d0b65a20b9e901eb71332b8bcc92d"
+    },
+    {
+      "path": "docs/HG_SELECTIVE_ABSORPTION_V2_VERIFIED_REFERENCE.md",
+      "bytes": 7625,
+      "sha256": "bf6adc886d896d3ae2671408805ecbba7713a9b5eec1cc25b9e78b949880737b"
+    }
+  ],
+  "verification": "git diff --check clean; both documents exist and SHA-256 recorded. This is documentation/reference integration, no runtime test suite needed for Markdown-only payload.",
+  "source_refs_to_prune_only_after_ancestry": [
+    "docs/hg-adr-001-primary-platform-20261013",
+    "docs/hg-selective-absorption-v2-20261013"
+  ],
+  "log_sha256": "ca65e0f74d7c68aea152f4a29acf1f4323aafdc96d792152fccac3e1ccbb36bf"
+}

@@ -1,0 +1,20 @@
+test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
+test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
+test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
+test_duplicate_event_id_different_payload_is_conflict (tests.test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
+test_duplicate_event_id_is_idempotent (tests.test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
+test_invalid_later_event_does_not_partially_apply_batch (tests.test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
+test_multi_event_batch_preserves_origin_chain (tests.test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
+test_origin_sequence_gap_rejected_before_apply (tests.test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
+test_rehashed_payload_without_matching_origin_record_rejected (tests.test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
+test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
+test_stale_in_batch_chain_and_self_origin_rejected (tests.test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
+test_tampered_payload_rejected (tests.test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
+test_truncated_batch_rejected_and_audited (tests.test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
+test_two_processes_are_used (tests.test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
+test_unsupported_schema_and_missing_field_rejected (tests.test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 1.378s
+
+OK

@@ -1,0 +1,217 @@
+{
+  "created_at": "2026-10-19T01:00+07:00",
+  "branch": "stt/hg2-memory-knowledge-history-20261019",
+  "base_commit": "36d667d909e136f38438eec377e16754237e47cc",
+  "source_branch_count_observed": 37,
+  "focus_variants": [
+    {
+      "path": "hg/history.py",
+      "source_branch": "origin/ci/deep-strict-verify-pr1-20261013",
+      "source_commit": "12e71cf0c93742cd7f8afef5a2b7c763e8f90674",
+      "source_sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+      "archive_path": "docs/consolidation/source-branches/origin__ci__deep-strict-verify-pr1-20261013/hg/history.py",
+      "archive_sha256": "cc7cdf0947209855f9a3c5eee88db68b17556d941d306ff9a8354ba9a55861e1",
+      "archive_matches_manifest": true,
+      "current_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "hg/history.py",
+      "source_branch": "origin/design/t018-auth-checkpoint-memory-20261013",
+      "source_commit": "6f636c5ebdf7363172fdd2cbda6d72258179589d",
+      "source_sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc",
+      "archive_path": "docs/consolidation/source-branches/origin__design__t018-auth-checkpoint-memory-20261013/hg/history.py",
+      "archive_sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc",
+      "archive_matches_manifest": true,
+      "current_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "hg/sync.py",
+      "source_branch": "origin/design/t018-auth-checkpoint-memory-20261013",
+      "source_commit": "6f636c5ebdf7363172fdd2cbda6d72258179589d",
+      "source_sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "archive_path": "docs/consolidation/source-branches/origin__design__t018-auth-checkpoint-memory-20261013/hg/sync.py",
+      "archive_sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "archive_matches_manifest": true,
+      "current_sha256": "63a2580bbb9fd8531826be2d51437aad3ecdde006c77ffa958270ec5915dcfd2",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "tests/test_t018_sync.py",
+      "source_branch": "origin/design/t018-auth-checkpoint-memory-20261013",
+      "source_commit": "6f636c5ebdf7363172fdd2cbda6d72258179589d",
+      "source_sha256": "3551e0a3d36780ba1e5658a0ab6a030f162a3546aedd0e8b800370d7080223aa",
+      "archive_path": "docs/consolidation/source-branches/origin__design__t018-auth-checkpoint-memory-20261013/tests/test_t018_sync.py",
+      "archive_sha256": "3551e0a3d36780ba1e5658a0ab6a030f162a3546aedd0e8b800370d7080223aa",
+      "archive_matches_manifest": true,
+      "current_sha256": "3551e0a3d36780ba1e5658a0ab6a030f162a3546aedd0e8b800370d7080223aa",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "hg/history.py",
+      "source_branch": "origin/feat/hexis-edge-schema-guard-20261013",
+      "source_commit": "fa53a5768145279f54f182e8c5cc3c73976fda42",
+      "source_sha256": "5e7b0446893ceadeb33d7529f316be546db357b2d8f15fc802604712e04ea09e",
+      "archive_path": "docs/consolidation/source-branches/origin__feat__hexis-edge-schema-guard-20261013/hg/history.py",
+      "archive_sha256": "5e7b0446893ceadeb33d7529f316be546db357b2d8f15fc802604712e04ea09e",
+      "archive_matches_manifest": true,
+      "current_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "hg/history.py",
+      "source_branch": "origin/fix/history-integrity-v2",
+      "source_commit": "b28fff890f2d879a77e1fda3ce26c87f3bec7a45",
+      "source_sha256": "73fba9344fd9d75a02df66e0950ac1c038efd38ed4142b0b14bcf15b13d2cd9e",
+      "archive_path": "docs/consolidation/source-branches/origin__fix__history-integrity-v2/hg/history.py",
+      "archive_sha256": "73fba9344fd9d75a02df66e0950ac1c038efd38ed4142b0b14bcf15b13d2cd9e",
+      "archive_matches_manifest": true,
+      "current_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "hg/history.py",
+      "source_branch": "origin/stt/cleanroom-gap-closure-20261015",
+      "source_commit": "dadf599b25005b787d5a9665ce8d8727b7784bef",
+      "source_sha256": "945fc4a65c59005dea210f701bad9132d226cda88a3972277be4baab4b6d58f5",
+      "archive_path": "docs/consolidation/source-branches/origin__stt__cleanroom-gap-closure-20261015/hg/history.py",
+      "archive_sha256": "945fc4a65c59005dea210f701bad9132d226cda88a3972277be4baab4b6d58f5",
+      "archive_matches_manifest": true,
+      "current_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "tests/test_history_malformed_shapes.py",
+      "source_branch": "origin/stt/cleanroom-gap-closure-20261015",
+      "source_commit": "dadf599b25005b787d5a9665ce8d8727b7784bef",
+      "source_sha256": "0ab4ea556461eb7ad60c0d521219535ed1b49296481cb9286ec268f3b21c2d98",
+      "archive_path": "docs/consolidation/source-branches/origin__stt__cleanroom-gap-closure-20261015/tests/test_history_malformed_shapes.py",
+      "archive_sha256": "0ab4ea556461eb7ad60c0d521219535ed1b49296481cb9286ec268f3b21c2d98",
+      "archive_matches_manifest": true,
+      "current_sha256": "0ab4ea556461eb7ad60c0d521219535ed1b49296481cb9286ec268f3b21c2d98",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "hg/history.py",
+      "source_branch": "origin/stt/hg2-circulatory-architecture-20261018",
+      "source_commit": "c5b27193baa95e741c0082cae81656a630e24d8d",
+      "source_sha256": "c148aa51ca1d60b352a3324b710e9a1b63354798092f57f90adbc343f313279a",
+      "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/history.py",
+      "archive_sha256": "c148aa51ca1d60b352a3324b710e9a1b63354798092f57f90adbc343f313279a",
+      "archive_matches_manifest": true,
+      "current_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "hg/sync.py",
+      "source_branch": "origin/stt/hg2-circulatory-architecture-20261018",
+      "source_commit": "c5b27193baa95e741c0082cae81656a630e24d8d",
+      "source_sha256": "2b50c4968303102a072b2605cd2d33495f7dd37b634887494acd34ff18348158",
+      "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-circulatory-architecture-20261018/hg/sync.py",
+      "archive_sha256": "2b50c4968303102a072b2605cd2d33495f7dd37b634887494acd34ff18348158",
+      "archive_matches_manifest": true,
+      "current_sha256": "63a2580bbb9fd8531826be2d51437aad3ecdde006c77ffa958270ec5915dcfd2",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "hg/history.py",
+      "source_branch": "origin/stt/hg2-unification-p0-20261016",
+      "source_commit": "a64e49d1619f5d83b5741d13c92961df9b07c79a",
+      "source_sha256": "8979e48f9d94c571d5e90691be16fc1b719a1cd8e4f51240f1a1ece254f92495",
+      "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/hg/history.py",
+      "archive_sha256": "8979e48f9d94c571d5e90691be16fc1b719a1cd8e4f51240f1a1ece254f92495",
+      "archive_matches_manifest": true,
+      "current_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "hg/sync.py",
+      "source_branch": "origin/stt/hg2-unification-p0-20261016",
+      "source_commit": "a64e49d1619f5d83b5741d13c92961df9b07c79a",
+      "source_sha256": "e13fc80aedaae50a262245ba87078d442e9f326128389d60bd9d4a8e94e1bb76",
+      "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/hg/sync.py",
+      "archive_sha256": "e13fc80aedaae50a262245ba87078d442e9f326128389d60bd9d4a8e94e1bb76",
+      "archive_matches_manifest": true,
+      "current_sha256": "63a2580bbb9fd8531826be2d51437aad3ecdde006c77ffa958270ec5915dcfd2",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "tests/test_history_malformed_shapes.py",
+      "source_branch": "origin/stt/hg2-unification-p0-20261016",
+      "source_commit": "a64e49d1619f5d83b5741d13c92961df9b07c79a",
+      "source_sha256": "8222785164c727bcc0123a5c1a3d7ced717efbc614c8df34ad99302ce12df157",
+      "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/test_history_malformed_shapes.py",
+      "archive_sha256": "8222785164c727bcc0123a5c1a3d7ced717efbc614c8df34ad99302ce12df157",
+      "archive_matches_manifest": true,
+      "current_sha256": "0ab4ea556461eb7ad60c0d521219535ed1b49296481cb9286ec268f3b21c2d98",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    },
+    {
+      "path": "tests/test_t018_sync.py",
+      "source_branch": "origin/stt/hg2-unification-p0-20261016",
+      "source_commit": "a64e49d1619f5d83b5741d13c92961df9b07c79a",
+      "source_sha256": "3139d35e5bdc05eb2354df353c0262f20f836a59d8c60e420504b053b621a79b",
+      "archive_path": "docs/consolidation/source-branches/origin__stt__hg2-unification-p0-20261016/tests/test_t018_sync.py",
+      "archive_sha256": "3139d35e5bdc05eb2354df353c0262f20f836a59d8c60e420504b053b621a79b",
+      "archive_matches_manifest": true,
+      "current_sha256": "3551e0a3d36780ba1e5658a0ab6a030f162a3546aedd0e8b800370d7080223aa",
+      "status": "VARIANT_PRESERVED_REQUIRES_FUNCTIONAL_RECONCILIATION"
+    }
+  ],
+  "test_command": "/data/data/com.termux/files/usr/bin/python -m unittest tests.test_t018_sync tests.test_history_malformed_shapes tests.test_sqlite_state tests.test_authenticated_sync_transaction tests.test_sync_auth tests.test_sync_bootstrap",
+  "test_exit_code": 1,
+  "test_output_path": "evidence/HG2-SOURCE-VERSION-INTEGRATION-20261019T0100.log",
+  "limitations": [
+    "No runtime implementation files changed by this step.",
+    "Test suite exposes incompatible SyncContext/PhoneRuntime bootstrap APIs; remediation requires deliberate contract reconciliation.",
+    "Source branch refs are unchanged.",
+    "hg-genesis branch and commit history unchanged."
+  ],
+  "conclusion": "BLOCKED_INCOMPATIBLE_SYNC_BOOTSTRAP_API",
+  "working_branch": "stt/hg2-memory-knowledge-history-20261019",
+  "working_head": "36d667d909e136f38438eec377e16754237e47cc",
+  "genesis_ref_sha": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+  "genesis_commit_count": 4,
+  "blocked_details": {
+    "history_variants": {
+      "unique_sha256_versions": 7,
+      "current_sha256": "79c1dc186b1710c3b940c8620c7fbbade3200e5109900365553016f2ef27fa76",
+      "functional_differences": [
+        "legacy history validation",
+        "strict JSON finite-value validation plus process locking and atomic fsync writes",
+        "record-shape validation",
+        "actor/authority-attributed V2 events with mutation permits and idempotency"
+      ],
+      "decision": "no variant overwritten; file-backed history and policy-authorized SQLite StateStore are separate APIs"
+    },
+    "sync_variants": {
+      "unique_sha256_versions": 3,
+      "current_sha256": "63a2580bbb9fd8531826be2d51437aad3ecdde006c77ffa958270ec5915dcfd2",
+      "functional_differences": [
+        "spool sync and preflight",
+        "strict duplicate-key/NaN rejection, inbox-only import and authenticated gate",
+        "SQLite transactional outbox dispatcher"
+      ],
+      "decision": "bootstrap expects injected store and PhoneRuntime sync kwargs which current APIs do not accept"
+    },
+    "tests": {
+      "test_t018_sync.py": {
+        "current_sha256": "3551e0a3d36780ba1e5658a0ab6a030f162a3546aedd0e8b800370d7080223aa",
+        "newer_variant_sha256": "3139d35e5bdc05eb2354df353c0262f20f836a59d8c60e420504b053b621a79b",
+        "missing_unique_cases": [
+          "reject arbitrary paths/traversal",
+          "reject duplicate JSON keys/NaN",
+          "resume interrupted batch idempotently"
+        ]
+      },
+      "test_history_malformed_shapes.py": {
+        "current_sha256": "0ab4ea556461eb7ad60c0d521219535ed1b49296481cb9286ec268f3b21c2d98",
+        "newer_variant_sha256": "8222785164c727bcc0123a5c1a3d7ced717efbc614c8df34ad99302ce12df157",
+        "decision": "adapt fixtures to active History API; do not blindly overwrite"
+      }
+    }
+  },
+  "test_run_interpretation": "Captured run: 71 tests; failures include 12 errors and 1 failure because authenticated sync/bootstrap interfaces do not match current implementations. Do not treat as PASS.",
+  "source_refs_deleted": false
+}

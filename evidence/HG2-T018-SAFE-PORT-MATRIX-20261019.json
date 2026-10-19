@@ -1,0 +1,103 @@
+{
+  "repository": "OAI-GIANG/HG2",
+  "analysis_commit": "4e290e58aa7874add3c2bfec93cf5271c4eb4925",
+  "current_target_branch": "stt/hg2-circulatory-architecture-20261018",
+  "five_T018_variants": {
+    "design/t018-auth-checkpoint-memory-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807,
+      "identical_to_first": true
+    },
+    "docs/t018-remove-signature-scope-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807,
+      "identical_to_first": true
+    },
+    "feat/hg-t018-cross-context-sync-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807,
+      "identical_to_first": true
+    },
+    "remediation/t018-base-reconcile-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807,
+      "identical_to_first": true
+    },
+    "review/t018-design-pre-review-20261013": {
+      "sha256": "56f53b78754ff2999d5662d0ddb61246e90ac3aedd767a60f03f53b4c486ac82",
+      "bytes": 12807,
+      "identical_to_first": true
+    }
+  },
+  "T018_variants_identical": true,
+  "current_sync_sha256": "d6513e9d32b0d85b0b04dcc2b059b458de67a045e07e49996239e57a12e7ff8d",
+  "matrix": [
+    {
+      "area": "API/state ownership",
+      "T018_source": "hg/sync.py:41–89",
+      "T018_behavior": "SyncContext(context_id,state_dir,spool_dir) owns a separate file-backed StateStore",
+      "current_target": "hg/sync.py:16–22",
+      "current_behavior": "SyncDispatcher receives an existing SQLiteStateStore; it does not own/create the state store",
+      "assessment": "INCOMPATIBLE AS DROP-IN; do not add SyncContext as a parallel state authority"
+    },
+    {
+      "area": "Authentication/authority",
+      "T018_source": "docs/T-018-SYNC-V2-CONTRACT.md:11–25",
+      "T018_behavior": "local same-user spool; context_id is claimed label; hashes prove consistency, not author; signatures explicitly out of scope",
+      "current_target": "hg/sync.py:24–29, 47–52, 61–73",
+      "current_behavior": "principal-based authorize_service_mutation + mutation permits for outbox attempt/ack",
+      "assessment": "Different trust model and transport scope; preserve both as distinct contracts, do not claim T018 auth equivalence"
+    },
+    {
+      "area": "Checkpoint/cursor",
+      "T018_source": "hg/sync.py:128–186",
+      "T018_behavior": "checks sequence/hash continuity within incoming batch; contract says initial trusted cursor policy unresolved",
+      "current_target": "hg/sync.py:31–45 and 89–108",
+      "current_behavior": "ACK bound to event_id/digest and positive remote_cursor; SQLiteStateStore enforces cursor on acknowledge",
+      "assessment": "T018 lacks authenticated durable initial cursor policy; not safe to port import path without design decision"
+    },
+    {
+      "area": "Spool/atomic publication",
+      "T018_source": "hg/sync.py:73–84",
+      "T018_behavior": "outbox/inbox/conflicts directories; temp file + fsync + os.replace on export",
+      "current_target": "hg/sync.py:47–117",
+      "current_behavior": "transactional SQLite outbox; transport delivery; no file spool API",
+      "assessment": "Different transport adapter; can be added only as SyncTransport adapter over existing dispatcher if it obeys current ACK and transaction contract"
+    },
+    {
+      "area": "Idempotency/replay",
+      "T018_source": "hg/sync.py:93–191",
+      "T018_behavior": "deduplicates on (origin_context,event_id), compares event/provenance fields, conflicts on changed provenance",
+      "current_target": "hg/sync.py:89–117; hg/sqlite_state.py (outbox methods)",
+      "current_behavior": "event attempt and ACK idempotency through SQLite durable state; no foreign-origin import index in dispatcher",
+      "assessment": "Import-side dedup/replay protection is a missing capability, but must be modeled in canonical SQLite store first"
+    },
+    {
+      "area": "Reject/quarantine/audit",
+      "T018_source": "hg/sync.py:217–222",
+      "T018_behavior": "reject emits sync.rejected; conflict attempts moving source batch to conflicts and writes audit jsonl",
+      "current_target": "hg/sync.py:75–88, 103–109",
+      "current_behavior": "transport errors/invalid ACK return blocked/retry states; no imported-batch quarantine in dispatcher",
+      "assessment": "Quarantine/reporting can be adapter concern, but audit events must use canonical store and raw batch privacy controls"
+    },
+    {
+      "area": "Recovery/transaction atomicity",
+      "T018_source": "docs/T-018-SYNC-V2-CONTRACT.md:33–51",
+      "T018_behavior": "contract admits separate StateStore.emit calls do not prove all-or-none; restart/crash/cursor gates unresolved",
+      "current_target": "hg/sync.py:61–110; hg/sqlite_state.py (transactional outbox)",
+      "current_behavior": "each outbox attempt/ack is recorded through SQLite transaction-backed state",
+      "assessment": "Keep SQLite transaction authority; T018 import loop is unsafe to port as-is"
+    },
+    {
+      "area": "Runtime integration",
+      "T018_source": "docs/T-018-SYNC-V2-CONTRACT.md:48",
+      "T018_behavior": "contract explicitly records runtime does not instantiate/call SyncContext",
+      "current_target": "hg/phone_runtime.py (must inspect exact runtime call sites at final implementation)",
+      "current_behavior": "no confirmed T018 integration from its own contract",
+      "assessment": "Not production/runtime-integrated"
+    }
+  ],
+  "decision": "Do not port legacy SyncContext wholesale. Its foreign-event import, durable cursor policy and all-or-none multi-event transaction are unresolved and its separate StateStore would violate single canonical state ownership. Safe next slice is adapter design that uses SyncDispatcher/SQLiteStateStore as the only authority; requires an explicit transport contract and import-side SQLite schema before runtime implementation.",
+  "source_refs_deleted": false,
+  "source_refs_push_or_merge_performed": false
+}

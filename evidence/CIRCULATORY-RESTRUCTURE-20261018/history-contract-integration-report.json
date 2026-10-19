@@ -1,0 +1,40 @@
+{
+  "report_schema": "HG2_CIRCULATORY_RESTRUCTURE_EVIDENCE_V1",
+  "status": "PASS",
+  "scope": "canonical event contract primitives and strict history JSON parsing; persisted event schema migration remains open",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-circulatory-architecture-20261018",
+  "tested_commit": "8e17bb87004daf9b74d76999de00e844c0b1f95a",
+  "tested_tree": "dd79df5e0f839814d520829caca513ef038c856f",
+  "parent_commit": "3a33ba9652ba35d70ead41f6e801375e0b04ff48",
+  "python": "3.14.6",
+  "platform": "Android-16-aarch64-64bit-ELF",
+  "commands": [
+    {
+      "command": "python -m json.tool manifest.json",
+      "status": "PASS"
+    },
+    {
+      "command": "python -m compileall -q hg tests",
+      "status": "PASS before commit"
+    },
+    {
+      "command": "python -m unittest discover -s tests -v",
+      "status": "PASS",
+      "result": "46 tests passed; exit code 0"
+    }
+  ],
+  "changed_source_file_sha256": {
+    "hg/contracts.py": "7d1c99def4f9ad1737007325ac5be6cd772930fda3bae55a513ab949b01ecb78",
+    "hg/history.py": "0d03f24acf1f15b31817cc7e0d4fc3e2dff1b120a8267b245b98c64edbd112db",
+    "tests/test_contracts.py": "cb88b0a5cc288f78b0c568f3c075441d56454933af0caca8910ff446c2a192d2",
+    "tests/test_core.py": "28cf64fd6e8fdfac15ff07b3fae440c2b7924481cd75fd1f3e6827478f5b2302",
+    "manifest.json": "de4757041604817f8013d281e048afe577b617c8051d5a353b925a25559d7949",
+    "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md": "61c4a2651af09469a839ad7f4f0e24ef4e2ade6b8a6a3b4b2468f42cdce4313c"
+  },
+  "limitations": [
+    "HG_EVENT_V1 is not yet the persisted history schema.",
+    "No APK build/install was performed.",
+    "No merge or deployment was performed; this branch is isolated."
+  ]
+}

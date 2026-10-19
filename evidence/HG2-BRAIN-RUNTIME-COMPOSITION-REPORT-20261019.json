@@ -1,0 +1,81 @@
+{
+  "repository": "OAI-GIANG/HG2",
+  "target": "stt/hg2-brain-consolidation-20261018",
+  "base_head": "9ad55387a3de9bd51a02bcca395074afcf15b41f",
+  "source": "stt/hg2-single-system-20261017",
+  "source_commit": "644972deef5921817e6b2d048112330530f72f45",
+  "ported_files": [
+    {
+      "path": "hg/server.py",
+      "source_blob": "a5719bf4c71e061802b45466dd234daead72a6f7",
+      "source_sha256": "1f50c39e47f2802f35b81ae3b76d0d78d91579c9896ab9a5809deb94a06e5110",
+      "local_sha256": "1f50c39e47f2802f35b81ae3b76d0d78d91579c9896ab9a5809deb94a06e5110",
+      "identical": true
+    },
+    {
+      "path": "hg/limits.py",
+      "source_blob": "e018407e10ab11cfdc5b51148d08db71a73a3152",
+      "source_sha256": "0b223468bb9cfdb3beecd337864c28c535fa9b0131f8d84b9ab8df87aa3228eb",
+      "local_sha256": "0b223468bb9cfdb3beecd337864c28c535fa9b0131f8d84b9ab8df87aa3228eb",
+      "identical": true
+    },
+    {
+      "path": "hg/model_gateway.py",
+      "source_blob": "ce3051c86af3e99468e086961872ee1486fe394a",
+      "source_sha256": "f5dac0ef3406301ddfa75b8df8a38b2123a5a7cc37aa62873a7aef36f2c0d472",
+      "local_sha256": "f5dac0ef3406301ddfa75b8df8a38b2123a5a7cc37aa62873a7aef36f2c0d472",
+      "identical": true
+    },
+    {
+      "path": "ui/index.html",
+      "source_blob": "b41c673aa1c16672e878646903ee9e8b08df59ff",
+      "source_sha256": "4a657779befd33a11c8121b07ca609f66c2ec766900d3c56a42c6420d73f4fe9",
+      "local_sha256": "4a657779befd33a11c8121b07ca609f66c2ec766900d3c56a42c6420d73f4fe9",
+      "identical": true
+    },
+    {
+      "path": "tests/test_server.py",
+      "source_blob": "c855345193f3df61ad032d4b4268a3da2ab1a5cc",
+      "source_sha256": "c78c02ebcab74a33e68c3c292be0f13716607efc8df0cabfd615c0db73ca6864",
+      "local_sha256": "c78c02ebcab74a33e68c3c292be0f13716607efc8df0cabfd615c0db73ca6864",
+      "identical": true
+    },
+    {
+      "path": "tests/test_server_limits.py",
+      "source_blob": "b84bba9a9ed993013fea405b5c036e2a5fd3f243",
+      "source_sha256": "e774e44273074ac8f2d4409668bc773a96c60433befa2abdcec2b9d440664ea6",
+      "local_sha256": "e774e44273074ac8f2d4409668bc773a96c60433befa2abdcec2b9d440664ea6",
+      "identical": true
+    },
+    {
+      "path": "tests/test_limits.py",
+      "source_blob": "12c8c07972be23b7f0161a2d7482a1fdadc4d3ef",
+      "source_sha256": "c903fae54c0917fa3abba4856e308ffbb5384c77b1663fc4b9be3945a4372a5d",
+      "local_sha256": "c903fae54c0917fa3abba4856e308ffbb5384c77b1663fc4b9be3945a4372a5d",
+      "identical": true
+    },
+    {
+      "path": "tests/test_model_gateway.py",
+      "source_blob": "55a71283d4a9e49969f44c44c6b049e851e52d52",
+      "source_sha256": "a1d5df280c66d29f4d0a9ee79441f2b26fe4e2537d5f53eb81f1af7f111936ee",
+      "local_sha256": "a1d5df280c66d29f4d0a9ee79441f2b26fe4e2537d5f53eb81f1af7f111936ee",
+      "identical": true
+    }
+  ],
+  "runtime_composition": "PhoneRuntime.memory = MemoryStore(self.store); PhoneRuntime.model_gateway = ModelGateway(timeout=45); PhoneRuntime.durable remains existing same-store DurableOutbox and authenticated SyncContext/gate remain intact.",
+  "state_authority": "one existing StateStore instance shared by MemoryStore and existing sync components; no second store instantiated",
+  "tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v",
+    "result": "PASS",
+    "count": 219,
+    "log_sha256": "17bf7f006009609a4bc34417f7c2b30a5f7a7aa0a37d83b48750770eb7acd372"
+  },
+  "diff_check": "PASS",
+  "source_refs_deleted": false,
+  "origin_refs_before_push": 25,
+  "external_reference": {
+    "python_http_server_security": "https://docs.python.org/3.14/library/http.server.html",
+    "http_semantics": "https://www.rfc-editor.org/rfc/rfc9110.html"
+  },
+  "decision": "RUNTIME_COMPOSITION_TESTS_PASS; this repairs missing API runtime modules on brain without importing the incompatible alternate PhoneRuntime implementation or dropping authenticated sync."
+}
