@@ -45,6 +45,8 @@ Rule: record accepted and rejected decisions, assumptions, evidence boundaries a
 | docs/architecture/HG2-CENTRAL-BRAIN-REPOSITORY-ARCHITECTURE-MAP-R2.md | Current source-level module/call map and readiness boundaries | Complete dynamic dependency-graph certification |
 | docs/architecture/HG2-CENTRAL-BRAIN-CAPABILITY-INVENTORY-R2.md | Five-domain capability bindings and the distinction between declared, bound, tested and operational | Proof that unbound adapters are implemented or operational |
 | docs/architecture/HG2-CENTRAL-BRAIN-EXTERNAL-RESEARCH-R2.md | Research URLs, applied design principles and limitations | HG2 feature implementation or third-party certification |
+| docs/architecture/HG2-CENTRAL-BRAIN-INDEPENDENT-EXPERT-REVIEW-R2.md | Ten-angle literature-based critical review; 13 external sources; consensus/disagreement and explicit limits | Human expert review or independent certification; neither was obtained |
+| docs/architecture/HG2-CENTRAL-BRAIN-MASTER-PLAN-R3.md | Revised plan with ten traceable review-driven changes and explicit P0/P1/P2 gates | Implementation or production readiness |
 
 ## 4. Reconsideration protocol
 
