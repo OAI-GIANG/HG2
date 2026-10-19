@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import time
 import unittest
@@ -28,6 +29,17 @@ class PosixProcessSupervisorTests(unittest.TestCase):
         self.assertEqual(result.status, "TIMED_OUT")
         self.assertNotEqual(result.returncode, 0)
         self.assertLess(result.elapsed_seconds, 3)
+
+    def test_explicit_cancellation_terminates_and_reaps_process(self):
+        process = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(20)"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, text=True, start_new_session=True,
+        )
+        result = self.supervisor.cancel(process)
+        self.assertEqual(result.status, "CANCELLED")
+        self.assertIsNotNone(process.poll())
+        self.assertNotEqual(result.returncode, 0)
 
     def test_timeout_kills_child_process_group(self):
         # Parent spawns a grandchild which ignores SIGTERM. The supervisor's
