@@ -1,0 +1,3258 @@
+{
+  "base_commit": "c2161feb76b2be8964a109910475a5b1a018eb1a",
+  "case_count": 27,
+  "cases": [
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "3624d021a9c1443394cf6a0633e79ead",
+          "oracle-before",
+          "process-crash-fsync-1"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "fae87ca1b7847d11997cefb4b5dc42309897517c763e43f4a292e9e39b2984d2",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1392,
+        "journal_exists": true,
+        "journal_sha256": "f03635cb75f24c81f7396ca91350bed0969ffa7a5a2d8cfacf179a74e7a0c646",
+        "last_record_hash": "6a0209034793dc6d269e9eaa8901141351c251bee62a6f275f61e0bc25a4f6ed",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "f3abc9b4355f205a5bc2e21418156e0bd2c09edb69c723eac7a05f45e60cf3e9",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "fae87ca1b7847d11997cefb4b5dc42309897517c763e43f4a292e9e39b2984d2",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "95401950a043458d81f93e4f99500231",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "3624d021a9c1443394cf6a0633e79ead",
+          "oracle-before",
+          "process-crash-fsync-1",
+          "state-recovered:298932acccbf5865261f149be1fa8d241e65889c34bc8a0a0e264f5a7413a113"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "43383a3ee4a00588cc62c443721a3389006d215a877f6227ef131f33a6c4b67c",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2338,
+        "journal_exists": true,
+        "journal_sha256": "da115fe48349f18c8974bb3b08e8ccda06f878f3a6b7b8972a407624fa9939ca",
+        "last_record_hash": "43383a3ee4a00588cc62c443721a3389006d215a877f6227ef131f33a6c4b67c",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.298932acccbf5865261f149be1fa8d241e65889c34bc8a0a0e264f5a7413a113.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "298932acccbf5865261f149be1fa8d241e65889c34bc8a0a0e264f5a7413a113",
+            "sha256": "27491170f5c6ba3dbb6e837ca2672cf88fb0746ff2633ad89da9eda2f2f56c4c"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "f3abc9b4355f205a5bc2e21418156e0bd2c09edb69c723eac7a05f45e60cf3e9",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "43383a3ee4a00588cc62c443721a3389006d215a877f6227ef131f33a6c4b67c",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "95401950a043458d81f93e4f99500231",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-fsync-1": {
+              "session_id": "target-fsync-1"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "3624d021a9c1443394cf6a0633e79ead",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "fae87ca1b7847d11997cefb4b5dc42309897517c763e43f4a292e9e39b2984d2",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 920,
+        "journal_exists": true,
+        "journal_sha256": "6493e2956e0b335ab9f454056bec0bf8fec5d1e63c8c350e90310038a3d6d078",
+        "last_record_hash": "fae87ca1b7847d11997cefb4b5dc42309897517c763e43f4a292e9e39b2984d2",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "f3abc9b4355f205a5bc2e21418156e0bd2c09edb69c723eac7a05f45e60cf3e9",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "fae87ca1b7847d11997cefb4b5dc42309897517c763e43f4a292e9e39b2984d2",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "95401950a043458d81f93e4f99500231",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-FSYNC_1",
+      "expected_exit_code": 72,
+      "mode": "fsync-1",
+      "oracle_pass": true,
+      "process_exit_code": 72,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "129ef33719ee4cf9adc5fbca386fbb4b",
+          "oracle-before",
+          "process-crash-fsync-2"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "93a5cfc959d3f02da1f4b6d52b3ba5adc54f5fff0be864b975905276bfa603b0",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1391,
+        "journal_exists": true,
+        "journal_sha256": "982440a6614bc2d8fac95eddbdc4ade30d9085516c60675fac6f1eb06fc4029d",
+        "last_record_hash": "5b608a5a6e9fe0e64425724ff1affa71a6c4846c53d2c4a52e3a33bec0490f71",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "52a61f47553c61caab9cf346d230ecbe896cef6a95d3d43f3cf2d2f0db543905",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "93a5cfc959d3f02da1f4b6d52b3ba5adc54f5fff0be864b975905276bfa603b0",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "754cd9bfd8cd4ff4981b0a10bfc2f6d1",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "129ef33719ee4cf9adc5fbca386fbb4b",
+          "oracle-before",
+          "process-crash-fsync-2",
+          "state-recovered:ee0d63194ea1e2f6467ebd3f97c2539019fe3d7e0da7904ae3506289068a23e5"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "f7c12a4b3b6c2135bd120753f64f2b7620f8ce6944524915ca1c593130b24a52",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2337,
+        "journal_exists": true,
+        "journal_sha256": "f91f8c469dee5ed74f5761c567c444bf0a7b501cad3b133af57b8686c0f5f652",
+        "last_record_hash": "f7c12a4b3b6c2135bd120753f64f2b7620f8ce6944524915ca1c593130b24a52",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.ee0d63194ea1e2f6467ebd3f97c2539019fe3d7e0da7904ae3506289068a23e5.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "ee0d63194ea1e2f6467ebd3f97c2539019fe3d7e0da7904ae3506289068a23e5",
+            "sha256": "c913c1ce6916f646ed7536de26b007d1dda51533f80325b629ded492c5aca552"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "52a61f47553c61caab9cf346d230ecbe896cef6a95d3d43f3cf2d2f0db543905",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "f7c12a4b3b6c2135bd120753f64f2b7620f8ce6944524915ca1c593130b24a52",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "754cd9bfd8cd4ff4981b0a10bfc2f6d1",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-fsync-2": {
+              "session_id": "target-fsync-2"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "129ef33719ee4cf9adc5fbca386fbb4b",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "93a5cfc959d3f02da1f4b6d52b3ba5adc54f5fff0be864b975905276bfa603b0",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 919,
+        "journal_exists": true,
+        "journal_sha256": "7a453e84cd08c250fae5d538513b7cb9d175fe1030e3020fbb8f953e5172ac9b",
+        "last_record_hash": "93a5cfc959d3f02da1f4b6d52b3ba5adc54f5fff0be864b975905276bfa603b0",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "52a61f47553c61caab9cf346d230ecbe896cef6a95d3d43f3cf2d2f0db543905",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "93a5cfc959d3f02da1f4b6d52b3ba5adc54f5fff0be864b975905276bfa603b0",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "754cd9bfd8cd4ff4981b0a10bfc2f6d1",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-FSYNC_2",
+      "expected_exit_code": 73,
+      "mode": "fsync-2",
+      "oracle_pass": true,
+      "process_exit_code": 73,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "60e96de2497543aab92347ada8ea3f33",
+          "oracle-before",
+          "process-crash-fsync-3"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "92fc6526c048971f4fe4061f7fe7e15f23b73f7bfcd6727463d480e0ec3ff3b9",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1392,
+        "journal_exists": true,
+        "journal_sha256": "0212704c1e8fcee6b5ba526cc89e3b08fd25fe0a07c3cd2b17f5f9df77ee4906",
+        "last_record_hash": "6f803cfab91433c5762e910978911709e3aaed0655f3710222ff2f3bc205874f",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "aba33fb856264c51c9f2b1ccd3532d0e668ee782a560229839ee7b0fc6ef5b45",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 2
+          },
+          "head_hash": "6f803cfab91433c5762e910978911709e3aaed0655f3710222ff2f3bc205874f",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "3553908a6cee4e48a3a1b365b45d688c",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-fsync-3": {
+              "session_id": "target-fsync-3"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "60e96de2497543aab92347ada8ea3f33",
+          "oracle-before",
+          "process-crash-fsync-3",
+          "state-recovered:5373e78a4f8c5968594acd8c2d1fc5936b15caceccc5bb6665b54c58fd1c1be6"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "8dfba9d833f6f9bcb140f5824eabc560d90ea2abb8a5a7afe368d568aef129da",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2338,
+        "journal_exists": true,
+        "journal_sha256": "111dd54c7bd9421b038367a085f1b465157edc9cd9c7de6db28e3e7979d7ddfa",
+        "last_record_hash": "8dfba9d833f6f9bcb140f5824eabc560d90ea2abb8a5a7afe368d568aef129da",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.5373e78a4f8c5968594acd8c2d1fc5936b15caceccc5bb6665b54c58fd1c1be6.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "5373e78a4f8c5968594acd8c2d1fc5936b15caceccc5bb6665b54c58fd1c1be6",
+            "sha256": "e5f15781c1a365aa0a75bb7f2d316ff10ad752eba84d3bfb857e7828f6255959"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "aba33fb856264c51c9f2b1ccd3532d0e668ee782a560229839ee7b0fc6ef5b45",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "8dfba9d833f6f9bcb140f5824eabc560d90ea2abb8a5a7afe368d568aef129da",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "3553908a6cee4e48a3a1b365b45d688c",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-fsync-3": {
+              "session_id": "target-fsync-3"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "60e96de2497543aab92347ada8ea3f33",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "92fc6526c048971f4fe4061f7fe7e15f23b73f7bfcd6727463d480e0ec3ff3b9",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 920,
+        "journal_exists": true,
+        "journal_sha256": "0a60f8868a2daaa17de7cc6940343a6fc9a3d609aec79dc5681300ff40f27a1a",
+        "last_record_hash": "92fc6526c048971f4fe4061f7fe7e15f23b73f7bfcd6727463d480e0ec3ff3b9",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "aba33fb856264c51c9f2b1ccd3532d0e668ee782a560229839ee7b0fc6ef5b45",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "92fc6526c048971f4fe4061f7fe7e15f23b73f7bfcd6727463d480e0ec3ff3b9",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "3553908a6cee4e48a3a1b365b45d688c",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-FSYNC_3",
+      "expected_exit_code": 74,
+      "mode": "fsync-3",
+      "oracle_pass": true,
+      "process_exit_code": 74,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "4863b02abbf94616869ab7993fb6c31d",
+          "oracle-before",
+          "process-crash-fsync-4"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "ea2554c795d79b6b9c98946a522ffe0b132ab508fb06da0bc72eaeeed30c25cb",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1391,
+        "journal_exists": true,
+        "journal_sha256": "69bcc204e5fbdb474a88ef669bb582de61cf94de9f67a8805edb0b14b79f6aef",
+        "last_record_hash": "46c70baa205872255e47fa7f4b9199b36db252bda0c6ef473e5198964d68e246",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "53c636d1df4085a3bb8d1d5358473cb0db2429fdaf65f8b1ee78c90ee35b44dd",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 2
+          },
+          "head_hash": "46c70baa205872255e47fa7f4b9199b36db252bda0c6ef473e5198964d68e246",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "ac532ed835e34e12bddaaae867be7a41",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-fsync-4": {
+              "session_id": "target-fsync-4"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "4863b02abbf94616869ab7993fb6c31d",
+          "oracle-before",
+          "process-crash-fsync-4",
+          "state-recovered:024d7184adae8a1c730dfa533aae812cc649e223126135e976176909bb1a9732"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "ffb9ee4508a6b67995a1f3328b4fdb4ef029b0016ed964c533d6446cb22865b6",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2337,
+        "journal_exists": true,
+        "journal_sha256": "24fc42935a6f5ecb30ca6d27e3a6025a75f1cde7a2196cedcebdb72a55f4ca07",
+        "last_record_hash": "ffb9ee4508a6b67995a1f3328b4fdb4ef029b0016ed964c533d6446cb22865b6",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.024d7184adae8a1c730dfa533aae812cc649e223126135e976176909bb1a9732.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "024d7184adae8a1c730dfa533aae812cc649e223126135e976176909bb1a9732",
+            "sha256": "c9207a1967d464c0de0f12666682c0a7e222f8139639b6c452546512de253288"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "53c636d1df4085a3bb8d1d5358473cb0db2429fdaf65f8b1ee78c90ee35b44dd",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "ffb9ee4508a6b67995a1f3328b4fdb4ef029b0016ed964c533d6446cb22865b6",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "ac532ed835e34e12bddaaae867be7a41",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-fsync-4": {
+              "session_id": "target-fsync-4"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "4863b02abbf94616869ab7993fb6c31d",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "ea2554c795d79b6b9c98946a522ffe0b132ab508fb06da0bc72eaeeed30c25cb",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 919,
+        "journal_exists": true,
+        "journal_sha256": "880c9537d31cd7e8db802140e867ccc16a950c00f017b9f402a2d2339e31b303",
+        "last_record_hash": "ea2554c795d79b6b9c98946a522ffe0b132ab508fb06da0bc72eaeeed30c25cb",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "53c636d1df4085a3bb8d1d5358473cb0db2429fdaf65f8b1ee78c90ee35b44dd",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "ea2554c795d79b6b9c98946a522ffe0b132ab508fb06da0bc72eaeeed30c25cb",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "ac532ed835e34e12bddaaae867be7a41",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-FSYNC_4",
+      "expected_exit_code": 75,
+      "mode": "fsync-4",
+      "oracle_pass": true,
+      "process_exit_code": 75,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "2127428c05e740bf85eb9d28f0650ee8",
+          "oracle-before",
+          "process-crash-fsync-5"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "2fc905e5c453973211b11b87c724241481f35e7a4a07630b8b9cf22746e78329",
+          "seq": 3
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1392,
+        "journal_exists": true,
+        "journal_sha256": "8fe4ad9f0fc2e89de7a73cba50d831b4c74da60204aa8581cc85dfca165b0ec2",
+        "last_record_hash": "2fc905e5c453973211b11b87c724241481f35e7a4a07630b8b9cf22746e78329",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "d0cdbdf7aa3f44f6a7834bb306c6481fa9a63c2ec13e072e0d55d2098de053cf",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 2
+          },
+          "head_hash": "2fc905e5c453973211b11b87c724241481f35e7a4a07630b8b9cf22746e78329",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "602461284238478aa6e5749c40d8fddb",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-fsync-5": {
+              "session_id": "target-fsync-5"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "2127428c05e740bf85eb9d28f0650ee8",
+          "oracle-before",
+          "process-crash-fsync-5"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "2fc905e5c453973211b11b87c724241481f35e7a4a07630b8b9cf22746e78329",
+          "seq": 3
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1392,
+        "journal_exists": true,
+        "journal_sha256": "8fe4ad9f0fc2e89de7a73cba50d831b4c74da60204aa8581cc85dfca165b0ec2",
+        "last_record_hash": "2fc905e5c453973211b11b87c724241481f35e7a4a07630b8b9cf22746e78329",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "d0cdbdf7aa3f44f6a7834bb306c6481fa9a63c2ec13e072e0d55d2098de053cf",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 2
+          },
+          "head_hash": "2fc905e5c453973211b11b87c724241481f35e7a4a07630b8b9cf22746e78329",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "602461284238478aa6e5749c40d8fddb",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-fsync-5": {
+              "session_id": "target-fsync-5"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "2127428c05e740bf85eb9d28f0650ee8",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "d0e6653d3de0c7cb17cb4e4b7bfe2297bdc84020fcc298f2a588cb9f36290d58",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 920,
+        "journal_exists": true,
+        "journal_sha256": "52efdbd0d4fa63878179ec4a9342f72864f0087b2598a51838aaefcb026f93fe",
+        "last_record_hash": "d0e6653d3de0c7cb17cb4e4b7bfe2297bdc84020fcc298f2a588cb9f36290d58",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "d0cdbdf7aa3f44f6a7834bb306c6481fa9a63c2ec13e072e0d55d2098de053cf",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "d0e6653d3de0c7cb17cb4e4b7bfe2297bdc84020fcc298f2a588cb9f36290d58",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "602461284238478aa6e5749c40d8fddb",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-FSYNC_5",
+      "expected_exit_code": 76,
+      "mode": "fsync-5",
+      "oracle_pass": true,
+      "process_exit_code": 76,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "24f69e3ace3c4cf4b3009213787cc952",
+          "oracle-before",
+          "process-crash-replace-state"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "50eb497cb8cd9d94e2fd6e18af6a6e9ef64b87a323ca6f98bc8ad747bc0f5ffa",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1404,
+        "journal_exists": true,
+        "journal_sha256": "131aaca624e0f46c6d421291feeb116e22490d4c6f34eb3517fd9db071ce4a50",
+        "last_record_hash": "61948a5aac5453467e7216935c1eb77523bb432b7b78656fd834ad920a57ef0f",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "81686913c335ae27d0c38240a3a3c4a3571946199158479015a735148ad99450",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 2
+          },
+          "head_hash": "61948a5aac5453467e7216935c1eb77523bb432b7b78656fd834ad920a57ef0f",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "6d8a3e4d3fbf4276a0564bd76347ff40",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-replace-state": {
+              "session_id": "target-replace-state"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "24f69e3ace3c4cf4b3009213787cc952",
+          "oracle-before",
+          "process-crash-replace-state",
+          "state-recovered:9164acca6c9e83aa9ebe18e69f43136c23045bf514ddf408a0fa1e0decea182d"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "b47ba77ba824a2f2b2d6a76ad1bec4f6b7284d64f0b862ce656b215122fad109",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2356,
+        "journal_exists": true,
+        "journal_sha256": "94c9721b5b27c329838c899015a96dab417bd405d36cf0f1d2d91590df990d5c",
+        "last_record_hash": "b47ba77ba824a2f2b2d6a76ad1bec4f6b7284d64f0b862ce656b215122fad109",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.9164acca6c9e83aa9ebe18e69f43136c23045bf514ddf408a0fa1e0decea182d.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "9164acca6c9e83aa9ebe18e69f43136c23045bf514ddf408a0fa1e0decea182d",
+            "sha256": "32bcfb018b65e2a9b684d1f1745fa1f796372e4e5b5194b63e0d53eecb79509d"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "81686913c335ae27d0c38240a3a3c4a3571946199158479015a735148ad99450",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "b47ba77ba824a2f2b2d6a76ad1bec4f6b7284d64f0b862ce656b215122fad109",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "6d8a3e4d3fbf4276a0564bd76347ff40",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-replace-state": {
+              "session_id": "target-replace-state"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "24f69e3ace3c4cf4b3009213787cc952",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "50eb497cb8cd9d94e2fd6e18af6a6e9ef64b87a323ca6f98bc8ad747bc0f5ffa",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 920,
+        "journal_exists": true,
+        "journal_sha256": "6540a7a992c1a9c8902ff7f3b02f32024264521d2234a5f371b6a9c72e691fd4",
+        "last_record_hash": "50eb497cb8cd9d94e2fd6e18af6a6e9ef64b87a323ca6f98bc8ad747bc0f5ffa",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "81686913c335ae27d0c38240a3a3c4a3571946199158479015a735148ad99450",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "50eb497cb8cd9d94e2fd6e18af6a6e9ef64b87a323ca6f98bc8ad747bc0f5ffa",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "6d8a3e4d3fbf4276a0564bd76347ff40",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-REPLACE_STATE",
+      "expected_exit_code": 81,
+      "mode": "replace-state",
+      "oracle_pass": true,
+      "process_exit_code": 81,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "87814e4ee9fb4827a5872f976bd3b3e3",
+          "oracle-before",
+          "process-crash-replace-head"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "a0f30dc4571baf67631120241bd4fd550e58726559f5c51dd601d10ed9d26691",
+          "seq": 3
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1399,
+        "journal_exists": true,
+        "journal_sha256": "c03a60f276fe62b5e6fb16d356e5cd0e600aabee1dd81440870100006e907ed2",
+        "last_record_hash": "a0f30dc4571baf67631120241bd4fd550e58726559f5c51dd601d10ed9d26691",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "5046b8cfbee1e90db601e65236a82949ecfaca471068a22fdc96831be8832fac",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 2
+          },
+          "head_hash": "a0f30dc4571baf67631120241bd4fd550e58726559f5c51dd601d10ed9d26691",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "75f1b963555642a496298626a0b903c8",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-replace-head": {
+              "session_id": "target-replace-head"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "87814e4ee9fb4827a5872f976bd3b3e3",
+          "oracle-before",
+          "process-crash-replace-head"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "a0f30dc4571baf67631120241bd4fd550e58726559f5c51dd601d10ed9d26691",
+          "seq": 3
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1399,
+        "journal_exists": true,
+        "journal_sha256": "c03a60f276fe62b5e6fb16d356e5cd0e600aabee1dd81440870100006e907ed2",
+        "last_record_hash": "a0f30dc4571baf67631120241bd4fd550e58726559f5c51dd601d10ed9d26691",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "5046b8cfbee1e90db601e65236a82949ecfaca471068a22fdc96831be8832fac",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 2
+          },
+          "head_hash": "a0f30dc4571baf67631120241bd4fd550e58726559f5c51dd601d10ed9d26691",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "75f1b963555642a496298626a0b903c8",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-replace-head": {
+              "session_id": "target-replace-head"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "87814e4ee9fb4827a5872f976bd3b3e3",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "0a9b1a367aa84f2693952660e8a95704d3c7aabaefa8ae2750735147b7cd1408",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 917,
+        "journal_exists": true,
+        "journal_sha256": "155e0987896739d4eb6a6559601e19dbb2f37db0ec3920d43f9fcef65d3d9fe7",
+        "last_record_hash": "0a9b1a367aa84f2693952660e8a95704d3c7aabaefa8ae2750735147b7cd1408",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "5046b8cfbee1e90db601e65236a82949ecfaca471068a22fdc96831be8832fac",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "0a9b1a367aa84f2693952660e8a95704d3c7aabaefa8ae2750735147b7cd1408",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "75f1b963555642a496298626a0b903c8",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-REPLACE_HEAD",
+      "expected_exit_code": 82,
+      "mode": "replace-head",
+      "oracle_pass": true,
+      "process_exit_code": 82,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "f26aa9fcb2434c32b023c509c14b03f2",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "f628603591c93c1e3b008807df7cb39cfedc319c18c254134386ccab2b8617fc",
+          "seq": 2
+        },
+        "incomplete_tail": [
+          {
+            "bytes": 250,
+            "sha256": "5d7e328f7d6a4c0c5e591a5ea3703281dd07b5a32c832e447de284050c695ba7"
+          }
+        ],
+        "journal_bytes": 1169,
+        "journal_exists": true,
+        "journal_sha256": "02c9bea02edce141128db4ac625cf69fca6a8098c6afcd908618867b4888007d",
+        "last_record_hash": "f628603591c93c1e3b008807df7cb39cfedc319c18c254134386ccab2b8617fc",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "a638f42caa8eb84c7396eee93b1211626e4f0e85057af2c45d6f2a6437399e45",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "f628603591c93c1e3b008807df7cb39cfedc319c18c254134386ccab2b8617fc",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "61b895888c31450dbc490265202666a8",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "f26aa9fcb2434c32b023c509c14b03f2",
+          "oracle-before",
+          "state-recovered:b37b810c3d2d6f7c5e5af73f810d053659063213c20f1d9a0c4a564d4e0c7bfd"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "9b158a08482faa4e4efd54d709fe45f4d58a280aa1c729bcead012afb77d25a3",
+          "seq": 3
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1828,
+        "journal_exists": true,
+        "journal_sha256": "94f348f9d6174a1477a45d62eae8c54bab44ebbf3e98b58c660b98d16e59c877",
+        "last_record_hash": "9b158a08482faa4e4efd54d709fe45f4d58a280aa1c729bcead012afb77d25a3",
+        "last_seq": 3,
+        "quarantines": [
+          {
+            "bytes": 250,
+            "name": "history.incomplete-tail.5d7e328f7d6a4c0c5e591a5ea3703281dd07b5a32c832e447de284050c695ba7.bin",
+            "sha256": "5d7e328f7d6a4c0c5e591a5ea3703281dd07b5a32c832e447de284050c695ba7"
+          }
+        ],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.b37b810c3d2d6f7c5e5af73f810d053659063213c20f1d9a0c4a564d4e0c7bfd.json",
+            "reason": "INCOMPLETE_JOURNAL_TAIL_QUARANTINED",
+            "recovery_id": "b37b810c3d2d6f7c5e5af73f810d053659063213c20f1d9a0c4a564d4e0c7bfd",
+            "sha256": "70f15bb40ce84740a4fedd096dccfad070875e520779da58ff13675f8841f67b"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "a638f42caa8eb84c7396eee93b1211626e4f0e85057af2c45d6f2a6437399e45",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 1
+          },
+          "head_hash": "9b158a08482faa4e4efd54d709fe45f4d58a280aa1c729bcead012afb77d25a3",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "61b895888c31450dbc490265202666a8",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "f26aa9fcb2434c32b023c509c14b03f2",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "f628603591c93c1e3b008807df7cb39cfedc319c18c254134386ccab2b8617fc",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 919,
+        "journal_exists": true,
+        "journal_sha256": "cb34041443dd86804f681619f3b445f5caaec00baa3b7227df35da0d973ee803",
+        "last_record_hash": "f628603591c93c1e3b008807df7cb39cfedc319c18c254134386ccab2b8617fc",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "a638f42caa8eb84c7396eee93b1211626e4f0e85057af2c45d6f2a6437399e45",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "f628603591c93c1e3b008807df7cb39cfedc319c18c254134386ccab2b8617fc",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "61b895888c31450dbc490265202666a8",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-PARTIAL_JOURNAL_WRITE",
+      "expected_exit_code": 83,
+      "mode": "partial-journal-write",
+      "oracle_pass": true,
+      "process_exit_code": 83,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "4837c82ee5c14ec79e8ac31953d19db6",
+          "oracle-before",
+          "process-crash-flush-journal"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "e237ceb13e3b880dff2e0e8dcc9c680ecc7691b76a448d0fb7e8ec49a3879b74",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1403,
+        "journal_exists": true,
+        "journal_sha256": "605e223f6e1fd5663b8fdebf157284aad4af96a7600e236dbedf2a7c03465d09",
+        "last_record_hash": "e5b90e0174933447dd59311b0932f280c22a89d4709d36c9a249545ffe866ca3",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "4a6bc981a57fc9a7a92e1fa73ef5eeee2e1c41818550bba45ae01bb3f426fdb5",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "e237ceb13e3b880dff2e0e8dcc9c680ecc7691b76a448d0fb7e8ec49a3879b74",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "fe27b3a05cbb48cb878260838d12c181",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "4837c82ee5c14ec79e8ac31953d19db6",
+          "oracle-before",
+          "process-crash-flush-journal",
+          "state-recovered:190d7bd6b4f21334621f83f60197816d4d92cb0f1c9585f0f4f4ae7929a6a298"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "7a3748efb27d891431b09592aec18c6f0c8ba0a102800d1f9ec43c68b2df88a5",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2355,
+        "journal_exists": true,
+        "journal_sha256": "07ff532664fce86cf146f624c7489f5d9f5968e1cc929f3c5156a1f422a43b3d",
+        "last_record_hash": "7a3748efb27d891431b09592aec18c6f0c8ba0a102800d1f9ec43c68b2df88a5",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.190d7bd6b4f21334621f83f60197816d4d92cb0f1c9585f0f4f4ae7929a6a298.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "190d7bd6b4f21334621f83f60197816d4d92cb0f1c9585f0f4f4ae7929a6a298",
+            "sha256": "3c58fe60e639551880362b45818843f51078626cd8695213bbeb94f4db7e1718"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "4a6bc981a57fc9a7a92e1fa73ef5eeee2e1c41818550bba45ae01bb3f426fdb5",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "7a3748efb27d891431b09592aec18c6f0c8ba0a102800d1f9ec43c68b2df88a5",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "fe27b3a05cbb48cb878260838d12c181",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-flush-journal": {
+              "session_id": "target-flush-journal"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "4837c82ee5c14ec79e8ac31953d19db6",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "e237ceb13e3b880dff2e0e8dcc9c680ecc7691b76a448d0fb7e8ec49a3879b74",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 920,
+        "journal_exists": true,
+        "journal_sha256": "a110fd82961ef5ae42008abeef34b8e5de103dee9bf914f6c7e831e128a4e34e",
+        "last_record_hash": "e237ceb13e3b880dff2e0e8dcc9c680ecc7691b76a448d0fb7e8ec49a3879b74",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "4a6bc981a57fc9a7a92e1fa73ef5eeee2e1c41818550bba45ae01bb3f426fdb5",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "e237ceb13e3b880dff2e0e8dcc9c680ecc7691b76a448d0fb7e8ec49a3879b74",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "fe27b3a05cbb48cb878260838d12c181",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-FLUSH_JOURNAL",
+      "expected_exit_code": 84,
+      "mode": "flush-journal",
+      "oracle_pass": true,
+      "process_exit_code": 84,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "698f69b50ed04830837e79d483f32678",
+          "oracle-before",
+          "process-crash-partial-state-write"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "5a7586a306a75236918366bc98dfac9116550eb7249edb41f550d436140eec5f",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1415,
+        "journal_exists": true,
+        "journal_sha256": "42a3d0f33a0f68519969ff210f4b156fbd2ee3b76a2072eb4632f4bba89f3a01",
+        "last_record_hash": "fa7425e26242a1ee1f7a8434dfe9c9b168986cab4b7b450b8a4299b0b73300a6",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "c7873a048ce6415d23065d869de97547d06a840bf03aa2f193cf1063492ee9b5",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "5a7586a306a75236918366bc98dfac9116550eb7249edb41f550d436140eec5f",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "3285d97626414e40b2a19a5a611ca2dc",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "698f69b50ed04830837e79d483f32678",
+          "oracle-before",
+          "process-crash-partial-state-write",
+          "state-recovered:fe8bff81f1298e7942ce1111440e7cd70342bb7a261eb68eaf07ca1fdcf34e1f"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "02da2f536ff559932b7660459c1171a42450c646c482a0578543a6dabfb57a4b",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2373,
+        "journal_exists": true,
+        "journal_sha256": "b21c890dabc14b556e8729799cdf3bfd8b3d011fbdf2e41cf16f33bd6134c015",
+        "last_record_hash": "02da2f536ff559932b7660459c1171a42450c646c482a0578543a6dabfb57a4b",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.fe8bff81f1298e7942ce1111440e7cd70342bb7a261eb68eaf07ca1fdcf34e1f.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "fe8bff81f1298e7942ce1111440e7cd70342bb7a261eb68eaf07ca1fdcf34e1f",
+            "sha256": "bffca746c21e23c666d1a835bff9c611c697402aa3dec02e657e8e9b41f2de43"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "c7873a048ce6415d23065d869de97547d06a840bf03aa2f193cf1063492ee9b5",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "02da2f536ff559932b7660459c1171a42450c646c482a0578543a6dabfb57a4b",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "3285d97626414e40b2a19a5a611ca2dc",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-partial-state-write": {
+              "session_id": "target-partial-state-write"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "698f69b50ed04830837e79d483f32678",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "5a7586a306a75236918366bc98dfac9116550eb7249edb41f550d436140eec5f",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 919,
+        "journal_exists": true,
+        "journal_sha256": "392d3f34dfbb50f7772bd963c5bc6fcc051b3bf2e820db554e72e91e3b4cba0a",
+        "last_record_hash": "5a7586a306a75236918366bc98dfac9116550eb7249edb41f550d436140eec5f",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "c7873a048ce6415d23065d869de97547d06a840bf03aa2f193cf1063492ee9b5",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "5a7586a306a75236918366bc98dfac9116550eb7249edb41f550d436140eec5f",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "3285d97626414e40b2a19a5a611ca2dc",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-PARTIAL_STATE_WRITE",
+      "expected_exit_code": 83,
+      "mode": "partial-state-write",
+      "oracle_pass": true,
+      "process_exit_code": 83,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "7620f982ed674991ae22f62bce3cf08a",
+          "oracle-before",
+          "process-crash-partial-head-write"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "4a294722108915859ca987c93e18105cae5b38f8b78f2b9a4339a8a68d6d926b",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1413,
+        "journal_exists": true,
+        "journal_sha256": "b8beafa279ad3d79d745ce1ad01e2aa677cc65ea98051154554915bbf1a330c7",
+        "last_record_hash": "e62df8f186e3b77c354b0bd8c7777f8a7526780464c6f509df72fc26791ac551",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "bb8bc026ba3f0a84c740b04d8b39c26c9ad79ff19191f5469167e31b2fe5c36c",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 2
+          },
+          "head_hash": "e62df8f186e3b77c354b0bd8c7777f8a7526780464c6f509df72fc26791ac551",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "eb85ba7fa8de4c1c9406524018aa4fe5",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-partial-head-write": {
+              "session_id": "target-partial-head-write"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "7620f982ed674991ae22f62bce3cf08a",
+          "oracle-before",
+          "process-crash-partial-head-write",
+          "state-recovered:4f0997b5361910e325a64840371252c90bdbe7fc0590ed697cf03b3becbfa724"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "6980dca3979d9e9ce419d361a40f5558dacb371d827ca047a1658cc5aedcb1bd",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2370,
+        "journal_exists": true,
+        "journal_sha256": "3e23ada60d3dc4de01ce8f1f3f42ddd27c7381c4a1b56047c8f9a6828cf6a3ad",
+        "last_record_hash": "6980dca3979d9e9ce419d361a40f5558dacb371d827ca047a1658cc5aedcb1bd",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.4f0997b5361910e325a64840371252c90bdbe7fc0590ed697cf03b3becbfa724.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "4f0997b5361910e325a64840371252c90bdbe7fc0590ed697cf03b3becbfa724",
+            "sha256": "54a0deab98f3212df60d2738b93cd8e80827fa3e6a6864536fab34308f2b56d6"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "bb8bc026ba3f0a84c740b04d8b39c26c9ad79ff19191f5469167e31b2fe5c36c",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "6980dca3979d9e9ce419d361a40f5558dacb371d827ca047a1658cc5aedcb1bd",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "eb85ba7fa8de4c1c9406524018aa4fe5",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-partial-head-write": {
+              "session_id": "target-partial-head-write"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "7620f982ed674991ae22f62bce3cf08a",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "4a294722108915859ca987c93e18105cae5b38f8b78f2b9a4339a8a68d6d926b",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 920,
+        "journal_exists": true,
+        "journal_sha256": "c248063dc10b7e3d4504b9a5e8e8cc811ac7d56550f02b9adc96498c4f77a543",
+        "last_record_hash": "4a294722108915859ca987c93e18105cae5b38f8b78f2b9a4339a8a68d6d926b",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "bb8bc026ba3f0a84c740b04d8b39c26c9ad79ff19191f5469167e31b2fe5c36c",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "4a294722108915859ca987c93e18105cae5b38f8b78f2b9a4339a8a68d6d926b",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "eb85ba7fa8de4c1c9406524018aa4fe5",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-PARTIAL_HEAD_WRITE",
+      "expected_exit_code": 83,
+      "mode": "partial-head-write",
+      "oracle_pass": true,
+      "process_exit_code": 83,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "cbb7867958774e5ab50e8820dfd46f7f",
+          "oracle-before",
+          "process-crash-flush-state"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "39db58a6ebe664160b1fc58162ed0d4b0baefd8d86999719185a5bf7d2de2e6f",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1398,
+        "journal_exists": true,
+        "journal_sha256": "730997fb86fd0914e8a99355c33d8e2085674695f0e2e18c45ebdb2607349bed",
+        "last_record_hash": "0bd74631bd68cab569ca9dc87645fb105cb9f21de83ee2c57fd45da1bc7a322b",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "f952691bab406f2b65912d9698a684f2df78e66d49b8fee4b24609062f3a5c3f",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "39db58a6ebe664160b1fc58162ed0d4b0baefd8d86999719185a5bf7d2de2e6f",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "9229a437b63b4303b67c59f798bd9bbc",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "cbb7867958774e5ab50e8820dfd46f7f",
+          "oracle-before",
+          "process-crash-flush-state",
+          "state-recovered:f27c467a5d159bf2f27f4eef43f350bfa5f6590c3b44051f4b1106a838309f2d"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "a0fc2c731de9902307ac9aee5e8d2976863261e10c264f21dc0b67b6ef762407",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2348,
+        "journal_exists": true,
+        "journal_sha256": "b8fc8f976d1955f087708bb3c6320db061d92d8286933730a09163880bbbf2a2",
+        "last_record_hash": "a0fc2c731de9902307ac9aee5e8d2976863261e10c264f21dc0b67b6ef762407",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.f27c467a5d159bf2f27f4eef43f350bfa5f6590c3b44051f4b1106a838309f2d.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "f27c467a5d159bf2f27f4eef43f350bfa5f6590c3b44051f4b1106a838309f2d",
+            "sha256": "062214935db06fa3a5d2a7dbcdf710af65dcd0b42eea68a1ccfe2d6e7506c2ca"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "f952691bab406f2b65912d9698a684f2df78e66d49b8fee4b24609062f3a5c3f",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "a0fc2c731de9902307ac9aee5e8d2976863261e10c264f21dc0b67b6ef762407",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "9229a437b63b4303b67c59f798bd9bbc",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-flush-state": {
+              "session_id": "target-flush-state"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "cbb7867958774e5ab50e8820dfd46f7f",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "39db58a6ebe664160b1fc58162ed0d4b0baefd8d86999719185a5bf7d2de2e6f",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 918,
+        "journal_exists": true,
+        "journal_sha256": "6957e45d78e7d1a758fe325f33558707d028aaca243b4811968448254a8563c8",
+        "last_record_hash": "39db58a6ebe664160b1fc58162ed0d4b0baefd8d86999719185a5bf7d2de2e6f",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "f952691bab406f2b65912d9698a684f2df78e66d49b8fee4b24609062f3a5c3f",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "39db58a6ebe664160b1fc58162ed0d4b0baefd8d86999719185a5bf7d2de2e6f",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "9229a437b63b4303b67c59f798bd9bbc",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-FLUSH_STATE",
+      "expected_exit_code": 84,
+      "mode": "flush-state",
+      "oracle_pass": true,
+      "process_exit_code": 84,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 3,
+        "event_ids": [
+          "7fe341898e5149ebad7b35c6f2f6b4f6",
+          "oracle-before",
+          "process-crash-flush-head"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "735b7d1fe9da7cc76d492a63622b0a7b7e36cf4151f7d410814829bd346300bd",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1396,
+        "journal_exists": true,
+        "journal_sha256": "e6e4f54e30a47af89a1b938ebf1319fee84b4537fec603ea63543594825539c2",
+        "last_record_hash": "64c168bedb188bf184fd2e499bf7521018c3ff07b20fdbca88bcf49391de7b55",
+        "last_seq": 3,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "e59097fe4c900412bce3f06ea23af9275133eaf919faccd75d70f2c31f043c58",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 2
+          },
+          "head_hash": "64c168bedb188bf184fd2e499bf7521018c3ff07b20fdbca88bcf49391de7b55",
+          "last_seq": 3,
+          "product_id": "HG",
+          "runtime_id": "36ba7cd47a9e40309e74f49259ed6dd0",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-flush-head": {
+              "session_id": "target-flush-head"
+            }
+          }
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 4,
+        "event_ids": [
+          "7fe341898e5149ebad7b35c6f2f6b4f6",
+          "oracle-before",
+          "process-crash-flush-head",
+          "state-recovered:440b4208b9da5324c967a154deaac528138139ee198967a0b38ea370d9c93603"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created",
+          "session.created",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "c027abaf54502827a45e5e6526293004b59f88e2eb1c33991c8b026cfac4f257",
+          "seq": 4
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 2344,
+        "journal_exists": true,
+        "journal_sha256": "44a15b4f0f8a6b47a4daddeea28c12faeae39e143be58429ac7259d1121b0be8",
+        "last_record_hash": "c027abaf54502827a45e5e6526293004b59f88e2eb1c33991c8b026cfac4f257",
+        "last_seq": 4,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.440b4208b9da5324c967a154deaac528138139ee198967a0b38ea370d9c93603.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "440b4208b9da5324c967a154deaac528138139ee198967a0b38ea370d9c93603",
+            "sha256": "b5f45329ed50a81477d5d0b3513c68f1156827f95d963a836e4bf62332b651db"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "e59097fe4c900412bce3f06ea23af9275133eaf919faccd75d70f2c31f043c58",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1,
+            "session.created": 2
+          },
+          "head_hash": "c027abaf54502827a45e5e6526293004b59f88e2eb1c33991c8b026cfac4f257",
+          "last_seq": 4,
+          "product_id": "HG",
+          "runtime_id": "36ba7cd47a9e40309e74f49259ed6dd0",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            },
+            "target-flush-head": {
+              "session_id": "target-flush-head"
+            }
+          }
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "7fe341898e5149ebad7b35c6f2f6b4f6",
+          "oracle-before"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "session.created"
+        ],
+        "head": {
+          "head_hash": "735b7d1fe9da7cc76d492a63622b0a7b7e36cf4151f7d410814829bd346300bd",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 918,
+        "journal_exists": true,
+        "journal_sha256": "a974fc2c63c6c544cc56a6e385382d94186c376a2cb9181927cfcb08eb1f16ef",
+        "last_record_hash": "735b7d1fe9da7cc76d492a63622b0a7b7e36cf4151f7d410814829bd346300bd",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "e59097fe4c900412bce3f06ea23af9275133eaf919faccd75d70f2c31f043c58",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "session.created": 1
+          },
+          "head_hash": "735b7d1fe9da7cc76d492a63622b0a7b7e36cf4151f7d410814829bd346300bd",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "36ba7cd47a9e40309e74f49259ed6dd0",
+          "schema": "HG_STATE_V1",
+          "sessions": {
+            "before": {
+              "session_id": "before"
+            }
+          }
+        }
+      },
+      "case_id": "RUNTIME-CRASH-FLUSH_HEAD",
+      "expected_exit_code": 84,
+      "mode": "flush-head",
+      "oracle_pass": true,
+      "process_exit_code": 84,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "3dfa58a837c74f7aacddefbdd8b32277"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "b293240411bc40886cdd583d22e278327c1f925972d1f3810f248312b645f5f5",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "f7ca301225f65889d9ed83582d29fff1469d711ac95e1bef45267ba6d10d5b83",
+        "last_record_hash": "b293240411bc40886cdd583d22e278327c1f925972d1f3810f248312b645f5f5",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "fc89fc8e7ab824e994ddbce8ffae03f6bbe02a74dddeb6bdfc879d3747d9946c",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "b293240411bc40886cdd583d22e278327c1f925972d1f3810f248312b645f5f5",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "985356d519d642f38c7c7b4dd4f7d962",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-01",
+      "expected_exit_code": 91,
+      "mode": "bootstrap-fsync-1",
+      "oracle_pass": true,
+      "process_exit_code": 91,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "314358ef8e2648bdbb8c60a37e9feedf"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "1f2f5f77ae48e9b4a90a831e9b032420faf9973dc8a8945e41b051997c1a7b03",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "3dfb5bd58dca6a21f9b7756a032a437837297cd906b182f4ade0a7eb875caf7d",
+        "last_record_hash": "1f2f5f77ae48e9b4a90a831e9b032420faf9973dc8a8945e41b051997c1a7b03",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "5bb429fbd0824990fe692195586bca80ca60c6c7786e015eec470454f442e2da",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "1f2f5f77ae48e9b4a90a831e9b032420faf9973dc8a8945e41b051997c1a7b03",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "f2eb7c0e3699475b860a101ffdea2d1e",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-02",
+      "expected_exit_code": 92,
+      "mode": "bootstrap-fsync-2",
+      "oracle_pass": true,
+      "process_exit_code": 92,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "989a3b30b14c43f5890f675bf3ddafca"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "ea631aeb5bcf1a9ba5c03d4fe1e67cf09e87ac26c4a40b8058d4273a8543422d",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 463,
+        "journal_exists": true,
+        "journal_sha256": "1cd7150bdbfb17370264101438c7ec39d3780c4af429c5ce919c6e0fd6416b06",
+        "last_record_hash": "ea631aeb5bcf1a9ba5c03d4fe1e67cf09e87ac26c4a40b8058d4273a8543422d",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "3bb29a2f4cb3e5fa22e9cacfcf1dc9b3150b3ea41389f3a93aa690d3154b0f70",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "ea631aeb5bcf1a9ba5c03d4fe1e67cf09e87ac26c4a40b8058d4273a8543422d",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "17c6ca92f13742afba05b1d580acb4c6",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-03",
+      "expected_exit_code": 93,
+      "mode": "bootstrap-fsync-3",
+      "oracle_pass": true,
+      "process_exit_code": 93,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "c2af56d388b3a7699375453bb17193d71b6bdf04a2d65e4810cc4c8ba2ef9d3e",
+        "state_projection": null
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "a5da7482886047a182fc41608eedfa4b"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "f29a87362158141c9e0d42524d9b045a23f4c302dc9f93683a81ee8e734f1c98",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "8b6e4fe4e13d8781be1c60eca729905783448959b99a3eb323f4c9424c0c09d6",
+        "last_record_hash": "f29a87362158141c9e0d42524d9b045a23f4c302dc9f93683a81ee8e734f1c98",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "c2af56d388b3a7699375453bb17193d71b6bdf04a2d65e4810cc4c8ba2ef9d3e",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "f29a87362158141c9e0d42524d9b045a23f4c302dc9f93683a81ee8e734f1c98",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "c471385ab1a24c5e94c7b797385e8565",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-04",
+      "expected_exit_code": 94,
+      "mode": "bootstrap-fsync-4",
+      "oracle_pass": true,
+      "process_exit_code": 94,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "3e67dab9a11491ac9afc7c201510b679a3aa4a1a59a313340eb0947f55b12072",
+        "state_projection": null
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "7ff56df896674fc4a58d4c4ac76e01ff"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "2eb4c7270f2f1f8fb1217649167cafad461fc87da4a74c72aec5b63f5a4d94f2",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "4b1732042c79fa0e4d6ac719fd1bcbe5544c8e397889548f382eb2f4a1e4400f",
+        "last_record_hash": "2eb4c7270f2f1f8fb1217649167cafad461fc87da4a74c72aec5b63f5a4d94f2",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "3e67dab9a11491ac9afc7c201510b679a3aa4a1a59a313340eb0947f55b12072",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "2eb4c7270f2f1f8fb1217649167cafad461fc87da4a74c72aec5b63f5a4d94f2",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "9e073f5c3fbe472cb83f33acc47bab2d",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-05",
+      "expected_exit_code": 95,
+      "mode": "bootstrap-fsync-5",
+      "oracle_pass": true,
+      "process_exit_code": 95,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "047e59d7626fd63c5f6d778997da0c7e77a9b984c99a3e4415afc51bb3e59e0b",
+        "state_projection": {
+          "counters": {},
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "last_seq": 0,
+          "product_id": "HG",
+          "runtime_id": "a3947dc442bc4896af7f7958f2b10284",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "b01a482435dc492ea30d27e13dc0e667"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "afe99f8b430e0d347323baef961ad7a22d6ff2be09d08ad4e1c293dd36daca02",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 463,
+        "journal_exists": true,
+        "journal_sha256": "45d8a0682ed3ca88ebe62db403e4e19c9ce975d939a0ce4f5ce9c2b01aa14e6d",
+        "last_record_hash": "afe99f8b430e0d347323baef961ad7a22d6ff2be09d08ad4e1c293dd36daca02",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "047e59d7626fd63c5f6d778997da0c7e77a9b984c99a3e4415afc51bb3e59e0b",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "afe99f8b430e0d347323baef961ad7a22d6ff2be09d08ad4e1c293dd36daca02",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "a3947dc442bc4896af7f7958f2b10284",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-06",
+      "expected_exit_code": 96,
+      "mode": "bootstrap-fsync-6",
+      "oracle_pass": true,
+      "process_exit_code": 96,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "6b4dd39c49ade58507e868ab8d3a4dd9410af2ab2a6e0df5a8cf2eea624b180e",
+        "state_projection": {
+          "counters": {},
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "last_seq": 0,
+          "product_id": "HG",
+          "runtime_id": "e9c8f4923d954b5ea3974018e4b66e04",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "1bd842f2c7ae441baea7977800849853"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "89218855cb54d4b34f91fa9a3fbc5d2553f560d572ea50fad04037fc986d6de3",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "93ed59bbde5ef6aa22a87cfdbd4e68d5c150037d4d16a9656385612e420bd7ee",
+        "last_record_hash": "89218855cb54d4b34f91fa9a3fbc5d2553f560d572ea50fad04037fc986d6de3",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "6b4dd39c49ade58507e868ab8d3a4dd9410af2ab2a6e0df5a8cf2eea624b180e",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "89218855cb54d4b34f91fa9a3fbc5d2553f560d572ea50fad04037fc986d6de3",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "e9c8f4923d954b5ea3974018e4b66e04",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-07",
+      "expected_exit_code": 97,
+      "mode": "bootstrap-fsync-7",
+      "oracle_pass": true,
+      "process_exit_code": 97,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": {
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "seq": 0
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "1750b5e7581fde27cc1256fc21ebba4c324a06672898e18411858ad43a8441e2",
+        "state_projection": {
+          "counters": {},
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "last_seq": 0,
+          "product_id": "HG",
+          "runtime_id": "bf48c88af6d74e689faf9548628eeb60",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "7d0cc6d40f5248868bf3b6385f52c13c"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "93c651290159bc8c11b0c4591263de0f1661f2880b4ac1f6a314c5b82315528f",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "42e1bacd0e9a2a1ec6c3d94af1e44b66a112f36e92d643abd96b0e3688a3c9a0",
+        "last_record_hash": "93c651290159bc8c11b0c4591263de0f1661f2880b4ac1f6a314c5b82315528f",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "1750b5e7581fde27cc1256fc21ebba4c324a06672898e18411858ad43a8441e2",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "93c651290159bc8c11b0c4591263de0f1661f2880b4ac1f6a314c5b82315528f",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "bf48c88af6d74e689faf9548628eeb60",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-08",
+      "expected_exit_code": 98,
+      "mode": "bootstrap-fsync-8",
+      "oracle_pass": true,
+      "process_exit_code": 98,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 1,
+        "event_ids": [
+          "84e0c6346cc5496697e1b710ed94d3f8"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "seq": 0
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 463,
+        "journal_exists": true,
+        "journal_sha256": "4a55f1cb1fc8705556baa14ece0167863bbb58ea58497372ca22446799a19d91",
+        "last_record_hash": "ad77f70cc7e5ec72ceaa6558f1fd59888488187a1281ec5d4d55aae582aaa9dc",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "4944aa0db77a6c9b829ed7e21101c1ad15fdc3db489dccc2b24d66f2cb1d7b1a",
+        "state_projection": {
+          "counters": {},
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "last_seq": 0,
+          "product_id": "HG",
+          "runtime_id": "4728b4facfb845e388fb2998228ae503",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "84e0c6346cc5496697e1b710ed94d3f8",
+          "state-recovered:b8a2ef0ce8566735451be3d352085b88b514e6544917c207e8f2deeea503f038"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "7feb3e905420d88c43b974829082f7f9110876337e86a8409b75f8cb7331992f",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1420,
+        "journal_exists": true,
+        "journal_sha256": "d785c49055861c79c24991cb08f97526d7e2914fa096c86c39a569ab415f7baf",
+        "last_record_hash": "7feb3e905420d88c43b974829082f7f9110876337e86a8409b75f8cb7331992f",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.b8a2ef0ce8566735451be3d352085b88b514e6544917c207e8f2deeea503f038.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "b8a2ef0ce8566735451be3d352085b88b514e6544917c207e8f2deeea503f038",
+            "sha256": "8f3490db7ab30e06f4352c086ace43e2f09f4e388f24006479e11050692e77ad"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "4944aa0db77a6c9b829ed7e21101c1ad15fdc3db489dccc2b24d66f2cb1d7b1a",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1
+          },
+          "head_hash": "7feb3e905420d88c43b974829082f7f9110876337e86a8409b75f8cb7331992f",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "4728b4facfb845e388fb2998228ae503",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-09",
+      "expected_exit_code": 99,
+      "mode": "bootstrap-fsync-9",
+      "oracle_pass": true,
+      "process_exit_code": 99,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 1,
+        "event_ids": [
+          "3372876aec0d4e6fae82d110b2e7c6fc"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "seq": 0
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 463,
+        "journal_exists": true,
+        "journal_sha256": "62ceff9edc2a5802aa529dde28a8335495ac458c80809f2c10d1d3c67a110dd0",
+        "last_record_hash": "64b6818d338035b0e00bf28acdc4b84f4885e58d0ebdf26851ea8d044a910c52",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "84f060d20628d100ae71fc0f2376f9a2e4bc204a4693d23e11e063dfc0740c04",
+        "state_projection": {
+          "counters": {},
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "last_seq": 0,
+          "product_id": "HG",
+          "runtime_id": "815eda5e6cd64c1ab306e171045c4d4a",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "3372876aec0d4e6fae82d110b2e7c6fc",
+          "state-recovered:6d9a555ff1fd1a624829e8058a998a5705d4f1372e502e8821826e2a34e173ba"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "4575ae0073da63055862c3630be31f51b98c56d5fbb15c5628fc763b7005c7eb",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1420,
+        "journal_exists": true,
+        "journal_sha256": "8ee9bf34a91924850fcf12a27ba39cf0fd5bc07728b7d1571c548a61d8d53867",
+        "last_record_hash": "4575ae0073da63055862c3630be31f51b98c56d5fbb15c5628fc763b7005c7eb",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.6d9a555ff1fd1a624829e8058a998a5705d4f1372e502e8821826e2a34e173ba.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "6d9a555ff1fd1a624829e8058a998a5705d4f1372e502e8821826e2a34e173ba",
+            "sha256": "c66b4e57cad93fbd2b6bce0a9dc87d4ae3a86c3b344e778a23e05fc8efeeb458"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "84f060d20628d100ae71fc0f2376f9a2e4bc204a4693d23e11e063dfc0740c04",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1
+          },
+          "head_hash": "4575ae0073da63055862c3630be31f51b98c56d5fbb15c5628fc763b7005c7eb",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "815eda5e6cd64c1ab306e171045c4d4a",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-10",
+      "expected_exit_code": 100,
+      "mode": "bootstrap-fsync-10",
+      "oracle_pass": true,
+      "process_exit_code": 100,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 1,
+        "event_ids": [
+          "db4ac1622d3746b8ab5b02024733c8e8"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "seq": 0
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "26f7457a47527828ff83be8806e98cbd496f3965749ce8c2e1549fd9c0547989",
+        "last_record_hash": "08da16190f05be424f0c126240f4cb7c959b8af6a0f3723da74c31240aac7573",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "ad0ec3a60a948970b8ec347370a68abef48907cd15901842ad1bcd2f7725d59b",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "08da16190f05be424f0c126240f4cb7c959b8af6a0f3723da74c31240aac7573",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "156b14cc23ba4263b0df0eb342e1f1e3",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "db4ac1622d3746b8ab5b02024733c8e8",
+          "state-recovered:1cefe28e5fb797269ec019dc5f20ffe58089c495d70dfbf674b7156c3d70ee9f"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "daf17041c0a960eab78815fc58aaa72e158e1bb862acffea7524f8a0a1ec3506",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1421,
+        "journal_exists": true,
+        "journal_sha256": "b4a51318955d35768809293d832db32c8d70a5c160630493e96100d1cb9413ee",
+        "last_record_hash": "daf17041c0a960eab78815fc58aaa72e158e1bb862acffea7524f8a0a1ec3506",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.1cefe28e5fb797269ec019dc5f20ffe58089c495d70dfbf674b7156c3d70ee9f.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "1cefe28e5fb797269ec019dc5f20ffe58089c495d70dfbf674b7156c3d70ee9f",
+            "sha256": "9137558c4b5942a0e6d81dbb2ad2b04082451a1bf78b089cab23e43b401f8410"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "ad0ec3a60a948970b8ec347370a68abef48907cd15901842ad1bcd2f7725d59b",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1
+          },
+          "head_hash": "daf17041c0a960eab78815fc58aaa72e158e1bb862acffea7524f8a0a1ec3506",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "156b14cc23ba4263b0df0eb342e1f1e3",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-11",
+      "expected_exit_code": 101,
+      "mode": "bootstrap-fsync-11",
+      "oracle_pass": true,
+      "process_exit_code": 101,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 1,
+        "event_ids": [
+          "d882b6cd3406454e910f76e6c7fef35e"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "seq": 0
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "530a05aa9ae8e89aec5bccd90a3be1cd7e459bf140b400588a57e851b5a92d09",
+        "last_record_hash": "a619ed710217da23722b5d6ad0a31b19ef35a527e9723c447822dd0aa54d2577",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "ce60f9f9cdea9b64fbad079e3eccfbe461db42afe8010dc9873367f4c40df858",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "a619ed710217da23722b5d6ad0a31b19ef35a527e9723c447822dd0aa54d2577",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "05b014a45ef24ba8ae26fa445050406a",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 2,
+        "event_ids": [
+          "d882b6cd3406454e910f76e6c7fef35e",
+          "state-recovered:7f1ba43db46348215f307656e8fec988f80852914b96d5a5139d9d44abfc117e"
+        ],
+        "event_types": [
+          "hg.genesis",
+          "history.state.recovered"
+        ],
+        "head": {
+          "head_hash": "551c503d75ec9c8c93e2d686debd88578f917bd25848a796e0a16d0eda9a269e",
+          "seq": 2
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 1421,
+        "journal_exists": true,
+        "journal_sha256": "e4d9917102ac1616038d23ad2e130345e19040e39e70d4f7b4e7a480f7001ff8",
+        "last_record_hash": "551c503d75ec9c8c93e2d686debd88578f917bd25848a796e0a16d0eda9a269e",
+        "last_seq": 2,
+        "quarantines": [],
+        "recovery_receipts": [
+          {
+            "name": "history.recovery.7f1ba43db46348215f307656e8fec988f80852914b96d5a5139d9d44abfc117e.json",
+            "reason": "ONE_EVENT_AHEAD_OF_CHECKPOINT",
+            "recovery_id": "7f1ba43db46348215f307656e8fec988f80852914b96d5a5139d9d44abfc117e",
+            "sha256": "a93eb7b8598a21eebe9d9a439ebd418e8f6bba3219e80e6edcd80c476d1d8df3"
+          }
+        ],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "ce60f9f9cdea9b64fbad079e3eccfbe461db42afe8010dc9873367f4c40df858",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1,
+            "history.state.recovered": 1
+          },
+          "head_hash": "551c503d75ec9c8c93e2d686debd88578f917bd25848a796e0a16d0eda9a269e",
+          "last_seq": 2,
+          "product_id": "HG",
+          "runtime_id": "05b014a45ef24ba8ae26fa445050406a",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-12",
+      "expected_exit_code": 102,
+      "mode": "bootstrap-fsync-12",
+      "oracle_pass": true,
+      "process_exit_code": 102,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": true,
+        "complete_event_count": 1,
+        "event_ids": [
+          "6eb26ca18b7a4c3abc0cb875f024488e"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "0b26034fa7d6caeb883aeca86890f7f6c35965fb5e1670946cc668ba30f97097",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 463,
+        "journal_exists": true,
+        "journal_sha256": "1bb18d8714d3148bbb37a09e9b3754447c33b334f8647fa24e639f34b8f03195",
+        "last_record_hash": "0b26034fa7d6caeb883aeca86890f7f6c35965fb5e1670946cc668ba30f97097",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "43cc4b8fc01821e9b9ba8e19fea19ecb5d9137b757f0b94b8dac4f67dab7d378",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "0b26034fa7d6caeb883aeca86890f7f6c35965fb5e1670946cc668ba30f97097",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "9e5d0fade00d4999952e76aa0b11c294",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "6eb26ca18b7a4c3abc0cb875f024488e"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "0b26034fa7d6caeb883aeca86890f7f6c35965fb5e1670946cc668ba30f97097",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 463,
+        "journal_exists": true,
+        "journal_sha256": "1bb18d8714d3148bbb37a09e9b3754447c33b334f8647fa24e639f34b8f03195",
+        "last_record_hash": "0b26034fa7d6caeb883aeca86890f7f6c35965fb5e1670946cc668ba30f97097",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "43cc4b8fc01821e9b9ba8e19fea19ecb5d9137b757f0b94b8dac4f67dab7d378",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "0b26034fa7d6caeb883aeca86890f7f6c35965fb5e1670946cc668ba30f97097",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "9e5d0fade00d4999952e76aa0b11c294",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-13",
+      "expected_exit_code": 103,
+      "mode": "bootstrap-fsync-13",
+      "oracle_pass": true,
+      "process_exit_code": 103,
+      "recovery_error": null
+    },
+    {
+      "after_crash_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "97881d650e5447a19592ec7bee9274f4"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "8ec4e2065e4f5cbafb2be2387b97c6d752caed15c6876576893bffc7574f2916",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "d6b7df607091dab24948fc467e1a98dd5a8c2a0aec7e5cbd60bacddf80673e4b",
+        "last_record_hash": "8ec4e2065e4f5cbafb2be2387b97c6d752caed15c6876576893bffc7574f2916",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "047c21563ade051433c7be22a5feddf817f7d70e9fa80d97320957ea14446a72",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "8ec4e2065e4f5cbafb2be2387b97c6d752caed15c6876576893bffc7574f2916",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "8a98c0457bfb41419f62a78d7f73c364",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "after_recovery_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 1,
+        "event_ids": [
+          "97881d650e5447a19592ec7bee9274f4"
+        ],
+        "event_types": [
+          "hg.genesis"
+        ],
+        "head": {
+          "head_hash": "8ec4e2065e4f5cbafb2be2387b97c6d752caed15c6876576893bffc7574f2916",
+          "seq": 1
+        },
+        "incomplete_tail": [],
+        "journal_bytes": 464,
+        "journal_exists": true,
+        "journal_sha256": "d6b7df607091dab24948fc467e1a98dd5a8c2a0aec7e5cbd60bacddf80673e4b",
+        "last_record_hash": "8ec4e2065e4f5cbafb2be2387b97c6d752caed15c6876576893bffc7574f2916",
+        "last_seq": 1,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": true,
+        "runtime_id_sha256": "047c21563ade051433c7be22a5feddf817f7d70e9fa80d97320957ea14446a72",
+        "state_projection": {
+          "counters": {
+            "hg.genesis": 1
+          },
+          "head_hash": "8ec4e2065e4f5cbafb2be2387b97c6d752caed15c6876576893bffc7574f2916",
+          "last_seq": 1,
+          "product_id": "HG",
+          "runtime_id": "8a98c0457bfb41419f62a78d7f73c364",
+          "schema": "HG_STATE_V1",
+          "sessions": {}
+        }
+      },
+      "before_state": {
+        "bootstrap_marker_present": false,
+        "complete_event_count": 0,
+        "event_ids": [],
+        "event_types": [],
+        "head": null,
+        "incomplete_tail": [],
+        "journal_bytes": 0,
+        "journal_exists": false,
+        "journal_sha256": null,
+        "last_record_hash": null,
+        "last_seq": 0,
+        "quarantines": [],
+        "recovery_receipts": [],
+        "runtime_id_present": false,
+        "runtime_id_sha256": null,
+        "state_projection": null
+      },
+      "case_id": "BOOTSTRAP-CRASH-FSYNC-14",
+      "expected_exit_code": 104,
+      "mode": "bootstrap-fsync-14",
+      "oracle_pass": true,
+      "process_exit_code": 104,
+      "recovery_error": null
+    }
+  ],
+  "failed": 0,
+  "limitations": [
+    "os._exit models abrupt process termination after an observed syscall; it does not simulate a hardware power cut or device flash loss.",
+    "A complete valid JSON frame without a trailing newline is treated as ambiguous and remains fail-closed.",
+    "Missing/corrupt/unanchored checkpoints and projections outside the allowed one-event recovery window remain fail-closed."
+  ],
+  "oracle_id": "HG2-P0A-PREPOST-ORACLE-20261019-R1",
+  "passed": 27,
+  "platform": "android",
+  "python": "3.14.6",
+  "schema_version": "hg2.p0a.recovery-observations.v1",
+  "scope": "TemporaryDirectory only; no application runtime path opened",
+  "verdict": "PASS"
+}
