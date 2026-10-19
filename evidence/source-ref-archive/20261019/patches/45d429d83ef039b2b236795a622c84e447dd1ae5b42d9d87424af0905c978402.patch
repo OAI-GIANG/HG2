@@ -1,0 +1,510 @@
+diff --git a/.circleci/config.yml b/.circleci/config.yml
+new file mode 100644
+index 0000000..3e4535f
+--- /dev/null
++++ b/.circleci/config.yml
+@@ -0,0 +1,28 @@
++version: 2.1
++jobs:
++  verify:
++    docker:
++      - image: cimg/python:3.12
++    steps:
++      - checkout
++      - run:
++          name: Assert clean checkout and record revision
++          command: |
++            set -eu
++            printf 'CIRCLE_SHA1=%s\n' "${CIRCLE_SHA1:-unknown}"
++            printf 'HEAD=%s\n' "$(git rev-parse HEAD)"
++            test -z "$(git status --porcelain)"
++      - run:
++          name: Check patch whitespace
++          command: |
++            set -eu
++            git diff --check HEAD^ HEAD
++      - run:
++          name: Run unittest suite with ResourceWarning as ERROR (strict)
++          command: |
++            set -eu
++            PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v
++workflows:
++  deep-strict-verify:
++    jobs:
++      - verify
+diff --git a/hg/history.py b/hg/history.py
+index acb466e..2867cad 100644
+--- a/hg/history.py
++++ b/hg/history.py
+@@ -1,4 +1,4 @@
+-"""Append-only, hash-chained HG state and history. Fail-closed on any integrity failure."""
++"""Append-only, hash-chained HG state and history. Fail-closed on integrity failures."""
+ from __future__ import annotations
+ 
+ import hashlib, json, os, threading, time, uuid
+@@ -18,7 +18,7 @@ def digest(o):
+ 
+ 
+ class HistoryError(Exception):
+-    pass
++    """Raised when durable history or its derived artifacts are not trustworthy."""
+ 
+ 
+ class StateStore:
+@@ -29,72 +29,113 @@ class StateStore:
+         self.head = os.path.join(self.dir, "head.json")
+         self.state = os.path.join(self.dir, "state.json")
+         self._clock = clock
+-        self.runtime_id = self._runtime_id()
+         self._lock = threading.RLock()
+         self._events = []
+         self._by_id = {}
+         self._sessions = {}
+         self._counters = {}
++        self.runtime_id = self._runtime_id()
+         self._load()
+         if not self._events:
++            # An empty directory is the only state that may be initialized implicitly.
+             self.emit(GENESIS_EVENT, {"product_id": PRODUCT_ID, "schema": SCHEMA}, correlation_id="genesis")
+ 
+     def _runtime_id(self):
+         p = os.path.join(self.dir, "runtime_id")
+         if os.path.exists(p):
+-            with open(p, encoding="utf-8") as fh:
+-                v = fh.read().strip()
+-            if v:
+-                return v
++            try:
++                with open(p, encoding="utf-8") as fh:
++                    v = fh.read().strip()
++            except (OSError, UnicodeError) as exc:
++                raise HistoryError("runtime_id unreadable") from exc
++            if not v:
++                raise HistoryError("runtime_id empty")
++            return v
++        # Creation is permitted only for a genuinely new store; do not repair an existing one.
++        if any(os.path.exists(p) for p in (self.log, self.head, self.state)):
++            raise HistoryError("runtime_id missing while store artifacts exist")
+         v = uuid.uuid4().hex
+-        with open(p, "w", encoding="utf-8") as fh:
++        with open(p, "x", encoding="utf-8") as fh:
+             fh.write(v + "\n")
++            fh.flush()
++            os.fsync(fh.fileno())
+         return v
+ 
+     def _head(self):
+         return (0, ZERO) if not self._events else (self._events[-1]["seq"], self._events[-1]["record_hash"])
+ 
++    @staticmethod
++    def _read_json(path, label):
++        try:
++            with open(path, encoding="utf-8") as fh:
++                return json.load(fh)
++        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
++            raise HistoryError("%s missing or malformed" % label) from exc
++
+     def _load(self):
+-        if not os.path.exists(self.log):
++        artifacts = (self.log, self.head, self.state)
++        present = tuple(os.path.exists(p) for p in artifacts)
++        if not any(present):
+             return
++        if not all(present):
++            missing = [label for label, exists in zip(("history", "head checkpoint", "state projection"), present) if not exists]
++            raise HistoryError("required artifact missing: " + ", ".join(missing))
++
+         prev, seq, seen = ZERO, 0, set()
+-        with open(self.log, encoding="utf-8") as fh:
+-            for n, line in enumerate(fh, 1):
+-                line = line.strip()
+-                if not line:
+-                    continue
+-                try:
+-                    rec = json.loads(line)
+-                except json.JSONDecodeError as exc:
+-                    raise HistoryError("malformed record line %d" % n) from exc
+-                rh = rec.get("record_hash")
+-                core = {k: v for k, v in rec.items() if k != "record_hash"}
+-                if not rh or digest(core) != rh:
+-                    raise HistoryError("record hash mismatch line %d" % n)
+-                if rec["prev_hash"] != prev:
+-                    raise HistoryError("chain break line %d" % n)
+-                if rec["seq"] != seq + 1:
+-                    raise HistoryError("sequence gap line %d" % n)
+-                if rec["event_id"] in seen:
+-                    raise HistoryError("duplicate event_id line %d" % n)
+-                seen.add(rec["event_id"])
+-                prev, seq = rh, rec["seq"]
+-                self._events.append(rec)
+-                self._by_id[rec["event_id"]] = rec
+-                self._apply(rec)
+-        if os.path.exists(self.head):
+-            with open(self.head, encoding="utf-8") as fh:
+-                hd = json.loads(fh.read())
+-            s, h = self._head()
+-            if hd.get("seq") != s or hd.get("head_hash") != h:
+-                raise HistoryError("log does not match head checkpoint")
+-        self._write_state()
+-        self._write_head()
++        try:
++            with open(self.log, encoding="utf-8") as fh:
++                for n, line in enumerate(fh, 1):
++                    if not line.endswith("\n"):
++                        raise HistoryError("incomplete append line %d" % n)
++                    line = line.strip()
++                    if not line:
++                        raise HistoryError("blank history line %d" % n)
++                    try:
++                        rec = json.loads(line)
++                    except json.JSONDecodeError as exc:
++                        raise HistoryError("malformed record line %d" % n) from exc
++                    if not isinstance(rec, dict):
++                        raise HistoryError("record is not an object line %d" % n)
++                    try:
++                        rh = rec.get("record_hash")
++                        core = {k: v for k, v in rec.items() if k != "record_hash"}
++                        if not rh or digest(core) != rh:
++                            raise HistoryError("record hash mismatch line %d" % n)
++                        if not isinstance(rec.get("prev_hash"), str) or rec["prev_hash"] != prev:
++                            raise HistoryError("chain break line %d" % n)
++                        if not isinstance(rec.get("event_type"), str) or not rec["event_type"]:
++                            raise HistoryError("invalid event type line %d" % n)
++                        if not isinstance(rec["seq"], int) or isinstance(rec["seq"], bool) or rec["seq"] != seq + 1:
++                            raise HistoryError("sequence gap or invalid sequence line %d" % n)
++                        if not isinstance(rec.get("event_id"), str) or not rec["event_id"] or rec["event_id"] in seen:
++                            raise HistoryError("duplicate or missing event_id line %d" % n)
++                        if rec.get("schema") != SCHEMA or rec.get("product_id") != PRODUCT_ID or rec.get("runtime_id") != self.runtime_id:
++                            raise HistoryError("record identity mismatch line %d" % n)
++                    except (KeyError, TypeError, ValueError) as exc:
++                        raise HistoryError("invalid record structure line %d" % n) from exc
++                    seen.add(rec["event_id"])
++                    prev, seq = rh, rec["seq"]
++                    self._events.append(rec)
++                    self._by_id[rec["event_id"]] = rec
++                    self._apply(rec)
++        except (OSError, UnicodeError) as exc:
++            raise HistoryError("history unreadable") from exc
++
++        hd = self._read_json(self.head, "head checkpoint")
++        expected_head = {"seq": seq, "head_hash": prev}
++        if hd != expected_head:
++            raise HistoryError("log does not match head checkpoint")
++        projected = self._read_json(self.state, "state projection")
++        expected_state = self._doc()
++        if projected != expected_state:
++            raise HistoryError("state projection does not match history replay")
+ 
+     def _apply(self, rec):
+-        if rec["event_type"] == "session.created" and "session_id" in rec["payload"]:
+-            self._sessions[rec["payload"]["session_id"]] = dict(rec["payload"])
+-        self._counters[rec["event_type"]] = self._counters.get(rec["event_type"], 0) + 1
++        payload = rec.get("payload")
++        if rec.get("event_type") == "session.created" and isinstance(payload, dict) and "session_id" in payload:
++            self._sessions[payload["session_id"]] = dict(payload)
++        event_type = rec.get("event_type")
++        self._counters[event_type] = self._counters.get(event_type, 0) + 1
+ 
+     def _doc(self):
+         s, h = self._head()
+@@ -105,6 +146,8 @@ class StateStore:
+         tmp = self.state + ".tmp"
+         with open(tmp, "w", encoding="utf-8") as fh:
+             fh.write(canonical(self._doc()))
++            fh.flush()
++            os.fsync(fh.fileno())
+         os.replace(tmp, self.state)
+ 
+     def _write_head(self):
+@@ -112,6 +155,8 @@ class StateStore:
+         s, h = self._head()
+         with open(tmp, "w", encoding="utf-8") as fh:
+             fh.write(canonical({"seq": s, "head_hash": h}))
++            fh.flush()
++            os.fsync(fh.fileno())
+         os.replace(tmp, self.head)
+ 
+     def emit(self, event_type, payload, *, correlation_id=None, causation_id=None, event_id=None):
+@@ -138,36 +183,72 @@ class StateStore:
+             return rec
+ 
+     def verify(self):
+-        if not os.path.exists(self.log):
+-            return {"ok": True, "events": 0, "reason": "empty_log"}
+-        prev, seq, seen, n = ZERO, 0, set(), 0
++        """Independently replay disk history and compare every durable artifact."""
+         try:
++            if not all(os.path.exists(p) for p in (self.log, self.head, self.state, os.path.join(self.dir, "runtime_id"))):
++                return {"ok": False, "events": 0, "reason": "required_artifact_missing"}
++            runtime_id = self._read_runtime_id_for_verify()
++            prev, seq, seen, n = ZERO, 0, set(), 0
++            sessions, counters = {}, {}
+             with open(self.log, encoding="utf-8") as fh:
+                 for lineno, line in enumerate(fh, 1):
+-                    line = line.strip()
+-                    if not line:
+-                        continue
+-                    rec = json.loads(line)
+-                    rh = rec.get("record_hash")
+-                    core = {k: v for k, v in rec.items() if k != "record_hash"}
+-                    if not rh or digest(core) != rh:
+-                        return {"ok": False, "events": n, "reason": "record_hash_mismatch_line_%d" % lineno}
+-                    if rec["prev_hash"] != prev:
+-                        return {"ok": False, "events": n, "reason": "chain_break_line_%d" % lineno}
+-                    if rec["seq"] != seq + 1:
+-                        return {"ok": False, "events": n, "reason": "sequence_gap_line_%d" % lineno}
+-                    if rec["event_id"] in seen:
+-                        return {"ok": False, "events": n, "reason": "duplicate_event_id_line_%d" % lineno}
++                    if not line.endswith("\n"):
++                        return {"ok": False, "events": n, "reason": "incomplete_append_line_%d" % lineno}
++                    if not line.strip():
++                        return {"ok": False, "events": n, "reason": "blank_history_line_%d" % lineno}
++                    try:
++                        rec = json.loads(line)
++                    except json.JSONDecodeError:
++                        return {"ok": False, "events": n, "reason": "malformed_record_line_%d" % lineno}
++                    if not isinstance(rec, dict):
++                        return {"ok": False, "events": n, "reason": "record_not_object_line_%d" % lineno}
++                    try:
++                        rh = rec.get("record_hash")
++                        core = {k: v for k, v in rec.items() if k != "record_hash"}
++                        if not rh or digest(core) != rh:
++                            return {"ok": False, "events": n, "reason": "record_hash_mismatch_line_%d" % lineno}
++                        if not isinstance(rec.get("prev_hash"), str) or rec["prev_hash"] != prev:
++                            return {"ok": False, "events": n, "reason": "chain_break_line_%d" % lineno}
++                        if not isinstance(rec.get("event_type"), str) or not rec["event_type"]:
++                            return {"ok": False, "events": n, "reason": "invalid_event_type_line_%d" % lineno}
++                        if not isinstance(rec["seq"], int) or isinstance(rec["seq"], bool) or rec["seq"] != seq + 1:
++                            return {"ok": False, "events": n, "reason": "sequence_gap_line_%d" % lineno}
++                        if not isinstance(rec.get("event_id"), str) or not rec["event_id"] or rec["event_id"] in seen:
++                            return {"ok": False, "events": n, "reason": "duplicate_event_id_line_%d" % lineno}
++                        if rec.get("schema") != SCHEMA or rec.get("product_id") != PRODUCT_ID or rec.get("runtime_id") != runtime_id:
++                            return {"ok": False, "events": n, "reason": "record_identity_mismatch_line_%d" % lineno}
++                    except (KeyError, TypeError, ValueError):
++                        return {"ok": False, "events": n, "reason": "invalid_record_structure_line_%d" % lineno}
+                     seen.add(rec["event_id"])
+                     prev, seq, n = rh, rec["seq"], n + 1
+-        except json.JSONDecodeError:
+-            return {"ok": False, "events": n, "reason": "malformed_record"}
+-        if os.path.exists(self.head):
+-            with open(self.head, encoding="utf-8") as fh:
+-                hd = json.loads(fh.read())
+-            if hd.get("seq") != seq or hd.get("head_hash") != prev:
++                    event_type, payload = rec.get("event_type"), rec.get("payload")
++                    counters[event_type] = counters.get(event_type, 0) + 1
++                    if event_type == "session.created" and isinstance(payload, dict) and "session_id" in payload:
++                        sessions[payload["session_id"]] = dict(payload)
++            hd = self._read_json(self.head, "head checkpoint")
++            if hd != {"seq": seq, "head_hash": prev}:
+                 return {"ok": False, "events": n, "reason": "checkpoint_mismatch"}
+-        return {"ok": True, "events": n, "head_hash": prev, "reason": "chain_ok"}
++            expected_state = {"schema": SCHEMA, "product_id": PRODUCT_ID, "runtime_id": runtime_id,
++                              "last_seq": seq, "head_hash": prev, "sessions": sessions, "counters": counters}
++            projected = self._read_json(self.state, "state projection")
++            if projected != expected_state:
++                return {"ok": False, "events": n, "reason": "projection_mismatch"}
++            return {"ok": True, "events": n, "head_hash": prev, "reason": "chain_projection_checkpoint_ok"}
++        except HistoryError as exc:
++            return {"ok": False, "events": 0, "reason": str(exc).replace(" ", "_").lower()}
++        except (OSError, UnicodeError, TypeError, ValueError):
++            return {"ok": False, "events": 0, "reason": "artifact_read_or_validation_error"}
++
++    def _read_runtime_id_for_verify(self):
++        path = os.path.join(self.dir, "runtime_id")
++        try:
++            with open(path, encoding="utf-8") as fh:
++                value = fh.read().strip()
++        except (OSError, UnicodeError) as exc:
++            raise HistoryError("runtime_id missing or unreadable") from exc
++        if not value:
++            raise HistoryError("runtime_id empty")
++        return value
+ 
+     def replay(self):
+         return [dict(e) for e in self._events]
+diff --git a/tests/test_core.py b/tests/test_core.py
+index 9bd75db..ee056d3 100644
+--- a/tests/test_core.py
++++ b/tests/test_core.py
+@@ -3,7 +3,7 @@ from unittest.mock import patch
+ from http.server import ThreadingHTTPServer
+ from hg import edge
+ from hg.authority import ALLOWED, FORBIDDEN, authorize
+-from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest
++from hg.history import GENESIS_EVENT, ZERO, HistoryError, StateStore, digest, canonical
+ from hg.identity import PRODUCT_ID, identity
+ from hg.phone_runtime import PhoneRuntime
+ 
+@@ -12,11 +12,13 @@ TOKEN = "edge-token-x"
+ 
+ 
+ def lines(d):
+-    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++    with open(os.path.join(d, "history.jsonl"), encoding="utf-8") as fh:
++        return [line for line in fh.read().splitlines() if line.strip()]
+ 
+ 
+ def put(d, ls):
+-    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++    with open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8") as fh:
++        fh.write("\n".join(ls) + "\n")
+ 
+ 
+ class IdentityTests(unittest.TestCase):
+@@ -29,7 +31,8 @@ class IdentityTests(unittest.TestCase):
+         for base, _dirs, files in os.walk(os.path.join(ROOT, "hg")):
+             for name in files:
+                 if name.endswith(".py"):
+-                    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++                    with open(os.path.join(base, name), encoding="utf-8") as fh:
++                        text = fh.read().lower()
+                     for m in ("go_runtime", "paradise", "love", "hg_ops", "governance_engine"):
+                         if m in text:
+                             found.append((name, m))
+@@ -99,7 +102,8 @@ class HistoryTests(unittest.TestCase):
+ 
+     def test_checkpoint_mismatch(self):
+         s, d = self._case(lambda L: L)
+-        open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
++        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"seq": 99, "head_hash": ZERO}))
+         self.assertEqual(s.verify()["reason"], "checkpoint_mismatch")
+         with self.assertRaises(HistoryError):
+             StateStore(d)
+@@ -119,6 +123,124 @@ class HistoryTests(unittest.TestCase):
+             self.assertEqual(r2.stdout.strip(), "True ['p']")
+ 
+ 
++    def test_missing_head_checkpoint_fails_closed(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            os.unlink(os.path.join(d, "head.json"))
++            self.assertFalse(store.verify()["ok"])
++            with self.assertRaises(HistoryError):
++                StateStore(d)
++
++    def test_missing_state_projection_fails_closed(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            os.unlink(os.path.join(d, "state.json"))
++            self.assertFalse(store.verify()["ok"])
++            with self.assertRaises(HistoryError):
++                StateStore(d)
++
++    def test_missing_history_with_old_artifacts_fails_closed(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            os.unlink(os.path.join(d, "history.jsonl"))
++            self.assertFalse(store.verify()["ok"])
++            with self.assertRaises(HistoryError):
++                StateStore(d)
++
++    def test_projection_tampering_all_fields_detected(self):
++        mutations = {
++            "schema": lambda x: x.update(schema="OTHER"),
++            "runtime_id": lambda x: x.update(runtime_id="forged"),
++            "last_seq": lambda x: x.update(last_seq=0),
++            "head_hash": lambda x: x.update(head_hash=ZERO),
++            "sessions": lambda x: x.update(sessions={"fake": {"session_id": "fake"}}),
++            "counters": lambda x: x.update(counters={"forged": 900}),
++        }
++        for name, mutate in mutations.items():
++            with self.subTest(field=name), tempfile.TemporaryDirectory() as d:
++                StateStore(d).emit("session.created", {"session_id": "real"})
++                path = os.path.join(d, "state.json")
++                with open(path, encoding="utf-8") as fh:
++                    projection = json.load(fh)
++                mutate(projection)
++                with open(path, "w", encoding="utf-8") as fh:
++                    json.dump(projection, fh)
++                probe = StateStore.__new__(StateStore)
++                probe.dir, probe.log, probe.head, probe.state = d, os.path.join(d, "history.jsonl"), os.path.join(d, "head.json"), path
++                self.assertFalse(probe.verify()["ok"], name)
++                with self.assertRaises(HistoryError, msg=name):
++                    StateStore(d)
++
++    def test_checkpoint_rollback_detected(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            store.emit("session.created", {"session_id": "x"})
++            records = lines(d)
++            old = json.loads(records[-2])
++            with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
++                json.dump({"seq": old["seq"], "head_hash": old["record_hash"]}, fh)
++            self.assertEqual(store.verify()["reason"], "checkpoint_mismatch")
++            with self.assertRaises(HistoryError):
++                StateStore(d)
++
++    def test_non_object_history_record_fails_closed(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            path = os.path.join(d, "history.jsonl")
++            with open(path, encoding="utf-8") as fh:
++                rows = fh.read().splitlines()
++            with open(path, "w", encoding="utf-8") as fh:
++                fh.write("[]\n")
++            result = store.verify()
++            self.assertFalse(result["ok"])
++            self.assertEqual(result["reason"], "record_not_object_line_1")
++            with self.assertRaises(HistoryError):
++                StateStore(d)
++
++    def test_invalid_sequence_and_event_type_fail_closed(self):
++        for name, alter in (
++            ("boolean_sequence", lambda r: r.update(seq=True)),
++            ("empty_event_type", lambda r: r.update(event_type="")),
++        ):
++            with self.subTest(case=name), tempfile.TemporaryDirectory() as d:
++                store = StateStore(d)
++                path = os.path.join(d, "history.jsonl")
++                with open(path, encoding="utf-8") as fh:
++                    rec = json.loads(fh.readline())
++                alter(rec)
++                core = {k: v for k, v in rec.items() if k != "record_hash"}
++                rec["record_hash"] = digest(core)
++                with open(path, "w", encoding="utf-8") as fh:
++                    fh.write(canonical(rec) + "\n")
++                result = store.verify()
++                self.assertFalse(result["ok"], name)
++                with self.assertRaises(HistoryError, msg=name):
++                    StateStore(d)
++
++    def test_interrupted_append_detected(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            with open(os.path.join(d, "history.jsonl"), "ab") as fh:
++                fh.write(b'{"seq":2,"partial":')
++            self.assertFalse(store.verify()["ok"])
++            with self.assertRaises(HistoryError):
++                StateStore(d)
++
++    def test_duplicate_and_reordered_records_are_rejected(self):
++        for name, mutate in (
++            ("duplicate", lambda rows: rows + [rows[-1]]),
++            ("reordered", lambda rows: [rows[0], rows[2], rows[1]]),
++        ):
++            with self.subTest(case=name), tempfile.TemporaryDirectory() as d:
++                store = StateStore(d)
++                store.emit("session.created", {"session_id": "a"})
++                store.emit("session.created", {"session_id": "b"})
++                put(d, mutate(lines(d)))
++                self.assertFalse(store.verify()["ok"])
++                with self.assertRaises(HistoryError):
++                    StateStore(d)
++
++
+ class EdgeTests(unittest.TestCase):
+     def setUp(self):
+         self.p = patch.dict(os.environ, {"HG_EDGE_TOKEN": TOKEN}, clear=False)
+@@ -145,7 +267,10 @@ class EdgeTests(unittest.TestCase):
+             with urllib.request.urlopen(req, timeout=4) as r:
+                 return r.status, r.read().decode()
+         except urllib.error.HTTPError as e:
+-            return e.code, e.read().decode()
++            try:
++                return e.code, e.read().decode()
++            finally:
++                e.close()
+ 
+     def test_edge_behaviour(self):
+         self.assertEqual(self.call("/health")[0], 200)

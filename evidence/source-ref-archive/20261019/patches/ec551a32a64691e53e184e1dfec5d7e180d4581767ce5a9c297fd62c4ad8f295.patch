@@ -1,0 +1,2546 @@
+diff --git a/.circleci/config.yml b/.circleci/config.yml
+new file mode 100644
+index 0000000..d3005fb
+--- /dev/null
++++ b/.circleci/config.yml
+@@ -0,0 +1,46 @@
++version: 2.1
++
++jobs:
++  verify:
++    docker:
++      - image: cimg/python:3.14
++    steps:
++      - checkout
++      - run:
++          name: Verify test suite twice with ResourceWarning as errors
++          command: |
++            set -euo pipefail
++            python --version
++            for run in 1 2; do
++              log="/tmp/hg2-suite-${run}.log"
++              if ! PYTHONTRACEMALLOC=10 PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v > "$log" 2>&1; then
++                cat "$log"
++                exit 1
++              fi
++            done
++            python - <<'PY'
++            import re
++            from pathlib import Path
++
++            logs = [Path('/tmp/hg2-suite-1.log').read_text(), Path('/tmp/hg2-suite-2.log').read_text()]
++            for index, text in enumerate(logs, 1):
++                if not re.search(r'^Ran [0-9]+ tests in [0-9.]+s$', text, re.MULTILINE):
++                    raise SystemExit(f'run {index}: missing unittest summary')
++                if not re.search(r'^OK$', text, re.MULTILINE):
++                    raise SystemExit(f'run {index}: unittest did not report OK')
++                if 'ResourceWarning:' in text or 'Exception ignored' in text:
++                    raise SystemExit(f'run {index}: resource warning or ignored finalizer detected')
++                text = re.sub(r'^Ran ([0-9]+) tests in [0-9.]+s$', r'Ran \1 tests in <TIME>', text, flags=re.MULTILINE)
++                Path(f'/tmp/hg2-suite-{index}.normalized.log').write_text(text)
++            if Path('/tmp/hg2-suite-1.normalized.log').read_bytes() != Path('/tmp/hg2-suite-2.normalized.log').read_bytes():
++                raise SystemExit('normalized test logs differ')
++            print('RUN1:', re.search(r'^Ran .*$', logs[0], re.MULTILINE).group(0), 'OK')
++            print('RUN2:', re.search(r'^Ran .*$', logs[1], re.MULTILINE).group(0), 'OK')
++            print('ResourceWarning=0; Exception ignored=0; normalized_cmp=YES')
++            PY
++            sha256sum /tmp/hg2-suite-1.normalized.log /tmp/hg2-suite-2.normalized.log
++
++workflows:
++  verify:
++    jobs:
++      - verify
+diff --git a/docs/T-018-SYNC-V2-CONTRACT.md b/docs/T-018-SYNC-V2-CONTRACT.md
+new file mode 100644
+index 0000000..94ef211
+--- /dev/null
++++ b/docs/T-018-SYNC-V2-CONTRACT.md
+@@ -0,0 +1,63 @@
++# T-018 Sync V2 — Contract and Acceptance Boundary
++
++## Status
++
++`PROTOTYPE_ONLY`; production release remains `BLOCKED`. This contract is scoped to local, same-device/same-user file-spool exchange. It does not certify production readiness, network transport, authenticated cross-device sync, or live shared-memory synchronization.
++
++## Scope
++
++T-018 transports origin event records through an on-disk spool and records accepted foreign events as local `sync.received` envelopes. The scope does not add a network endpoint and does not, by itself, merge foreign payloads into application state.
++
++Digital signatures, signed envelopes, signed origin checkpoints, peer key registries, and key lifecycle for signature verification are **out of scope and are not acceptance requirements**. No substitute authentication mechanism is introduced by this contract. Existing host-provided credential handling and the `context_id` / `runtime_id` boundary must not be silently replaced or expanded. The spool is not a trust boundary against an attacker who can arbitrarily rewrite its contents.
++
++## Event integrity
++
++Each exported event carries the source `origin_record` plus `origin_hash`, `origin_seq`, `origin_prev_hash`, `event_id`, `event_type`, `payload`, and `payload_hash`. The receiver validates:
++
++- required envelope and origin-record fields and schema;
++- source-record hash recomputation using the existing HG canonical serializer;
++- consistency between envelope fields and the hashed origin record;
++- payload hash and SHA-256 field format;
++- one origin context per batch;
++- in-batch `origin_prev_hash` continuity and consecutive `origin_seq` values;
++- duplicate identity/provenance and event-ID conflicts.
++
++These hashes establish consistency of the submitted data only. They do not prove who created it.
++
++## Idempotency, replay, and failure behavior
++
++An exact repeated event must not cause a second application of its effects. Reuse of an event ID with different content or provenance is a conflict. Replay detection must use durable accepted-event/cursor state, not timestamps alone. Invalid batches are rejected and recorded; no foreign event from an invalid batch may be applied. Rejection/conflict audit events do not mean the rejected payload was accepted.
++
++Rollback protection is required against the last durably accepted origin cursor. The initial cursor/checkpoint trust policy is unresolved; until the owner approves it, first-time origin imports must fail closed rather than treating a sender-provided initial head as trusted.
++
++## Atomicity and state ownership
++
++The complete batch must be validated before mutation. The required apply boundary must prevent a crash or write failure from leaving an accepted prefix with no matching deduplication/cursor state. The current sequence of `StateStore.emit` calls does not by itself prove all-or-none persistence across history, projections, deduplication and cursor. The storage implementation choice is not selected by this contract.
++
++The phone remains the single canonical state owner. T-018 must not instantiate a second independent `StateStore` on the same canonical directory. `sync.received` currently preserves foreign payload and provenance; application/shared-memory merge is not implied by acceptance of a spool batch.
++
++## Explicit limitations and unresolved decisions
++
++- No signature-based or replacement authentication mechanism is required or authorized by this contract.
++- The spool is local-only; network and cross-device transport are outside the current scope.
++- `origin_context` is a claimed context label, not a cryptographically authenticated identity.
++- A party able to rewrite the entire batch can fabricate records and recompute unkeyed hashes.
++- The initial trusted cursor/checkpoint policy is unresolved and requires an owner decision.
++- Shared-memory schema, data-sharing rules, retention and conflict-resolution semantics are unresolved; do not overwrite or merge conflicting values automatically.
++- Storage migration (including SQLite) is not selected.
++- The current `hg/phone_runtime.py` does not instantiate or call `SyncContext`; runtime integration remains unproven.
++- This contract does not describe T-018 as authenticated cross-device sync or as a production shared-memory backend.
++
++## Required gates before release
++
++1. Preserve the existing host credential and `context_id` / `runtime_id` contract without adding a signature requirement or substituting another authentication scheme.
++2. Obtain an owner decision for the initial origin cursor/checkpoint policy; prove replay and rollback handling against persisted accepted state.
++3. Define shared-memory schema, sharing permissions, retention and conflict behavior before any application-state merge.
++4. Choose a storage/apply boundary that satisfies the all-or-none requirement; no storage migration is presumed.
++5. Integrate through the single canonical state owner; do not open a second independent `StateStore` on the canonical directory.
++6. Test duplicate/replay, changed-content ID conflict, sequence gaps/forks, malformed batches, restart, crash/failure points and offline recovery.
++7. Run tests against the exact commit and record provenance.
++
++## Canonical boundary
++
++This contract correction is documentation-only on a separate branch. It does not modify `hg-genesis`, merge any branch, or deploy runtime code. Release remains `BLOCKED` until the gates above are independently evidenced.
+diff --git a/docs/design/T-018-ACCEPTANCE-CRITERIA-V2.md b/docs/design/T-018-ACCEPTANCE-CRITERIA-V2.md
+new file mode 100644
+index 0000000..df69a4d
+--- /dev/null
++++ b/docs/design/T-018-ACCEPTANCE-CRITERIA-V2.md
+@@ -0,0 +1,42 @@
++# T-018 Acceptance Criteria V2 — Signature-Free Local Spool Scope
++
++**Status:** Proposed acceptance boundary; implementation remains BLOCKED.
++**Applies to:** local, same-device/same-user file-spool exchange only.
++
++## Classification
++
++| Criterion | Classification | Acceptance rule |
++|---|---|---|
++| Digital signatures, signed envelopes and signed checkpoints | OBSOLETE | Must not be required to pass T-018. |
++| Signature-specific peer/key registry and key lifecycle | OBSOLETE | Remove from scope; do not replace with another authentication mechanism. |
++| Existing host-provided credential handling | REQUIRED | Preserve without redesign in this scope correction. |
++| `context_id` and `runtime_id` | REQUIRED | Preserve existing context/runtime boundary. |
++| Schema, source-record consistency and payload hash checks | REQUIRED | Invalid input fails closed. Hashes are not described as sender authentication. |
++| Full-batch preflight | REQUIRED | Invalid later event must not result in earlier foreign payload application. |
++| Idempotency and changed-content event-ID conflict detection | REQUIRED | Exact duplicate has no second effect; conflicting reuse is rejected. |
++| Replay protection across restart | REQUIRED | Persisted accepted-event/cursor state is exercised by tests. |
++| Rollback/fork checks against an accepted cursor | REQUIRED | Lower sequence, conflicting head and predecessor divergence fail closed. |
++| Initial origin cursor/checkpoint policy | NEEDS_OWNER_DECISION | First-origin acceptance stays blocked until an explicit decision exists. |
++| All-or-none persistence of event, dedupe, cursor and receipt | REQUIRED | Must be proven by fault injection; preflight alone is insufficient. |
++| Storage backend or migration choice | NEEDS_OWNER_DECISION | SQLite or journal is not selected by this document. |
++| Shared-memory schema, sharing, retention and conflict semantics | NEEDS_OWNER_DECISION | No automatic merge or overwrite until approved. |
++| Phone-runtime integration through single canonical state owner | REQUIRED | Exact-commit integration evidence must show no second canonical store. |
++| New network endpoint or cross-device sync | OBSOLETE for current scope | T-018 remains local spool only. |
++| Exact-commit test evidence and SHA-256 manifest | REQUIRED | Hashes must recompute from the committed artifacts. |
++
++## Test matrix
++
++1. Valid batch passes schema, source-record and payload consistency checks.
++2. Mutated payload, origin fields, hash, sequence or predecessor fails closed.
++3. Exact duplicate is idempotent, including after process restart.
++4. Reused event ID with changed content/provenance is rejected.
++5. Sequence rollback, fork and gap are detected; first-origin import remains blocked while the initial cursor policy is unresolved.
++6. Invalid batch does not apply any foreign event from that batch.
++7. Injected persistence failure yields all-or-none behavior; if this cannot be proven, atomicity gate remains BLOCKED.
++8. Existing authority denial is preserved; no unauthorized `state.import`.
++9. Runtime integration does not create a second canonical state owner.
++10. Tests and manifest identify the exact commit and environment.
++
++## Stop conditions
++
++Do not claim production readiness if initial cursor policy, memory semantics, storage boundary, runtime integration or atomicity proof remains unresolved. Do not implement signature features or a replacement authentication scheme as part of this scope.
+diff --git a/docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md b/docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md
+new file mode 100644
+index 0000000..a46b238
+--- /dev/null
++++ b/docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md
+@@ -0,0 +1,112 @@
++# T-018 Local Spool Sync and Shared-Memory Boundary — Corrected Design V1
++
++**Status:** DOCUMENTATION CORRECTION — DESIGN ONLY — NOT IMPLEMENTED
++**Repository:** `OAI-GIANG/HG2`
++**Source design reference:** `4d97c34d8bb7c1091265330aef63dd78d0e72c49`
++**Canonical boundary:** `hg-genesis` is read-only for this task
++**Release:** `BLOCKED`
++
++## 1. MTC-1.0 task contract
++
++- **OBJECTIVE:** align T-018 contract, threat model and acceptance criteria with the owner's decision to remove the signature feature.
++- **SCOPE:** documentation-only correction on a separate branch; source/runtime code is unchanged.
++- **INPUT:** existing T-018 contract, implementation design, threat model and inspected source facts.
++- **OUTPUT:** corrected contract/design/threat model, explicit acceptance criteria, diff and SHA-256 manifest.
++- **ACCEPTANCE:** no signature requirement remains as a gate; no substitute authentication mechanism is introduced; replay/idempotency, rollback, atomicity and runtime integration remain visible gates; owner decisions are not silently resolved; canonical branch, merge and deployment remain untouched.
++- **EVIDENCE:** exact source and branch refs, diff checks, targeted test results, document hashes and final branch head.
++- **RISKS:** an unkeyed hash is not sender authentication; replay/rollback; partial writes; split-brain; unintended disclosure; unresolved memory conflicts.
++- **STOP CONDITION:** do not implement runtime changes while the initial cursor policy, memory semantics or storage boundary remains undecided.
++- **NEXT ACTION:** resolve explicit owner decisions for the remaining technical gates and gather exact-commit test evidence.
++
++## 2. Observed implementation boundary
++
++The original read-only inspection was tied to design-base commit `4d97c34d8bb7c1091265330aef63dd78d0e72c49`. The following source facts were recorded there and must be reverified before any implementation claim:
++
++| File | Recorded blob SHA | Recorded fact |
++|---|---|---|
++| `hg/phone_runtime.py` | `75fa6bcda1e29bf08aeb5341dbe8f0e124684199` | Instantiates `StateStore`; does not import or instantiate `SyncContext`; no sync API is exposed. |
++| `hg/sync.py` | `f5c706348de6b2364fe2286a4121594d08e74a22` | Spool-based V2; checks unkeyed hashes/in-batch continuity; stores foreign payloads as `sync.received`; no application-state merge. |
++| `hg/history.py` | `acb466e8a4c2b8882db58b783028b59804ecc812` | JSONL history plus JSON projections/checkpoints; no proven multi-record transaction boundary. |
++| `hg/authority.py` | `a9fb1ddae181944e2e87decb806368e916ac6379` | Existing allowlist does not authorize `state.import`; do not bypass that rule. |
++| `contract/ARCHITECTURE_V1.md` | `7defc59985b2ea291b614a63de0a3152b64d064d` | Phone is sole canonical state owner; relay/DR must not become a second primary. |
++
++These facts describe the recorded design-base inspection, not a live deployment or independent reinspection by this review.
++
++The source hash checks are consistency checks. They do not establish authorship. The signature feature and its supporting key-management design are removed from this task's acceptance scope; this does not authorize a replacement authentication design.
++
++## 3. Fixed scope
++
++- Local, same-device/same-user file-spool exchange only.
++- Preserve existing host-provided credential handling and `context_id` / `runtime_id` boundary.
++- No new network endpoint, cross-device protocol, signature, signed checkpoint, peer key registry, or signature key lifecycle.
++- No substitute authentication mechanism is selected or introduced.
++- The phone remains the single canonical state owner.
++- No source/runtime implementation change is part of this documentation correction.
++
++## 4. Required behavioral properties
++
++### 4.1 Integrity and batch preflight
++
++Validate schema and required fields; recompute payload and origin hashes using the existing canonical serializer; verify envelope-to-origin-record consistency; enforce one origin per batch and in-batch sequence/predecessor continuity. Preflight the complete batch before applying any foreign event. State explicitly that unkeyed hashes cannot establish sender identity.
++
++### 4.2 Idempotency and replay
++
++Persist enough accepted-event identity/provenance to distinguish an exact duplicate from an event-ID conflict. Exact duplicates must not cause duplicate effects. Reusing an event ID with different content/provenance must fail closed. Replay checks must survive process restart and must not rely solely on wall-clock timestamps.
++
++### 4.3 Rollback and initial cursor
++
++Reject sequence/head rollback and chain divergence relative to a previously accepted durable cursor. The policy for establishing the first cursor/checkpoint is **NEEDS_OWNER_DECISION**. Do not treat an untrusted first batch as a trusted checkpoint, and do not invent a new trust ceremony in this design. Until the decision is recorded, first-time origin import remains blocked.
++
++### 4.4 Atomic apply and storage boundary
++
++The desired acceptance property is all-or-none behavior across accepted event records, deduplication state, origin cursor and any commit receipt. Current sequential file writes do not prove this property. A storage migration or journal design is **not selected**. Evaluate options and fault-injection evidence, then obtain owner approval before implementation. Do not claim transactional atomicity based only on preflight validation or atomic replacement of a spool file.
++
++### 4.5 Memory integration and conflicts
++
++Current `sync.received` records retain foreign payload and provenance; they do not implement shared-memory merge. Memory schema, permitted data classes, retention, deletion/tombstones and conflict resolution remain **NEEDS_OWNER_DECISION**. Default behavior for unresolved application-state conflicts is quarantine/no mutation. Do not choose overwrite, last-write-wins, merge winner, or a memory model in this document correction.
++
++### 4.6 Runtime and authority
++
++Integrate only through the existing canonical phone runtime and a single state owner. Do not instantiate another `StateStore` over the same canonical directory. Do not bypass the existing `state.import` authorization denial. Runtime integration requires a separately reviewed authorization contract and explicit evidence.
++
++## 5. Failure and recovery requirements
++
++The eventual implementation test plan must include:
++
++- exact duplicate import and repeated replay across restart;
++- same event ID with changed payload/provenance;
++- sequence gap, fork, predecessor mismatch and rollback below the persisted cursor;
++- first-origin import while the initial cursor policy is unresolved;
++- malformed, truncated and unsupported-schema batches;
++- failure injected between every persistence step;
++- process restart and offline recovery;
++- concurrent duplicate imports;
++- verification that a rejected batch causes no foreign payload application;
++- verification that no second canonical state owner is created.
++
++These are requirements for later implementation evidence, not claims that these scenarios have already passed.
++
++## 6. Decisions and gates
++
++| Decision / gate | Status | Rule |
++|---|---|---|
++| Signature feature and signature-specific acceptance gates | OBSOLETE | Remove from scope; do not substitute another authentication scheme. |
++| Existing host credential and context/runtime identifiers | REQUIRED | Preserve; do not silently redesign. |
++| Idempotency and durable replay detection | REQUIRED | Must be tested across restart. |
++| Rollback against accepted cursor | REQUIRED | Initial cursor policy remains unresolved. |
++| Initial cursor/checkpoint trust policy | NEEDS_OWNER_DECISION | Block first-origin acceptance until resolved. |
++| Atomic apply boundary | REQUIRED | Evidence required; implementation/storage choice not selected. |
++| Shared-memory model and conflict policy | NEEDS_OWNER_DECISION | No automatic merge/overwrite. |
++| Storage migration (including SQLite) | NEEDS_OWNER_DECISION | No migration is authorized by this design. |
++| Phone-runtime integration | REQUIRED | Exact-SHA integration evidence required. |
++| Network/cross-device sync | OBSOLETE for current scope | Local spool only. |
++
++## 7. Non-goals
++
++This correction does not implement sync, select a cryptographic or non-cryptographic replacement for signatures, establish sender authenticity against arbitrary spool-file tampering, choose a memory conflict policy, select a storage backend, alter the canonical branch, merge, or deploy.
++
++## 8. Review decision
++
++**Current decision: DOCUMENTS CORRECTED; IMPLEMENTATION BLOCKED.**
++
++The corrected documents must be checked for internal consistency and hashed. Existing tests may be run to detect regressions, but passing unit tests cannot establish runtime integration, a trusted initial cursor or atomic persistence.
+diff --git a/docs/design/T-018-THREAT-MODEL-V1.md b/docs/design/T-018-THREAT-MODEL-V1.md
+new file mode 100644
+index 0000000..2e63e2a
+--- /dev/null
++++ b/docs/design/T-018-THREAT-MODEL-V1.md
+@@ -0,0 +1,83 @@
++# T-018 Threat Model V1 — Local Spool Sync (Signature-Free Scope)
++
++**Status:** DESIGN ONLY — TECHNICAL GATES OPEN
++**Canonical boundary:** `hg-genesis` remains unchanged
++**Release:** `BLOCKED`
++
++## 1. Security objective and scope
++
++T-018 is limited to local, same-device/same-user file-spool exchange. The goal is to preserve event consistency, idempotency, replay detection, rollback checks against a previously accepted cursor, fail-closed batch validation, and a single canonical state owner.
++
++Digital signatures, signed envelopes/checkpoints, peer key registries and signature key lifecycle are out of scope and are not acceptance requirements. No substitute authentication mechanism is proposed. Existing host-provided credential handling and the `context_id` / `runtime_id` boundary are preserved. This design does not claim protection against an attacker who can arbitrarily rewrite the spool and recompute unkeyed hashes.
++
++## 2. Assets and trust boundaries
++
++The earlier source inspection was recorded at design base `4d97c34d8bb7c1091265330aef63dd78d0e72c49`; it is not a substitute for runtime evidence on the corrected commit.
++
++### Assets
++- Phone canonical event history, state projections and runtime identity.
++- Event IDs, origin sequence/predecessor hashes and accepted-event index.
++- Durable cursor/checkpoint state, once its initial policy is approved.
++- Local spool, inbox/outbox/conflict records and audit evidence.
++- Application/shared-memory values, if a future owner-approved integration is designed.
++- Availability and integrity of the phone-primary runtime.
++
++### Boundaries
++1. Local producer → spool file → local importer.
++2. Raw batch → parser and schema/hash validation.
++3. Validated batch → replay/cursor/conflict checks.
++4. Planned import → canonical persistence boundary.
++5. Runtime process → durable state and audit files.
++
++The spool is not a network transport or an authenticated identity channel. The phone remains the sole canonical state owner.
++
++## 3. Threats, mitigations and proof obligations
++
++| ID | Threat | Required control | Acceptance evidence |
++|---|---|---|---|
++| T01 | Malformed or unsupported batch | Strict schema/field validation and fail-closed rejection | Malformed/truncated/unsupported inputs rejected; no foreign event applied |
++| T02 | Payload or origin-record tampering | Recompute payload and origin hashes; compare envelope and origin fields | Independent field mutations rejected |
++| T03 | Full batch rewritten and hashes recomputed | Explicitly recognize this is not prevented by unkeyed hashes; constrain current scope to the local spool trust boundary | Documentation makes no sender-authentication claim; arbitrary spool writer remains a residual risk |
++| T04 | Exact event replay | Durable accepted-event identity and cursor; exact duplicate is idempotent | Repeated replay, including after restart, causes no second effect |
++| T05 | Event ID reused with changed content | Compare stored provenance/content; fail closed on conflict | Same ID with changed payload/hash is rejected/quarantined |
++| T06 | Sequence rollback | Compare against previously accepted durable cursor | Lower sequence/head rejected |
++| T07 | Fork or same-sequence conflict | Bind accepted sequence to one predecessor/head; quarantine divergence | Conflicting head for same origin/sequence is not applied |
++| T08 | Sequence gap or omitted events | Enforce approved sequence policy; do not invent recovery semantics | Gap blocks import unless an owner-approved recovery rule exists |
++| T09 | Untrusted initial cursor | Owner decision required; do not trust a sender-provided first head by default | First-origin import stays blocked while policy is unresolved |
++| T10 | Partial persistence on failure | All-or-none apply boundary across event, dedupe, cursor and receipt | Fault injection proves full commit or no accepted mutation |
++| T11 | Crash/restart | Durable replay state and deterministic recovery | Restart tests preserve cursor and duplicate behavior |
++| T12 | Concurrent duplicate imports | Serialize/coordinate writers and enforce durable uniqueness | Concurrent import causes one mutation only |
++| T13 | Unauthorized state import | Preserve existing authority denial; do not bypass `state.import` | Unauthorized import remains denied |
++| T14 | Memory overwrite or disclosure | No shared-memory merge until schema, sharing and conflict policies are approved | Unresolved conflicts cause no application-state mutation |
++| T15 | Split-brain / second state owner | Phone is sole canonical writer | Integration evidence proves no second canonical `StateStore` |
++| T16 | Audit omission/tampering | Record rejection/acceptance outcomes and verify evidence hashes | Manifest rehash and negative tests pass |
++| T17 | Resource exhaustion | Bound batch size/count/depth and reject malformed structures | Oversized/nested inputs fail safely; exact limits require implementation contract |
++| T18 | Spool path/name manipulation | Constrain import paths to the configured spool and validate resolved file identity | Path traversal/out-of-spool paths rejected |
++| T19 | Storage backend or migration failure | Do not migrate until owner decision; verify recovery properties for selected design | No migration assumed; exact storage design and fault-recovery evidence required |
++| T20 | Clock rollback/freeze | Cursor/sequence, not wall-clock time alone, drives replay protection | Old sequence remains rejected after clock rollback |
++
++## 4. Residual risks and assumptions
++
++- Unkeyed SHA-256 detects inconsistency only when the attacker has not recomputed all dependent hashes; it does not prove authorship.
++- A party able to rewrite the spool can fabricate a new origin record and recompute its hashes. Current scope does not claim to prevent this.
++- The initial origin cursor/checkpoint policy is unresolved. Rollback protection against an already accepted cursor does not solve trust establishment for the first cursor.
++- Atomicity across event history, projections, deduplication and cursor has not been proven by the current sequential file-write implementation.
++- Shared-memory schema, access/data-sharing rules, retention and conflict policy are unresolved.
++- Runtime integration is unproven; `hg/phone_runtime.py` does not currently instantiate or call `SyncContext`.
++- No claim is made that signatures, another authentication mechanism, network sync, or a production key lifecycle exists or is required.
++
++## 5. Required controls before acceptance
++
++- Full-batch preflight and fail-closed validation.
++- Durable idempotency and replay detection across restart.
++- Rollback/fork checks against a previously accepted cursor, with initial-cursor behavior blocked pending owner decision.
++- A proven all-or-none persistence boundary before claiming atomic apply.
++- Explicitly preserved authority and single canonical writer.
++- No application-memory merge until its schema and conflict policy are approved.
++- Exact-commit tests and reproducible evidence hashes.
++
++## 6. Technical status
++
++**Current decision: BLOCKED — design and runtime gates remain open.**
++
++This threat model is documentation-only. It authorizes no runtime patch, authentication replacement, memory policy, storage migration, canonical mutation, merge or deployment.
+diff --git a/evidence/T-018-DESIGN-20261013/PRE-REVIEW-FINDINGS.md b/evidence/T-018-DESIGN-20261013/PRE-REVIEW-FINDINGS.md
+new file mode 100644
+index 0000000..97fb2e5
+--- /dev/null
++++ b/evidence/T-018-DESIGN-20261013/PRE-REVIEW-FINDINGS.md
+@@ -0,0 +1,142 @@
++# T-018 Design Gate — Internal Pre-Review Findings
++
++**Review classification:** INTERNAL TECHNICAL PRE-REVIEW — NOT INDEPENDENT REVIEW  
++**Exact design commit reviewed:** `6f636c5ebdf7363172fdd2cbda6d72258179589d`  
++**Design branch at review start:** `design/t018-auth-checkpoint-memory-20261013`  
++**Source baseline:** `4d97c34d8bb7c1091265330aef63dd78d0e72c49`  
++**Canonical expected:** `hg-genesis@d11e71ed8b34338b8568664b39bc777c926826d5`  
++**PR #8 expected:** OPEN / DRAFT / NOT MERGED  
++**Disposition:** BLOCKED — no implementation patch recommended yet.
++
++This report records a technical pre-review by the current assistant/tool session. It is not an independent reviewer submission, not a formal GitHub review, and not a release approval. The GitHub collaborator and contributor listing returned only `OAI-GIANG`; PR #8 had no reviews, review threads, or review requests. No independent reviewer was available from the observed repository access, so none is claimed.
++
++## Evidence and scope
++
++- GitHub commit readback confirms the exact commit and one-parent relationship: `6f636c5ebdf7363172fdd2cbda6d72258179589d` parent `4d97c34d8bb7c1091265330aef63dd78d0e72c49`.
++- GitHub compare reports exactly four added files and no modifications/deletions: implementation design, threat model, SHA256SUMS, manifest.
++- The source blob IDs in the design manifest were checked against Git objects at the source baseline and matched:
++  - `hg/phone_runtime.py`: `75fa6bcda1e29bf08aeb5341dbe8f0e124684199`
++  - `hg/sync.py`: `f5c706348de6b2364fe2286a4121594d08e74a22`
++  - `hg/history.py`: `acb466e8a4c2b8882db58b783028b59804ecc812`
++  - `hg/authority.py`: `a9fb1ddae181944e2e87decb806368e916ac6379`
++  - `hg/edge.py`: `8a018ac5a7fd6113d979f4f0e2a65bb5ae192f91`
++  - `hg/identity.py`: `58df90a6b7d69d87df75bead52a3b3435a88f23f`
++  - `contract/ARCHITECTURE_V1.md`: `7defc59985b2ea291b614a63de0a3152b64d064d`
++  - `docs/T-018-SYNC-V2-CONTRACT.md`: `35aba35631b8a74b0366d52f9f4c381ffc2c2a4b`
++  - `manifest.json`: `f30da194e246dba2773125d074488a30912635eb`
++- `sha256sum -c evidence/T-018-DESIGN-20261013/SHA256SUMS.txt` passed.
++- GitHub readback at review time: canonical ref remained `d11e71ed8b34338b8568664b39bc777c926826d5`; feature ref remained `4d97c34d8bb7c1091265330aef63dd78d0e72c49`; PR #8 was OPEN/DRAFT, not merged, with no reviews/review requests.
++- No runtime code, audit log, canonical ref, PR #8 or deployment was changed by this pre-review.
++
++## Findings
++
++### F-01 — BLOCKER: SQLite schema does not define the canonical event log
++
++**Locations:** design §5.2–§5.3 (approximately lines 126–157); design §6 step 7.  
++**Source evidence:** `hg/history.py:28–30` defines `history.jsonl`, `head.json`, `state.json`; `hg/history.py:129–137` appends the canonical history record and then writes state/head projections. The proposed SQLite schema lists peer registry, origin cursor, sync inbox, shared memory, receipts and sync audit, but no canonical event-history table, despite §5.2 saying the canonical event is written in the transaction.
++
++**Impact:** The design does not identify the authoritative event history that replaces or wraps the current JSONL chain. It is therefore not yet possible to prove one atomic commit covers canonical history, projection, deduplication, cursor and receipt, or to specify deterministic reconstruction of state.
++
++**Required remediation:** Add a versioned canonical event table/schema with local sequence, event ID, event type, payload/canonical bytes, recorded metadata, predecessor hash and record hash; define how a received origin event is represented as a local canonical event without importing a foreign sequence into the local chain; specify projection rebuild and migration verification. Or explicitly define a transactional storage abstraction whose authoritative event log and transaction semantics are concrete. Re-review the complete schema before implementation.
++
++**Reproduction/evidence:** Compare design §5.3 table list with source `hg/history.py:28–30, 117–137`; no canonical event table appears in the proposed schema.
++
++### F-02 — HIGH: peer registry cannot represent key rotation overlap
++
++**Locations:** design §4.1; §5.3 `peer_registry` schema; threat model T10.  
++**Evidence:** proposed schema is `peer_registry(peer_id PRIMARY KEY, key_id, public_key, ...)`, which permits only one row per peer. Design §4.1 requires key overlap during rotation and §8 requires queued-message rotation/revocation tests.
++
++**Impact:** The schema cannot naturally retain old and new key records concurrently with activation/revocation intervals, and cannot independently verify queued events signed by a previously valid key under a documented overlap policy.
++
++**Required remediation:** Use a composite identity such as `(peer_id, key_id)`; define immutable key versions, algorithm, public-key fingerprint, status, activation sequence/checkpoint, revocation effective point, permitted scopes and retention. Specify how a cursor/checkpoint binds to the key valid at that point and how queued events are treated during overlap. Add rotation/revocation state-machine tests.
++
++### F-03 — HIGH: signed checkpoint cryptographic and transition semantics are incomplete
++
++**Locations:** design §4.3; §6 steps 4–8; threat model T06–T09.  
++**Evidence:** checkpoint fields include `head_hash` and `previous_checkpoint_hash`, but unlike the envelope in §4.2, the design does not define the exact checkpoint signature input/domain separator, the checkpoint's own hash calculation, the exact meaning of `head_hash`, or a complete before/after cursor transition algorithm.
++
++**Impact:** Independent implementations could interpret the same checkpoint differently. A reviewer cannot yet establish exactly which source record is represented by `head_hash`, which bytes are signed, or when a batch may advance a cursor without accepting a fork, gap or stale epoch.
++
++**Required remediation:** Specify a versioned canonical checkpoint object; domain-separation string; signature field exclusion; checkpoint hash algorithm; binding between `last_seq` and the final origin record hash; `previous_checkpoint_hash` semantics; trusted bootstrap checkpoint; and a deterministic transition table for first enrollment, contiguous batch, exact duplicate, gap, fork, epoch reset, key rotation and revocation. Include golden signature/checkpoint vectors and negative tests.
++
++### F-04 — HIGH: Option B recovery-journal proposal lacks a recoverable state machine
++
++**Locations:** design §5.2 Option B and §9 rollback/recovery.  
++**Source evidence:** current V1 writes history, state projection and head checkpoint through separate file operations (`hg/history.py:129–137`). Import then loops over individual `StateStore.emit` calls (`hg/sync.py:205–211`).
++
++**Impact:** The design correctly warns not to call V1 file writes atomic, but the Option B proposal does not specify journal records/states, durability ordering, recovery decisions for every crash point, or how a partially appended JSONL record is reconciled. It is not an implementable crash-recovery protocol yet.
++
++**Required remediation:** Either choose the SQLite option after owner approval and define the canonical event table (see F-01), or specify a complete journal state machine, durable ordering/fsync requirements, crash-point matrix, idempotent recovery algorithm and proof that no event/cursor can advance inconsistently. Do not implement or claim all-or-none semantics until tested.
++
++### F-05 — HIGH: audit durability semantics conflict between transaction-coupled and rejected operations
++
++**Locations:** design §3 step 8; §5.3 `sync_audit`; §6 step 7; threat model T20.  
++**Evidence:** the design calls for append-only attributable audit evidence, but places audit metadata in the same transaction as successful application and does not define how rejected or rolled-back attempts are durably recorded. The SQLite table schema also does not itself enforce append-only behavior.
++
++**Impact:** If a transaction rolls back, its in-transaction audit row rolls back too. Conversely, writing a rejection record outside the transaction cannot be assumed atomic with the failed application. The threat model currently promises auditability without defining these distinct failure semantics.
++
++**Required remediation:** Separate (a) commit receipts that must commit atomically with successful state changes and (b) rejection/security-attempt evidence recorded through a separately specified durable append-only path. Define failure behavior if that evidence path is unavailable; specify tamper detection/anchoring and retention. Enforce append-only at the storage/application boundary and test update/delete/tamper attempts.
++
++### F-06 — HIGH: source epoch, key rotation and cursor lifecycle are not fully connected
++
++**Locations:** design §4.1–§4.3; §5.3 `origin_cursor`; threat model T06, T08, T10–T11.  
++**Evidence:** `origin_cursor` is keyed by `(peer_id, source_epoch)` and stores a single `key_id`, while the key registry schema has a single key per peer. The document says to reject stale epochs and define revocation behavior but does not define who may advance an epoch or how a legitimate source reset/device replacement is authenticated.
++
++**Impact:** A restart, restore, replacement device or key compromise could create ambiguity about whether a new epoch is legitimate or an attempt to reset sequence history and bypass anti-rollback checks.
++
++**Required remediation:** Define epoch creation/rotation/recovery authorization, how the new epoch is linked to the last trusted checkpoint, who signs it, how old epochs are retired, how backups restore cursor state, and how events from old keys/epochs are treated. No automatic epoch reset or cursor reset.
++
++### F-07 — MEDIUM: API trust boundary for the authenticated principal needs an enforceable contract
++
++**Locations:** design §4.4 and §7.  
++**Evidence:** `sync_ingest` accepts an `authenticated_transport_context` argument, while the prose says a caller-provided `authenticated=True` flag is not proof and requires a typed immutable principal.
++
++**Impact:** Without a precise construction/ownership rule, a caller may construct or spoof the context object, or code may confuse a transport-authenticated connection with authorization to import a particular event/data class.
++
++**Required remediation:** Define the verifier-owned principal type, provenance of construction, verified key/peer/audience/claims, action/data-class scopes, and binding of the principal to the signed envelope. Public entry points should not trust caller-asserted identity fields. Add tests for forged context objects and valid identity with insufficient scope.
++
++### F-08 — MEDIUM: cited standards are not mapped to explicit conformance choices
++
++**Locations:** design §4.2, §4.4, §12; threat model §5.  
++**Evidence:** the design links RFC 8705, RFC 9700, RFC 9421, TUF and CloudEvents, but the proposed wire protocol is a custom application envelope and does not define a standards-to-control mapping. No CloudEvents field mapping/profile is specified; RFC 9421 concerns HTTP message signatures and is not by itself a definition of the proposed signed JSON envelope.
++
++**Impact:** Reviewers may mistakenly infer compliance or miss which security properties come from the custom signature protocol versus HTTP/mTLS/OAuth or update metadata.
++
++**Required remediation:** Add a standards matrix: each reference → exact control/field/protocol used, normative section, implementation test, and explicit “not used/not claiming conformance” where applicable. Decide whether CloudEvents is the event envelope or merely a conceptual reference; specify how RFC 8705/9700 apply if OAuth/mTLS is actually used; keep application-level signatures separate from HTTP signature semantics. Treat TUF as an explicit key/policy metadata update mechanism only if that is intended.
++
++### F-09 — MEDIUM: SQLite append-only audit claim is not enforced by the proposed schema
++
++**Locations:** design §5.3 `sync_audit`; threat model §2 and T20.  
++**Evidence:** the proposed table defines columns and a primary key but no immutability policy, triggers, database authorizer boundary, or externally verifiable chain/anchor.
++
++**Impact:** A table named `sync_audit` is not inherently append-only; an ordinary database writer could update/delete prior rows.
++
++**Required remediation:** Define a threat-appropriate immutability control, tamper-evident chaining and independent verification/export. Explain the limits if the phone process/database owner is compromised. Do not call the audit store append-only until the enforcement and tamper tests are specified.
++
++### F-10 — MEDIUM: storage transaction durability profile is deferred without a decision gate detail
++
++**Locations:** design §5.3 and §8 integration/failure tests.  
++**Evidence:** design says to test SQLite journal/synchronous settings on target filesystem but does not state a minimum durability profile or how the owner chooses between performance and power-loss durability.
++
++**Impact:** A transaction can be logically atomic while its durability after power loss depends on SQLite configuration and filesystem/device behavior.
++
++**Required remediation:** Add an owner-approved durability target, required SQLite settings, directory/filesystem assumptions, expected behavior under sudden power loss, and evidence criteria for the actual Android/Termux device. Do not treat unit tests on another host as target-device durability evidence.
++
++## Decisions intentionally left unresolved
++
++The following are correctly treated as owner decisions and must remain unresolved rather than guessed: shared-memory conflict policy; memory schema/data classes/retention/deletion; trust enrollment ceremony; accepted key custody; SQLite migration vs journal approach; sequence-gap recovery; trusted time; data-sharing scopes; crypto dependency policy; and independent reviewer.
++
++## Gate decision
++
++- `SOURCE_BLOB_MATCH=PASS` for all nine source entries listed in the design manifest.
++- `DESIGN_HASH_VERIFICATION=PASS`.
++- `DESIGN_SCOPE_DIFF=PASS`: only the four expected documentation/evidence files were added relative to the design base.
++- `INDEPENDENT_REVIEW=BLOCKED`: repository collaborators and contributors read back only `OAI-GIANG`; PR #8 has no reviews or requests; no independent reviewer handle was provided.
++- `DESIGN_REVIEW=BLOCKED`: this pre-review found unresolved blocking design issues F-01 through F-06; medium findings F-07 through F-10 also require resolution before implementation planning is accepted.
++- `IMPLEMENTATION=NOT_AUTHORIZED`.
++- `CANONICAL=UNCHANGED`.
++- `PR_8=OPEN/DRAFT/NOT_MERGED`.
++- `DEPLOYMENT=NOT_AUTHORIZED`.
++- `RELEASE=BLOCKED`.
++
++**Required next action:** nominate or grant access to an independent reviewer; resolve the design blockers in a revised design commit; then have that reviewer assess the exact revised SHA and submit formal review findings. No implementation patch should be proposed before that gate passes.
+diff --git a/evidence/T-018-DESIGN-20261013/PRE-REVIEW-SHA256SUMS.txt b/evidence/T-018-DESIGN-20261013/PRE-REVIEW-SHA256SUMS.txt
+new file mode 100644
+index 0000000..15de686
+--- /dev/null
++++ b/evidence/T-018-DESIGN-20261013/PRE-REVIEW-SHA256SUMS.txt
+@@ -0,0 +1 @@
++7f4fd7f4be019bf133b8458276984d46bfdb58f18c156e672428314175641e4a  evidence/T-018-DESIGN-20261013/PRE-REVIEW-FINDINGS.md
+diff --git a/evidence/T-018-DESIGN-20261013/SHA256SUMS.txt b/evidence/T-018-DESIGN-20261013/SHA256SUMS.txt
+new file mode 100644
+index 0000000..c02383c
+--- /dev/null
++++ b/evidence/T-018-DESIGN-20261013/SHA256SUMS.txt
+@@ -0,0 +1,3 @@
++6d5bc459c5e26296d2f7fac2bad429b011840938bbd64294635d546b135e63eb  docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md
++3a6c2c928a7916bf9c294bf36d50bbe8147b72afa85ee814bef762f9055fdd49  docs/design/T-018-THREAT-MODEL-V1.md
++e3a8dc97b22b891ac306794bc20d883a8c9a557287a111607bc0f7e3be10ee27  evidence/T-018-DESIGN-20261013/manifest.md
+diff --git a/evidence/T-018-DESIGN-20261013/manifest.md b/evidence/T-018-DESIGN-20261013/manifest.md
+new file mode 100644
+index 0000000..a206271
+--- /dev/null
++++ b/evidence/T-018-DESIGN-20261013/manifest.md
+@@ -0,0 +1,59 @@
++# T-018 Design Evidence Manifest — 2026-10-13
++
++## Evidence class
++Design and source-inspection evidence only. No implementation patch, runtime change, canonical mutation, audit mutation, merge or deployment is included.
++
++## Exact source refs
++- Repository: `OAI-GIANG/HG2`
++- Design base / prior feature head: `4d97c34d8bb7c1091265330aef63dd78d0e72c49`
++- Canonical branch expected unchanged: `hg-genesis` at `d11e71ed8b34338b8568664b39bc777c926826d5`
++- PR #8: https://github.com/OAI-GIANG/HG2/pull/8 — expected OPEN / DRAFT / NOT MERGED
++- Design branch: `design/t018-auth-checkpoint-memory-20261013`
++- Local device used: Remote Desktop Commander device `localhost`; Android/aarch64; Python 3.14.6
++- Local checkout before documentation: clean at exact feature head; remote `origin` refs observed at the hashes above.
++
++## Source blob hashes at the design base
++- `hg/phone_runtime.py`: `75fa6bcda1e29bf08aeb5341dbe8f0e124684199`
++- `hg/sync.py`: `f5c706348de6b2364fe2286a4121594d08e74a22`
++- `hg/history.py`: `acb466e8a4c2b8882db58b783028b59804ecc812`
++- `hg/authority.py`: `a9fb1ddae181944e2e87decb806368e916ac6379`
++- `hg/edge.py`: `8a018ac5a7fd6113d979f4f0e2a65bb5ae192f91`
++- `hg/identity.py`: `58df90a6b7d69d87df75bead52a3b3435a88f23f`
++- `contract/ARCHITECTURE_V1.md`: `7defc59985b2ea291b614a63de0a3152b64d064d`
++- `docs/T-018-SYNC-V2-CONTRACT.md`: `35aba35631b8a74b0366d52f9f4c381ffc2c2a4b`
++- `manifest.json`: `f30da194e246dba2773125d074488a30912635eb`
++
++## Design artifacts
++- `docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md`: implementation design, actual-source findings, API/wire contract proposals, key lifecycle, checkpoint rules, storage migration alternatives, SQLite logical schema proposal, transaction algorithm, test matrix, rollback, acceptance gates and unresolved owner decisions.
++- `docs/design/T-018-THREAT-MODEL-V1.md`: assets, trust boundaries, attacker assumptions, 25 threat cases, required mitigations and residual risks.
++- `evidence/T-018-DESIGN-20261013/manifest.md`: this provenance record.
++- `evidence/T-018-DESIGN-20261013/SHA256SUMS.txt`: file digests (excludes itself by design).
++
++## Validation performed
++- `git diff --check` passed before commit.
++- Design and threat-model files were checked for required sections.
++- SHA-256 values are recorded in `SHA256SUMS.txt`; verification must be rerun from the committed branch.
++- This manifest does not assert an independent review or implementation correctness.
++
++## Normative/reference links
++- RFC 8705: https://www.rfc-editor.org/rfc/rfc8705.html
++- RFC 9700: https://www.rfc-editor.org/rfc/rfc9700.html
++- RFC 9421: https://www.rfc-editor.org/rfc/rfc9421.html
++- RFC 8785: https://www.rfc-editor.org/rfc/rfc8785.html
++- RFC 9162: https://www.rfc-editor.org/rfc/rfc9162.html
++- TUF: https://theupdateframework.github.io/specification/latest/
++- Android Keystore: https://developer.android.com/privacy-and-security/keystore
++- CloudEvents: https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md
++- SQLite atomic commit: https://www.sqlite.org/atomiccommit.html
++- SQLite transactions: https://www.sqlite.org/lang_transaction.html
++- Microsoft Event Sourcing: https://learn.microsoft.com/en-us/azure/architecture/patterns/event-sourcing
++- AWS Transactional Outbox: https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
++
++## Gate state
++- `DESIGN=PREPARED_FOR_REVIEW`
++- `IMPLEMENTATION=NOT_STARTED`
++- `INDEPENDENT_REVIEW=PENDING`
++- `CANONICAL_MUTATION=NONE_INTENDED`
++- `PR_8_MERGE=NOT_AUTHORIZED`
++- `DEPLOYMENT=NOT_AUTHORIZED`
++- `RELEASE=BLOCKED`
+diff --git a/evidence/T-018-G13-20261013/SHA256SUMS.txt b/evidence/T-018-G13-20261013/SHA256SUMS.txt
+new file mode 100644
+index 0000000..4fdeccc
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/SHA256SUMS.txt
+@@ -0,0 +1,18 @@
++10d1abe25d9ecb301891b89d0d7e598f28271accf33e62d286b92b9fb6e33ab6  baseline-core.log
++5889d3f74229d1a333592fe18059d64010a4efba85a366d13ffc84abbc6949c6  baseline-suite.log
++f4385a6307ef23be4f590136acc1fa0aa2f626b0938c6aab6c08994f1cb34a55  baseline-t018.log
++61e9be70ceebfe68784deb9a6c41df59164a310ab62cffd3b82748e12f2953c6  clean-suite-1.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  clean-suite-1.normalized.log
++9a262ffd4f18b0fc3bd84da5f880a20ff2b0d8e4693284d564629bd348d4a4f0  clean-suite-2.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  clean-suite-2.normalized.log
++59bc8fe950d99581015ac0fa10cf034e9d0885720d03dd53d929368900b1de9f  fixed-core.log
++936e92089bf5db0637a9b58fb3150723ec1207dc8e33f04fa7577a81e86d6604  fixed-suite-1.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  fixed-suite-1.normalized.log
++cbfdcb04fb1c3b72b25af56ef6327d81eab334e2716c6bdbf01030c86cc0838a  fixed-suite-2.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  fixed-suite-2.normalized.log
++4a565fae8a646c5cc89c95442ff6ce0a00b7e7d856616584bdec557bc0ed1b4d  fixed-t018.log
++998853c288bc71e2672e4c6a868075898f7c88bce7992c888d94c9bb2625f829  clean-checkout-commit.txt
++ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841  clean-checkout-status.txt
++e60c87f7abb069f4ede3076757cce546e71201139adf9abf469d69f25262d6f0  clean-checkout-tree.txt
++0afe76de11223644cda0aeea7f928b577c6c58637399123f9edd0e29c5a33a3c  environment-clean-checkout.txt
++3313bef641be8b81a7c06ea1bd8466820169d939cd3231356bb206f3dc8c56e3  environment-working-copy.txt
+diff --git a/evidence/T-018-G13-20261013/baseline-core.log b/evidence/T-018-G13-20261013/baseline-core.log
+new file mode 100644
+index 0000000..e241c96
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/baseline-core.log
+@@ -0,0 +1,162 @@
++test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 403: 'Forbidden'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 413: 'Content Too Large'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++ok
++test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/head.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 102, in test_checkpoint_mismatch
++    open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/head.json' mode='w' encoding='utf-8'>
++ok
++test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpryh3qmlp/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpryh3qmlp/history.jsonl' mode='r' encoding='utf-8'>
++ok
++test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpxxtht1zi/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpxxtht1zi/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpxxtht1zi/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpxxtht1zi/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpko457t8b/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpko457t8b/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpko457t8b/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpko457t8b/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpspe_p86e/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpspe_p86e/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpspe_p86e/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpspe_p86e/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpz1moxb23/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpz1moxb23/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpz1moxb23/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpz1moxb23/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpbybcx8k3/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpbybcx8k3/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpbybcx8k3/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpbybcx8k3/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp5wetm819/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp5wetm819/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp5wetm819/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp5wetm819/history.jsonl' mode='w' encoding='utf-8'>
++ok
++test_identity (tests.test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/__init__.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/__init__.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/authority.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/authority.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/edge.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/edge.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/history.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/history.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/identity.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/identity.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/phone_runtime.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/phone_runtime.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/sync.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/sync.py' mode='r' encoding='utf-8'>
++ok
++test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... ok
++
++----------------------------------------------------------------------
++Ran 12 tests in 3.079s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/baseline-suite.log b/evidence/T-018-G13-20261013/baseline-suite.log
+new file mode 100644
+index 0000000..ebaa7d2
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/baseline-suite.log
+@@ -0,0 +1,238 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 403: 'Forbidden'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 413: 'Content Too Large'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpomla888k/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpomla888k/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpomla888k/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpomla888k/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpomla888k/head.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 102, in test_checkpoint_mismatch
++    open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpomla888k/head.json' mode='w' encoding='utf-8'>
++ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmptw1knza6/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmptw1knza6/history.jsonl' mode='r' encoding='utf-8'>
++ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpbel5veu_/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpbel5veu_/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpbel5veu_/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpbel5veu_/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp8h0dtwq8/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp8h0dtwq8/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp8h0dtwq8/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp8h0dtwq8/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpm5i62svg/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpm5i62svg/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpm5i62svg/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpm5i62svg/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpk8mshc97/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpk8mshc97/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpk8mshc97/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpk8mshc97/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpyng3u8rr/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpyng3u8rr/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpyng3u8rr/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpyng3u8rr/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpuzxblxpr/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpuzxblxpr/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpuzxblxpr/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpuzxblxpr/history.jsonl' mode='w' encoding='utf-8'>
++ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/__init__.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/__init__.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/authority.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/authority.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/edge.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/edge.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/history.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/history.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/identity.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/identity.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/phone_runtime.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/phone_runtime.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/sync.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/sync.py' mode='r' encoding='utf-8'>
++ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp54yga9vw/spool/inbox/.consumed-ctx-a-89c35e7aa2d7.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 77, in test_duplicate_event_id_different_payload_is_conflict
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp54yga9vw/spool/inbox/.consumed-ctx-a-89c35e7aa2d7.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp54yga9vw/spool/inbox/conflict.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 81, in test_duplicate_event_id_different_payload_is_conflict
++    open(p, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp54yga9vw/spool/inbox/conflict.json' mode='w' encoding='utf-8'>
++ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpft8aqkab/spool/inbox/.consumed-ctx-a-1681e5340e2f.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 64, in test_duplicate_event_id_is_idempotent
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpft8aqkab/spool/inbox/.consumed-ctx-a-1681e5340e2f.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpft8aqkab/spool/inbox/again.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 66, in test_duplicate_event_id_is_idempotent
++    open(replay, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpft8aqkab/spool/inbox/again.json' mode='w' encoding='utf-8'>
++ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpnjsiol72/spool/inbox/.consumed-ctx-a-663af7812326.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 151, in test_restart_recovery_keeps_state_and_no_reapply
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpnjsiol72/spool/inbox/.consumed-ctx-a-663af7812326.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpnjsiol72/spool/inbox/again2.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 152, in test_restart_recovery_keeps_state_and_no_reapply
++    open(os.path.join(self.b.spool, "inbox", "again2.json"), "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpnjsiol72/spool/inbox/again2.json' mode='w' encoding='utf-8'>
++ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpkm6d65ux/spool/outbox/chain.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 113, in test_stale_in_batch_chain_and_self_origin_rejected
++    open(os.path.join(self.a.spool, "outbox", "chain.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [e1, e2]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpkm6d65ux/spool/outbox/chain.json' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpkm6d65ux/spool/outbox/self.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 118, in test_stale_in_batch_chain_and_self_origin_rejected
++    open(os.path.join(self.b.spool, "outbox", "self.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [own]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpkm6d65ux/spool/outbox/self.json' mode='w' encoding='utf-8'>
++ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpjrp9boxq/spool/outbox/ctx-a-689a04e291d5.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 89, in test_tampered_payload_rejected
++    raw = json.loads(open(p).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpjrp9boxq/spool/outbox/ctx-a-689a04e291d5.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpjrp9boxq/spool/outbox/ctx-a-689a04e291d5.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 91, in test_tampered_payload_rejected
++    open(p, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpjrp9boxq/spool/outbox/ctx-a-689a04e291d5.json' mode='w' encoding='utf-8'>
++ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpnzlp6pcc/spool/outbox/trunc.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 125, in test_truncated_batch_rejected_and_audited
++    open(p, "w").write('{"schema": "HG_SYNC_BATCH_V1", "events": [')
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpnzlp6pcc/spool/outbox/trunc.json' mode='w' encoding='utf-8'>
++ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp56jmbdom/spool/outbox/bad.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 98, in test_unsupported_schema_and_missing_field_rejected
++    open(p, "w").write(json.dumps({"schema": "OTHER", "events": [{}]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp56jmbdom/spool/outbox/bad.json' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp56jmbdom/spool/outbox/missing.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 104, in test_unsupported_schema_and_missing_field_rejected
++    open(os.path.join(self.a.spool, "outbox", "missing.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [ev]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp56jmbdom/spool/outbox/missing.json' mode='w' encoding='utf-8'>
++ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 4.206s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/baseline-t018.log b/evidence/T-018-G13-20261013/baseline-t018.log
+new file mode 100644
+index 0000000..a8a8300
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/baseline-t018.log
+@@ -0,0 +1,81 @@
++test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (tests.test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/.consumed-ctx-a-b8d9c257e4b7.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 77, in test_duplicate_event_id_different_payload_is_conflict
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/.consumed-ctx-a-b8d9c257e4b7.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/conflict.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 81, in test_duplicate_event_id_different_payload_is_conflict
++    open(p, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/conflict.json' mode='w' encoding='utf-8'>
++ok
++test_duplicate_event_id_is_idempotent (tests.test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/.consumed-ctx-a-2f0846698f78.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 64, in test_duplicate_event_id_is_idempotent
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/.consumed-ctx-a-2f0846698f78.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/again.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 66, in test_duplicate_event_id_is_idempotent
++    open(replay, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/again.json' mode='w' encoding='utf-8'>
++ok
++test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/.consumed-ctx-a-89c6cbfde757.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 151, in test_restart_recovery_keeps_state_and_no_reapply
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/.consumed-ctx-a-89c6cbfde757.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/again2.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 152, in test_restart_recovery_keeps_state_and_no_reapply
++    open(os.path.join(self.b.spool, "inbox", "again2.json"), "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/again2.json' mode='w' encoding='utf-8'>
++ok
++test_stale_in_batch_chain_and_self_origin_rejected (tests.test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/chain.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 113, in test_stale_in_batch_chain_and_self_origin_rejected
++    open(os.path.join(self.a.spool, "outbox", "chain.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [e1, e2]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/chain.json' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/self.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 118, in test_stale_in_batch_chain_and_self_origin_rejected
++    open(os.path.join(self.b.spool, "outbox", "self.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [own]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/self.json' mode='w' encoding='utf-8'>
++ok
++test_tampered_payload_rejected (tests.test_t018_sync.SyncTests.test_tampered_payload_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 89, in test_tampered_payload_rejected
++    raw = json.loads(open(p).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 91, in test_tampered_payload_rejected
++    open(p, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='w' encoding='utf-8'>
++ok
++test_truncated_batch_rejected_and_audited (tests.test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpmvmhmi5e/spool/outbox/trunc.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 125, in test_truncated_batch_rejected_and_audited
++    open(p, "w").write('{"schema": "HG_SYNC_BATCH_V1", "events": [')
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpmvmhmi5e/spool/outbox/trunc.json' mode='w' encoding='utf-8'>
++ok
++test_two_processes_are_used (tests.test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (tests.test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/bad.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 98, in test_unsupported_schema_and_missing_field_rejected
++    open(p, "w").write(json.dumps({"schema": "OTHER", "events": [{}]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/bad.json' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/missing.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 104, in test_unsupported_schema_and_missing_field_rejected
++    open(os.path.join(self.a.spool, "outbox", "missing.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [ev]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/missing.json' mode='w' encoding='utf-8'>
++ok
++
++----------------------------------------------------------------------
++Ran 11 tests in 0.945s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/clean-checkout-commit.txt b/evidence/T-018-G13-20261013/clean-checkout-commit.txt
+new file mode 100644
+index 0000000..925b072
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-checkout-commit.txt
+@@ -0,0 +1 @@
++31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d
+diff --git a/evidence/T-018-G13-20261013/clean-checkout-status.txt b/evidence/T-018-G13-20261013/clean-checkout-status.txt
+new file mode 100644
+index 0000000..7a37f24
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-checkout-status.txt
+@@ -0,0 +1 @@
++## HEAD (no branch)
+diff --git a/evidence/T-018-G13-20261013/clean-checkout-tree.txt b/evidence/T-018-G13-20261013/clean-checkout-tree.txt
+new file mode 100644
+index 0000000..905fa9c
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-checkout-tree.txt
+@@ -0,0 +1 @@
++628f9326f6592d30f8c01abfc62439701882d613
+diff --git a/evidence/T-018-G13-20261013/clean-suite-1.log b/evidence/T-018-G13-20261013/clean-suite-1.log
+new file mode 100644
+index 0000000..ed289be
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-suite-1.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 4.181s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/clean-suite-1.normalized.log b/evidence/T-018-G13-20261013/clean-suite-1.normalized.log
+new file mode 100644
+index 0000000..edf0a13
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-suite-1.normalized.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-G13-20261013/clean-suite-2.log b/evidence/T-018-G13-20261013/clean-suite-2.log
+new file mode 100644
+index 0000000..cc9d4a0
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-suite-2.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 4.214s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/clean-suite-2.normalized.log b/evidence/T-018-G13-20261013/clean-suite-2.normalized.log
+new file mode 100644
+index 0000000..edf0a13
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-suite-2.normalized.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-G13-20261013/environment-clean-checkout.txt b/evidence/T-018-G13-20261013/environment-clean-checkout.txt
+new file mode 100644
+index 0000000..852f749
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/environment-clean-checkout.txt
+@@ -0,0 +1,2 @@
++Python 3.14.6
++Linux localhost 6.6.118-android15-8-gebdfad32d749-ab15099304-4k #1 SMP PREEMPT Thu Mar 26 19:01:13 UTC 2026 aarch64 Android
+diff --git a/evidence/T-018-G13-20261013/environment-working-copy.txt b/evidence/T-018-G13-20261013/environment-working-copy.txt
+new file mode 100644
+index 0000000..99df90c
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/environment-working-copy.txt
+@@ -0,0 +1,7 @@
++Python 3.14.6
++Linux localhost 6.6.118-android15-8-gebdfad32d749-ab15099304-4k #1 SMP PREEMPT Thu Mar 26 19:01:13 UTC 2026 aarch64 Android
++3b160f24e1b0cb446c810b46974612829cace5db
++e24e5463155ec23b66ba35790c2aceabe13010df
++5b542b517766ed38997544930d39d9c28c3f683d7936b9d652f1e009239389c4  hg/sync.py
++4c8cd8d5c3bc1049a0064c08c81c44709a402e2e7716a66f5e81167bdd2c5af9  tests/test_t018_sync.py
++fd3f4dbe926dee749dfd237e409516687dec2714c545ce2442aad399541f2f17  tests/test_core.py
+diff --git a/evidence/T-018-G13-20261013/fixed-core.log b/evidence/T-018-G13-20261013/fixed-core.log
+new file mode 100644
+index 0000000..1c25a75
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-core.log
+@@ -0,0 +1,17 @@
++test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (tests.test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... ok
++
++----------------------------------------------------------------------
++Ran 12 tests in 3.007s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-suite-1.log b/evidence/T-018-G13-20261013/fixed-suite-1.log
+new file mode 100644
+index 0000000..16e240c
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-suite-1.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 3.600s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-suite-1.normalized.log b/evidence/T-018-G13-20261013/fixed-suite-1.normalized.log
+new file mode 100644
+index 0000000..edf0a13
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-suite-1.normalized.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-suite-2.log b/evidence/T-018-G13-20261013/fixed-suite-2.log
+new file mode 100644
+index 0000000..1c40de0
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-suite-2.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 3.384s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-suite-2.normalized.log b/evidence/T-018-G13-20261013/fixed-suite-2.normalized.log
+new file mode 100644
+index 0000000..edf0a13
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-suite-2.normalized.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-t018.log b/evidence/T-018-G13-20261013/fixed-t018.log
+new file mode 100644
+index 0000000..26af47f
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-t018.log
+@@ -0,0 +1,16 @@
++test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (tests.test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (tests.test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (tests.test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (tests.test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (tests.test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (tests.test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (tests.test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 11 tests in 0.644s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/manifest.md b/evidence/T-018-G13-20261013/manifest.md
+new file mode 100644
+index 0000000..6660577
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/manifest.md
+@@ -0,0 +1,37 @@
++# HG2 T-018 G13 Resource-Leak Remediation Evidence
++
++- Repository: `OAI-GIANG/HG2`
++- Branch: `feat/hg-t018-cross-context-sync-20261013`
++- Baseline commit: `3b160f24e1b0cb446c810b46974612829cace5db`
++- Tested code commit: `31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d`
++- Tested code tree: `628f9326f6592d30f8c01abfc62439701882d613`
++- Parent: `3b160f24e1b0cb446c810b46974612829cace5db`
++- Environment: Python 3.14.6; Android 15; aarch64
++- Changes: only `tests/test_core.py` and `tests/test_t018_sync.py` in the code commit.
++- Root causes observed before fix: unmanaged file handles in both test files and unclosed `urllib.error.HTTPError` objects in `EdgeTests.call()`.
++- Fix: context-manage file reads/writes and close HTTPError in `finally`; no warnings were suppressed.
++- Baseline test results: T-018 11 tests / core 12 tests / full suite 23 tests; exit 0, but ResourceWarnings present.
++- Post-fix: core 12/12, T-018 11/11, full suite 23/23 twice; exit 0; `ResourceWarning: 0`; `Exception ignored: 0`.
++- Clean checkout at tested code commit: full suite 23/23 twice; exit 0; `ResourceWarning: 0`; `Exception ignored: 0`; normalized logs identical.
++- Normalization: only `Ran N tests in <duration>s` timing line replaced with a fixed token. No warning/error/test result lines removed.
++- Normalized log SHA-256: `e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b` (both clean-checkout runs and both working-copy runs).
++
++## SHA-256 manifest
++10d1abe25d9ecb301891b89d0d7e598f28271accf33e62d286b92b9fb6e33ab6  baseline-core.log
++5889d3f74229d1a333592fe18059d64010a4efba85a366d13ffc84abbc6949c6  baseline-suite.log
++f4385a6307ef23be4f590136acc1fa0aa2f626b0938c6aab6c08994f1cb34a55  baseline-t018.log
++61e9be70ceebfe68784deb9a6c41df59164a310ab62cffd3b82748e12f2953c6  clean-suite-1.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  clean-suite-1.normalized.log
++9a262ffd4f18b0fc3bd84da5f880a20ff2b0d8e4693284d564629bd348d4a4f0  clean-suite-2.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  clean-suite-2.normalized.log
++59bc8fe950d99581015ac0fa10cf034e9d0885720d03dd53d929368900b1de9f  fixed-core.log
++936e92089bf5db0637a9b58fb3150723ec1207dc8e33f04fa7577a81e86d6604  fixed-suite-1.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  fixed-suite-1.normalized.log
++cbfdcb04fb1c3b72b25af56ef6327d81eab334e2716c6bdbf01030c86cc0838a  fixed-suite-2.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  fixed-suite-2.normalized.log
++4a565fae8a646c5cc89c95442ff6ce0a00b7e7d856616584bdec557bc0ed1b4d  fixed-t018.log
++998853c288bc71e2672e4c6a868075898f7c88bce7992c888d94c9bb2625f829  clean-checkout-commit.txt
++ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841  clean-checkout-status.txt
++e60c87f7abb069f4ede3076757cce546e71201139adf9abf469d69f25262d6f0  clean-checkout-tree.txt
++0afe76de11223644cda0aeea7f928b577c6c58637399123f9edd0e29c5a33a3c  environment-clean-checkout.txt
++3313bef641be8b81a7c06ea1bd8466820169d939cd3231356bb206f3dc8c56e3  environment-working-copy.txt
+diff --git a/evidence/T-018-SCOPE-CORRECTION-MANIFEST.json b/evidence/T-018-SCOPE-CORRECTION-MANIFEST.json
+new file mode 100644
+index 0000000..248f7bc
+--- /dev/null
++++ b/evidence/T-018-SCOPE-CORRECTION-MANIFEST.json
+@@ -0,0 +1,36 @@
++{
++  "manifest_schema": "HG_T018_SCOPE_CORRECTION_SHA256_V1",
++  "created_at_utc": "2026-10-13T16:09:09.226904+00:00",
++  "repository": "OAI-GIANG/HG2",
++  "branch": "docs/t018-remove-signature-scope-20261013",
++  "base_commit": "fa90faacb4a47492121480455c1747535ab5817c",
++  "canonical_branch": "hg-genesis",
++  "canonical_remote_head_observed_before_commit": "cdebaeed014371f033f14352f552c6d0d4e69198",
++  "scope": "documentation-only; no source/runtime/canonical changes; no merge/deploy",
++  "checks": {
++    "document_consistency_assertions": "PASS",
++    "signature_feature_acceptance_requirement": "OBSOLETE",
++    "replacement_authentication_mechanism": "NOT_INTRODUCED",
++    "git_diff_check_before_commit": "PASS",
++    "python_unittest_discover_tests": "27/27 PASS",
++    "canonical_branch_mutation": "NONE_BY_THIS_TASK",
++    "review_scope_consistency": "PASS",
++    "runtime_evidence": "NOT_RUN",
++    "review_or_approval_gate": "REMOVED — NOT A T-018 ACCEPTANCE CRITERION",
++    "no_independent_review_terms": "PASS — searched contract, implementation design, threat model, acceptance criteria and manifest"
++  },
++  "files_sha256": {
++    "docs/T-018-SYNC-V2-CONTRACT.md": "0357482bf7b7a06798e30bc454d4c86f077eb95fbad87e6eaeb2b22c50cb9957",
++    "docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md": "20fae79c82090df80a34e2cf14182fa2285a534412313cdaafe2e8a109321ac9",
++    "docs/design/T-018-THREAT-MODEL-V1.md": "dad59575ff784d228f739da344b1ef080f51bfe80e2ae40072defcab8b8e9969",
++    "docs/design/T-018-ACCEPTANCE-CRITERIA-V2.md": "cf8daa06cd3d0da5872d7d95a48366677eb73920fce23f801ce952ecbd7868ae"
++  },
++  "blocked_gates": [
++    "owner decision for initial origin cursor/checkpoint",
++    "shared-memory schema/sharing/retention/conflict policy",
++    "storage/apply boundary and proof of all-or-none persistence",
++    "runtime integration through the single canonical state owner",
++    "exact-commit runtime tests for unresolved technical behavior"
++  ],
++  "canonical_branch_mutation": "NONE_BY_THIS_TASK"
++}
+diff --git a/evidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt b/evidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt
+new file mode 100644
+index 0000000..d8f858f
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt
+@@ -0,0 +1,14 @@
++d19cf4a3143345b001de674677418e31f809007eb290cf7155301a9b8bbef683  clean-suite-1.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-1.normalized.log
++c55d5c106bce0c330ed8ff4ecbfae67b99c89a2793b552c55588bade5590a2b9  clean-suite-2.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-2.normalized.log
++55fcdc636a602b4c95e5ed7a35792acafc023c07ab5dcdabf51311c2e4ab176c  core-tests.log
++d08a41db2d4f5ee6adaef07cd74b6fa51d16f6a0b9eaac5af1c6440e30415072  t018-tests.log
++d629a47427d9ab3e5c243735f356bde4badac2c143c7dba12e9c4d3d3e2f77b5  working-suite-1.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-1.normalized.log
++d5ab5fa948ed4966ca892822ced164a1a0d511f8c1dd1c7476ae6e983fdecef2  working-suite-2.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-2.normalized.log
++14423faf868f8a209c2a1e5e27f93b9f6cce4fb5e024683c20ffaffc3d42081b  clean-checkout-commit.txt
++ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841  clean-checkout-status.txt
++4c9c66d5a77a5083f108d99e8a72d8d2b2829ea18b63407dc0ece02727febee7  clean-checkout-tree.txt
++0afe76de11223644cda0aeea7f928b577c6c58637399123f9edd0e29c5a33a3c  environment.txt
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt b/evidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt
+new file mode 100644
+index 0000000..5b14b95
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt
+@@ -0,0 +1 @@
++e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt b/evidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt
+new file mode 100644
+index 0000000..7a37f24
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt
+@@ -0,0 +1 @@
++## HEAD (no branch)
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt b/evidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt
+new file mode 100644
+index 0000000..3a13be0
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt
+@@ -0,0 +1 @@
++4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-suite-1.log b/evidence/T-018-SYNC-V2-20261013/clean-suite-1.log
+new file mode 100644
+index 0000000..0fdbfd1
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-suite-1.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in 4.490s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log b/evidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log
+new file mode 100644
+index 0000000..5d008e4
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-suite-2.log b/evidence/T-018-SYNC-V2-20261013/clean-suite-2.log
+new file mode 100644
+index 0000000..715e540
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-suite-2.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in 4.446s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log b/evidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log
+new file mode 100644
+index 0000000..5d008e4
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/core-tests.log b/evidence/T-018-SYNC-V2-20261013/core-tests.log
+new file mode 100644
+index 0000000..6611d0d
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/core-tests.log
+@@ -0,0 +1,17 @@
++test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (tests.test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... ok
++
++----------------------------------------------------------------------
++Ran 12 tests in 3.020s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/environment.txt b/evidence/T-018-SYNC-V2-20261013/environment.txt
+new file mode 100644
+index 0000000..852f749
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/environment.txt
+@@ -0,0 +1,2 @@
++Python 3.14.6
++Linux localhost 6.6.118-android15-8-gebdfad32d749-ab15099304-4k #1 SMP PREEMPT Thu Mar 26 19:01:13 UTC 2026 aarch64 Android
+diff --git a/evidence/T-018-SYNC-V2-20261013/manifest.md b/evidence/T-018-SYNC-V2-20261013/manifest.md
+new file mode 100644
+index 0000000..5424b34
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/manifest.md
+@@ -0,0 +1,31 @@
++# T-018 Sync V2 — Verification Evidence
++
++- Repository: `OAI-GIANG/HG2`
++- Branch: `feat/hg-t018-cross-context-sync-20261013`
++- Tested code commit: `e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e`
++- Tested code tree: `4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b`
++- Parent: `8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0`
++- Environment: Python 3.14.6, Android 15, aarch64
++- T-018 tests: 15/15, exit 0, no `ResourceWarning` or ignored finalizer warnings.
++- Core tests: 12/12, exit 0, no `ResourceWarning` or ignored finalizer warnings.
++- Full suite: 27/27, exit 0, `OK`, zero `ResourceWarning` and zero `Exception ignored`, two working-copy runs and two clean-checkout runs.
++- Normalized full-suite outputs compare equal in both pairs.
++- Normalization changes only the unittest elapsed-time line; no outcomes or warnings are filtered.
++- Scope of code changes in this phase: `hg/sync.py`, `tests/test_t018_sync.py`, and `docs/T-018-SYNC-V2-CONTRACT.md`.
++- Limitations remain: no authenticated peer identity/signature, no trusted first-origin checkpoint, no runtime wiring, and no shared-memory merge. This evidence does not establish `LIVE_VERIFIED`.
++
++## SHA-256
++d19cf4a3143345b001de674677418e31f809007eb290cf7155301a9b8bbef683  clean-suite-1.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-1.normalized.log
++c55d5c106bce0c330ed8ff4ecbfae67b99c89a2793b552c55588bade5590a2b9  clean-suite-2.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-2.normalized.log
++55fcdc636a602b4c95e5ed7a35792acafc023c07ab5dcdabf51311c2e4ab176c  core-tests.log
++d08a41db2d4f5ee6adaef07cd74b6fa51d16f6a0b9eaac5af1c6440e30415072  t018-tests.log
++d629a47427d9ab3e5c243735f356bde4badac2c143c7dba12e9c4d3d3e2f77b5  working-suite-1.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-1.normalized.log
++d5ab5fa948ed4966ca892822ced164a1a0d511f8c1dd1c7476ae6e983fdecef2  working-suite-2.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-2.normalized.log
++14423faf868f8a209c2a1e5e27f93b9f6cce4fb5e024683c20ffaffc3d42081b  clean-checkout-commit.txt
++ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841  clean-checkout-status.txt
++4c9c66d5a77a5083f108d99e8a72d8d2b2829ea18b63407dc0ece02727febee7  clean-checkout-tree.txt
++0afe76de11223644cda0aeea7f928b577c6c58637399123f9edd0e29c5a33a3c  environment.txt
+diff --git a/evidence/T-018-SYNC-V2-20261013/t018-tests.log b/evidence/T-018-SYNC-V2-20261013/t018-tests.log
+new file mode 100644
+index 0000000..d55ee23
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/t018-tests.log
+@@ -0,0 +1,20 @@
++test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (tests.test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (tests.test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (tests.test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (tests.test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (tests.test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (tests.test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (tests.test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (tests.test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (tests.test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (tests.test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (tests.test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 15 tests in 1.378s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/working-suite-1.log b/evidence/T-018-SYNC-V2-20261013/working-suite-1.log
+new file mode 100644
+index 0000000..e8d8c70
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/working-suite-1.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in 4.511s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log b/evidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log
+new file mode 100644
+index 0000000..5d008e4
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/working-suite-2.log b/evidence/T-018-SYNC-V2-20261013/working-suite-2.log
+new file mode 100644
+index 0000000..b66d126
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/working-suite-2.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in 4.483s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log b/evidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log
+new file mode 100644
+index 0000000..5d008e4
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in <TIME>
++
++OK
+diff --git a/hg/sync.py b/hg/sync.py
+new file mode 100644
+index 0000000..f5c7063
+--- /dev/null
++++ b/hg/sync.py
+@@ -0,0 +1,230 @@
++"""HG T-018 cross-context event synchronization (spool-based, fail-closed).
++
++Design invariants
++- Each context owns its OWN StateStore/log. A local log only ever contains records the local
++  writer produced; foreign events are recorded as local "sync.received" envelopes carrying the
++  origin provenance, so local seq/prev_hash invariants can never be broken by remote input.
++- Exchange happens through an on-disk two-way spool (outbox/inbox/conflicts) with
++  write-temp -> fsync -> os.replace (atomic publish, never a partially visible batch).
++- Every batch is validated before any local write: schema, required fields, payload hash,
++  in-batch chain continuity, duplicate detection (idempotency) and conflict detection.
++- Fail-closed: any invalid input is rejected with a specific reason and an audit record; nothing
++  is written for rejected input.
++"""
++from __future__ import annotations
++
++import json
++import os
++import time
++import uuid
++
++from .history import PRODUCT_ID, SCHEMA, StateStore, canonical, digest
++
++SYNC_SCHEMA = "HG_SYNC_V2"
++BATCH_SCHEMA = "HG_SYNC_BATCH_V2"
++REQUIRED_EVENT_FIELDS = ("event_id", "event_type", "payload", "payload_hash",
++                         "origin_context", "origin_seq", "origin_prev_hash", "origin_hash",
++                         "origin_record")
++REQUIRED_ORIGIN_RECORD_FIELDS = ("seq", "event_id", "event_type", "recorded_at", "correlation_id",
++                                 "causation_id", "product_id", "runtime_id", "schema", "payload",
++                                 "prev_hash", "record_hash")
++
++
++def _is_sha256(value: object) -> bool:
++    return isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
++
++
++class SyncError(Exception):
++    """Raised for rejected batches/events (fail-closed)."""
++
++
++class SyncContext:
++    def __init__(self, context_id: str, state_dir: str, spool_dir: str, clock=time.time) -> None:
++        self.context_id = context_id
++        self.spool = spool_dir
++        self._clock = clock
++        for sub in ("inbox", "outbox", "conflicts"):
++            os.makedirs(os.path.join(spool_dir, sub), exist_ok=True)
++        self.audit_path = os.path.join(spool_dir, "sync-audit.jsonl")
++        self.store = StateStore(state_dir)  # fail-closed on corrupt history
++
++    # ---------------------------------------------------------------- audit
++    def _audit(self, record: dict) -> None:
++        with open(self.audit_path, "a", encoding="utf-8") as fh:
++            fh.write(canonical(record) + "\n")
++            fh.flush()
++            os.fsync(fh.fileno())
++
++    def audit_records(self) -> list:
++        if not os.path.exists(self.audit_path):
++            return []
++        with open(self.audit_path, "r", encoding="utf-8") as fh:
++            return [json.loads(line) for line in fh.read().splitlines() if line.strip()]
++
++    # --------------------------------------------------------------- export
++    def local_event(self, event_type: str, payload: dict) -> dict:
++        rec = self.store.emit(event_type, payload)
++        origin_record = json.loads(canonical(rec))
++        return {"event_id": rec["event_id"], "event_type": rec["event_type"], "payload": origin_record["payload"],
++                "payload_hash": digest(origin_record["payload"]), "origin_context": self.context_id,
++                "origin_seq": origin_record["seq"], "origin_prev_hash": origin_record["prev_hash"],
++                "origin_hash": origin_record["record_hash"], "origin_record": origin_record}
++
++    def export_batch(self, events: list) -> dict:
++        batch = {"schema": BATCH_SCHEMA, "context_id": self.context_id, "created_at": self._clock(),
++                 "events": events}
++        blob = canonical(batch).encode("utf-8")
++        name = "%s-%s.json" % (self.context_id[:8], uuid.uuid4().hex[:12])
++        target = os.path.join(self.spool, "outbox", name)
++        tmp = target + ".tmp"
++        with open(tmp, "wb") as fh:
++            fh.write(blob)
++            fh.flush()
++            os.fsync(fh.fileno())
++        os.replace(tmp, target)
++        self._audit({"op": "export", "file": name, "batch_hash": digest(batch),
++                     "events": len(events), "at": self._clock()})
++        return {"file": name, "batch_hash": digest(batch), "events": len(events)}
++
++    def publish(self, event_type: str, payload: dict) -> dict:
++        return self.export_batch([self.local_event(event_type, payload)])
++
++    # --------------------------------------------------------------- import
++    def _received_index(self) -> dict:
++        index = {}
++        for rec in self.store.replay():
++            if rec["event_type"] == "sync.received":
++                payload = rec["payload"]
++                key = (payload.get("origin_context"), payload.get("event_id"))
++                index[key] = {field: payload.get(field) for field in
++                              ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")}
++        return index
++
++    def import_batch(self, path_or_name: str) -> dict:
++        name = os.path.basename(path_or_name)
++        path = path_or_name if os.path.exists(path_or_name) else os.path.join(self.spool, "inbox", name)
++        if not os.path.exists(path):
++            raise SyncError("batch file missing")
++        with open(path, "rb") as fh:
++            raw = fh.read()
++        try:
++            batch = json.loads(raw.decode("utf-8"))
++        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
++            self._reject(name, "MALFORMED_OR_TRUNCATED_BATCH", raw)
++            raise SyncError("malformed batch") from exc
++        if not isinstance(batch, dict) or batch.get("schema") != BATCH_SCHEMA:
++            self._reject(name, "UNSUPPORTED_BATCH_SCHEMA", raw)
++            raise SyncError("unsupported batch schema")
++        events = batch.get("events")
++        if not isinstance(events, list) or not events:
++            self._reject(name, "EMPTY_BATCH", raw)
++            raise SyncError("empty batch")
++        batch_origin = batch.get("context_id")
++        if not isinstance(batch_origin, str) or not batch_origin:
++            self._reject(name, "INVALID_BATCH_CONTEXT", raw)
++            raise SyncError("invalid batch context")
++        index = self._received_index()
++        accepted, duplicates, pending = [], [], []
++        prev_origin_hash = None
++        prev_origin_seq = None
++        observed_origin = None
++
++        # Preflight the entire batch before appending any received event. A malformed later
++        # event must not leave an earlier prefix partially applied.
++        for ev in events:
++            if not isinstance(ev, dict) or any(f not in ev for f in REQUIRED_EVENT_FIELDS):
++                self._reject(name, "MISSING_REQUIRED_FIELD", raw)
++                raise SyncError("missing required field")
++            if (not isinstance(ev["event_id"], str) or not ev["event_id"]
++                    or not isinstance(ev["event_type"], str) or not ev["event_type"]
++                    or not isinstance(ev["origin_context"], str) or not ev["origin_context"]
++                    or not isinstance(ev["origin_seq"], int) or isinstance(ev["origin_seq"], bool)
++                    or ev["origin_seq"] < 1):
++                self._reject(name, "INVALID_EVENT_METADATA", raw)
++                raise SyncError("invalid event metadata")
++            if ev["origin_context"] == self.context_id:
++                self._reject(name, "SELF_ORIGIN_EVENT", raw)
++                raise SyncError("self-origin event")
++            if observed_origin is None:
++                observed_origin = ev["origin_context"]
++                if batch_origin is not None and batch_origin != observed_origin:
++                    self._reject(name, "BATCH_ORIGIN_MISMATCH", raw)
++                    raise SyncError("batch origin mismatch")
++            elif ev["origin_context"] != observed_origin:
++                self._reject(name, "MIXED_ORIGIN_CONTEXTS", raw)
++                raise SyncError("mixed origin contexts")
++            if (not _is_sha256(ev["payload_hash"]) or not _is_sha256(ev["origin_prev_hash"])
++                    or not _is_sha256(ev["origin_hash"])):
++                self._reject(name, "INVALID_HASH_FORMAT", raw)
++                raise SyncError("invalid hash format")
++            if digest(ev["payload"]) != ev["payload_hash"]:
++                self._reject(name, "PAYLOAD_HASH_MISMATCH", raw)
++                raise SyncError("payload hash mismatch")
++            origin_record = ev["origin_record"]
++            if not isinstance(origin_record, dict) or any(
++                    field not in origin_record for field in REQUIRED_ORIGIN_RECORD_FIELDS):
++                self._reject(name, "INVALID_ORIGIN_RECORD", raw)
++                raise SyncError("invalid origin record")
++            origin_core = {key: value for key, value in origin_record.items() if key != "record_hash"}
++            if (origin_record.get("record_hash") != ev["origin_hash"]
++                    or digest(origin_core) != ev["origin_hash"]):
++                self._reject(name, "ORIGIN_RECORD_HASH_MISMATCH", raw)
++                raise SyncError("origin record hash mismatch")
++            if origin_record.get("schema") != SCHEMA or origin_record.get("product_id") != PRODUCT_ID:
++                self._reject(name, "UNSUPPORTED_ORIGIN_RECORD_SCHEMA", raw)
++                raise SyncError("unsupported origin record schema")
++            if (origin_record.get("event_id") != ev["event_id"]
++                    or origin_record.get("event_type") != ev["event_type"]
++                    or origin_record.get("payload") != ev["payload"]
++                    or origin_record.get("seq") != ev["origin_seq"]
++                    or origin_record.get("prev_hash") != ev["origin_prev_hash"]):
++                self._reject(name, "ORIGIN_RECORD_ENVELOPE_MISMATCH", raw)
++                raise SyncError("origin record envelope mismatch")
++            if prev_origin_hash is not None and (
++                    ev["origin_prev_hash"] != prev_origin_hash
++                    or ev["origin_seq"] != prev_origin_seq + 1):
++                self._reject(name, "IN_BATCH_CHAIN_BREAK", raw)
++                raise SyncError("in-batch chain break")
++            prev_origin_hash = ev["origin_hash"]
++            prev_origin_seq = ev["origin_seq"]
++            key = (ev["origin_context"], ev["event_id"])
++            if key in index:
++                known = index[key]
++                if all(known.get(field) == ev.get(field) for field in
++                       ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")):
++                    duplicates.append(ev["event_id"])
++                    continue
++                self._conflict(name, "DUPLICATE_EVENT_ID_DIFFERENT_PROVENANCE", raw)
++                raise SyncError("duplicate event id with different provenance")
++            index[key] = {field: ev.get(field) for field in
++                          ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")}
++            accepted.append(ev["event_id"])
++            pending.append(ev)
++
++        # Only apply after every event has passed preflight validation.
++        for ev in pending:
++            self.store.emit("sync.received", {"event_id": ev["event_id"], "event_type": ev["event_type"],
++                                              "payload": ev["payload"], "payload_hash": ev["payload_hash"],
++                                              "origin_context": ev["origin_context"], "origin_seq": ev["origin_seq"],
++                                              "origin_prev_hash": ev["origin_prev_hash"], "origin_hash": ev["origin_hash"],
++                                              "origin_record": ev["origin_record"]})
++        os.replace(path, os.path.join(self.spool, "inbox", ".consumed-" + name))
++        self._audit({"op": "import", "file": name, "accepted": accepted, "duplicates": duplicates,
++                     "batch_hash": digest(batch), "at": self._clock()})
++        return {"accepted": accepted, "duplicates": duplicates}
++
++    # ------------------------------------------------------------ rejection
++    def _reject(self, name: str, reason: str, raw: bytes) -> None:
++        self._audit({"op": "reject", "file": name, "reason": reason, "batch_sha256": digest(raw.decode("utf-8", "replace")),
++                     "at": self._clock()})
++        self.store.emit("sync.rejected", {"file": name, "reason": reason})
++
++    def _conflict(self, name: str, reason: str, raw: bytes) -> None:
++        dest = os.path.join(self.spool, "conflicts", name)
++        try:
++            os.replace(self.spool + "/inbox/" + name, dest)
++        except OSError:
++            with open(dest, "wb") as fh:
++                fh.write(raw)
++        self._audit({"op": "conflict", "file": name, "reason": reason, "at": self._clock()})
++        self.store.emit("sync.conflict", {"file": name, "reason": reason})
+diff --git a/tests/test_core.py b/tests/test_core.py
+index 9bd75db..5320e2d 100644
+--- a/tests/test_core.py
++++ b/tests/test_core.py
+@@ -12,11 +12,13 @@ TOKEN = "edge-token-x"
+ 
+ 
+ def lines(d):
+-    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++    with open(os.path.join(d, "history.jsonl"), encoding="utf-8") as fh:
++        return [l for l in fh.read().splitlines() if l.strip()]
+ 
+ 
+ def put(d, ls):
+-    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++    with open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8") as fh:
++        fh.write("\n".join(ls) + "\n")
+ 
+ 
+ class IdentityTests(unittest.TestCase):
+@@ -29,7 +31,8 @@ class IdentityTests(unittest.TestCase):
+         for base, _dirs, files in os.walk(os.path.join(ROOT, "hg")):
+             for name in files:
+                 if name.endswith(".py"):
+-                    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++                    with open(os.path.join(base, name), encoding="utf-8") as fh:
++                        text = fh.read().lower()
+                     for m in ("go_runtime", "paradise", "love", "hg_ops", "governance_engine"):
+                         if m in text:
+                             found.append((name, m))
+@@ -99,7 +102,8 @@ class HistoryTests(unittest.TestCase):
+ 
+     def test_checkpoint_mismatch(self):
+         s, d = self._case(lambda L: L)
+-        open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
++        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"seq": 99, "head_hash": ZERO}))
+         self.assertEqual(s.verify()["reason"], "checkpoint_mismatch")
+         with self.assertRaises(HistoryError):
+             StateStore(d)
+@@ -145,7 +149,10 @@ class EdgeTests(unittest.TestCase):
+             with urllib.request.urlopen(req, timeout=4) as r:
+                 return r.status, r.read().decode()
+         except urllib.error.HTTPError as e:
+-            return e.code, e.read().decode()
++            try:
++                return e.code, e.read().decode()
++            finally:
++                e.close()
+ 
+     def test_edge_behaviour(self):
+         self.assertEqual(self.call("/health")[0], 200)
+diff --git a/tests/test_t018_sync.py b/tests/test_t018_sync.py
+new file mode 100644
+index 0000000..6cb1d2f
+--- /dev/null
++++ b/tests/test_t018_sync.py
+@@ -0,0 +1,241 @@
++"""T-018 cross-context synchronization tests: two real processes, spool transport, fail-closed."""
++import json, os, subprocess, sys, tempfile, unittest
++from hg.history import StateStore
++from hg.sync import BATCH_SCHEMA, SyncContext, SyncError, digest
++
++ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++LOCAL = "local-device-credential"
++
++
++def ctx(context_id, base):
++    return SyncContext(context_id, os.path.join(base, context_id, "state"), os.path.join(base, "spool"))
++
++
++def child(code):
++    return subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=ROOT,
++                          env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1"))
++
++
++class SyncTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp()
++        self.a = ctx("ctx-a", self.tmp)
++        self.b = ctx("ctx-b", self.tmp)
++
++    def _publish(self, c, payload):
++        return c.publish("note.created", payload)
++
++    def _move(self, src, dst, name):
++        os.replace(os.path.join(src.spool, "outbox", name), os.path.join(dst.spool, "inbox", name))
++
++    def test_a_to_b_via_spool(self):
++        out = self._publish(self.a, {"note": "from-a"})
++        self._move(self.a, self.b, out["file"])
++        res = self.b.import_batch(out["file"])
++        self.assertEqual(len(res["accepted"]), 1)
++        received = [r for r in self.b.store.replay() if r["event_type"] == "sync.received"]
++        self.assertEqual(received[0]["payload"]["payload"]["note"], "from-a")
++        self.assertEqual(received[0]["payload"]["origin_context"], "ctx-a")
++        self.assertTrue(self.b.store.verify()["ok"])
++
++    def test_b_to_a_via_spool(self):
++        out = self._publish(self.b, {"note": "from-b"})
++        self._move(self.b, self.a, out["file"])
++        res = self.a.import_batch(out["file"])
++        self.assertEqual(len(res["accepted"]), 1)
++        self.assertTrue(self.a.store.verify()["ok"])
++        self.assertEqual(self.a.store.replay()[-1]["payload"]["origin_context"], "ctx-b")
++
++    def test_two_processes_are_used(self):
++        code = ("import os,sys;sys.path.insert(0,%r);from hg.sync import SyncContext;"
++                "p=%r;c=SyncContext('ctx-a',os.path.join(p,'ctx-a','state'),os.path.join(p,'spool'));"
++                "print(c.publish('note.created',{'note':'from-child'})['file'])" % (ROOT, self.tmp))
++        r = child(code)
++        self.assertEqual(r.returncode, 0, r.stderr)
++        name = r.stdout.strip()
++        self.assertTrue(os.path.exists(os.path.join(self.a.spool, "outbox", name)))
++        self._move(self.a, self.b, name)
++        self.assertEqual(len(self.b.import_batch(name)["accepted"]), 1)
++
++    def test_duplicate_event_id_is_idempotent(self):
++        out = self._publish(self.a, {"note": "dup"})
++        self._move(self.a, self.b, out["file"])
++        self.b.import_batch(out["file"])
++        with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        replay = os.path.join(self.b.spool, "inbox", "again.json")
++        with open(replay, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        before = len(self.b.store.replay())
++        res = self.b.import_batch("again.json")
++        self.assertEqual(res["accepted"], [])
++        self.assertEqual(len(res["duplicates"]), 1)
++        self.assertEqual(len(self.b.store.replay()), before)
++
++    def test_duplicate_event_id_different_payload_is_conflict(self):
++        out = self._publish(self.a, {"note": "one"})
++        self._move(self.a, self.b, out["file"])
++        self.b.import_batch(out["file"])
++        with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        ev = raw["events"][0]
++        changed_payload = {"note": "changed"}
++        origin_core = dict(ev["origin_record"])
++        origin_core.pop("record_hash")
++        origin_core["payload"] = changed_payload
++        changed_origin_hash = digest(origin_core)
++        ev["origin_record"] = {**origin_core, "record_hash": changed_origin_hash}
++        ev["origin_hash"] = changed_origin_hash
++        ev["payload"] = changed_payload
++        ev["payload_hash"] = digest(changed_payload)
++        p = os.path.join(self.b.spool, "inbox", "conflict.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        with self.assertRaises(SyncError):
++            self.b.import_batch("conflict.json")
++        self.assertTrue(os.path.exists(os.path.join(self.b.spool, "conflicts", "conflict.json")))
++
++    def test_tampered_payload_rejected(self):
++        out = self._publish(self.a, {"note": "x"})
++        p = os.path.join(self.a.spool, "outbox", out["file"])
++        with open(p, encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        raw["events"][0]["payload"] = {"note": "tampered"}
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        self._move(self.a, self.b, out["file"])
++        with self.assertRaises(SyncError):
++            self.b.import_batch(out["file"])
++
++    def test_unsupported_schema_and_missing_field_rejected(self):
++        p = os.path.join(self.a.spool, "outbox", "bad.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": "OTHER", "events": [{}]}))
++        self._move(self.a, self.b, "bad.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("bad.json")
++        ev = self.a.local_event("note.created", {"note": "m"})
++        del ev["origin_hash"]
++        with open(os.path.join(self.a.spool, "outbox", "missing.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [ev]}))
++        self._move(self.a, self.b, "missing.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("missing.json")
++
++    def test_multi_event_batch_preserves_origin_chain(self):
++        first = self.a.local_event("note.created", {"n": 1})
++        second = self.a.local_event("note.created", {"n": 2})
++        p = os.path.join(self.a.spool, "outbox", "two-events.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
++        self._move(self.a, self.b, "two-events.json")
++        result = self.b.import_batch("two-events.json")
++        self.assertEqual(result["accepted"], [first["event_id"], second["event_id"]])
++        received = [r["payload"] for r in self.b.store.replay() if r["event_type"] == "sync.received"]
++        self.assertEqual([r["origin_seq"] for r in received], [first["origin_seq"], second["origin_seq"]])
++        self.assertTrue(self.b.store.verify()["ok"])
++
++    def test_rehashed_payload_without_matching_origin_record_rejected(self):
++        out = self._publish(self.a, {"note": "original"})
++        p = os.path.join(self.a.spool, "outbox", out["file"])
++        with open(p, encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        raw["events"][0]["payload"] = {"note": "forged"}
++        raw["events"][0]["payload_hash"] = digest(raw["events"][0]["payload"])
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        self._move(self.a, self.b, out["file"])
++        with self.assertRaises(SyncError):
++            self.b.import_batch(out["file"])
++        self.assertFalse(any(r["event_type"] == "sync.received" for r in self.b.store.replay()))
++
++    def test_origin_sequence_gap_rejected_before_apply(self):
++        first = self.a.local_event("note.created", {"n": 1})
++        second = self.a.local_event("note.created", {"n": 2})
++        second["origin_seq"] += 2
++        origin_core = dict(second["origin_record"])
++        origin_core.pop("record_hash")
++        origin_core["seq"] = second["origin_seq"]
++        second["origin_hash"] = digest(origin_core)
++        second["origin_record"] = {**origin_core, "record_hash": second["origin_hash"]}
++        p = os.path.join(self.a.spool, "outbox", "sequence-gap.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
++        self._move(self.a, self.b, "sequence-gap.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("sequence-gap.json")
++        self.assertFalse(any(r["event_type"] == "sync.received" for r in self.b.store.replay()))
++
++    def test_invalid_later_event_does_not_partially_apply_batch(self):
++        first = self.a.local_event("note.created", {"n": 1})
++        second = self.a.local_event("note.created", {"n": 2})
++        del second["origin_hash"]
++        p = os.path.join(self.a.spool, "outbox", "partial-invalid.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
++        self._move(self.a, self.b, "partial-invalid.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("partial-invalid.json")
++        received = [r for r in self.b.store.replay() if r["event_type"] == "sync.received"]
++        self.assertEqual(received, [])
++        self.assertTrue(any(r["event_type"] == "sync.rejected" for r in self.b.store.replay()))
++
++    def test_stale_in_batch_chain_and_self_origin_rejected(self):
++        e1 = self.a.local_event("note.created", {"n": 1})
++        e2 = self.a.local_event("note.created", {"n": 2})
++        e2["origin_prev_hash"] = "0" * 64
++        origin_core = dict(e2["origin_record"])
++        origin_core.pop("record_hash")
++        origin_core["prev_hash"] = e2["origin_prev_hash"]
++        e2["origin_hash"] = digest(origin_core)
++        e2["origin_record"] = {**origin_core, "record_hash": e2["origin_hash"]}
++        with open(os.path.join(self.a.spool, "outbox", "chain.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [e1, e2]}))
++        self._move(self.a, self.b, "chain.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("chain.json")
++        own = self.b.local_event("note.created", {"n": 3})
++        with open(os.path.join(self.b.spool, "outbox", "self.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-b", "events": [own]}))
++        os.replace(os.path.join(self.b.spool, "outbox", "self.json"), os.path.join(self.b.spool, "inbox", "self.json"))
++        with self.assertRaises(SyncError):
++            self.b.import_batch("self.json")
++
++    def test_truncated_batch_rejected_and_audited(self):
++        p = os.path.join(self.a.spool, "outbox", "trunc.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write('{"schema": "HG_SYNC_BATCH_V2", "events": [')
++        self._move(self.a, self.b, "trunc.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("trunc.json")
++        self.assertTrue(any(r["op"] == "reject" for r in self.b.audit_records()))
++
++    def test_concurrent_updates_do_not_overwrite(self):
++        out_a = self._publish(self.a, {"note": "a"})
++        out_b = self._publish(self.b, {"note": "b"})
++        self._move(self.a, self.b, out_a["file"])
++        self._move(self.b, self.a, out_b["file"])
++        self.b.import_batch(out_a["file"])
++        self.a.import_batch(out_b["file"])
++        self.assertTrue(self.a.store.verify()["ok"])
++        self.assertTrue(self.b.store.verify()["ok"])
++        self.assertEqual(len(self.a.store.replay()), 3)
++        self.assertEqual(len(self.b.store.replay()), 3)
++
++    def test_restart_recovery_keeps_state_and_no_reapply(self):
++        out = self._publish(self.a, {"note": "persist"})
++        self._move(self.a, self.b, out["file"])
++        self.b.import_batch(out["file"])
++        before = self.b.store.audit_export()["head_hash"]
++        reopened = ctx("ctx-b", self.tmp)
++        self.assertEqual(reopened.store.audit_export()["head_hash"], before)
++        self.assertTrue(reopened.store.verify()["ok"])
++        with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        with open(os.path.join(self.b.spool, "inbox", "again2.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        self.assertEqual(reopened.import_batch("again2.json")["duplicates"], [out and raw["events"][0]["event_id"]])
++
++
++if __name__ == "__main__":
++    unittest.main()

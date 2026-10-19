@@ -1,0 +1,2616 @@
+diff --git a/README.md b/README.md
+index 11ed33c..e97c1c7 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,11 @@
+-# HG (clean-slate)
++# HG2 (clean-slate)
+ 
+-Independent HG product: new repository, parentless genesis, fresh implementation.
++HG2 is the product/repository label. `PRODUCT_ID=HG` remains the durable event and on-disk identity; do not silently rename historical `product_id` values. This mapping does not imply compatibility with removed APIs or Bridge 1.1 capabilities.
++
++Independent HG2 product: new repository, parentless genesis, fresh implementation.
+ Roles: PHONE = single primary runtime and state owner; VPS1 = HTTPS edge relay (never the
+ primary runtime, never holds the model key); VPS2 = standby/worker only.
+ No fork, no inherited history, no reused runtime/authority/state engine, standard library only.
++
++
++Product-scope decisions and their blocked acceptance gates are recorded in `docs/PRODUCT_SCOPE_DECISIONS_HG2_V1.md`.
+diff --git a/contract/PRODUCT_SCOPE_DECISIONS_V1.json b/contract/PRODUCT_SCOPE_DECISIONS_V1.json
+new file mode 100644
+index 0000000..609bf24
+--- /dev/null
++++ b/contract/PRODUCT_SCOPE_DECISIONS_V1.json
+@@ -0,0 +1,249 @@
++{
++  "contract_id": "HG2-PRODUCT-SCOPE-DECISIONS-V1",
++  "record_type": "OWNER_SCOPE_DECISIONS_NOT_IMPLEMENTATION_EVIDENCE",
++  "decision_authority": "Product Owner explicit instruction",
++  "baseline": {
++    "branch": "hg-genesis",
++    "sha": "d11e71ed8b34338b8568664b39bc777c926826d5"
++  },
++  "candidate_branch": "fix/hg2-single-product-readiness-20261013",
++  "decision_status": "RECORDED",
++  "implementation_status": "PARTIALLY_VERIFIED_EXACT_SHA; EXTERNAL_IMPACT_AND_PRODUCTION_GATES_BLOCKED",
++  "overall_gate": "BLOCKED_NO_GO",
++  "decisions": [
++    {
++      "id": "PSD-API-001",
++      "area": "HG_HTTP_API",
++      "choice": "C",
++      "disposition": "INTENTIONAL_REMOVAL_ALLOWED",
++      "scope": [
++        "/v1/sessions",
++        "/v1/history"
++      ],
++      "acceptance_criteria": [
++        {
++          "id": "AC-API-01",
++          "criterion": "Removal is explicit and traceable; endpoints are not silently omitted.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "AC-API-02",
++          "criterion": "Repository/source/client/config/documentation/deployment dependency inventory is complete and every dependency is dispositioned.",
++          "status": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN"
++        },
++        {
++          "id": "AC-API-03",
++          "criterion": "Supported HG2 public interface and removal behavior are documented; no undocumented compatibility shim remains.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "AC-API-04",
++          "criterion": "Canonical hg-genesis and source/evidence history remain unchanged.",
++          "status": "PASS_ON_SHA_46E90FB"
++        }
++      ],
++      "tests": [
++        {
++          "id": "T-API-01",
++          "purpose": "Inventory candidate and legacy route definitions and record exact findings.",
++          "expected": "Route presence/absence is evidenced from source and actual router, not inferred from one-tree grep.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "T-API-02",
++          "purpose": "Search available sources, configs, docs and client material for endpoint consumers.",
++          "expected": "Each consumer is migrated, retired by explicit decision, or blocks acceptance.",
++          "status": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN"
++        },
++        {
++          "id": "T-API-03",
++          "purpose": "Integration-test the actual candidate HTTP server/router.",
++          "expected": "Removed endpoints are not served; resulting status/error behavior is documented; remaining routes pass.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "T-API-04",
++          "purpose": "Run durable-state/history/identity/authorization regression tests.",
++          "expected": "No regression caused by endpoint removal; tests pass on exact candidate SHA.",
++          "status": "PASS_ON_SHA_46E90FB"
++        }
++      ]
++    },
++    {
++      "id": "PSD-BRIDGE-001",
++      "area": "GO_PHONE_BRIDGE_1_1",
++      "choice": "C",
++      "disposition": "INTENTIONAL_REMOVAL_ALLOWED",
++      "scope": [
++        "request/authentication protocol",
++        "replay protection",
++        "governed execution",
++        "evidence correlation"
++      ],
++      "acceptance_criteria": [
++        {
++          "id": "AC-BRIDGE-01",
++          "criterion": "Exact Bridge 1.1 capabilities and security/authority/evidence responsibilities are inventoried from source and protocol documents.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "AC-BRIDGE-02",
++          "criterion": "All consumers and operational dependencies are identified and dispositioned; no required workflow is silently lost.",
++          "status": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN"
++        },
++        {
++          "id": "AC-BRIDGE-03",
++          "criterion": "Removal is explicitly documented and does not imply the capabilities exist elsewhere.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "AC-BRIDGE-04",
++          "criterion": "HG2 phone-primary authority, fail-closed behavior, durable history and evidence integrity remain covered by regression tests.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "AC-BRIDGE-05",
++          "criterion": "No repository, branch, tag or historical evidence is deleted or archived as part of this scope decision.",
++          "status": "PASS_ON_SHA_46E90FB"
++        }
++      ],
++      "tests": [
++        {
++          "id": "T-BRIDGE-01",
++          "purpose": "Compare original Bridge 1.1 source/protocol capabilities with HG2 source/tests.",
++          "expected": "Every capability is intentionally removed, independently evidenced as replaced, or unresolved; no implicit equivalence.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "T-BRIDGE-02",
++          "purpose": "Search call sites, clients, configs, docs and workflows for bridge dependencies.",
++          "expected": "All consumers are retired or dispositioned; any unresolved consumer blocks acceptance.",
++          "status": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN"
++        },
++        {
++          "id": "T-BRIDGE-03",
++          "purpose": "Run fail-closed authority/authentication and history integrity regression tests.",
++          "expected": "Security and durability regressions pass on exact candidate SHA.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "T-BRIDGE-04",
++          "purpose": "Audit runtime capability declarations and user-facing docs.",
++          "expected": "No removed capability is claimed available without separate proof.",
++          "status": "PASS_ON_SHA_46E90FB"
++        }
++      ]
++    },
++    {
++      "id": "PSD-ID-001",
++      "area": "HG_HG2_PRODUCT_IDENTITY",
++      "choice": "A",
++      "disposition": "KEEP_PRODUCT_ID_HG_WITH_FORMAL_HG2_MAPPING",
++      "mapping": {
++        "product_id": "HG",
++        "product_name": "HG2",
++        "repository": "OAI-GIANG/HG2",
++        "canonical_branch": "hg-genesis",
++        "canonical_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
++        "rule": "HG is the durable/event identity; HG2 is the product/repository label. Never silently rewrite historical product_id values."
++      },
++      "acceptance_criteria": [
++        {
++          "id": "AC-ID-01",
++          "criterion": "PRODUCT_ID remains exactly HG in identity and history modules.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "AC-ID-02",
++          "criterion": "Formal mapping HG durable/event identity to HG2 product/repository label is consistent across contract, product metadata and operator-facing docs without changing durable ID.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "AC-ID-03",
++          "criterion": "Identity tests prove events, projections, replay output and audit exports retain product_id=HG.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "AC-ID-04",
++          "criterion": "Existing stores with product_id=HG reopen and verify without migration or history rewrite.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "AC-ID-05",
++          "criterion": "No implicit product_id=HG2 conversion; future migration requires a separate decision and contract.",
++          "status": "PASS_ON_SHA_46E90FB"
++        }
++      ],
++      "tests": [
++        {
++          "id": "T-ID-01",
++          "purpose": "Unit-test PRODUCT_ID and formal mapping contract.",
++          "expected": "PRODUCT_ID == HG and declared product_name == HG2.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "T-ID-02",
++          "purpose": "Create, replay, verify and audit-export a fresh store.",
++          "expected": "Durable/event identity remains HG; HG2 is metadata/product label only.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "T-ID-03",
++          "purpose": "Reopen and verify a pre-existing HG fixture.",
++          "expected": "Verification succeeds without rewriting event bytes or product_id.",
++          "status": "PASS_ON_SHA_46E90FB"
++        },
++        {
++          "id": "T-ID-04",
++          "purpose": "Static-scan identity-bearing code, metadata and docs.",
++          "expected": "No unapproved HG-to-HG2 durable identity conversion.",
++          "status": "PASS_ON_SHA_46E90FB"
++        }
++      ]
++    }
++  ],
++  "global_gates": [
++    {
++      "id": "G-EXACT-SHA",
++      "requirement": "All implementation acceptance tests and CI pass on exact candidate SHA.",
++      "status": "PASS_ON_SHA_46E90FB"
++    },
++    {
++      "id": "G-PRODUCTION",
++      "requirement": "Production authentication and applicable VPS/HTTPS/device E2E gates have evidence.",
++      "status": "BLOCKED"
++    },
++    {
++      "id": "G-HISTORY-TRACEABILITY",
++      "requirement": "Historical source/evidence references remain recorded and no past facts are misrepresented; historical metadata is preserved without history rewrite.",
++      "status": "PASS_HISTORICAL_RECORD_PRESERVED"
++    }
++  ],
++  "change_boundaries": {
++    "canonical_branch_mutation": "FORBIDDEN",
++    "merge": "FORBIDDEN",
++    "deploy": "FORBIDDEN",
++    "archive_or_delete_repository_or_branch": "FORBIDDEN",
++    "history_rewrite": "FORBIDDEN"
++  },
++  "evidence_rule": "This record is owner-approved scope only, not implementation or runtime certification. Keep BLOCKED/NO-GO until applicable production and external-impact criteria have evidence tied to the exact candidate SHA. Historical records are retained as facts; neither of the two retired governance controls is required by this scope policy.",
++  "provenance_exceptions": [
++    {
++      "commit": "b5f49770cba13cd995533cd140b7560d999c441e",
++      "finding": "GitHub reports this commit unsigned and its author/committer metadata does not match the authorized canonical identity.",
++      "handling": "Do not rewrite or remove history. Preserve this exception explicitly; subsequent commits must use canonical OAI-GIANG metadata.",
++      "status": "BLOCKED_REQUIRES_RECONCILIATION"
++    }
++  ],
++  "acceptance_evidence": {
++    "evidence_file": "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json",
++    "tested_source_sha": "46e90fb226e0c434158212a69717025745cad337",
++    "test_suite_status": "PASS_ON_SHA_46E90FB",
++    "remaining_blockers": [
++      "external HTTP API consumers/deployments unknown",
++      "external Phone Bridge consumers/deployments unknown",
++      "production auth and VPS/HTTPS/device E2E not run",
++      "no actual power-loss test"
++    ]
++  }
++}
+diff --git a/docs/GOVERNANCE_SIMPLIFICATION_HG2_V1.md b/docs/GOVERNANCE_SIMPLIFICATION_HG2_V1.md
+new file mode 100644
+index 0000000..e85c5d5
+--- /dev/null
++++ b/docs/GOVERNANCE_SIMPLIFICATION_HG2_V1.md
+@@ -0,0 +1,17 @@
++# HG2 Governance Simplification — V1
++
++**Policy status:** `PROPOSED IN ISOLATED WORK BRANCH`
++**Source:** `d1f67a35a70f5a048a8dba725d5d3c24e8f05283`
++**Canonical baseline (read-only):** `hg-genesis` @ `d11e71ed8b34338b8568664b39bc777c926826d5`
++
++## Policy change
++
++- Acceptance uses executable tests, explicit scope criteria, traceable artifacts, and the owner's recorded decision.
++- Existing SHA references, diffs, test logs, CI links, manifests, source-history references, and factual metadata remain available for traceability.
++- Historical evidence is preserved as originally recorded; this change does not rewrite commits or retroactively alter evidence.
++- Product readiness is assessed against actual external-impact and production criteria; this policy change does not itself certify readiness.
++- No merge, deployment, canonical mutation, branch deletion, or history rewrite is included.
++
++## Scope and state
++
++This proposal exists only on the isolated branch `governance/simplify-acceptance-policy-20261013`, forked locally from the candidate SHA. The canonical branch and existing candidate branch/PR are unchanged. External-consumer impact, production authentication, VPS/HTTPS/device end-to-end behavior, and real power-loss behavior remain separate open product criteria.
+diff --git a/docs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md b/docs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md
+index ad0d539..2751560 100644
+--- a/docs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md
++++ b/docs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md
+@@ -1,6 +1,6 @@
+ # HG2 × Hexis — Selective Absorption Report
+ 
+-**Status:** `IMPLEMENTED ON ISOLATED BRANCH / LOCAL TESTS PASS / PR #9 OPEN`
++**Status:** `MERGED INTO HG2 CANONICAL VIA PR #9 / POST-MERGE TESTS PASS`
+ **Date:** 2026-10-13
+ **Canonical repository:** `OAI-GIANG/HG2`
+ **Canonical branch:** `hg-genesis`
+@@ -72,10 +72,12 @@ No changes were made to `hg/authority.py`, `hg/history.py`, `hg/identity.py`, or
+ - `git diff --check`: passed.
+ - The original source branch passed all 23 tests locally. The integration PR now includes the repository's existing strict CircleCI unittest configuration so CI can validate the submitted tree.
+ 
+-## 6. Change boundary and remaining gates
++## 6. Final integration status
+ 
+-- Candidate branch: `feature/hexis-edge-schema-guard-20261013`
+-- Canonical `hg-genesis` must remain at `d11e71ed8b34338b8568664b39bc777c926826d5`.
+-- No merge, deployment, release, or canonical mutation is authorized or performed.
+-- The upstream archive has no Git metadata, so the exact upstream source commit remains unknown; no Hexis implementation code is copied.
+-- The canonical branch is kept unchanged until the authorized merge step. Production/VPS/HTTPS/device end-to-end behavior is outside this local test and remains unverified.
+\ No newline at end of file
++- Pull request #9 was merged into `hg-genesis` on 2026-10-13.
++- Canonical merge commit: `cdebaeed014371f033f14352f552c6d0d4e69198`.
++- Post-merge verification ran on that exact commit: **23 tests passed**, exit code 0, using `PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest discover -s tests -v`.
++- CircleCI run #28 passed on the submitted source commit `ddfd11e2af38ca9cbc38b3aa18e71e5a4c92b0cc`.
++- `git diff HEAD^ HEAD --check` passed; the SHA-256 evidence manifest verified every listed item.
++- The implementation adapts a request-validation principle; no Hexis implementation code or runtime dependency was copied. The inspected archive has no Git metadata, so the exact upstream commit remains unknown.
++- Production/VPS/HTTPS/device end-to-end behavior was not run by this change and is not claimed as verified.
+diff --git a/docs/LEGACY_HANDOFF_STATUS_HG2_V1.md b/docs/LEGACY_HANDOFF_STATUS_HG2_V1.md
+new file mode 100644
+index 0000000..48ca74e
+--- /dev/null
++++ b/docs/LEGACY_HANDOFF_STATUS_HG2_V1.md
+@@ -0,0 +1,7 @@
++# HG2 Legacy Handoff Status
++
++**State:** `RETIRED BY PROPOSED OWNER POLICY`
++
++This file is retained only as a historical artifact for an earlier workflow. It is not an operative instruction. The proposed current policy is documented in `docs/GOVERNANCE_SIMPLIFICATION_HG2_V1.md`.
++
++No historical evidence is rewritten. This retirement does not itself approve a merge, authorize deployment, change the canonical branch, or certify product readiness.
+diff --git a/docs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md b/docs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md
+new file mode 100644
+index 0000000..ed2e188
+--- /dev/null
++++ b/docs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md
+@@ -0,0 +1,56 @@
++# HG2 Product Scope Acceptance — V1
++
++**State:** `ACCEPTANCE IN PROGRESS — BLOCKED / NO-GO`
++**Candidate branch:** `fix/hg2-single-product-readiness-20261013`
++**Baseline protected:** `hg-genesis` @ `d11e71ed8b34338b8568664b39bc777c926826d5`
++**Decision record:** `contract/PRODUCT_SCOPE_DECISIONS_V1.json`
++**Source inventory:** `evidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json`
++
++## HTTP API scope — `PSD-API-001` (choice C)
++
++Read-only source inventory confirmed the legacy HG `runtime/hg_runtime/service.py` serves `GET /v1/history` and `POST /v1/sessions`; its tests and contracts are listed with immutable source commit, Git blob and SHA-256 references in the JSON inventory. The HG2 candidate does not ship that service module. Its `hg/edge.py` router exposes only `/health` and `/edge/*` routes. Acceptance tests exercise the candidate HTTP router and require all four method/path combinations for the legacy paths to return `404 NOT_FOUND`, without mutating edge state, while supported edge routes continue to work and authentication still fails closed.
++
++This proves behavior of the candidate router in a local integration test, not absence of unknown external clients or deployed copies. The read-only `OAI-GIANG/hg-ops` main tree at `2e75a6cbae2fa46e48ffa3fe67a134c385ee880e` was also searched, with no exact references found in its operational scripts, Nginx config or OpenAPI spec. External consumers/deployments are still not discoverable from repository source alone; this impact gate remains open until their status is independently established or explicitly accepted as a residual risk by the authorized owner.
++
++## Phone Bridge 1.1 scope — `PSD-BRIDGE-001` (choice C)
++
++The exact `OAI-GIANG/GO` branch `hg-phone-bridge-v1` was inspected at commit `4a20c319fe740f1a092ade4e407d693439629385`. It contains only `phone_bridge/README.md`, `bridge.py`, and `protocol.md`. The README calls the implementation a skeleton/not production; the protocol states staging-only and identifies production replay persistence, real governance/AEGR, durable execution, EvidenceLedger, device E2E and production transport as separate gates. A source-wide scan found no imports or references to the Bridge symbols outside that package on that branch. The read-only `OAI-GIANG/hg-ops` main tree at `2e75a6cbae2fa46e48ffa3fe67a134c385ee880e` also contained no exact Bridge symbol references. The HG2 candidate contains no Bridge module, protocol file, manifest entry or corresponding runtime symbols.
++
++The capability inventory covers request parsing, injected authentication, replay/time-window checks, authorization outcomes, governed execution submission, evidence correlation and safe errors. Tests assert that Bridge implementation/protocol symbols are not shipped in the HG2 runtime package and that the phone runtime remains fail-closed without a real verifier. This is intentional non-inclusion in HG2, not deletion of the original GO source, and not evidence that the bridge was production-ready or replaced. Unknown external consumers remain a residual risk.
++
++## Product identity — `PSD-ID-001` (choice A)
++
++`manifest.json` maps `product_id=HG` to `product_name=HG2`; runtime identity and event history retain `PRODUCT_ID="HG"`. New-store tests cover event records, replay, projection and audit export. A valid two-event store fixture was generated by extracting the exact canonical baseline implementation read-only at `d11e71ed8b34338b8568664b39bc777c926826d5`. The acceptance test copies that fixture, reopens and verifies it, and compares bytes of `history.jsonl`, `head.json`, `state.json` and `runtime_id` before/after to prove that reopening does not rewrite historical durable artifacts.
++
++## Acceptance IDs
++
++- `T-API-01`: legacy route/source inventory and candidate route behavior.
++- `T-API-02`: repository dependency inventory; external clients/deployments remain unknown and therefore block full impact closure.
++- `T-API-03`: candidate router integration test for `404 NOT_FOUND` on removed routes and continued operation of supported routes.
++- `T-API-04`: strict full-suite history, identity and authorization regression tests.
++- `T-BRIDGE-01`: exact Bridge source/protocol capability inventory.
++- `T-BRIDGE-02`: consumer search on available source branches; external consumers remain unknown.
++- `T-BRIDGE-03`: fail-closed phone authentication and history-integrity regression tests.
++- `T-BRIDGE-04`: runtime package/manifest static scan for Bridge implementation symbols.
++- `T-ID-01`: durable ID/product label mapping tests.
++- `T-ID-02`: fresh store create/replay/verify/audit export.
++- `T-ID-03`: reopen the pre-mapping canonical fixture and assert durable bytes are unchanged.
++- `T-ID-04`: identity/static-scan checks against unapproved HG-to-HG2 durable-ID conversion.
++
++## Evidence and release gates
++
++The test suite is evidence only for the exact source SHA executed. A clean checkout, `PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v`, output log SHA-256 and successful CI status tied to the same commit are required. A test failure discovered during work must be recorded and fixed before acceptance. No source-tree grep is substituted for router integration tests.
++
++Known limits remain: external consumers are unknown; production authentication, VPS/HTTPS/device E2E and actual power-loss tests have not been performed. Historical evidence and metadata remain preserved as facts. Keep the overall status `BLOCKED / NO-GO` until the external-impact and production criteria are resolved.
++
++No merge, deployment, canonical mutation, repository/branch archive or deletion, or history rewrite is authorized.
++
++
++## Exact-SHA evidence snapshot
++
++`evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json` records clean-checkout results for source commit `74ecb9ef310008d07e2799b567e50b2ebd41f271`, 54/54 strict tests, log SHA-256 `d4571599a93253ee562ef70ce5dcca10c2e395070a3cd54851318ff051eb0cd8`, and CircleCI run #17. The evidence-record commit itself must be re-tested on its own exact SHA. This evidence does not close the external-consumer or production gates.
++
++
++## Updated exact-SHA evidence
++
++`evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json` records clean-checkout results for source commit `46e90fb226e0c434158212a69717025745cad337`, including the read-only ops-repository inventory extension, 54/54 strict tests, log SHA-256 `1b687aeab6800f6d4f5e772793ccf6b1cad4e08d4e31ec63c10bd7ed40cfc1b6`, and CircleCI run #19. The evidence-record commit itself must be re-tested on its own exact SHA.
+diff --git a/docs/PRODUCT_SCOPE_DECISIONS_HG2_V1.md b/docs/PRODUCT_SCOPE_DECISIONS_HG2_V1.md
+new file mode 100644
+index 0000000..757e67c
+--- /dev/null
++++ b/docs/PRODUCT_SCOPE_DECISIONS_HG2_V1.md
+@@ -0,0 +1,62 @@
++# HG2 Product Scope Decision Record V1
++
++**Record status:** `RECORDED — SCOPE ONLY`
++**Implementation status:** `NOT PROVEN`
++**Readiness:** `BLOCKED / NO-GO`
++**Canonical baseline:** `hg-genesis` @ `d11e71ed8b34338b8568664b39bc777c926826d5`
++**Permitted work branch:** `fix/hg2-single-product-readiness-20261013`
++
++This record captures the Product Owner's explicit choices. It does not assert that the features have been removed, that any replacement exists, or that tests have passed. The machine-readable source of record is [`contract/PRODUCT_SCOPE_DECISIONS_V1.json`](../contract/PRODUCT_SCOPE_DECISIONS_V1.json).
++
++## 1. Decision register
++
++| Decision ID | Owner choice | Recorded disposition | What the choice does not prove |
++|---|---|---|---|
++| `PSD-API-001` | HG HTTP API = **C** | Intentional removal of `/v1/sessions` and `/v1/history` is allowed, subject to impact/dependency audit and acceptance tests. | Does not prove the endpoints are absent, consumers are migrated/retired, or runtime behavior is safe. |
++| `PSD-BRIDGE-001` | GO Phone Bridge 1.1 = **C** | Intentional removal of the Bridge 1.1 request/auth, replay protection, governed execution, and evidence-correlation capability set is allowed, subject to source/dependency inventory and regression tests. | Does not prove capabilities were removed, that equivalents exist, or that authority/security guarantees remain intact. |
++| `PSD-ID-001` | HG/HG2 identity = **A** | Keep durable `PRODUCT_ID="HG"`; formally map **HG = durable/event identity** and **HG2 = product/repository label**. Do not rewrite historical `product_id` values. | Does not prove all metadata/docs/tests consistently implement the mapping. |
++
++## 2. Acceptance criteria and tests
++
++### HG HTTP API — intentional removal allowed
++
++Acceptance criteria: `AC-API-01` through `AC-API-04` in the JSON contract.
++
++- `T-API-01`: inventory the routes in candidate and legacy source; record exact findings.
++- `T-API-02`: search all available source, configuration, documentation, and client material for consumers; each dependency must be retired, migrated, or explicitly block acceptance.
++- `T-API-03`: integration-test the actual candidate router/server. Confirm removed routes are not served and the resulting HTTP status/error contract is explicit; test remaining supported routes.
++- `T-API-04`: regression-test durable history, identity, authorization, and state after removal.
++
++### GO Phone Bridge 1.1 — intentional removal allowed
++
++Acceptance criteria: `AC-BRIDGE-01` through `AC-BRIDGE-05` in the JSON contract.
++
++- `T-BRIDGE-01`: inventory protocol capabilities from the original bridge source/protocol and compare against HG2. Every item must be marked intentionally removed, evidenced replacement, or unresolved; no implicit equivalence claims.
++- `T-BRIDGE-02`: search call sites, clients, configs, docs, and workflows for dependencies; unresolved consumers block acceptance.
++- `T-BRIDGE-03`: run fail-closed authority/authentication and durable-history regression tests at the exact candidate SHA.
++- `T-BRIDGE-04`: audit user-facing capability claims; do not claim removed Bridge 1.1 features are available without separate proof.
++
++### Product identity — keep `PRODUCT_ID=HG`, map product label to HG2
++
++Acceptance criteria: `AC-ID-01` through `AC-ID-05` in the JSON contract.
++
++- `T-ID-01`: unit-test `PRODUCT_ID == "HG"` and the formal mapping `product_id=HG` / `product_name=HG2`.
++- `T-ID-02`: create, replay, verify, and audit-export a store; durable/event identity must remain HG.
++- `T-ID-03`: reopen and verify a pre-existing HG fixture without rewriting event bytes or changing `product_id`.
++- `T-ID-04`: static-scan identity-bearing code, metadata, and docs for any unapproved HG-to-HG2 durable-ID conversion.
++
++## 3. Evidence status at record creation
++
++Implementation-level tests above remain `BLOCKED_NOT_RUN` until their required sources/routers/fixtures are available and the test is implemented and executed, except `T-ID-01`, which passed locally before the first commit. That local result is not a substitute for independent verification of the exact candidate SHA and CI. A passing contract-record test proves only that this decision record is structurally consistent; it does not pass the implementation gates.
++
++The previously recorded durability tests and CI result apply only to their exact recorded source SHA and do not prove these new scope decisions are implemented. No power-loss test is implied. The governance simplification proposal removes the two previously mandatory governance controls; this does not change any historic evidence record.
++
++Historical source and commit metadata remain recorded as originally observed. This policy proposal does not rewrite historical records or alter any existing commit.
++
++## 4. Global fail-closed gates
++
++- Exact-SHA acceptance tests and CI: `BLOCKED`.
++- Production authentication and applicable VPS/HTTPS/device E2E: `BLOCKED` until supported by evidence.
++- No merge, deploy, canonical branch mutation, repository/branch archive or deletion, or history rewrite is authorized by these choices.
++
++**Current conclusion: `BLOCKED / NO-GO`.** The Owner's scope decisions are recorded; implementation, test, review, and production evidence remain separate gates.
+diff --git a/docs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md b/docs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md
+new file mode 100644
+index 0000000..4b06d7b
+--- /dev/null
++++ b/docs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md
+@@ -0,0 +1,31 @@
++# HG2 Single-Product Parity Matrix V1
++
++Status: DRAFT / READ-ONLY AUDIT INPUT. This matrix records source-visible capabilities; it is not a certification of runtime behavior or complete historical parity.
++
++Audit references:
++- HG2 baseline: `hg-genesis` at `d11e71ed8b34338b8568664b39bc777c926826d5`.
++- HG2 integrity candidate inspected: `b28fff890f2d879a77e1fda3ce26c87f3bec7a45`.
++- GO branches inspected: `hg-genesis` at `c6f37fce653d8f7515404829d72c95605b227442`; `hg-phone-bridge-v1` at `4a20c319fe740f1a092ade4e407d693439629385`.
++- HG branch inspected: `hg-genesis` at `0495ac8bba4dc59bbf5b84ef7f38dd78bae7dead`.
++
++## Feature decisions
++
++| Capability | Source evidence | Proposed disposition for HG2 | Gate / caveat |
++|---|---|---|---|
++| Phone-primary canonical state owner | HG2 `contract/ARCHITECTURE_V1.md`, `hg/phone_runtime.py`, `hg/history.py` | KEEP | Must remain exactly one canonical state owner; no implicit dual-primary/forked history |
++| Append-only JSONL history, record hashes, replay, idempotency | HG and HG2 history implementations and tests | KEEP; strengthen fail-closed behavior | P0 integrity tests must pass on a clean checkout at the exact candidate SHA |
++| Checkpoint and state projection validation | HG2 `hg/history.py`, `tests/test_integrity_v2.py` | KEEP; fail closed on any missing/mismatched durable artifact | Missing checkpoint, projection, runtime identity, rollback, malformed record, and no-repair assertions required |
++| Runtime identity persistence and binding to history | HG2 `runtime_id`, record `runtime_id`, projection fields | KEEP | Identity must never be silently regenerated for an existing store; formal HG durable identity to HG2 product-label mapping is recorded; compatibility tests remain open |
++| Authority allowlist and forbidden actions | HG2 `hg/authority.py`; HG `runtime/hg_runtime/authority.py` | KEEP | Session creation must require a real injected authentication verifier; no caller-independent `authenticated=True` shortcut |
++| Device registration, heartbeat, status via edge relay | HG2 `hg/edge.py`, `hg/phone_runtime.py` | KEEP if edge connectivity remains a product requirement | Edge `DEVICES` storage is in-memory in the inspected source; durable device registry is not proven |
++| HG HTTP API `/v1/sessions` and `/v1/history` | HG `runtime/hg_runtime/service.py` | REMOVE_INTENTIONALLY_ALLOWED by owner choice C; removal still requires dependency inventory and exact-SHA acceptance tests | Legacy route source/tests inventoried in `evidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json`; candidate edge-router 404 integration tests added. External client/deployment inventory remains unknown |
++| GO Phone Bridge 1.1 request/auth/replay/governed-execution/evidence correlation | GO `phone_bridge/bridge.py`, `phone_bridge/protocol.md` on `hg-phone-bridge-v1` | REMOVE_INTENTIONALLY_ALLOWED by owner choice C; removal still requires source/dependency inventory and fail-closed regression tests | GO branch source/protocol and branch-local consumers inventoried in `evidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json`; candidate runtime exclusion/fail-closed tests added. External consumers and production replacement remain unproven |
++| Separate GO/HG/HG2 implementations evolving in parallel | Repository/branch inventories | REMOVE from active development workflow after HG2 acceptance | Keep source repositories and evidence read-only; do not delete or archive as part of this change |
++| HG2 identity label versus embedded product ID `HG` | HG2 `hg/identity.py`, `hg/history.py`, `manifest.json` | KEEP PRODUCT_ID=HG with formal mapping HG (durable/event identity) → HG2 (product/repository label) by owner choice A | Manifest mapping is declared; new-store replay/audit and pre-mapping canonical fixture byte-preservation tests added. Exact-SHA verification pending; do not rewrite historical IDs |
++
++## Current gate state
++
++- Feature parity: `BLOCKED` — scope acceptance plan is `docs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md`; source inventory is `evidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json`. External clients/deployments remain unknown and exact-SHA/CI evidence is pending.
++- History integrity: `CANDIDATE IMPLEMENTATION` — remediation must be tested on the exact candidate SHA; this document alone is not evidence of correctness.
++- Session authentication: `PARTIAL` — the runtime now requires a host-supplied verifier and fails closed if missing/rejecting/raising; production credential verification and authority integration remain to be independently assessed.
++- Production / VPS / HTTPS / device E2E: `NOT_RUN` in this branch; no deployment is authorized.
+diff --git a/evidence/HEXIS-20261013/SHA256SUMS.txt b/evidence/HEXIS-20261013/SHA256SUMS.txt
+index 0832aff..20857a3 100644
+--- a/evidence/HEXIS-20261013/SHA256SUMS.txt
++++ b/evidence/HEXIS-20261013/SHA256SUMS.txt
+@@ -8,4 +8,4 @@ e2e8bbc2937df0cefaadd48539afd02e68d2d3aa69bf457ad9fcfc39471b858f  evidence/HEXIS
+ df28435239055ccd317142f1e73af6c41999c368350bb14eacecdaf42ebc7538  evidence/HEXIS-20261013/focused-guard-tests.log
+ 9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  evidence/HEXIS-20261013/git-diff-check.exit_code.txt
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  evidence/HEXIS-20261013/git-diff-check.log
+-1ddef649fe44c8a92d01c48b110c412d0e0180105bc05dda414b0f2c354829df  docs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md
++7ca668ac644f47c0a3da61f8cd312a86dbb05fc87535cc169de3a7fc10fe9095  docs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md
+diff --git a/evidence/HG2_DURABILITY_P0_EVIDENCE_51676A7.json b/evidence/HG2_DURABILITY_P0_EVIDENCE_51676A7.json
+new file mode 100644
+index 0000000..28094cd
+--- /dev/null
++++ b/evidence/HG2_DURABILITY_P0_EVIDENCE_51676A7.json
+@@ -0,0 +1,54 @@
++{
++  "evidence_id": "HG2-DURABILITY-P0-51676A7",
++  "evidence_schema": "HG2_DURABILITY_P0_EVIDENCE_V1",
++  "source_commit_sha": "51676a7b8c813f512bdc262708cfed92e39590a0",
++  "source_tree_sha": "38b41e088cb50bcfa845ed03d11b4f878c870495",
++  "parent_commit_sha": "e7b72d05de9441e662b1ccc4cc56d6c8b1638adc",
++  "repository": "OAI-GIANG/HG2",
++  "branch": "fix/hg2-single-product-readiness-20261013",
++  "canonical_baseline_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
++  "clean_checkout": {
++    "verified": true,
++    "head_sha": "51676a7b8c813f512bdc262708cfed92e39590a0",
++    "worktree_status_entries": 0
++  },
++  "checks": {
++    "git_diff_check": "PASS",
++    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
++    "exit_code": 0,
++    "tests_run": 38,
++    "result": "OK",
++    "python_version": "3.14.6",
++    "platform": "Android-16-aarch64-64bit-ELF",
++    "log_artifact_path": "/data/data/com.termux/files/home/hg2-durability-p0-clean-tests-51676a7.log",
++    "log_bytes": 4701,
++    "log_sha256": "6d3ad9b95810fe54eee2d55f62040c4b127927c3a53a077c87de4e3134ec200b"
++  },
++  "ci": {
++    "context": "ci/circleci: verify",
++    "state": "success",
++    "tested_sha": "51676a7b8c813f512bdc262708cfed92e39590a0",
++    "url": "https://circleci.com/gh/OAI-GIANG/HG2/12"
++  },
++  "coverage": [
++    "file fsync failure",
++    "directory fsync failure",
++    "runtime_id initialization directory fsync failure",
++    "atomic replace failure",
++    "persistence failure poisons store",
++    "six concurrent writer processes preserve hash chain"
++  ],
++  "not_claimed": [
++    "No real power-loss or forced-kernel-crash test was performed",
++    "No production filesystem durability guarantee beyond observed fsync behavior is claimed"
++  ],
++  "provenance": {
++    "author_name": "OAI-GIANG",
++    "author_email": "337459912+OAI-GIANG@users.noreply.github.com",
++    "committer_name": "OAI-GIANG",
++    "committer_email": "337459912+OAI-GIANG@users.noreply.github.com",
++    "signature_status": "unsigned; signature verification not provided"
++  },
++  "independent_review": "PENDING",
++  "readiness": "NO-GO: non-code readiness gates remain unresolved"
++}
+diff --git a/evidence/HG2_P0_SINGLE_PRODUCT_EVIDENCE_E0C3D35.json b/evidence/HG2_P0_SINGLE_PRODUCT_EVIDENCE_E0C3D35.json
+new file mode 100644
+index 0000000..af58029
+--- /dev/null
++++ b/evidence/HG2_P0_SINGLE_PRODUCT_EVIDENCE_E0C3D35.json
+@@ -0,0 +1,58 @@
++{
++  "evidence_schema": "HG2_P0_TEST_EVIDENCE_V1",
++  "status": "PASS_LOCAL_CLEAN_CHECKOUT_ONLY",
++  "tested_source_commit": "e0c3d3578d54b830cd55f50a075e3862b3b13cce",
++  "tested_tree_sha": "28bf83e10f155f224f748dc75910585810bcafdb",
++  "branch": "fix/hg2-single-product-readiness-20261013",
++  "baseline_genesis_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
++  "checkout": "fresh clone of https://github.com/OAI-GIANG/HG2.git branch fix/hg2-single-product-readiness-20261013; checked out commit e0c3d3578d54b830cd55f50a075e3862b3b13cce",
++  "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
++  "result": {
++    "exit_code": 0,
++    "tests_run": 30,
++    "failures": 0,
++    "errors": 0,
++    "resource_warnings": "none observed; ResourceWarning promoted to error"
++  },
++  "environment": {
++    "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
++    "platform": "Android-16-aarch64-64bit-ELF",
++    "machine": "aarch64",
++    "device": "Android / Termux, ARM64"
++  },
++  "clean_checkout_log": {
++    "path": "evidence/hg2-single-product-clean-tests-e0c3d35.log",
++    "sha256": "e23d84c045938f6fe7f56fe3056dfff82431bb115560ff94e6f2308096080da2",
++    "bytes": 3435
++  },
++  "source_files_sha256": {
++    "hg/history.py": "b24e7b79983bb93e6cb38ae21c92e84cc048bf9ba0d9aa2f5435890988608799",
++    "hg/phone_runtime.py": "ee6297a37238dbaaef380731f14393e70b60fc80d04c51e84c114acb3c070539",
++    "tests/test_core.py": "ded000e4753a89c642eb7002a1b496279c2e3f693e2ee2342e908539adf95b56",
++    "tests/test_integrity_v2.py": "97bfecda1322870d351cab5576ecae4fcf6f1784e2317e4a550933ec732fcc39",
++    "docs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md": "17094215e11ad62acdcfdb698ebf8d9d344dee1a450332843e7297f9df5ee6d7"
++  },
++  "checks": {
++    "git_diff_check": "PASS on clean checkout",
++    "independent_review": "PENDING",
++    "external_CI": {
++      "source_commit": "e0c3d3578d54b830cd55f50a075e3862b3b13cce",
++      "status": "PASS",
++      "context": "ci/circleci: verify",
++      "target_url": "https://circleci.com/gh/OAI-GIANG/HG2/8",
++      "evidence_head_commit": "b870b0b252bb6ec024fbeaaa1c7e299110f196c6",
++      "evidence_head_status": "PASS",
++      "evidence_head_target_url": "https://circleci.com/gh/OAI-GIANG/HG2/9",
++      "configuration": "CircleCI job runs clean-checkout assertion, git diff --check HEAD^ HEAD, and the unittest suite with ResourceWarning promoted to ERROR"
++    },
++    "production_device_E2E": "NOT_RUN",
++    "merge": "NOT_PERFORMED",
++    "deploy": "NOT_PERFORMED"
++  },
++  "limitations": [
++    "Local test pass is not an independent review.",
++    "Authentication now fails closed unless a host-supplied verifier returns literal True; production credential verifier integration is not proven.",
++    "Product identity naming HG versus HG2 remains an explicit decision gate.",
++    "GO/HG feature parity decisions remain incomplete."
++  ]
++}
+diff --git a/evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json b/evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json
+new file mode 100644
+index 0000000..eef8f6e
+--- /dev/null
++++ b/evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json
+@@ -0,0 +1,54 @@
++{
++  "evidence_id": "HG2-PRODUCT-SCOPE-ACCEPTANCE-46E90FB",
++  "evidence_kind": "CLEAN_CHECKOUT_TEST_AND_CI_EVIDENCE",
++  "source_commit": "46e90fb226e0c434158212a69717025745cad337",
++  "source_tree": "1120be25e8c225e11201016cac1bfd92405ea19c",
++  "branch": "fix/hg2-single-product-readiness-20261013",
++  "clean_checkout": true,
++  "worktree_clean_before_test": true,
++  "worktree_clean_after_test": true,
++  "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
++  "exit_code": 0,
++  "tests_run": 54,
++  "test_result": "OK",
++  "log": {
++    "path_outside_repository": "$HOME/hg2-scope-acceptance-46e90fb.log",
++    "sha256": "1b687aeab6800f6d4f5e772793ccf6b1cad4e08d4e31ec63c10bd7ed40cfc1b6",
++    "bytes": 7730
++  },
++  "ci": {
++    "provider": "CircleCI",
++    "context": "ci/circleci: verify",
++    "state": "success",
++    "run_url": "https://circleci.com/gh/OAI-GIANG/HG2/19",
++    "status_observed_at": "2026-10-13T04:02:33Z",
++    "commit_sha": "46e90fb226e0c434158212a69717025745cad337"
++  },
++  "acceptance_results": {
++    "T-API-01": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
++    "T-API-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
++    "T-API-03": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
++    "T-API-04": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
++    "T-BRIDGE-01": "PASS_ON_SOURCE_SHA_INVENTORY",
++    "T-BRIDGE-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
++    "T-BRIDGE-03": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
++    "T-BRIDGE-04": "PASS_ON_SOURCE_SHA_STATIC_PACKAGE_SCAN",
++    "T-ID-01": "PASS_ON_SOURCE_SHA",
++    "T-ID-02": "PASS_ON_SOURCE_SHA",
++    "T-ID-03": "PASS_ON_SOURCE_SHA_BYTE_PRESERVATION_FIXTURE",
++    "T-ID-04": "PASS_ON_SOURCE_SHA"
++  },
++  "repositories_in_scope": [
++    {"repository": "OAI-GIANG/HG2", "branch": "fix/hg2-single-product-readiness-20261013", "sha": "46e90fb226e0c434158212a69717025745cad337"},
++    {"repository": "OAI-GIANG/HG", "branch": "hg-genesis", "sha": "0495ac8bba4dc59bbf5b84ef7f38dd78bae7dead"},
++    {"repository": "OAI-GIANG/GO", "branch": "hg-phone-bridge-v1", "sha": "4a20c319fe740f1a092ade4e407d693439629385"},
++    {"repository": "OAI-GIANG/hg-ops", "branch": "main", "sha": "2e75a6cbae2fa46e48ffa3fe67a134c385ee880e"}
++  ],
++  "scope_limitations": [
++    "External clients/deployments for the removed API and Bridge are not enumerable from inspected repository sources; those impact gates remain BLOCKED.",
++    "This test run does not establish production authentication, VPS/HTTPS/device E2E, independent review, or real power-loss behavior.",
++    "The previously recorded provenance exception is not rewritten or erased; provenance gate remains BLOCKED.",
++    "This evidence describes source commit 46e90fb; the later evidence-record commit must be independently clean-checked and tested at its own exact SHA."
++  ],
++  "overall_gate": "BLOCKED_NO_GO"
++}
+diff --git a/evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_49AFBC1.json b/evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_49AFBC1.json
+new file mode 100644
+index 0000000..b787e0a
+--- /dev/null
++++ b/evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_49AFBC1.json
+@@ -0,0 +1,54 @@
++{
++  "evidence_id": "HG2-PRODUCT-SCOPE-ACCEPTANCE-49AFBC1",
++  "evidence_kind": "CLEAN_CHECKOUT_TEST_AND_CI_EVIDENCE",
++  "source_commit": "49afbc1013aeb5adcb3b7d5854d458197552525c",
++  "source_tree": "3e3cf261e902f4b7e3e1edf340ef5ef583bc57ae",
++  "branch": "fix/hg2-single-product-readiness-20261013",
++  "clean_checkout": true,
++  "worktree_clean_before_test": true,
++  "worktree_clean_after_test": true,
++  "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
++  "exit_code": 0,
++  "tests_run": 53,
++  "test_result": "OK",
++  "log": {
++    "path_outside_repository": "$HOME/hg2-scope-acceptance-49afbc1.log",
++    "sha256": "034e1e608551db0898e33552d06d4db1a585ebf5e209fe7ee273ec4e038bc44b",
++    "bytes": 7548
++  },
++  "ci": {
++    "provider": "CircleCI",
++    "context": "ci/circleci: verify",
++    "state": "success",
++    "run_url": "https://circleci.com/gh/OAI-GIANG/HG2/16",
++    "status_observed_at": "2026-10-13T03:58:09Z",
++    "commit_sha": "49afbc1013aeb5adcb3b7d5854d458197552525c"
++  },
++  "acceptance_results": {
++    "T-API-01": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
++    "T-API-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
++    "T-API-03": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
++    "T-API-04": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
++    "T-BRIDGE-01": "PASS_ON_SOURCE_SHA_INVENTORY",
++    "T-BRIDGE-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
++    "T-BRIDGE-03": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
++    "T-BRIDGE-04": "PASS_ON_SOURCE_SHA_STATIC_PACKAGE_SCAN",
++    "T-ID-01": "PASS_ON_SOURCE_SHA",
++    "T-ID-02": "PASS_ON_SOURCE_SHA",
++    "T-ID-03": "PASS_ON_SOURCE_SHA_BYTE_PRESERVATION_FIXTURE",
++    "T-ID-04": "PASS_ON_SOURCE_SHA"
++  },
++  "development_failures_resolved_before_this_evidence": [
++    "A pre-commit fixture test initially assumed the genesis event_id was the literal string genesis; the implementation generates a UUID. The fixture manifest now records the actual immutable event IDs, and the clean-checkout test passes.",
++    "An earlier uncommitted decision-record assertion used a wording that did not match the JSON rule. The assertion was aligned to the actual contract text before the passing commit."
++  ],
++  "scope_limitations": [
++    "External clients/deployments for the removed API and Bridge are not enumerable from the inspected repository sources; those impact gates remain BLOCKED.",
++    "This test run does not establish production authentication, VPS/HTTPS/device E2E, independent review, or real power-loss behavior.",
++    "The previously recorded provenance exception is not rewritten or erased; provenance gate remains BLOCKED."
++  ],
++  "overall_gate": "BLOCKED_NO_GO",
++  "development_failures_resolved_before_evidence_commit": [
++    "The evidence-update test initially expected implementation_status=NOT_PROVEN; the contract was intentionally advanced to PARTIALLY_VERIFIED_EXACT_SHA while overall readiness remains BLOCKED_NO_GO. The assertion now checks the exact fail-closed blocker state."
++  ]
++}
+diff --git a/evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json b/evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json
+new file mode 100644
+index 0000000..216e6ef
+--- /dev/null
++++ b/evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json
+@@ -0,0 +1,51 @@
++{
++  "evidence_id": "HG2-PRODUCT-SCOPE-ACCEPTANCE-74ECB9E",
++  "evidence_kind": "CLEAN_CHECKOUT_TEST_AND_CI_EVIDENCE",
++  "source_commit": "74ecb9ef310008d07e2799b567e50b2ebd41f271",
++  "source_tree": "acd6620f0c4f98fa311887e49affe0aa837acd79",
++  "branch": "fix/hg2-single-product-readiness-20261013",
++  "clean_checkout": true,
++  "worktree_clean_before_test": true,
++  "worktree_clean_after_test": true,
++  "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
++  "exit_code": 0,
++  "tests_run": 54,
++  "test_result": "OK",
++  "log": {
++    "path_outside_repository": "$HOME/hg2-scope-acceptance-74ecb9e.log",
++    "sha256": "d4571599a93253ee562ef70ce5dcca10c2e395070a3cd54851318ff051eb0cd8",
++    "bytes": 7730
++  },
++  "ci": {
++    "provider": "CircleCI",
++    "context": "ci/circleci: verify",
++    "state": "success",
++    "run_url": "https://circleci.com/gh/OAI-GIANG/HG2/17",
++    "status_observed_at": "2026-10-13T03:59:34Z",
++    "commit_sha": "74ecb9ef310008d07e2799b567e50b2ebd41f271"
++  },
++  "acceptance_results": {
++    "T-API-01": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
++    "T-API-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
++    "T-API-03": "PASS_ON_SOURCE_SHA_AND_CANDIDATE_ROUTER_TEST",
++    "T-API-04": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
++    "T-BRIDGE-01": "PASS_ON_SOURCE_SHA_INVENTORY",
++    "T-BRIDGE-02": "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN",
++    "T-BRIDGE-03": "PASS_ON_SOURCE_SHA_FULL_REGRESSION_SUITE",
++    "T-BRIDGE-04": "PASS_ON_SOURCE_SHA_STATIC_PACKAGE_SCAN",
++    "T-ID-01": "PASS_ON_SOURCE_SHA",
++    "T-ID-02": "PASS_ON_SOURCE_SHA",
++    "T-ID-03": "PASS_ON_SOURCE_SHA_BYTE_PRESERVATION_FIXTURE",
++    "T-ID-04": "PASS_ON_SOURCE_SHA"
++  },
++  "scope_limitations": [
++    "External clients/deployments for the removed API and Bridge are not enumerable from the inspected repository sources; those impact gates remain BLOCKED.",
++    "This test run does not establish production authentication, VPS/HTTPS/device E2E, independent review, or real power-loss behavior.",
++    "The previously recorded provenance exception is not rewritten or erased; provenance gate remains BLOCKED.",
++    "This evidence describes source commit 74ecb9e; the later evidence-record commit must be independently clean-checked and tested at its own exact SHA."
++  ],
++  "overall_gate": "BLOCKED_NO_GO",
++  "development_failures_resolved_before_evidence_record_commit": [
++    "The new evidence-file assertion initially used pathlib division on ROOT, which is a string in the existing test module. The path is now explicitly converted to pathlib.Path; this was fixed before the evidence-record commit and is not part of the 54-test result recorded for source commit 74ecb9e."
++  ]
++}
+diff --git a/evidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json b/evidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json
+new file mode 100644
+index 0000000..92912fe
+--- /dev/null
++++ b/evidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json
+@@ -0,0 +1,242 @@
++{
++  "inventory_id": "HG2-SCOPE-DEPENDENCY-INVENTORY-V1",
++  "purpose": "Source-level dependency and capability inventory for owner-approved intentional scope removal; not a claim of production equivalence or external-consumer absence.",
++  "candidate_before_acceptance_tests": {
++    "repository": "OAI-GIANG/HG2",
++    "branch": "fix/hg2-single-product-readiness-20261013",
++    "sha": "d834b7424c89c346b9db55d79dd869ecca46cd31",
++    "tree": "26f8e74307de41af317e035be9bd638ca035cffb"
++  },
++  "repositories_examined": [
++    {
++      "repository": "OAI-GIANG/HG2",
++      "branch": "fix/hg2-single-product-readiness-20261013",
++      "sha": "d834b7424c89c346b9db55d79dd869ecca46cd31",
++      "method": "Candidate source, manifest, tests, docs, CI config and static reference scan."
++    },
++    {
++      "repository": "OAI-GIANG/HG",
++      "branch": "hg-genesis",
++      "sha": "0495ac8bba4dc59bbf5b84ef7f38dd78bae7dead",
++      "method": "Read-only shallow clone; legacy route implementation, tests, contracts and architecture inspected."
++    },
++    {
++      "repository": "OAI-GIANG/GO",
++      "branch": "hg-phone-bridge-v1",
++      "sha": "4a20c319fe740f1a092ade4e407d693439629385",
++      "tree": "31cca9787636fa336317f6b47f33641cd97d282f",
++      "method": "Read-only shallow clone; branch file inventory and references outside phone_bridge scanned."
++    },
++    {
++      "repository": "OAI-GIANG/hg-ops",
++      "branch": "main",
++      "sha": "2e75a6cbae2fa46e48ffa3fe67a134c385ee880e",
++      "tree": "ed78c6fa94938b811e7640b76394e1524015e8cb",
++      "method": "Read-only shallow clone; operational scripts, Nginx config, OpenAPI spec and source searched for legacy HTTP route and Bridge symbols; no exact references found."
++    }
++  ],
++  "http_api": {
++    "decision_id": "PSD-API-001",
++    "owner_choice": "C",
++    "disposition": "NOT_INCLUDED_IN_HG2; ROUTES_NOT_SERVED_BY_HG2_EDGE_ROUTER",
++    "legacy_source": {
++      "repository": "OAI-GIANG/HG",
++      "branch": "hg-genesis",
++      "commit": "0495ac8bba4dc59bbf5b84ef7f38dd78bae7dead",
++      "files": [
++        {
++          "path": "runtime/hg_runtime/service.py",
++          "git_blob": "3b301a163663584adf365e1a2b5c56c2bd3721cd",
++          "sha256": "e579e488b566b76fd2c02e2704a969fc0ca50c78beb39fb70d2459969b130e18",
++          "routes": [
++            {
++              "method": "GET",
++              "path": "/v1/history",
++              "line": 152
++            },
++            {
++              "method": "POST",
++              "path": "/v1/sessions",
++              "line": 161
++            }
++          ]
++        },
++        {
++          "path": "tests/test_hg_runtime.py",
++          "git_blob": "6a9772626c1289181e2978e946a11791410b29a8",
++          "sha256": "a6d54944ee16014f397997bab655d0b7b722a1e872ca9cdee61aee3a10c07f44",
++          "relevance": "Exercises legacy /v1/sessions authentication, success and error behavior."
++        },
++        {
++          "path": "tests/test_hg_native_history.py",
++          "git_blob": "b0b4074be2ab64997aad764b40a4dcd3d948f0b6",
++          "sha256": "8fd73b4fd588f5cbdc84b2360de27c795365c38f659b4993c71cc9a39728c18d",
++          "relevance": "Exercises /v1/sessions through the legacy service."
++        },
++        {
++          "path": "tests/test_hg_security_hardening.py",
++          "git_blob": "289873fb542b8080cbe152b5597e6064555cdea9",
++          "sha256": "1baf3685884512040156d356a0f1aeaff1239fbd127d9be401490b4d9c6ce701",
++          "relevance": "Adversarial tests against the legacy HTTP service."
++        },
++        {
++          "path": "contracts/HG_RUNTIME_CONTRACT_V1.md",
++          "git_blob": "e3697e1e711c85ee525a61608426d8e511b865fa",
++          "sha256": "5c9ff8ab5113636b51111135fc76acf96ca02e8f4f049a67dc126d3da3beae13"
++        },
++        {
++          "path": "control/HG_ACCEPTANCE_MATRIX_V1.md",
++          "git_blob": "1592899a49f0ce2d39182fe3fa1dda04c7a113bf",
++          "sha256": "7ff7c958eebff5e5024843a8353167f513e56696e713def1849c635df2f2c784"
++        },
++        {
++          "path": "control/HG_ARCHITECTURE_V1.md",
++          "git_blob": "0a5e6055f6ee5e4ec486c00e6d7b4685e3b76662",
++          "sha256": "ecf85ca4372ebb1b4995bcf76fc211609a550c5822814ed8688da6eac97dd54e"
++        }
++      ]
++    },
++    "candidate_hg2": {
++      "http_router": "hg/edge.py",
++      "supported_routes": [
++        "GET /health",
++        "GET /edge/status",
++        "POST /edge/register",
++        "POST /edge/heartbeat"
++      ],
++      "legacy_service_module_in_manifest": false,
++      "runtime_service_module_present": false,
++      "unsupported_get_behavior": "404 {ok:false,error:NOT_FOUND}",
++      "unsupported_post_behavior": "404 {ok:false,error:NOT_FOUND}"
++    },
++    "known_dependencies": {
++      "legacy_in_repo": "Legacy service tests and documentation listed above; no external client inventory established by source audit.",
++      "candidate_hg2": "No route implementation/import/config references for the two legacy paths found; candidate edge-router integration tests added.",
++      "external_deployments_or_clients": "UNKNOWN_NOT_ACCESSIBLE_FROM_REPOSITORY_SOURCES",
++      "operations_repo_scan": {
++        "repository": "OAI-GIANG/hg-ops",
++        "commit": "2e75a6cbae2fa46e48ffa3fe67a134c385ee880e",
++        "result": "No references to /v1/sessions, /v1/history or runtime.hg_runtime.service found in inspected tree.",
++        "limitation": "A source scan cannot prove no external clients, manually configured deployments, or untracked operational systems exist."
++      }
++    },
++    "acceptance_boundary": "Direct candidate-router tests prove behavior of this candidate router only. They do not prove absence of unknown external clients or deployed copies."
++  },
++  "phone_bridge": {
++    "decision_id": "PSD-BRIDGE-001",
++    "owner_choice": "C",
++    "disposition": "BRIDGE_1_1_NOT_INCLUDED_IN_HG2; ORIGINAL_GO_SOURCE_PRESERVED_UNCHANGED",
++    "source": {
++      "repository": "OAI-GIANG/GO",
++      "branch": "hg-phone-bridge-v1",
++      "commit": "4a20c319fe740f1a092ade4e407d693439629385",
++      "tree": "31cca9787636fa336317f6b47f33641cd97d282f",
++      "files": [
++        {
++          "path": "phone_bridge/bridge.py",
++          "git_blob": "4354320045d8ac41c9cea9e1958d7998f2e8833f",
++          "sha256": "a9489bec18dc0519483a9a1f6e669c3ef2b8dfa3bbbe2ff9f990b35d05db152b"
++        },
++        {
++          "path": "phone_bridge/protocol.md",
++          "git_blob": "262c5a8e51aef97bbf4706ec3bd5cbb6308dc348",
++          "sha256": "0a191423f98843fdad96cc20a64d2f1b68e55df075d6996b9197e3a3239a5adb"
++        },
++        {
++          "path": "phone_bridge/README.md",
++          "git_blob": "de4e0a2f17beabc25787d35174794e018e76aa36",
++          "sha256": "c29cdb82d3af157b4ab4e941ac70f7ec4d9f3098e676f517f4e43db54e9e496a"
++        }
++      ],
++      "source_status": "README calls it skeleton/not production; protocol states staging-only and separates production replay persistence, real governance/AEGR, durable execution, EvidenceLedger, device E2E and production transport as verification gates."
++    },
++    "capability_inventory": [
++      {
++        "capability": "Protocol 1.1 request schema, UUID request_id, operation, timestamp, nonce and payload",
++        "source": "phone_bridge/bridge.py parse_request"
++      },
++      {
++        "capability": "Injected credential authentication verifier",
++        "source": "phone_bridge/bridge.py handle"
++      },
++      {
++        "capability": "Replay/time-window guard keyed by request_id and nonce; persistent production store required",
++        "source": "ReplayGuard, RuntimeStoreReplayAdapter, protocol.md Replay"
++      },
++      {
++        "capability": "Authorization outcomes ALLOW/DENY/BLOCKED/CONFLICT/UNKNOWN; only ALLOW submits execution",
++        "source": "GateOutcome, handle, protocol.md GateOutcome"
++      },
++      {
++        "capability": "Governed execution submission with distinct request/authorization/execution identities",
++        "source": "GovernedExecutionSubmission, ExecutionIdentity, protocol.md Execution boundary"
++      },
++      {
++        "capability": "Evidence correlation reference; client-supplied evidence truth prohibited",
++        "source": "EvidenceCorrelation, protocol.md Evidence"
++      },
++      {
++        "capability": "Stable safe errors and internal-error redaction",
++        "source": "BridgeError, safe_error, protocol.md Errors"
++      }
++    ],
++    "consumer_search": {
++      "branch_file_count": 3,
++      "files_outside_phone_bridge": 0,
++      "imports_or_symbol_references_outside_bridge_package_found": false,
++      "candidate_hg2_bridge_module_or_protocol_found": false,
++      "candidate_hg2_manifest_bridge_module_found": false,
++      "external_clients_or_deployments": "UNKNOWN_NOT_ACCESSIBLE_FROM_REPOSITORY_SOURCES",
++      "operations_repo_scan": {
++        "repository": "OAI-GIANG/hg-ops",
++        "commit": "2e75a6cbae2fa46e48ffa3fe67a134c385ee880e",
++        "result": "No references to phone_bridge, ReplayGuard, GovernedExecutionSubmission or EvidenceCorrelation found in inspected tree.",
++        "limitation": "External clients/deployments remain unknown."
++      }
++    },
++    "acceptance_boundary": "This proves the Bridge skeleton is not shipped by the inspected HG2 tree and no in-branch consumer exists in the inspected GO branch. It does not prove production-grade capabilities existed, were replaced, or that external clients do not depend on them."
++  },
++  "identity": {
++    "decision_id": "PSD-ID-001",
++    "owner_choice": "A",
++    "durable_product_id": "HG",
++    "product_label": "HG2",
++    "metadata_file": "manifest.json",
++    "runtime_constants": [
++      "hg/identity.py: PRODUCT_ID = HG",
++      "hg/history.py: PRODUCT_ID = HG"
++    ],
++    "pre_mapping_fixture": {
++      "directory": "tests/fixtures/hg_store_pre_mapping",
++      "generated_from_canonical_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
++      "durable_files": [
++        {
++          "path": "tests/fixtures/hg_store_pre_mapping/history.jsonl",
++          "sha256": "9f5296d8d9e06a71f7768f7cc09085268d75c1d52f4bda13cc9c6a0bf69c9faf"
++        },
++        {
++          "path": "tests/fixtures/hg_store_pre_mapping/head.json",
++          "sha256": "fe28f0a5bc5140cd2e89a945e6e3d48167d37c44b2f4ad5b7825ab8c8c6b579e"
++        },
++        {
++          "path": "tests/fixtures/hg_store_pre_mapping/state.json",
++          "sha256": "8983a94a29a885fa984fb9700586ec9b7de05fffd9e8090036f299da18ebb75a"
++        },
++        {
++          "path": "tests/fixtures/hg_store_pre_mapping/runtime_id",
++          "sha256": "a2d2d36056312c874bb376e2635bf5e3d524a7ff2e5220fd04aadccba63af893"
++        }
++      ],
++      "fixture_scope": "Valid two-event store generated with implementation extracted read-only from exact canonical baseline; candidate reopening must preserve byte-identical durable artifacts."
++    }
++  },
++  "risk_and_limits": [
++    "External HTTP API clients/deployments cannot be enumerated from repository sources alone; do not claim global consumer absence.",
++    "Bridge source explicitly labels itself a skeleton/staging-only; its existence is not evidence of production readiness.",
++    "No changes were made to OAI-GIANG/HG or OAI-GIANG/GO; both are read-only inventory inputs.",
++    "Production authentication, VPS/HTTPS/device E2E and actual power-loss tests have not been performed.",
++    "The OAI-GIANG/hg-ops main branch at 2e75a6cbae2fa46e48ffa3fe67a134c385ee880e was inspected read-only; no exact API/Bridge references were found, but this does not enumerate external systems."
++  ],
++  "status": "INVENTORY_RECORDED_ACCEPTANCE_TESTS_PENDING_EXACT_SHA_CI",
++  "overall_gate": "BLOCKED_NO_GO"
++}
+diff --git a/evidence/hg2-single-product-clean-tests-e0c3d35.log b/evidence/hg2-single-product-clean-tests-e0c3d35.log
+new file mode 100644
+index 0000000..2e927ac
+--- /dev/null
++++ b/evidence/hg2-single-product-clean-tests-e0c3d35.log
+@@ -0,0 +1,35 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_session_creation_fails_closed_when_verifier_rejects_or_raises (test_core.PhoneTests.test_session_creation_fails_closed_when_verifier_rejects_or_raises) ... ok
++test_session_creation_fails_closed_without_verifier (test_core.PhoneTests.test_session_creation_fails_closed_without_verifier) ... ok
++test_checkpoint_rollback_mismatch (test_integrity_v2.IntegrityPolicyTests.test_checkpoint_rollback_mismatch) ... ok
++test_corrupt_checkpoint_json (test_integrity_v2.IntegrityPolicyTests.test_corrupt_checkpoint_json) ... ok
++test_fresh_directory_initialises (test_integrity_v2.IntegrityPolicyTests.test_fresh_directory_initialises) ... ok
++test_healthy_roundtrip_and_recovery (test_integrity_v2.IntegrityPolicyTests.test_healthy_roundtrip_and_recovery) ... ok
++test_missing_checkpoint_is_fail_closed (test_integrity_v2.IntegrityPolicyTests.test_missing_checkpoint_is_fail_closed) ... ok
++test_missing_log_and_state_but_runtime_id_present (test_integrity_v2.IntegrityPolicyTests.test_missing_log_and_state_but_runtime_id_present) ... ok
++test_missing_log_with_state_present_is_fail_closed (test_integrity_v2.IntegrityPolicyTests.test_missing_log_with_state_present_is_fail_closed) ... ok
++test_missing_runtime_identity_is_fail_closed_and_not_recreated (test_integrity_v2.IntegrityPolicyTests.test_missing_runtime_identity_is_fail_closed_and_not_recreated) ... ok
++test_missing_state_projection_is_fail_closed_and_not_recreated (test_integrity_v2.IntegrityPolicyTests.test_missing_state_projection_is_fail_closed_and_not_recreated) ... ok
++test_runtime_identity_tamper_is_detected (test_integrity_v2.IntegrityPolicyTests.test_runtime_identity_tamper_is_detected) ... ok
++test_state_projection_corrupt (test_integrity_v2.IntegrityPolicyTests.test_state_projection_corrupt) ... ok
++test_state_projection_tamper (test_integrity_v2.IntegrityPolicyTests.test_state_projection_tamper) ... ok
++test_tail_truncation_and_reorder_and_duplicate (test_integrity_v2.IntegrityPolicyTests.test_tail_truncation_and_reorder_and_duplicate) ... ok
++test_torn_append_is_fail_closed (test_integrity_v2.IntegrityPolicyTests.test_torn_append_is_fail_closed) ... ok
++test_verify_detects_projection_tamper_without_repair (test_integrity_v2.IntegrityPolicyTests.test_verify_detects_projection_tamper_without_repair) ... ok
++test_verify_fails_closed_when_checkpoint_missing (test_integrity_v2.IntegrityPolicyTests.test_verify_fails_closed_when_checkpoint_missing) ... ok
++
++----------------------------------------------------------------------
++Ran 30 tests in 2.206s
++
++OK
+diff --git a/hg/history.py b/hg/history.py
+index acb466e..aa2337f 100644
+--- a/hg/history.py
++++ b/hg/history.py
+@@ -1,7 +1,8 @@
+ """Append-only, hash-chained HG state and history. Fail-closed on any integrity failure."""
+ from __future__ import annotations
+ 
+-import hashlib, json, os, threading, time, uuid
++import hashlib, json, math, os, threading, time, uuid
++from contextlib import contextmanager
+ 
+ SCHEMA = "HG_STATE_V1"
+ PRODUCT_ID = "HG"
+@@ -10,17 +11,115 @@ ZERO = "0" * 64
+ 
+ 
+ def canonical(o):
+-    return json.dumps(o, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
++    return json.dumps(o, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
++
++
++def _json_snapshot(value):
++    """Return a detached, strict-JSON copy so caller mutations cannot alter store state."""
++    return json.loads(canonical(value))
++
++
++def _is_finite_number(value):
++    if isinstance(value, bool) or not isinstance(value, (int, float)):
++        return False
++    try:
++        return math.isfinite(value)
++    except (OverflowError, TypeError):
++        return False
+ 
+ 
+ def digest(o):
+     return hashlib.sha256(canonical(o).encode("utf-8")).hexdigest()
+ 
+ 
++def _decode_runtime_id(raw):
++    """Decode the one-line runtime identity without normalizing tampering."""
++    value = raw
++    if value.endswith("\r\n"):
++        value = value[:-2]
++    elif value.endswith("\n"):
++        value = value[:-1]
++    if not value or value != value.strip() or "\n" in value or "\r" in value:
++        raise ValueError("runtime identity malformed")
++    return value
++
++
+ class HistoryError(Exception):
+     pass
+ 
+ 
++@contextmanager
++def _exclusive_file_lock(path):
++    """Cross-process exclusive lock for one state directory's writer."""
++    fh = open(path, "a+", encoding="utf-8")
++    lock_kind = None
++    try:
++        try:
++            import fcntl
++            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
++            lock_kind = ("fcntl", fcntl)
++        except ImportError:
++            try:
++                import msvcrt
++            except ImportError as exc:
++                raise HistoryError("exclusive writer locking unavailable on this platform") from exc
++            fh.seek(0, os.SEEK_END)
++            if fh.tell() == 0:
++                fh.write("0")
++                fh.flush()
++            fh.seek(0)
++            msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)
++            lock_kind = ("msvcrt", msvcrt)
++        yield
++    finally:
++        if lock_kind:
++            kind, module = lock_kind
++            try:
++                if kind == "fcntl":
++                    module.flock(fh.fileno(), module.LOCK_UN)
++                else:
++                    fh.seek(0)
++                    module.locking(fh.fileno(), module.LK_UNLCK, 1)
++            finally:
++                fh.close()
++        else:
++            fh.close()
++
++
++def _fsync_directory(directory):
++    """Persist directory-entry changes or fail closed if unsupported."""
++    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
++    try:
++        fd = os.open(directory, flags)
++        try:
++            os.fsync(fd)
++        finally:
++            os.close(fd)
++    except OSError as exc:
++        raise HistoryError("directory fsync unavailable or failed: %s" % directory) from exc
++
++
++def _atomic_write(path, content):
++    """Atomically replace a UTF-8 file after syncing contents and directory entry."""
++    directory = os.path.dirname(path) or "."
++    tmp = path + ".tmp"
++    try:
++        with open(tmp, "w", encoding="utf-8") as fh:
++            fh.write(content)
++            fh.flush()
++            os.fsync(fh.fileno())
++        os.replace(tmp, path)
++        _fsync_directory(directory)
++    except Exception:
++        # Cleanup is best-effort; it must not mask the persistence failure.
++        try:
++            if os.path.exists(tmp):
++                os.remove(tmp)
++        except OSError:
++            pass
++        raise
++
++
+ class StateStore:
+     def __init__(self, directory, *, clock=time.time):
+         self.dir = str(directory)
+@@ -29,67 +128,173 @@ class StateStore:
+         self.head = os.path.join(self.dir, "head.json")
+         self.state = os.path.join(self.dir, "state.json")
+         self._clock = clock
+-        self.runtime_id = self._runtime_id()
+         self._lock = threading.RLock()
++        self._poisoned = False
+         self._events = []
+         self._by_id = {}
+         self._sessions = {}
+         self._counters = {}
+-        self._load()
++        # Loading must share the writer lock: otherwise another process can
++        # observe the append between log fsync and checkpoint replacement.
++        with _exclusive_file_lock(os.path.join(self.dir, ".writer.lock")):
++            self._preexisting = {"log": os.path.exists(self.log), "head": os.path.exists(self.head),
++                                 "state": os.path.exists(self.state),
++                                 "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id"))}
++            self.runtime_id = self._runtime_id()
++            self._load()
+         if not self._events:
+             self.emit(GENESIS_EVENT, {"product_id": PRODUCT_ID, "schema": SCHEMA}, correlation_id="genesis")
+ 
+     def _runtime_id(self):
+         p = os.path.join(self.dir, "runtime_id")
+-        if os.path.exists(p):
+-            with open(p, encoding="utf-8") as fh:
+-                v = fh.read().strip()
+-            if v:
+-                return v
+-        v = uuid.uuid4().hex
+-        with open(p, "w", encoding="utf-8") as fh:
+-            fh.write(v + "\n")
+-        return v
++        if self._preexisting["runtime_id"]:
++            try:
++                with open(p, encoding="utf-8") as fh:
++                    value = _decode_runtime_id(fh.read())
++            except OSError as exc:
++                raise HistoryError("runtime identity unreadable") from exc
++            except ValueError as exc:
++                raise HistoryError("runtime identity malformed") from exc
++            return value
++        # A runtime identity may only be minted for a genuinely new store.
++        # Never replace a missing identity when any durable state remains.
++        if any(self._preexisting[name] for name in ("log", "head", "state")):
++            raise HistoryError("runtime identity missing while state artifacts exist")
++        value = uuid.uuid4().hex
++        try:
++            with open(p, "x", encoding="utf-8") as fh:
++                fh.write(value + "\n")
++                fh.flush()
++                os.fsync(fh.fileno())
++            _fsync_directory(self.dir)
++        except (OSError, HistoryError) as exc:
++            raise HistoryError("runtime identity could not be initialized durably") from exc
++        return value
+ 
+     def _head(self):
+         return (0, ZERO) if not self._events else (self._events[-1]["seq"], self._events[-1]["record_hash"])
+ 
++    def _refresh_from_disk(self):
++        """Reload a current, verified snapshot while holding the writer lock."""
++        had_events = bool(self._events)
++        self._preexisting = {"log": os.path.exists(self.log), "head": os.path.exists(self.head),
++                             "state": os.path.exists(self.state),
++                             "runtime_id": os.path.exists(os.path.join(self.dir, "runtime_id"))}
++        if had_events and not any(self._preexisting.values()):
++            raise HistoryError("all durable state artifacts disappeared")
++        self.runtime_id = self._runtime_id()
++        self._events = []
++        self._by_id = {}
++        self._sessions = {}
++        self._counters = {}
++        self._load()
++
+     def _load(self):
+-        if not os.path.exists(self.log):
++        have_log = self._preexisting["log"]
++        have_head = self._preexisting["head"]
++        have_state = self._preexisting["state"]
++        have_rid = self._preexisting["runtime_id"]
++        if not have_log:
++            if have_head or have_state or have_rid:
++                raise HistoryError("history log missing while other state artifacts exist")
+             return
++        missing = [name for name, present in (("head checkpoint", have_head),
++                                               ("state projection", have_state),
++                                               ("runtime identity", have_rid)) if not present]
++        if missing:
++            raise HistoryError("required state artifact missing: " + ", ".join(missing))
+         prev, seq, seen = ZERO, 0, set()
+-        with open(self.log, encoding="utf-8") as fh:
+-            for n, line in enumerate(fh, 1):
+-                line = line.strip()
+-                if not line:
+-                    continue
+-                try:
+-                    rec = json.loads(line)
+-                except json.JSONDecodeError as exc:
+-                    raise HistoryError("malformed record line %d" % n) from exc
+-                rh = rec.get("record_hash")
+-                core = {k: v for k, v in rec.items() if k != "record_hash"}
+-                if not rh or digest(core) != rh:
+-                    raise HistoryError("record hash mismatch line %d" % n)
+-                if rec["prev_hash"] != prev:
+-                    raise HistoryError("chain break line %d" % n)
+-                if rec["seq"] != seq + 1:
+-                    raise HistoryError("sequence gap line %d" % n)
+-                if rec["event_id"] in seen:
+-                    raise HistoryError("duplicate event_id line %d" % n)
+-                seen.add(rec["event_id"])
+-                prev, seq = rh, rec["seq"]
+-                self._events.append(rec)
+-                self._by_id[rec["event_id"]] = rec
+-                self._apply(rec)
+-        if os.path.exists(self.head):
++        try:
++            with open(self.log, encoding="utf-8") as fh:
++                for line_no, line in enumerate(fh, 1):
++                    line = line.strip()
++                    if not line:
++                        continue
++                    try:
++                        rec = json.loads(line)
++                    except json.JSONDecodeError as exc:
++                        raise HistoryError("malformed record line %d" % line_no) from exc
++                    if not isinstance(rec, dict):
++                        raise HistoryError("record is not an object line %d" % line_no)
++                    required = {"seq", "event_id", "event_type", "recorded_at", "correlation_id",
++                                "causation_id", "product_id", "runtime_id", "schema", "payload",
++                                "prev_hash", "record_hash"}
++                    if not required.issubset(rec):
++                        raise HistoryError("record fields missing line %d" % line_no)
++                    if isinstance(rec["seq"], bool) or not isinstance(rec["seq"], int) or rec["seq"] != seq + 1:
++                        raise HistoryError("sequence gap line %d" % line_no)
++                    if not isinstance(rec["event_id"], str) or not rec["event_id"] or rec["event_id"] in seen:
++                        raise HistoryError("invalid or duplicate event_id line %d" % line_no)
++                    if not isinstance(rec["event_type"], str) or not rec["event_type"]:
++                        raise HistoryError("invalid event_type line %d" % line_no)
++                    if not _is_finite_number(rec["recorded_at"]):
++                        raise HistoryError("invalid recorded_at line %d" % line_no)
++                    if not isinstance(rec["correlation_id"], str) or not rec["correlation_id"]:
++                        raise HistoryError("invalid correlation_id line %d" % line_no)
++                    if rec["causation_id"] is not None and (not isinstance(rec["causation_id"], str) or not rec["causation_id"]):
++                        raise HistoryError("invalid causation_id line %d" % line_no)
++                    if not isinstance(rec["payload"], dict):
++                        raise HistoryError("invalid payload line %d" % line_no)
++                    if rec["product_id"] != PRODUCT_ID or rec["schema"] != SCHEMA:
++                        raise HistoryError("identity/schema mismatch line %d" % line_no)
++                    if rec["runtime_id"] != self.runtime_id:
++                        raise HistoryError("runtime identity mismatch line %d" % line_no)
++                    if rec["prev_hash"] != prev:
++                        raise HistoryError("chain break line %d" % line_no)
++                    core = {key: value for key, value in rec.items() if key != "record_hash"}
++                    try:
++                        expected_hash = digest(core)
++                    except (TypeError, ValueError) as exc:
++                        raise HistoryError("record is not strict JSON line %d" % line_no) from exc
++                    if not isinstance(rec["record_hash"], str) or expected_hash != rec["record_hash"]:
++                        raise HistoryError("record hash mismatch line %d" % line_no)
++                    if seq == 0 and (rec["event_type"] != GENESIS_EVENT or
++                                     rec["payload"].get("product_id") != PRODUCT_ID or
++                                     rec["payload"].get("schema") != SCHEMA):
++                        raise HistoryError("invalid genesis record")
++                    seen.add(rec["event_id"])
++                    prev, seq = rec["record_hash"], rec["seq"]
++                    self._events.append(rec)
++                    self._by_id[rec["event_id"]] = rec
++                    self._apply(rec)
++        except OSError as exc:
++            raise HistoryError("history log unreadable") from exc
++        if not self._events:
++            raise HistoryError("history log empty while durable state artifacts exist")
++        self._checkpoint_check()
++        self._projection_check()
++
++    def _checkpoint_check(self):
++        try:
+             with open(self.head, encoding="utf-8") as fh:
+                 hd = json.loads(fh.read())
+-            s, h = self._head()
+-            if hd.get("seq") != s or hd.get("head_hash") != h:
+-                raise HistoryError("log does not match head checkpoint")
+-        self._write_state()
+-        self._write_head()
++        except (OSError, json.JSONDecodeError) as exc:
++            raise HistoryError("head checkpoint unreadable") from exc
++        s, h = self._head()
++        expected = {"seq": s, "head_hash": h}
++        try:
++            matches = isinstance(hd, dict) and canonical(hd) == canonical(expected)
++        except (TypeError, ValueError) as exc:
++            raise HistoryError("head checkpoint is not strict JSON") from exc
++        if not matches:
++            raise HistoryError("log does not match head checkpoint")
++
++    def _projection_check(self):
++        try:
++            with open(self.state, encoding="utf-8") as fh:
++                doc = json.loads(fh.read())
++        except (OSError, json.JSONDecodeError) as exc:
++            raise HistoryError("state projection unreadable") from exc
++        current = self._doc()
++        # The projection is a derived cache, but any divergence is an integrity
++        # failure. Do not silently repair it during startup: an operator must
++        # explicitly investigate the discrepancy before recovery is permitted.
++        try:
++            matches = canonical(doc) == canonical(current)
++        except (TypeError, ValueError) as exc:
++            raise HistoryError("state projection is not strict JSON") from exc
++        if not matches:
++            raise HistoryError("state projection does not match history")
+ 
+     def _apply(self, rec):
+         if rec["event_type"] == "session.created" and "session_id" in rec["payload"]:
+@@ -102,78 +307,179 @@ class StateStore:
+                 "head_hash": h, "sessions": self._sessions, "counters": self._counters}
+ 
+     def _write_state(self):
+-        tmp = self.state + ".tmp"
+-        with open(tmp, "w", encoding="utf-8") as fh:
+-            fh.write(canonical(self._doc()))
+-        os.replace(tmp, self.state)
++        _atomic_write(self.state, canonical(self._doc()))
+ 
+     def _write_head(self):
+-        tmp = self.head + ".tmp"
+         s, h = self._head()
+-        with open(tmp, "w", encoding="utf-8") as fh:
+-            fh.write(canonical({"seq": s, "head_hash": h}))
+-        os.replace(tmp, self.head)
++        _atomic_write(self.head, canonical({"seq": s, "head_hash": h}))
+ 
+     def emit(self, event_type, payload, *, correlation_id=None, causation_id=None, event_id=None):
++        # Validate caller input before touching the append-only log. Writing an
++        # invalid event would make the store fail closed on its next reopen.
++        if not isinstance(event_type, str) or not event_type:
++            raise HistoryError("event type must be a non-empty string")
++        if not isinstance(payload, dict):
++            raise HistoryError("event payload must be an object")
++        try:
++            payload = _json_snapshot(payload)
++        except (TypeError, ValueError, RecursionError) as exc:
++            raise HistoryError("event payload must be strict JSON") from exc
++        if correlation_id is not None and not isinstance(correlation_id, str):
++            raise HistoryError("correlation_id must be a string when provided")
++        if causation_id is not None and (not isinstance(causation_id, str) or not causation_id):
++            raise HistoryError("causation_id must be a non-empty string when provided")
++        if event_id is not None and (not isinstance(event_id, str) or not event_id):
++            raise HistoryError("event_id must be a non-empty string when provided")
+         with self._lock:
+-            if event_id and event_id in self._by_id:
+-                return self._by_id[event_id]
+-            seq = (self._events[-1]["seq"] if self._events else 0) + 1
+-            prev = self._events[-1]["record_hash"] if self._events else ZERO
+-            core = {"seq": seq, "event_id": event_id or uuid.uuid4().hex, "event_type": event_type,
+-                    "recorded_at": self._clock(), "correlation_id": correlation_id or uuid.uuid4().hex,
+-                    "causation_id": causation_id, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
+-                    "schema": SCHEMA, "payload": payload, "prev_hash": prev}
+-            rec = dict(core)
+-            rec["record_hash"] = digest(core)
+-            with open(self.log, "a", encoding="utf-8") as fh:
+-                fh.write(canonical(rec) + "\n")
+-                fh.flush()
+-                os.fsync(fh.fileno())
+-            self._events.append(rec)
+-            self._by_id[rec["event_id"]] = rec
+-            self._apply(rec)
+-            self._write_state()
+-            self._write_head()
+-            return rec
++            if self._poisoned:
++                raise HistoryError("state store is poisoned after a persistence failure; reopen only after investigation")
++            lock_path = os.path.join(self.dir, ".writer.lock")
++            with _exclusive_file_lock(lock_path):
++                # A second process/object may have advanced the log. Refresh while
++                # exclusively locked so sequence/hash decisions never use stale memory.
++                if self._events or os.path.exists(self.log):
++                    self._refresh_from_disk()
++                if event_id and event_id in self._by_id:
++                    return _json_snapshot(self._by_id[event_id])
++                seq = (self._events[-1]["seq"] if self._events else 0) + 1
++                prev = self._events[-1]["record_hash"] if self._events else ZERO
++                recorded_at = self._clock()
++                if not _is_finite_number(recorded_at):
++                    raise HistoryError("recorded_at must be a finite number")
++                core = {"seq": seq, "event_id": event_id or uuid.uuid4().hex, "event_type": event_type,
++                        "recorded_at": recorded_at, "correlation_id": correlation_id or uuid.uuid4().hex,
++                        "causation_id": causation_id, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
++                        "schema": SCHEMA, "payload": payload, "prev_hash": prev}
++                rec = dict(core)
++                try:
++                    rec["record_hash"] = digest(core)
++                except (TypeError, ValueError) as exc:
++                    raise HistoryError("event cannot be represented as strict JSON") from exc
++                try:
++                    with open(self.log, "a", encoding="utf-8") as fh:
++                        fh.write(canonical(rec) + "\n")
++                        fh.flush()
++                        os.fsync(fh.fileno())
++                    self._events.append(rec)
++                    self._by_id[rec["event_id"]] = rec
++                    self._apply(rec)
++                    self._write_state()
++                    self._write_head()
++                except Exception:
++                    # Never allow a later emit to silently heal a partially
++                    # committed append/projection/checkpoint sequence.
++                    self._poisoned = True
++                    raise
++                return _json_snapshot(rec)
+ 
+     def verify(self):
+-        if not os.path.exists(self.log):
+-            return {"ok": True, "events": 0, "reason": "empty_log"}
+-        prev, seq, seen, n = ZERO, 0, set(), 0
++        """Verify all durable artifacts and the replay-derived state, without repairing anything."""
++        log_exists = os.path.exists(self.log)
++        head_exists = os.path.exists(self.head)
++        state_exists = os.path.exists(self.state)
++        rid_path = os.path.join(self.dir, "runtime_id")
++        rid_exists = os.path.exists(rid_path)
++        if not log_exists:
++            if head_exists or state_exists or rid_exists:
++                return {"ok": False, "events": 0, "reason": "log_missing_while_state_present"}
++            return {"ok": True, "events": 0, "reason": "empty_store"}
++        if not head_exists:
++            return {"ok": False, "events": 0, "reason": "checkpoint_missing"}
++        if not state_exists:
++            return {"ok": False, "events": 0, "reason": "state_projection_missing"}
++        if not rid_exists:
++            return {"ok": False, "events": 0, "reason": "runtime_identity_missing"}
+         try:
++            try:
++                with open(rid_path, encoding="utf-8") as fh:
++                    stored_runtime_id = _decode_runtime_id(fh.read())
++            except ValueError:
++                return {"ok": False, "events": 0, "reason": "runtime_identity_malformed"}
++            if stored_runtime_id != self.runtime_id:
++                return {"ok": False, "events": 0, "reason": "runtime_identity_mismatch"}
++            prev, seq, seen, count = ZERO, 0, set(), 0
++            sessions, counters = {}, {}
+             with open(self.log, encoding="utf-8") as fh:
+-                for lineno, line in enumerate(fh, 1):
++                for line_no, line in enumerate(fh, 1):
+                     line = line.strip()
+                     if not line:
+                         continue
+                     rec = json.loads(line)
+-                    rh = rec.get("record_hash")
+-                    core = {k: v for k, v in rec.items() if k != "record_hash"}
+-                    if not rh or digest(core) != rh:
+-                        return {"ok": False, "events": n, "reason": "record_hash_mismatch_line_%d" % lineno}
++                    if not isinstance(rec, dict):
++                        return {"ok": False, "events": count, "reason": "record_not_object_line_%d" % line_no}
++                    required = {"seq", "event_id", "event_type", "recorded_at", "correlation_id",
++                                "causation_id", "product_id", "runtime_id", "schema", "payload",
++                                "prev_hash", "record_hash"}
++                    if not required.issubset(rec):
++                        return {"ok": False, "events": count, "reason": "record_fields_missing_line_%d" % line_no}
++                    if isinstance(rec["seq"], bool) or not isinstance(rec["seq"], int) or rec["seq"] != seq + 1:
++                        return {"ok": False, "events": count, "reason": "sequence_gap_line_%d" % line_no}
++                    if not isinstance(rec["event_id"], str) or not rec["event_id"] or rec["event_id"] in seen:
++                        return {"ok": False, "events": count, "reason": "duplicate_or_invalid_event_id_line_%d" % line_no}
++                    if not isinstance(rec["event_type"], str) or not rec["event_type"]:
++                        return {"ok": False, "events": count, "reason": "invalid_event_type_line_%d" % line_no}
++                    if not _is_finite_number(rec["recorded_at"]):
++                        return {"ok": False, "events": count, "reason": "invalid_recorded_at_line_%d" % line_no}
++                    if not isinstance(rec["correlation_id"], str) or not rec["correlation_id"]:
++                        return {"ok": False, "events": count, "reason": "invalid_correlation_id_line_%d" % line_no}
++                    if rec["causation_id"] is not None and (not isinstance(rec["causation_id"], str) or not rec["causation_id"]):
++                        return {"ok": False, "events": count, "reason": "invalid_causation_id_line_%d" % line_no}
++                    if not isinstance(rec["payload"], dict):
++                        return {"ok": False, "events": count, "reason": "invalid_payload_line_%d" % line_no}
++                    if rec["product_id"] != PRODUCT_ID or rec["schema"] != SCHEMA:
++                        return {"ok": False, "events": count, "reason": "identity_schema_mismatch_line_%d" % line_no}
++                    if rec["runtime_id"] != stored_runtime_id:
++                        return {"ok": False, "events": count, "reason": "runtime_identity_mismatch_line_%d" % line_no}
+                     if rec["prev_hash"] != prev:
+-                        return {"ok": False, "events": n, "reason": "chain_break_line_%d" % lineno}
+-                    if rec["seq"] != seq + 1:
+-                        return {"ok": False, "events": n, "reason": "sequence_gap_line_%d" % lineno}
+-                    if rec["event_id"] in seen:
+-                        return {"ok": False, "events": n, "reason": "duplicate_event_id_line_%d" % lineno}
++                        return {"ok": False, "events": count, "reason": "chain_break_line_%d" % line_no}
++                    core = {key: value for key, value in rec.items() if key != "record_hash"}
++                    if not isinstance(rec["record_hash"], str) or digest(core) != rec["record_hash"]:
++                        return {"ok": False, "events": count, "reason": "record_hash_mismatch_line_%d" % line_no}
++                    if seq == 0 and (rec["event_type"] != GENESIS_EVENT or
++                                     rec["payload"].get("product_id") != PRODUCT_ID or
++                                     rec["payload"].get("schema") != SCHEMA):
++                        return {"ok": False, "events": count, "reason": "invalid_genesis"}
+                     seen.add(rec["event_id"])
+-                    prev, seq, n = rh, rec["seq"], n + 1
+-        except json.JSONDecodeError:
+-            return {"ok": False, "events": n, "reason": "malformed_record"}
+-        if os.path.exists(self.head):
+-            with open(self.head, encoding="utf-8") as fh:
+-                hd = json.loads(fh.read())
+-            if hd.get("seq") != seq or hd.get("head_hash") != prev:
+-                return {"ok": False, "events": n, "reason": "checkpoint_mismatch"}
+-        return {"ok": True, "events": n, "head_hash": prev, "reason": "chain_ok"}
++                    prev, seq, count = rec["record_hash"], rec["seq"], count + 1
++                    if rec["event_type"] == "session.created" and "session_id" in rec["payload"]:
++                        sessions[rec["payload"]["session_id"]] = dict(rec["payload"])
++                    counters[rec["event_type"]] = counters.get(rec["event_type"], 0) + 1
++            if count == 0:
++                return {"ok": False, "events": 0, "reason": "history_log_empty"}
++            try:
++                with open(self.head, encoding="utf-8") as fh:
++                    checkpoint = json.load(fh)
++            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
++                return {"ok": False, "events": count, "reason": "checkpoint_unreadable"}
++            expected_checkpoint = {"seq": seq, "head_hash": prev}
++            try:
++                checkpoint_matches = isinstance(checkpoint, dict) and canonical(checkpoint) == canonical(expected_checkpoint)
++            except (TypeError, ValueError):
++                checkpoint_matches = False
++            if not checkpoint_matches:
++                return {"ok": False, "events": count, "reason": "checkpoint_mismatch"}
++            try:
++                with open(self.state, encoding="utf-8") as fh:
++                    projection = json.load(fh)
++            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
++                return {"ok": False, "events": count, "reason": "state_projection_unreadable"}
++            expected = {"schema": SCHEMA, "product_id": PRODUCT_ID, "runtime_id": stored_runtime_id,
++                        "last_seq": seq, "head_hash": prev, "sessions": sessions, "counters": counters}
++            try:
++                projection_matches = canonical(projection) == canonical(expected)
++            except (TypeError, ValueError):
++                projection_matches = False
++            if not projection_matches:
++                return {"ok": False, "events": count, "reason": "state_projection_mismatch"}
++            return {"ok": True, "events": count, "head_hash": prev, "reason": "chain_and_artifacts_ok"}
++        except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError, KeyError, AttributeError):
++            return {"ok": False, "events": 0, "reason": "artifact_unreadable_or_malformed"}
+ 
+     def replay(self):
+-        return [dict(e) for e in self._events]
++        return _json_snapshot(self._events)
+ 
+     def audit_export(self):
+         s, h = self._head()
+-        return {"schema": SCHEMA, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
+-                "events": len(self._events), "last_seq": s, "head_hash": h, "verify": self.verify(),
+-                "state": self._doc()}
++        return _json_snapshot({"schema": SCHEMA, "product_id": PRODUCT_ID, "runtime_id": self.runtime_id,
++                               "events": len(self._events), "last_seq": s, "head_hash": h,
++                               "verify": self.verify(), "state": self._doc()})
+diff --git a/hg/phone_runtime.py b/hg/phone_runtime.py
+index 75fa6bc..c4be634 100644
+--- a/hg/phone_runtime.py
++++ b/hg/phone_runtime.py
+@@ -7,20 +7,31 @@ from .history import StateStore
+ 
+ 
+ class PhoneRuntime:
+-    def __init__(self, state_dir=None, edge_url="", edge_token="", device_id=None, timeout=3.0):
++    def __init__(self, state_dir=None, edge_url="", edge_token="", device_id=None, timeout=3.0,
++                 session_authenticator=None):
+         self.state_dir = state_dir or os.environ.get("HG_STATE_DIR") or os.path.join(os.getcwd(), "hg-state")
+         self.edge_url = edge_url or os.environ.get("HG_EDGE_URL", "")
+         self.edge_token = edge_token or os.environ.get("HG_EDGE_TOKEN", "")
+         self.device_id = device_id or os.environ.get("HG_DEVICE_ID") or "phone-" + secrets.token_hex(4)
+         self.timeout = timeout
++        # The host must inject a real credential verifier. There is deliberately
++        # no implicit/local "authenticated=True" shortcut.
++        self.session_authenticator = session_authenticator
+         self.store = StateStore(self.state_dir)
+ 
+     def health(self):
+         return {"ok": True, "product": "HG", "runtime_id": self.store.runtime_id,
+                 "edge_configured": bool(self.edge_url), "integrity": self.store.verify()}
+ 
+-    def start_session(self, correlation_id=None):
+-        d = authorize("session.create", authenticated=True)
++    def start_session(self, correlation_id=None, *, credential=None):
++        authenticated = False
++        verifier = self.session_authenticator
++        if callable(verifier):
++            try:
++                authenticated = verifier(credential) is True
++            except Exception:
++                authenticated = False
++        d = authorize("session.create", authenticated=authenticated)
+         if not d.allowed:
+             raise PermissionError(d.reason)
+         rec = self.store.emit("session.created", {"session_id": secrets.token_urlsafe(18), "product": "HG"},
+diff --git a/manifest.json b/manifest.json
+index f30da19..ae88f37 100644
+--- a/manifest.json
++++ b/manifest.json
+@@ -1,14 +1,16 @@
+ {
+- "name": "hg",
+- "version": "1.0.0",
+- "runtime": "python>=3.10",
+- "dependencies": {},
+- "modules": [
+-  "hg.identity",
+-  "hg.authority",
+-  "hg.history",
+-  "hg.phone_runtime",
+-  "hg.edge"
+- ],
+- "origin": "clean_room"
++  "name": "hg2",
++  "version": "1.0.0",
++  "runtime": "python>=3.10",
++  "dependencies": {},
++  "modules": [
++    "hg.identity",
++    "hg.authority",
++    "hg.history",
++    "hg.phone_runtime",
++    "hg.edge"
++  ],
++  "origin": "clean_room",
++  "product_id": "HG",
++  "product_name": "HG2"
+ }
+diff --git a/tests/fixtures/hg_store_pre_mapping/fixture_manifest.json b/tests/fixtures/hg_store_pre_mapping/fixture_manifest.json
+new file mode 100644
+index 0000000..06a2ef2
+--- /dev/null
++++ b/tests/fixtures/hg_store_pre_mapping/fixture_manifest.json
+@@ -0,0 +1,21 @@
++{
++  "fixture_id": "HG2-PRE-MAPPING-STORE-V1",
++  "source_repository": "OAI-GIANG/HG2",
++  "source_canonical_branch": "hg-genesis",
++  "source_canonical_sha": "d11e71ed8b34338b8568664b39bc777c926826d5",
++  "generation": "Generated using the StateStore implementation extracted read-only from the exact source_canonical_sha; two-event store; deterministic event timestamps/IDs except runtime_id.",
++  "sha256": {
++    "history.jsonl": "9f5296d8d9e06a71f7768f7cc09085268d75c1d52f4bda13cc9c6a0bf69c9faf",
++    "head.json": "fe28f0a5bc5140cd2e89a945e6e3d48167d37c44b2f4ad5b7825ab8c8c6b579e",
++    "state.json": "8983a94a29a885fa984fb9700586ec9b7de05fffd9e8090036f299da18ebb75a",
++    "runtime_id": "a2d2d36056312c874bb376e2635bf5e3d524a7ff2e5220fd04aadccba63af893"
++  },
++  "event_ids": [
++    "a63e02e3c28d4a1eb7c346d2f7eb8d79",
++    "legacy-fixture-event"
++  ],
++  "event_types": [
++    "hg.genesis",
++    "session.created"
++  ]
++}
+diff --git a/tests/fixtures/hg_store_pre_mapping/head.json b/tests/fixtures/hg_store_pre_mapping/head.json
+new file mode 100644
+index 0000000..d4bdbc8
+--- /dev/null
++++ b/tests/fixtures/hg_store_pre_mapping/head.json
+@@ -0,0 +1 @@
++{"head_hash":"4d6edf0c4739da11a902595e3d1ebc1d5d4fefb47c92a69a82f4a79e69d13953","seq":2}
+\ No newline at end of file
+diff --git a/tests/fixtures/hg_store_pre_mapping/history.jsonl b/tests/fixtures/hg_store_pre_mapping/history.jsonl
+new file mode 100644
+index 0000000..f90ca4b
+--- /dev/null
++++ b/tests/fixtures/hg_store_pre_mapping/history.jsonl
+@@ -0,0 +1,2 @@
++{"causation_id":null,"correlation_id":"genesis","event_id":"a63e02e3c28d4a1eb7c346d2f7eb8d79","event_type":"hg.genesis","payload":{"product_id":"HG","schema":"HG_STATE_V1"},"prev_hash":"0000000000000000000000000000000000000000000000000000000000000000","product_id":"HG","record_hash":"3830717ec3a4aa63b05ce337c1f5e52a9fe076372c3ce1dbd6493056757199a7","recorded_at":1700000000.0,"runtime_id":"92a8820de6e24692bb48871d4db94a90","schema":"HG_STATE_V1","seq":1}
++{"causation_id":null,"correlation_id":"legacy-fixture-correlation","event_id":"legacy-fixture-event","event_type":"session.created","payload":{"product":"HG","session_id":"legacy-fixture-session"},"prev_hash":"3830717ec3a4aa63b05ce337c1f5e52a9fe076372c3ce1dbd6493056757199a7","product_id":"HG","record_hash":"4d6edf0c4739da11a902595e3d1ebc1d5d4fefb47c92a69a82f4a79e69d13953","recorded_at":1700000000.0,"runtime_id":"92a8820de6e24692bb48871d4db94a90","schema":"HG_STATE_V1","seq":2}
+diff --git a/tests/fixtures/hg_store_pre_mapping/runtime_id b/tests/fixtures/hg_store_pre_mapping/runtime_id
+new file mode 100644
+index 0000000..5479a1c
+--- /dev/null
++++ b/tests/fixtures/hg_store_pre_mapping/runtime_id
+@@ -0,0 +1 @@
++92a8820de6e24692bb48871d4db94a90
+diff --git a/tests/fixtures/hg_store_pre_mapping/state.json b/tests/fixtures/hg_store_pre_mapping/state.json
+new file mode 100644
+index 0000000..000c30c
+--- /dev/null
++++ b/tests/fixtures/hg_store_pre_mapping/state.json
+@@ -0,0 +1 @@
++{"counters":{"hg.genesis":1,"session.created":1},"head_hash":"4d6edf0c4739da11a902595e3d1ebc1d5d4fefb47c92a69a82f4a79e69d13953","last_seq":2,"product_id":"HG","runtime_id":"92a8820de6e24692bb48871d4db94a90","schema":"HG_STATE_V1","sessions":{"legacy-fixture-session":{"product":"HG","session_id":"legacy-fixture-session"}}}
+\ No newline at end of file
+diff --git a/tests/test_core.py b/tests/test_core.py
+index 9bd75db..48235b7 100644
+--- a/tests/test_core.py
++++ b/tests/test_core.py
+@@ -12,11 +12,13 @@ TOKEN = "edge-token-x"
+ 
+ 
+ def lines(d):
+-    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++    with open(os.path.join(d, "history.jsonl"), encoding="utf-8") as fh:
++        return [line for line in fh.read().splitlines() if line.strip()]
+ 
+ 
+ def put(d, ls):
+-    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++    with open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8") as fh:
++        fh.write("\n".join(ls) + "\n")
+ 
+ 
+ class IdentityTests(unittest.TestCase):
+@@ -29,7 +31,8 @@ class IdentityTests(unittest.TestCase):
+         for base, _dirs, files in os.walk(os.path.join(ROOT, "hg")):
+             for name in files:
+                 if name.endswith(".py"):
+-                    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++                    with open(os.path.join(base, name), encoding="utf-8") as fh:
++                        text = fh.read().lower()
+                     for m in ("go_runtime", "paradise", "love", "hg_ops", "governance_engine"):
+                         if m in text:
+                             found.append((name, m))
+@@ -99,7 +102,8 @@ class HistoryTests(unittest.TestCase):
+ 
+     def test_checkpoint_mismatch(self):
+         s, d = self._case(lambda L: L)
+-        open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
++        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"seq": 99, "head_hash": ZERO}))
+         self.assertEqual(s.verify()["reason"], "checkpoint_mismatch")
+         with self.assertRaises(HistoryError):
+             StateStore(d)
+@@ -145,7 +149,10 @@ class EdgeTests(unittest.TestCase):
+             with urllib.request.urlopen(req, timeout=4) as r:
+                 return r.status, r.read().decode()
+         except urllib.error.HTTPError as e:
+-            return e.code, e.read().decode()
++            try:
++                return e.code, e.read().decode()
++            finally:
++                e.close()
+ 
+     def test_edge_behaviour(self):
+         self.assertEqual(self.call("/health")[0], 200)
+@@ -169,12 +176,32 @@ class EdgeTests(unittest.TestCase):
+ 
+ 
+ class PhoneTests(unittest.TestCase):
++    def test_session_creation_fails_closed_without_verifier(self):
++        with tempfile.TemporaryDirectory() as d:
++            rt = PhoneRuntime(state_dir=d)
++            before = rt.store.audit_export()["events"]
++            with self.assertRaises(PermissionError):
++                rt.start_session(credential="anything")
++            self.assertEqual(rt.store.audit_export()["events"], before)
++
++    def test_session_creation_fails_closed_when_verifier_rejects_or_raises(self):
++        for verifier in (lambda _credential: False, lambda _credential: (_ for _ in ()).throw(RuntimeError("auth unavailable"))):
++            with self.subTest(verifier=verifier), tempfile.TemporaryDirectory() as d:
++                rt = PhoneRuntime(state_dir=d, session_authenticator=verifier)
++                before = rt.store.audit_export()["events"]
++                with self.assertRaises(PermissionError):
++                    rt.start_session(credential="invalid")
++                self.assertEqual(rt.store.audit_export()["events"], before)
++
+     def test_local_and_offline(self):
+         with tempfile.TemporaryDirectory() as d:
+-            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4)
++            rt = PhoneRuntime(state_dir=d, edge_url="http://127.0.0.1:9", edge_token="x", timeout=0.4,
++                              session_authenticator=lambda credential: credential == "session-test-token")
+             self.assertTrue(rt.health()["ok"])
+             self.assertFalse(rt.heartbeat())
+-            s = rt.start_session()
++            with self.assertRaises(PermissionError):
++                rt.start_session()
++            s = rt.start_session(credential="session-test-token")
+             self.assertEqual(s["product"], "HG")
+             self.assertEqual(rt.store.audit_export()["events"], 2)
+ 
+diff --git a/tests/test_integrity_v2.py b/tests/test_integrity_v2.py
+new file mode 100644
+index 0000000..3949e95
+--- /dev/null
++++ b/tests/test_integrity_v2.py
+@@ -0,0 +1,412 @@
++"""Counter-tests for HG2 history/checkpoint fail-closed policy (P0 remediation)."""
++import json, multiprocessing, os, shutil, tempfile, unittest
++from pathlib import Path
++from unittest import mock
++from hg.history import ZERO, HistoryError, StateStore
++
++
++def build():
++    d = tempfile.mkdtemp()
++    s = StateStore(d)
++    s.emit("session.created", {"session_id": "a"})
++    s.emit("session.created", {"session_id": "b"})
++    return s, d
++
++
++
++def _append_from_process(directory, index):
++    StateStore(directory).emit("concurrency.probe", {"writer": index},
++                               event_id="process-%d" % index)
++
++
++class IntegrityPolicyTests(unittest.TestCase):
++    def tearDown(self):
++        pass
++
++    def test_fresh_directory_initialises(self):
++        d = tempfile.mkdtemp()
++        self.addCleanup(shutil.rmtree, d, ignore_errors=True)
++        s = StateStore(d)
++        self.assertEqual(len(s.replay()), 1)
++        self.assertTrue(s.verify()["ok"])
++
++    def test_json_numeric_type_substitution_is_detected(self):
++        cases = (
++            ("head-bool-seq", "head.json", lambda doc: doc.__setitem__("seq", True), "checkpoint_mismatch"),
++            ("head-float-seq", "head.json", lambda doc: doc.__setitem__("seq", 1.0), "checkpoint_mismatch"),
++            ("head-extra-field", "head.json", lambda doc: doc.__setitem__("unexpected", True), "checkpoint_mismatch"),
++            ("projection-bool-last-seq", "state.json", lambda doc: doc.__setitem__("last_seq", True), "state_projection_mismatch"),
++            ("projection-float-last-seq", "state.json", lambda doc: doc.__setitem__("last_seq", 1.0), "state_projection_mismatch"),
++            ("projection-bool-counter", "state.json", lambda doc: doc["counters"].__setitem__("hg.genesis", True), "state_projection_mismatch"),
++            ("projection-float-counter", "state.json", lambda doc: doc["counters"].__setitem__("hg.genesis", 1.0), "state_projection_mismatch"),
++            ("projection-extra-field", "state.json", lambda doc: doc.__setitem__("unexpected", True), "state_projection_mismatch"),
++        )
++        for name, filename, mutate, reason in cases:
++            with self.subTest(case=name), tempfile.TemporaryDirectory() as d:
++                store = StateStore(d)
++                path = Path(d) / filename
++                doc = json.loads(path.read_text(encoding="utf-8"))
++                mutate(doc)
++                path.write_text(json.dumps(doc), encoding="utf-8")
++                tampered = path.read_bytes()
++                self.assertEqual(store.verify()["reason"], reason)
++                with self.assertRaises(HistoryError):
++                    StateStore(d)
++                self.assertEqual(path.read_bytes(), tampered)
++
++    def test_runtime_identity_whitespace_tampering_is_detected(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            path = Path(d) / "runtime_id"
++            path.write_text(" " + store.runtime_id + "  \n", encoding="utf-8")
++            tampered = path.read_bytes()
++            self.assertEqual(store.verify()["reason"], "runtime_identity_malformed")
++            with self.assertRaisesRegex(HistoryError, "runtime identity malformed"):
++                StateStore(d)
++            self.assertEqual(path.read_bytes(), tampered)
++
++    def test_emit_rejects_nonfinite_json_values_before_durable_write(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            paths = (Path(store.log), Path(store.state), Path(store.head))
++            original = tuple(path.read_bytes() for path in paths)
++            for name, value in (("nan", float("nan")), ("positive_infinity", float("inf")),
++                                ("negative_infinity", float("-inf"))):
++                with self.subTest(value=name):
++                    with self.assertRaisesRegex(HistoryError, "strict JSON"):
++                        store.emit("probe.nonfinite", {"value": value})
++                    self.assertEqual(tuple(path.read_bytes() for path in paths), original)
++                    self.assertTrue(store.verify()["ok"])
++            reopened = StateStore(d)
++            self.assertTrue(reopened.verify()["ok"])
++
++    def test_emit_rejects_invalid_event_metadata_before_durable_write(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            paths = (Path(store.log), Path(store.state), Path(store.head))
++            original = tuple(path.read_bytes() for path in paths)
++            invalid_metadata = (
++                {"correlation_id": 123}, {"correlation_id": []},
++                {"causation_id": 123}, {"causation_id": ""},
++            )
++            for metadata in invalid_metadata:
++                with self.subTest(metadata=repr(metadata)):
++                    with self.assertRaises(HistoryError):
++                        store.emit("probe.metadata", {}, **metadata)
++                    self.assertEqual(tuple(path.read_bytes() for path in paths), original)
++                    self.assertTrue(store.verify()["ok"])
++            original_clock = store._clock
++            try:
++                for value in ("not-a-timestamp", True, float("nan"), float("inf"), float("-inf")):
++                    with self.subTest(recorded_at=repr(value)):
++                        store._clock = lambda value=value: value
++                        with self.assertRaisesRegex(HistoryError, "recorded_at"):
++                            store.emit("probe.clock", {})
++                        self.assertEqual(tuple(path.read_bytes() for path in paths), original)
++                        self.assertTrue(store.verify()["ok"])
++            finally:
++                store._clock = original_clock
++            self.assertTrue(StateStore(d).verify()["ok"])
++
++    def test_public_event_and_state_snapshots_are_detached(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            payload = {"session_id": "stable-session", "nested": {"items": [1]}}
++            emitted = store.emit("session.created", payload, event_id="stable-event")
++            payload["nested"]["items"].append(2)
++            emitted["payload"]["nested"]["items"].append(3)
++            emitted["event_id"] = "mutated-return"
++            first = store.replay()
++            self.assertEqual(first[1]["event_id"], "stable-event")
++            self.assertEqual(first[1]["payload"]["nested"]["items"], [1])
++            first[1]["payload"]["nested"]["items"].append(4)
++            self.assertEqual(store.replay()[1]["payload"]["nested"]["items"], [1])
++            duplicate = store.emit("session.created", {"session_id": "ignored"}, event_id="stable-event")
++            duplicate["payload"]["nested"]["items"].append(5)
++            self.assertEqual(store.emit("session.created", {}, event_id="stable-event")["payload"]["nested"]["items"], [1])
++            exported = store.audit_export()
++            exported["state"]["sessions"]["stable-session"]["nested"]["items"].append(6)
++            fresh = store.audit_export()
++            self.assertEqual(fresh["state"]["sessions"]["stable-session"]["nested"]["items"], [1])
++            self.assertTrue(fresh["verify"]["ok"])
++
++    def test_emit_rejects_invalid_input_before_durable_write(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            original = {path: Path(getattr(store, attr)).read_bytes()
++                        for attr, path in (("log", "history.jsonl"),
++                                           ("state", "state.json"),
++                                           ("head", "head.json"))}
++            invalid_cases = (("", {}), (123, {}), ("probe.invalid", []),
++                             ("probe.invalid", None), ("probe.invalid", "not-an-object"))
++            for event_type, payload in invalid_cases:
++                with self.subTest(event_type=event_type, payload_type=type(payload).__name__):
++                    with self.assertRaises(HistoryError):
++                        store.emit(event_type, payload, event_id="valid-event-id")
++                    for attr, path in (("log", "history.jsonl"),
++                                       ("state", "state.json"),
++                                       ("head", "head.json")):
++                        self.assertEqual(Path(getattr(store, attr)).read_bytes(), original[path])
++                    self.assertTrue(store.verify()["ok"])
++            for event_id in ("", 123, True, 1.5, [], {}):
++                with self.subTest(event_id=repr(event_id)):
++                    with self.assertRaises(HistoryError):
++                        store.emit("probe.valid", {}, event_id=event_id)
++                    for attr, path in (("log", "history.jsonl"),
++                                       ("state", "state.json"),
++                                       ("head", "head.json")):
++                        self.assertEqual(Path(getattr(store, attr)).read_bytes(), original[path])
++                    self.assertTrue(store.verify()["ok"])
++            reopened = StateStore(d)
++            self.assertEqual(len(reopened.replay()), 1)
++            self.assertTrue(reopened.verify()["ok"])
++
++    def test_missing_checkpoint_is_fail_closed(self):
++        s, d = build(); os.remove(os.path.join(d, "head.json"))
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++        self.assertIn(StateStore.__name__, "StateStore")
++
++    def test_missing_log_with_state_present_is_fail_closed(self):
++        s, d = build(); os.remove(os.path.join(d, "history.jsonl"))
++        self.assertEqual(s.verify()["reason"], "log_missing_while_state_present")
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++
++    def test_missing_log_and_state_but_runtime_id_present(self):
++        s, d = build()
++        os.remove(os.path.join(d, "history.jsonl")); os.remove(os.path.join(d, "head.json")); os.remove(os.path.join(d, "state.json"))
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++
++    def test_verify_fails_closed_when_checkpoint_missing(self):
++        s, d = build()
++        os.remove(os.path.join(d, "head.json"))
++        self.assertEqual(s.verify()["reason"], "checkpoint_missing")
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++
++    def test_missing_state_projection_is_fail_closed_and_not_recreated(self):
++        s, d = build()
++        p = os.path.join(d, "state.json")
++        os.remove(p)
++        self.assertEqual(s.verify()["reason"], "state_projection_missing")
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++        self.assertFalse(os.path.exists(p))
++
++    def test_missing_runtime_identity_is_fail_closed_and_not_recreated(self):
++        s, d = build()
++        p = os.path.join(d, "runtime_id")
++        os.remove(p)
++        self.assertEqual(s.verify()["reason"], "runtime_identity_missing")
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++        self.assertFalse(os.path.exists(p))
++
++    def test_runtime_identity_tamper_is_detected(self):
++        s, d = build()
++        p = os.path.join(d, "runtime_id")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write("substituted-runtime-id\n")
++        self.assertEqual(s.verify()["reason"], "runtime_identity_mismatch")
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++
++    def test_verify_detects_projection_tamper_without_repair(self):
++        s, d = build()
++        p = os.path.join(d, "state.json")
++        with open(p, encoding="utf-8") as fh:
++            doc = json.load(fh)
++        doc["counters"]["session.created"] = 999
++        with open(p, "w", encoding="utf-8") as fh:
++            json.dump(doc, fh)
++        self.assertEqual(s.verify()["reason"], "state_projection_mismatch")
++        with open(p, encoding="utf-8") as fh:
++            self.assertEqual(json.load(fh), doc)
++
++    def test_corrupt_checkpoint_json(self):
++        s, d = build()
++        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
++            fh.write("{not json")
++        self.assertEqual(s.verify()["reason"], "checkpoint_unreadable")
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++
++    def test_checkpoint_rollback_mismatch(self):
++        s, d = build()
++        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"seq": 1, "head_hash": ZERO}))
++        self.assertEqual(s.verify()["reason"], "checkpoint_mismatch")
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++
++    def test_state_projection_tamper(self):
++        for field, mutate in (
++            ("sessions", lambda doc: doc["sessions"]["a"].__setitem__("tampered", True)),
++            ("counters", lambda doc: doc["counters"].__setitem__("session.created", 999)),
++            ("schema", lambda doc: doc.__setitem__("schema", "TAMPERED")),
++            ("runtime_id", lambda doc: doc.__setitem__("runtime_id", "TAMPERED")),
++            ("product_id", lambda doc: doc.__setitem__("product_id", "TAMPERED")),
++            ("last_seq", lambda doc: doc.__setitem__("last_seq", 999)),
++            ("extra_field", lambda doc: doc.__setitem__("unexpected", True)),
++        ):
++            with self.subTest(field=field):
++                s, d = build()
++                self.addCleanup(shutil.rmtree, d, ignore_errors=True)
++                p = os.path.join(d, "state.json")
++                with open(p, encoding="utf-8") as fh:
++                    doc = json.load(fh)
++                mutate(doc)
++                with open(p, "w", encoding="utf-8") as fh:
++                    json.dump(doc, fh)
++                with self.assertRaisesRegex(HistoryError, "state projection does not match history"):
++                    StateStore(d)
++                # Fail-closed means the rejected projection is not rewritten.
++                with open(p, encoding="utf-8") as fh:
++                    self.assertEqual(json.load(fh), doc)
++
++    def test_state_projection_corrupt(self):
++        s, d = build()
++        with open(os.path.join(d, "state.json"), "w", encoding="utf-8") as fh:
++            fh.write("not json")
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++
++    def test_torn_append_is_fail_closed(self):
++        s, d = build()
++        with open(os.path.join(d, "history.jsonl"), "a", encoding="utf-8") as fh:
++            fh.write('{"seq": 4, "event_id": "torn", "event_type": "sess')  # interrupted write, no newline
++        with self.assertRaises(HistoryError):
++            StateStore(d)
++
++    def test_tail_truncation_and_reorder_and_duplicate(self):
++        for mutate in (lambda L: L[:-1], lambda L: [L[0], L[2], L[1]], lambda L: L + [L[-1]]):
++            s, d = build()
++            p = os.path.join(d, "history.jsonl")
++            with open(p, encoding="utf-8") as fh:
++                L = [x for x in fh.read().splitlines() if x.strip()]
++            with open(p, "w", encoding="utf-8") as fh:
++                fh.write("\n".join(mutate(L)) + "\n")
++            self.assertFalse(s.verify()["ok"])
++            with self.assertRaises(HistoryError):
++                StateStore(d)
++            shutil.rmtree(d, ignore_errors=True)
++
++    def test_shared_directory_writers_refresh_under_exclusive_lock(self):
++        with tempfile.TemporaryDirectory() as d:
++            first = StateStore(d)
++            second = StateStore(d)
++            first.emit("probe.first", {"n": 1}, event_id="writer-first")
++            second.emit("probe.second", {"n": 2}, event_id="writer-second")
++            self.assertTrue(first.verify()["ok"])
++            self.assertTrue(second.verify()["ok"])
++            reopened = StateStore(d)
++            self.assertEqual(reopened.verify()["events"], 3)
++
++    def test_persistence_failure_poison_prevents_silent_repair(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            original_write_state = store._write_state
++            calls = {"count": 0}
++
++            def fail_once():
++                calls["count"] += 1
++                if calls["count"] == 1:
++                    raise OSError("injected state projection failure")
++                return original_write_state()
++
++            store._write_state = fail_once
++            with self.assertRaisesRegex(OSError, "injected state projection failure"):
++                store.emit("probe.partial", {"n": 1}, event_id="partial-write")
++            before_state = Path(store.state).read_bytes()
++            before_head = Path(store.head).read_bytes()
++            with self.assertRaisesRegex(HistoryError, "poisoned"):
++                store.emit("probe.next", {"n": 2}, event_id="must-not-repair")
++            self.assertEqual(Path(store.state).read_bytes(), before_state)
++            self.assertEqual(Path(store.head).read_bytes(), before_head)
++            self.assertFalse(store.verify()["ok"])
++
++    def test_runtime_identity_directory_fsync_failure_fails_initialization(self):
++        with tempfile.TemporaryDirectory() as d:
++            with mock.patch("hg.history._fsync_directory",
++                            side_effect=HistoryError("injected runtime directory fsync failure")):
++                with self.assertRaisesRegex(HistoryError, "runtime identity could not be initialized durably"):
++                    StateStore(d)
++
++    def test_state_projection_fsync_failure_poison_store(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            real_fsync = os.fsync
++            calls = {"count": 0}
++
++            def fail_second_fsync(fd):
++                calls["count"] += 1
++                if calls["count"] == 2:
++                    raise OSError("injected file fsync failure")
++                return real_fsync(fd)
++
++            with mock.patch("hg.history.os.fsync", side_effect=fail_second_fsync):
++                with self.assertRaisesRegex(OSError, "injected file fsync failure"):
++                    store.emit("probe.fsync", {"n": 1}, event_id="fsync-failure")
++            with self.assertRaisesRegex(HistoryError, "poisoned"):
++                store.emit("probe.after-fsync-failure", {"n": 2}, event_id="must-not-repair")
++            self.assertFalse(store.verify()["ok"])
++
++    def test_state_replace_failure_poison_store(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            with mock.patch("hg.history.os.replace", side_effect=OSError("injected replace failure")):
++                with self.assertRaisesRegex(OSError, "injected replace failure"):
++                    store.emit("probe.replace", {"n": 1}, event_id="replace-failure")
++            with self.assertRaisesRegex(HistoryError, "poisoned"):
++                store.emit("probe.after-replace-failure", {"n": 2}, event_id="must-not-repair")
++            self.assertFalse(store.verify()["ok"])
++
++    def test_directory_fsync_failure_is_not_reported_as_durable(self):
++        with tempfile.TemporaryDirectory() as d:
++            store = StateStore(d)
++            with mock.patch("hg.history._fsync_directory",
++                            side_effect=HistoryError("injected directory fsync failure")):
++                with self.assertRaisesRegex(HistoryError, "injected directory fsync failure"):
++                    store.emit("probe.directory-fsync", {"n": 1},
++                               event_id="directory-fsync-failure")
++            with self.assertRaisesRegex(HistoryError, "poisoned"):
++                store.emit("probe.after-directory-fsync-failure", {"n": 2},
++                           event_id="must-not-repair")
++
++    def test_concurrent_process_writers_preserve_hash_chain(self):
++        with tempfile.TemporaryDirectory() as d:
++            StateStore(d)
++            count = 6
++            workers = [multiprocessing.Process(target=_append_from_process, args=(d, i))
++                       for i in range(count)]
++            for worker in workers:
++                worker.start()
++            for worker in workers:
++                worker.join(20)
++            for worker in workers:
++                if worker.is_alive():
++                    worker.terminate()
++                    worker.join()
++                    self.fail("concurrent writer process timed out")
++                self.assertEqual(worker.exitcode, 0)
++            reopened = StateStore(d)
++            result = reopened.verify()
++            self.assertTrue(result["ok"], result)
++            self.assertEqual(result["events"], count + 1)
++
++    def test_checkpoint_wrong_json_type_is_normalized_to_history_error(self):
++        store, d = build()
++        with open(store.head, "w", encoding="utf-8") as fh:
++            json.dump([], fh)
++        with self.assertRaisesRegex(HistoryError, "checkpoint"):
++            StateStore(d)
++
++    def test_healthy_roundtrip_and_recovery(self):
++        s, d = build()
++        self.assertTrue(s.verify()["ok"])
++        again = StateStore(d)
++        self.assertEqual(len(again.replay()), 3)
++        self.assertEqual(sorted(again._sessions), ["a", "b"])
++        shutil.rmtree(d, ignore_errors=True)
+diff --git a/tests/test_product_scope_acceptance.py b/tests/test_product_scope_acceptance.py
+new file mode 100644
+index 0000000..7af7c44
+--- /dev/null
++++ b/tests/test_product_scope_acceptance.py
+@@ -0,0 +1,180 @@
++"""Runtime acceptance tests for the owner-approved HG2 product-scope decisions."""
++import hashlib
++import json
++import os
++from pathlib import Path
++import shutil
++import tempfile
++import threading
++import unittest
++import urllib.error
++import urllib.request
++from unittest.mock import patch
++from http.server import ThreadingHTTPServer
++
++from hg import edge
++from hg.history import StateStore
++from hg.identity import PRODUCT_ID
++
++ROOT = Path(__file__).resolve().parents[1]
++FIXTURE = ROOT / "tests" / "fixtures" / "hg_store_pre_mapping"
++FIXTURE_SOURCE_SHA = "d11e71ed8b34338b8568664b39bc777c926826d5"
++DURABLE_FILES = ("history.jsonl", "head.json", "state.json", "runtime_id")
++EDGE_TOKEN = "scope-acceptance-test-token"
++
++
++class CandidateEdgeServer:
++    def __init__(self, testcase):
++        self.testcase = testcase
++        self._token_patch = patch.dict(os.environ, {"HG_EDGE_TOKEN": EDGE_TOKEN}, clear=False)
++        self._token_patch.start()
++        edge.DEVICES.clear()
++        self.server = ThreadingHTTPServer(("127.0.0.1", 0), edge.Handler)
++        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
++        self.thread.start()
++        self.base = "http://127.0.0.1:%d" % self.server.server_port
++        testcase.addCleanup(self.close)
++
++    def close(self):
++        self.server.shutdown()
++        self.server.server_close()
++        self.thread.join(timeout=3)
++        edge.DEVICES.clear()
++        self._token_patch.stop()
++
++    def request(self, method, path, body=None):
++        req = urllib.request.Request(self.base + path, data=body, method=method)
++        if body is not None:
++            req.add_header("Content-Type", "application/json")
++        try:
++            with urllib.request.urlopen(req, timeout=3) as response:
++                return response.status, response.read()
++        except urllib.error.HTTPError as exc:
++            try:
++                return exc.code, exc.read()
++            finally:
++                exc.close()
++
++
++class HttpApiRemovalAcceptanceTests(unittest.TestCase):
++    def setUp(self):
++        self.edge_server = CandidateEdgeServer(self)
++
++    def test_legacy_hg_api_routes_are_not_served_by_candidate_router(self):
++        cases = (
++            ("GET", "/v1/sessions", None),
++            ("POST", "/v1/sessions", b"{}"),
++            ("GET", "/v1/history", None),
++            ("POST", "/v1/history", b"{}"),
++        )
++        for method, path, body in cases:
++            with self.subTest(method=method, path=path):
++                status, raw = self.edge_server.request(method, path, body)
++                self.assertEqual(status, 404)
++                self.assertEqual(json.loads(raw), {"ok": False, "error": "NOT_FOUND"})
++        self.assertEqual(edge.DEVICES, {}, "unsupported legacy routes must not mutate edge state")
++
++    def test_supported_edge_routes_remain_available_and_auth_fail_closed(self):
++        status, raw = self.edge_server.request("GET", "/health")
++        self.assertEqual(status, 200)
++        self.assertTrue(json.loads(raw)["ok"])
++        status, raw = self.edge_server.request("POST", "/edge/register", b'{"device_id":"d1"}')
++        self.assertEqual(status, 403)
++        self.assertEqual(json.loads(raw)["error"], "AUTHENTICATION_REQUIRED")
++        self.assertEqual(edge.DEVICES, {})
++
++    def test_candidate_manifest_does_not_ship_legacy_http_service(self):
++        manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
++        self.assertNotIn("runtime.hg_runtime.service", manifest["modules"])
++        self.assertFalse((ROOT / "hg" / "service.py").exists())
++        self.assertFalse((ROOT / "hg" / "runtime").exists())
++
++
++class PhoneBridgeRemovalAcceptanceTests(unittest.TestCase):
++    def test_bridge_implementation_protocol_and_claims_are_absent_from_runtime_package(self):
++        manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
++        self.assertFalse(any("bridge" in module.lower() for module in manifest["modules"]))
++        self.assertFalse(any("bridge" in path.name.lower() for path in (ROOT / "hg").rglob("*")))
++        forbidden_runtime_symbols = (
++            "PROTOCOL_VERSION", "ReplayGuard", "GovernedExecutionSubmission",
++            "EvidenceCorrelation", "BridgeRequest", "AuthenticatedPrincipal",
++        )
++        for path in (ROOT / "hg").rglob("*.py"):
++            source = path.read_text(encoding="utf-8")
++            for symbol in forbidden_runtime_symbols:
++                with self.subTest(path=str(path.relative_to(ROOT)), symbol=symbol):
++                    self.assertNotIn(symbol, source)
++
++    def test_phone_runtime_still_fails_closed_without_real_verifier(self):
++        with tempfile.TemporaryDirectory() as directory:
++            runtime = __import__("hg.phone_runtime", fromlist=["PhoneRuntime"]).PhoneRuntime(state_dir=directory)
++            before = Path(directory, "history.jsonl").read_bytes()
++            with self.assertRaises(PermissionError):
++                runtime.start_session(credential="arbitrary-credential")
++            self.assertEqual(Path(directory, "history.jsonl").read_bytes(), before)
++            self.assertTrue(runtime.store.verify()["ok"])
++
++
++class ProductIdentityAcceptanceTests(unittest.TestCase):
++    def test_fresh_store_replay_projection_and_audit_export_keep_hg_identity(self):
++        with tempfile.TemporaryDirectory() as directory:
++            store = StateStore(directory, clock=lambda: 1700000000.0)
++            store.emit("session.created", {"session_id": "new-session", "product": "HG"},
++                       event_id="new-session-event", correlation_id="new-session-correlation")
++            self.assertEqual(PRODUCT_ID, "HG")
++            self.assertTrue(store.verify()["ok"])
++            self.assertTrue(all(record["product_id"] == "HG" for record in store.replay()))
++            self.assertEqual(store.audit_export()["product_id"], "HG")
++            self.assertEqual(store.audit_export()["state"]["product_id"], "HG")
++            manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
++            self.assertEqual(manifest["product_id"], "HG")
++            self.assertEqual(manifest["product_name"], "HG2")
++            self.assertEqual(manifest["name"], "hg2")
++
++    def test_pre_mapping_canonical_fixture_reopens_without_rewriting_durable_bytes(self):
++        fixture_manifest = json.loads((FIXTURE / "fixture_manifest.json").read_text(encoding="utf-8"))
++        self.assertEqual(fixture_manifest["source_canonical_sha"], FIXTURE_SOURCE_SHA)
++        with tempfile.TemporaryDirectory() as directory:
++            for name in DURABLE_FILES:
++                shutil.copyfile(FIXTURE / name, Path(directory) / name)
++            before = {name: (Path(directory) / name).read_bytes() for name in DURABLE_FILES}
++            reopened = StateStore(directory)
++            exported = reopened.audit_export()
++            self.assertTrue(exported["verify"]["ok"], exported["verify"])
++            self.assertEqual(exported["product_id"], "HG")
++            self.assertEqual(exported["state"]["product_id"], "HG")
++            self.assertTrue(all(event["product_id"] == "HG" for event in reopened.replay()))
++            self.assertEqual([event["event_id"] for event in reopened.replay()], fixture_manifest["event_ids"])
++            self.assertEqual([event["event_type"] for event in reopened.replay()], fixture_manifest["event_types"])
++            self.assertEqual(reopened.replay()[-1]["event_id"], "legacy-fixture-event")
++            after = {name: (Path(directory) / name).read_bytes() for name in DURABLE_FILES}
++            self.assertEqual(before, after, "opening/replaying must not rewrite historical durable bytes")
++
++    def test_fixture_file_hashes_match_recorded_manifest(self):
++        fixture_manifest = json.loads((FIXTURE / "fixture_manifest.json").read_text(encoding="utf-8"))
++        for name in DURABLE_FILES:
++            with self.subTest(file=name):
++                actual = hashlib.sha256((FIXTURE / name).read_bytes()).hexdigest()
++                self.assertEqual(actual, fixture_manifest["sha256"][name])
++
++
++class DependencyInventoryTests(unittest.TestCase):
++    def test_source_inventory_has_exact_refs_hashes_and_open_external_consumer_limit(self):
++        inventory = json.loads((ROOT / "evidence" / "HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json").read_text(encoding="utf-8"))
++        self.assertEqual(inventory["candidate_before_acceptance_tests"]["sha"], "d834b7424c89c346b9db55d79dd869ecca46cd31")
++        self.assertEqual(inventory["http_api"]["legacy_source"]["commit"], "0495ac8bba4dc59bbf5b84ef7f38dd78bae7dead")
++        self.assertEqual(inventory["phone_bridge"]["source"]["commit"], "4a20c319fe740f1a092ade4e407d693439629385")
++        ops = next(repo for repo in inventory["repositories_examined"] if repo["repository"] == "OAI-GIANG/hg-ops")
++        self.assertEqual(ops["sha"], "2e75a6cbae2fa46e48ffa3fe67a134c385ee880e")
++        self.assertIn("No references", inventory["http_api"]["known_dependencies"]["operations_repo_scan"]["result"])
++        self.assertEqual(inventory["http_api"]["known_dependencies"]["external_deployments_or_clients"], "UNKNOWN_NOT_ACCESSIBLE_FROM_REPOSITORY_SOURCES")
++        self.assertEqual(inventory["phone_bridge"]["consumer_search"]["external_clients_or_deployments"], "UNKNOWN_NOT_ACCESSIBLE_FROM_REPOSITORY_SOURCES")
++        for source in inventory["http_api"]["legacy_source"]["files"] + inventory["phone_bridge"]["source"]["files"]:
++            with self.subTest(path=source["path"]):
++                self.assertEqual(len(source["git_blob"]), 40)
++                self.assertEqual(len(source["sha256"]), 64)
++        self.assertEqual(inventory["overall_gate"], "BLOCKED_NO_GO")
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/test_product_scope_decisions.py b/tests/test_product_scope_decisions.py
+new file mode 100644
+index 0000000..de907f4
+--- /dev/null
++++ b/tests/test_product_scope_decisions.py
+@@ -0,0 +1,100 @@
++import json
++import os
++import unittest
++
++from hg.identity import PRODUCT_ID
++
++ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++CONTRACT = os.path.join(ROOT, "contract", "PRODUCT_SCOPE_DECISIONS_V1.json")
++
++
++class ProductScopeDecisionRecordTests(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        with open(CONTRACT, encoding="utf-8") as fh:
++            cls.record = json.load(fh)
++
++    def test_record_is_scope_only_and_fail_closed(self):
++        self.assertEqual(self.record["record_type"], "OWNER_SCOPE_DECISIONS_NOT_IMPLEMENTATION_EVIDENCE")
++        self.assertEqual(self.record["decision_status"], "RECORDED")
++        self.assertIn("EXTERNAL_IMPACT_AND_PRODUCTION_GATES_BLOCKED", self.record["implementation_status"])
++        self.assertEqual(self.record["overall_gate"], "BLOCKED_NO_GO")
++        self.assertIn("not implementation or runtime certification", self.record["evidence_rule"])
++
++    def test_explicit_owner_choices_are_recorded(self):
++        decisions = {item["id"]: item for item in self.record["decisions"]}
++        self.assertEqual(decisions["PSD-API-001"]["choice"], "C")
++        self.assertEqual(decisions["PSD-API-001"]["disposition"], "INTENTIONAL_REMOVAL_ALLOWED")
++        self.assertEqual(decisions["PSD-BRIDGE-001"]["choice"], "C")
++        self.assertEqual(decisions["PSD-BRIDGE-001"]["disposition"], "INTENTIONAL_REMOVAL_ALLOWED")
++        self.assertEqual(decisions["PSD-ID-001"]["choice"], "A")
++        self.assertEqual(decisions["PSD-ID-001"]["disposition"], "KEEP_PRODUCT_ID_HG_WITH_FORMAL_HG2_MAPPING")
++
++    def test_each_decision_has_acceptance_criteria_and_test_cases(self):
++        for decision in self.record["decisions"]:
++            with self.subTest(decision=decision["id"]):
++                self.assertTrue(decision["acceptance_criteria"])
++                self.assertTrue(decision["tests"])
++                self.assertTrue(all(item["id"] and item["criterion"] for item in decision["acceptance_criteria"]))
++                self.assertTrue(all(item["id"] and item["purpose"] and item["expected"] for item in decision["tests"]))
++                self.assertTrue(all(item["status"] == "BLOCKED_NOT_RUN" or item["status"] == "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN" or item["status"].startswith("PASS_ON_SHA_") for item in decision["tests"]))
++                if decision["id"] == "PSD-API-001":
++                    self.assertEqual(next(item["status"] for item in decision["tests"] if item["id"] == "T-API-02"), "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN")
++                if decision["id"] == "PSD-BRIDGE-001":
++                    self.assertEqual(next(item["status"] for item in decision["tests"] if item["id"] == "T-BRIDGE-02"), "BLOCKED_EXTERNAL_CONSUMERS_UNKNOWN")
++
++    def test_identity_choice_preserves_durable_product_id(self):
++        mapping = next(item["mapping"] for item in self.record["decisions"] if item["id"] == "PSD-ID-001")
++        self.assertEqual(PRODUCT_ID, "HG")
++        self.assertEqual(mapping["product_id"], "HG")
++        self.assertEqual(mapping["product_name"], "HG2")
++        self.assertTrue(next(item["status"] for item in next(d for d in self.record["decisions"] if d["id"] == "PSD-ID-001")["tests"] if item["id"] == "T-ID-01").startswith("PASS_ON_SHA_"))
++        self.assertIn("Never silently rewrite historical product_id values", mapping["rule"])
++        with open(os.path.join(ROOT, "manifest.json"), encoding="utf-8") as fh:
++            manifest = json.load(fh)
++        self.assertEqual(manifest["product_id"], "HG")
++        self.assertEqual(manifest["product_name"], "HG2")
++        self.assertEqual(manifest["name"], "hg2")
++        with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as fh:
++            readme = fh.read()
++        self.assertIn("HG2 is the product/repository label", readme)
++        self.assertIn("`PRODUCT_ID=HG` remains the durable event and on-disk identity", readme)
++
++    def test_acceptance_evidence_is_exact_sha_and_no_go_remains(self):
++        evidence = self.record["acceptance_evidence"]
++        self.assertEqual(evidence["tested_source_sha"], "46e90fb226e0c434158212a69717025745cad337")
++        self.assertEqual(evidence["test_suite_status"], "PASS_ON_SHA_46E90FB")
++        evidence_file = __import__("pathlib").Path(ROOT) / "evidence" / "HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json"
++        self.assertEqual(self.record["acceptance_evidence"]["evidence_file"], "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json")
++        self.assertTrue(evidence_file.is_file())
++        with evidence_file.open(encoding="utf-8") as fh:
++            latest = json.load(fh)
++        self.assertEqual(latest["source_commit"], evidence["tested_source_sha"])
++        self.assertEqual(latest["test_result"], "OK")
++        self.assertEqual(latest["tests_run"], 54)
++        self.assertEqual(latest["log"]["sha256"], "1b687aeab6800f6d4f5e772793ccf6b1cad4e08d4e31ec63c10bd7ed40cfc1b6")
++        self.assertEqual(self.record["overall_gate"], "BLOCKED_NO_GO")
++        self.assertTrue(evidence["remaining_blockers"])
++
++    def test_historical_exception_remains_recorded_without_rewriting(self):
++        exceptions = self.record["provenance_exceptions"]
++        self.assertEqual(len(exceptions), 1)
++        self.assertEqual(exceptions[0]["commit"], "b5f49770cba13cd995533cd140b7560d999c441e")
++        self.assertEqual(exceptions[0]["status"], "BLOCKED_REQUIRES_RECONCILIATION")
++        self.assertIn("Do not rewrite or remove history", exceptions[0]["handling"])
++
++    def test_global_gates_remain_blocked_and_canonical_is_protected(self):
++        self.assertEqual(next(gate["status"] for gate in self.record["global_gates"] if gate["id"] == "G-EXACT-SHA"), "PASS_ON_SHA_46E90FB")
++        self.assertNotIn("G-INDEPENDENT-REVIEW", {gate["id"] for gate in self.record["global_gates"]})
++        self.assertNotIn("G-PROVENANCE", {gate["id"] for gate in self.record["global_gates"]})
++        self.assertEqual(next(gate["status"] for gate in self.record["global_gates"] if gate["id"] == "G-HISTORY-TRACEABILITY"), "PASS_HISTORICAL_RECORD_PRESERVED")
++        self.assertEqual(next(gate["status"] for gate in self.record["global_gates"] if gate["id"] == "G-PRODUCTION"), "BLOCKED")
++        boundaries = self.record["change_boundaries"]
++        self.assertEqual(boundaries["canonical_branch_mutation"], "FORBIDDEN")
++        self.assertEqual(boundaries["merge"], "FORBIDDEN")
++        self.assertEqual(boundaries["deploy"], "FORBIDDEN")
++        self.assertEqual(boundaries["history_rewrite"], "FORBIDDEN")
++
++
++if __name__ == "__main__":
++    unittest.main()
