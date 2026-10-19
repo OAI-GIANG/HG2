@@ -10,8 +10,7 @@
     "draft": true,
     "base": "hg-genesis",
     "base_sha": "1dca305b4d6e9442e259442486efb5127cc0cb09",
-    "review_decision": "PENDING",
-    "circleci_check": "PENDING_AFTER_NEW_PUSH"
+    "review_decision": "PENDING"
   },
   "base_ref": "hg-genesis",
   "base_sha": "1dca305b4d6e9442e259442486efb5127cc0cb09",
