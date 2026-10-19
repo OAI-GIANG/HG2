@@ -11,8 +11,8 @@
     "base": "hg-genesis",
     "base_sha": "1dca305b4d6e9442e259442486efb5127cc0cb09",
     "review_decision": "PENDING",
-    "circleci_check": "SUCCESS",
-    "circleci_url": "https://circleci.com/gh/OAI-GIANG/HG2/276"
+    "circleci_check": "PASS",
+    "circleci_url": "https://circleci.com/gh/OAI-GIANG/HG2/277"
   },
   "base_ref": "hg-genesis",
   "base_sha": "1dca305b4d6e9442e259442486efb5127cc0cb09",
@@ -55,11 +55,11 @@
     "deploy": "NOT_PERFORMED"
   },
   "evidence_hashes": {
-    "hg/brain_orchestrator.py": "10c32e23e0dd0669eec86767d29d1a1995860036c0d84f9811bfbf74a6480eee",
-    "tests/test_brain_orchestrator.py": "e18d57a0b250ac8d84af8787cbca7333440361d6f21f00c1f23cab0d089141e3",
+    "hg/brain_orchestrator.py": "efe06ce035065a72c74a447912698d224903070b9796fd7204413993612265b7",
+    "tests/test_brain_orchestrator.py": "860ce9a41ae4b9f818b0f8ec308cbcd084f78641cd96a27b710c836aacf9fd87",
     "manifest.json": "64239e32be4759e92d1ac8d19c90813a514f7a716bc689840b92182265f1d063",
     "docs/architecture/HG2-INDEPENDENT-ARCHITECTURE-R2.md": "60104791a6e652f6eafb29b605f55c2e3e96a5389fcc0e91bcd95104042b0cef",
-    "evidence/HG2-INDEPENDENT-ARCHITECTURE-R2-TESTS.log": "e407d826030c0f8d31b562dd149387be61a14f24b3b4881a7c75c955ff8e6bec"
+    "evidence/HG2-INDEPENDENT-ARCHITECTURE-R2-TESTS.log": "a861c26769af5fcd418016d4b31550a39efacf6c04c468ed3bd3b09f7498242f"
   },
   "sources": [
     "https://learn.microsoft.com/en-us/azure/architecture/patterns/saga",
