@@ -1,0 +1,2089 @@
+{
+  "schema": "HG2-EXTERNAL-BRANCH-ARCHIVE-MANIFEST-V1",
+  "created_utc": "2026-10-19",
+  "repository": "OAI-GIANG/HG2",
+  "canonical_branches": [
+    "hg-genesis",
+    "stt/hg2-single-system-20261017",
+    "stt/hg2-voice-tools-design-20261018",
+    "stt/hg2-gap-integration-20261018",
+    "stt/hg2-circulatory-architecture-20261018"
+  ],
+  "source_branch_count": 18,
+  "unique_patch_count": 15,
+  "recovery_bundle_path": "/data/data/com.termux/files/home/.cache/hg2-five-branch-evidence-c5b27193baa95e741c0082cae81656a630e24d8d/hg2-remote-ref-preservation-20261019.bundle",
+  "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+  "recovery_bundle_verified": true,
+  "secret_pattern_scan": "ZERO_MATCHES_FOR_CONFIGURED_TOKEN/PRIVATE-KEY_PATTERNS",
+  "records": [
+    {
+      "branch": "ci/deep-strict-verify-pr1-20261013",
+      "source_sha": "12e71cf0c93742cd7f8afef5a2b7c763e8f90674",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/ci/deep-strict-verify-pr1-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "A\t.circleci/config.yml",
+        "M\thg/history.py",
+        "M\ttests/test_core.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "60390b2c5f925734c88b60d6b460e65b2f6899fe",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "daa622ad9a1e095dc043e0c6e609b69107dd4f6e",
+          "subject": "fix: fail closed on HG2 integrity gaps",
+          "patch_id": "3506d6e0bb066c3a1ee91b7ef5aeea6ee0f4da59"
+        },
+        {
+          "commit": "b38afe04d9d71b3b605d2745091731c1860bb359",
+          "parents": [
+            "60390b2c5f925734c88b60d6b460e65b2f6899fe"
+          ],
+          "tree": "fffa5234d7315ae7652309f7eaaf5300696c59a2",
+          "subject": "fix: reject malformed HG2 history records",
+          "patch_id": "fd5bdeee0ae8cd5556f3343662c9ab61a719c5b3"
+        },
+        {
+          "commit": "12e71cf0c93742cd7f8afef5a2b7c763e8f90674",
+          "parents": [
+            "b38afe04d9d71b3b605d2745091731c1860bb359"
+          ],
+          "tree": "0de0d7a03a4f97ad15201d6c84b0dafd63c8ca06",
+          "subject": "ci: strict CI snapshot for PR #1 head b38afe04d9d7",
+          "patch_id": "24f56ba79efc17a09d0c4b97e0151298db955147"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/dd57be8d55d96a0642f056901638d85e5ce6628948d3032c1ad023a4b7ed3e33.patch",
+      "snapshot_sha256": "dd57be8d55d96a0642f056901638d85e5ce6628948d3032c1ad023a4b7ed3e33",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_REDUNDANT_CI_SNAPSHOT",
+      "recovery_bundle_ref_sha": "12e71cf0c93742cd7f8afef5a2b7c763e8f90674",
+      "changed_path_count": 3,
+      "commit_count": 3
+    },
+    {
+      "branch": "ci/deep-strict-verify-pr2-20261013",
+      "source_sha": "e1c503a80e62e761621c2c46d3d2b2734367c704",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/ci/deep-strict-verify-pr2-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "A\t.circleci/config.yml",
+        "M\thg/history.py",
+        "M\ttests/test_core.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "60390b2c5f925734c88b60d6b460e65b2f6899fe",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "daa622ad9a1e095dc043e0c6e609b69107dd4f6e",
+          "subject": "fix: fail closed on HG2 integrity gaps",
+          "patch_id": "3506d6e0bb066c3a1ee91b7ef5aeea6ee0f4da59"
+        },
+        {
+          "commit": "b38afe04d9d71b3b605d2745091731c1860bb359",
+          "parents": [
+            "60390b2c5f925734c88b60d6b460e65b2f6899fe"
+          ],
+          "tree": "fffa5234d7315ae7652309f7eaaf5300696c59a2",
+          "subject": "fix: reject malformed HG2 history records",
+          "patch_id": "fd5bdeee0ae8cd5556f3343662c9ab61a719c5b3"
+        },
+        {
+          "commit": "6b3fa49367fa68d15409b043b789f3160dae0830",
+          "parents": [
+            "b38afe04d9d71b3b605d2745091731c1860bb359"
+          ],
+          "tree": "0ccfc8cb9754fd12460f2cb6eec7e30a28acac43",
+          "subject": "test: close response and file handles in HG2 tests",
+          "patch_id": "c94e5b354a369a123bf2f8c0a2e835618eb925d7"
+        },
+        {
+          "commit": "e1c503a80e62e761621c2c46d3d2b2734367c704",
+          "parents": [
+            "6b3fa49367fa68d15409b043b789f3160dae0830"
+          ],
+          "tree": "90fb2e0ef593848abfcabed3266eac29c8e6837e",
+          "subject": "ci: strict CI snapshot for PR #2 head 6b3fa49367fa",
+          "patch_id": "24f56ba79efc17a09d0c4b97e0151298db955147"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/45d429d83ef039b2b236795a622c84e447dd1ae5b42d9d87424af0905c978402.patch",
+      "snapshot_sha256": "45d429d83ef039b2b236795a622c84e447dd1ae5b42d9d87424af0905c978402",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_REDUNDANT_CI_SNAPSHOT",
+      "recovery_bundle_ref_sha": "e1c503a80e62e761621c2c46d3d2b2734367c704",
+      "changed_path_count": 3,
+      "commit_count": 4
+    },
+    {
+      "branch": "ci/hg2-circleci-external-20261013",
+      "source_sha": "0c71e400a6510fbe06b6fa9fe2bdff414fcb2ef8",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/ci/hg2-circleci-external-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "A\t.circleci/config.yml",
+        "A\tdocs/review/HG2_P0_V3_INDEPENDENT_REVIEW_CHECKLIST.md",
+        "M\thg/history.py",
+        "M\ttests/test_core.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "60390b2c5f925734c88b60d6b460e65b2f6899fe",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "daa622ad9a1e095dc043e0c6e609b69107dd4f6e",
+          "subject": "fix: fail closed on HG2 integrity gaps",
+          "patch_id": "3506d6e0bb066c3a1ee91b7ef5aeea6ee0f4da59"
+        },
+        {
+          "commit": "b38afe04d9d71b3b605d2745091731c1860bb359",
+          "parents": [
+            "60390b2c5f925734c88b60d6b460e65b2f6899fe"
+          ],
+          "tree": "fffa5234d7315ae7652309f7eaaf5300696c59a2",
+          "subject": "fix: reject malformed HG2 history records",
+          "patch_id": "fd5bdeee0ae8cd5556f3343662c9ab61a719c5b3"
+        },
+        {
+          "commit": "6b3fa49367fa68d15409b043b789f3160dae0830",
+          "parents": [
+            "b38afe04d9d71b3b605d2745091731c1860bb359"
+          ],
+          "tree": "0ccfc8cb9754fd12460f2cb6eec7e30a28acac43",
+          "subject": "test: close response and file handles in HG2 tests",
+          "patch_id": "c94e5b354a369a123bf2f8c0a2e835618eb925d7"
+        },
+        {
+          "commit": "0c71e400a6510fbe06b6fa9fe2bdff414fcb2ef8",
+          "parents": [
+            "6b3fa49367fa68d15409b043b789f3160dae0830"
+          ],
+          "tree": "7bf6fb700f82c630d913df0dc34018f1649d3d51",
+          "subject": "ci: add external CircleCI verification pipeline and review checklist",
+          "patch_id": "7787f1758f2f0f5c8a37a715844648eaba77bfb0"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/aae03e91f4928c6292c196d07c38beb7789514d43d3d8cdcd6d413654f6e8dde.patch",
+      "snapshot_sha256": "aae03e91f4928c6292c196d07c38beb7789514d43d3d8cdcd6d413654f6e8dde",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_CI_VARIANT_AND_REVIEW_CHECKLIST_NOT_SELECTED",
+      "recovery_bundle_ref_sha": "0c71e400a6510fbe06b6fa9fe2bdff414fcb2ef8",
+      "changed_path_count": 4,
+      "commit_count": 4
+    },
+    {
+      "branch": "ci/verify-pr1-snapshot-20261013",
+      "source_sha": "f5e618d5815714eb31e0e00b56f63fdab2d87c7c",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/ci/verify-pr1-snapshot-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "A\t.circleci/config.yml",
+        "M\thg/history.py",
+        "M\ttests/test_core.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "60390b2c5f925734c88b60d6b460e65b2f6899fe",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "daa622ad9a1e095dc043e0c6e609b69107dd4f6e",
+          "subject": "fix: fail closed on HG2 integrity gaps",
+          "patch_id": "3506d6e0bb066c3a1ee91b7ef5aeea6ee0f4da59"
+        },
+        {
+          "commit": "b38afe04d9d71b3b605d2745091731c1860bb359",
+          "parents": [
+            "60390b2c5f925734c88b60d6b460e65b2f6899fe"
+          ],
+          "tree": "fffa5234d7315ae7652309f7eaaf5300696c59a2",
+          "subject": "fix: reject malformed HG2 history records",
+          "patch_id": "fd5bdeee0ae8cd5556f3343662c9ab61a719c5b3"
+        },
+        {
+          "commit": "f5e618d5815714eb31e0e00b56f63fdab2d87c7c",
+          "parents": [
+            "b38afe04d9d71b3b605d2745091731c1860bb359"
+          ],
+          "tree": "58d44f7498756c778c7421c4a356eec1796b79ae",
+          "subject": "ci: verify PR snapshot ci/verify-pr1-snapshot-20261013",
+          "patch_id": "dc2745885eca7d9090e74eb75b7debfc3b2aacee"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/73231caa441239b859556ec39208ab69394dfbff590024fa0306c99c483b28c9.patch",
+      "snapshot_sha256": "73231caa441239b859556ec39208ab69394dfbff590024fa0306c99c483b28c9",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_REDUNDANT_CI_SNAPSHOT",
+      "recovery_bundle_ref_sha": "f5e618d5815714eb31e0e00b56f63fdab2d87c7c",
+      "changed_path_count": 3,
+      "commit_count": 3
+    },
+    {
+      "branch": "ci/verify-pr2-snapshot-20261013",
+      "source_sha": "6c95e2f8987bffd59a351014f7f4ebd89ec587ff",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/ci/verify-pr2-snapshot-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "A\t.circleci/config.yml",
+        "M\thg/history.py",
+        "M\ttests/test_core.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "60390b2c5f925734c88b60d6b460e65b2f6899fe",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "daa622ad9a1e095dc043e0c6e609b69107dd4f6e",
+          "subject": "fix: fail closed on HG2 integrity gaps",
+          "patch_id": "3506d6e0bb066c3a1ee91b7ef5aeea6ee0f4da59"
+        },
+        {
+          "commit": "b38afe04d9d71b3b605d2745091731c1860bb359",
+          "parents": [
+            "60390b2c5f925734c88b60d6b460e65b2f6899fe"
+          ],
+          "tree": "fffa5234d7315ae7652309f7eaaf5300696c59a2",
+          "subject": "fix: reject malformed HG2 history records",
+          "patch_id": "fd5bdeee0ae8cd5556f3343662c9ab61a719c5b3"
+        },
+        {
+          "commit": "6b3fa49367fa68d15409b043b789f3160dae0830",
+          "parents": [
+            "b38afe04d9d71b3b605d2745091731c1860bb359"
+          ],
+          "tree": "0ccfc8cb9754fd12460f2cb6eec7e30a28acac43",
+          "subject": "test: close response and file handles in HG2 tests",
+          "patch_id": "c94e5b354a369a123bf2f8c0a2e835618eb925d7"
+        },
+        {
+          "commit": "6c95e2f8987bffd59a351014f7f4ebd89ec587ff",
+          "parents": [
+            "6b3fa49367fa68d15409b043b789f3160dae0830"
+          ],
+          "tree": "6f5e05c7ad0c9112cd66b369a1af94042247177a",
+          "subject": "ci: verify PR snapshot ci/verify-pr2-snapshot-20261013",
+          "patch_id": "dc2745885eca7d9090e74eb75b7debfc3b2aacee"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/0cd63025696992bb65e079334ce4325166b7bab62152d7942f61dddbb7ee7bf4.patch",
+      "snapshot_sha256": "0cd63025696992bb65e079334ce4325166b7bab62152d7942f61dddbb7ee7bf4",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_REDUNDANT_CI_SNAPSHOT",
+      "recovery_bundle_ref_sha": "6c95e2f8987bffd59a351014f7f4ebd89ec587ff",
+      "changed_path_count": 3,
+      "commit_count": 4
+    },
+    {
+      "branch": "design/t018-auth-checkpoint-memory-20261013",
+      "source_sha": "6f636c5ebdf7363172fdd2cbda6d72258179589d",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/design/t018-auth-checkpoint-memory-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "A\t.circleci/config.yml",
+        "A\tdocs/T-018-SYNC-V2-CONTRACT.md",
+        "A\tdocs/design/T-018-IMPLEMENTATION-DESIGN-V1.md",
+        "A\tdocs/design/T-018-THREAT-MODEL-V1.md",
+        "A\tevidence/T-018-DESIGN-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-DESIGN-20261013/manifest.md",
+        "A\tevidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-G13-20261013/baseline-core.log",
+        "A\tevidence/T-018-G13-20261013/baseline-suite.log",
+        "A\tevidence/T-018-G13-20261013/baseline-t018.log",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/environment-clean-checkout.txt",
+        "A\tevidence/T-018-G13-20261013/environment-working-copy.txt",
+        "A\tevidence/T-018-G13-20261013/fixed-core.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-t018.log",
+        "A\tevidence/T-018-G13-20261013/manifest.md",
+        "A\tevidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/core-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/environment.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/manifest.md",
+        "A\tevidence/T-018-SYNC-V2-20261013/t018-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log",
+        "A\thg/sync.py",
+        "M\ttests/test_core.py",
+        "A\ttests/test_t018_sync.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "3b160f24e1b0cb446c810b46974612829cace5db",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "e24e5463155ec23b66ba35790c2aceabe13010df",
+          "subject": "feat(hg): T-018 cross-context event synchronization (spool, fail-closed)",
+          "patch_id": "2365a4ad1b40e3cda1a4b52de9aea4d96c020969"
+        },
+        {
+          "commit": "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d",
+          "parents": [
+            "3b160f24e1b0cb446c810b46974612829cace5db"
+          ],
+          "tree": "628f9326f6592d30f8c01abfc62439701882d613",
+          "subject": "test(hg): close unhandled resources in suite",
+          "patch_id": "60a7424502cc34554779eb346ea44c85608bf27a"
+        },
+        {
+          "commit": "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0",
+          "parents": [
+            "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d"
+          ],
+          "tree": "d9d0984b47b99915a2abcbb789e654fd56430200",
+          "subject": "test(hg): record T-018 G13 remediation evidence",
+          "patch_id": "06941c65483df6b07424b1f1df09b3b3e56ef105"
+        },
+        {
+          "commit": "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e",
+          "parents": [
+            "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0"
+          ],
+          "tree": "4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b",
+          "subject": "feat(sync): validate origin records and preflight batches",
+          "patch_id": "ed2abe0d8d60d16c0244f840d36ac4232eb12b3e"
+        },
+        {
+          "commit": "91985c286be7ddb62ec93423af886d3db6e8fcea",
+          "parents": [
+            "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e"
+          ],
+          "tree": "71e4c8d0088a7a30e63944c743608b5a0d3a1353",
+          "subject": "test(sync): record T-018 V2 verification evidence",
+          "patch_id": "c31c35e55a99e4ff2eb45ff7c1c91c83347517b9"
+        },
+        {
+          "commit": "bdf9b8fac1e4b32c31713cfd8632e63e758573f6",
+          "parents": [
+            "91985c286be7ddb62ec93423af886d3db6e8fcea"
+          ],
+          "tree": "3c89c8ed1a3aed6914ffb3b4a0b258ec496ad57f",
+          "subject": "ci: verify HG2 suite twice with resource warnings as errors",
+          "patch_id": "7dafb81086c7b4612f2e48e51243b332e2530a6a"
+        },
+        {
+          "commit": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+          "parents": [
+            "bdf9b8fac1e4b32c31713cfd8632e63e758573f6"
+          ],
+          "tree": "eaae42da98ad94ba8b7c48f2f6e891d71fb1393b",
+          "subject": "ci: compare normalized logs on every verification run",
+          "patch_id": "a6f9bbf1b048932e7e959290b11540c63235a6f9"
+        },
+        {
+          "commit": "6f636c5ebdf7363172fdd2cbda6d72258179589d",
+          "parents": [
+            "4d97c34d8bb7c1091265330aef63dd78d0e72c49"
+          ],
+          "tree": "4a8102c94f85f20b675ed622b30b04704b697717",
+          "subject": "docs: design authenticated T-018 sync gates",
+          "patch_id": "9b2d5cae3dc6369d45808f0786d33a85fb30c13d"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/5aa7fa491745f59f1778916e568192f9c47fa7bc8594584c5db80672be2f9eaa.patch",
+      "snapshot_sha256": "5aa7fa491745f59f1778916e568192f9c47fa7bc8594584c5db80672be2f9eaa",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_T018_DEFERRED_NOT_ACTIVATED",
+      "recovery_bundle_ref_sha": "6f636c5ebdf7363172fdd2cbda6d72258179589d",
+      "changed_path_count": 45,
+      "commit_count": 8
+    },
+    {
+      "branch": "docs/t018-remove-signature-scope-20261013",
+      "source_sha": "a296abb3016a1cf771d3db1c870dad8e3fdb9adb",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/docs/t018-remove-signature-scope-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "A\t.circleci/config.yml",
+        "A\tdocs/T-018-SYNC-V2-CONTRACT.md",
+        "A\tdocs/design/T-018-ACCEPTANCE-CRITERIA-V2.md",
+        "A\tdocs/design/T-018-IMPLEMENTATION-DESIGN-V1.md",
+        "A\tdocs/design/T-018-THREAT-MODEL-V1.md",
+        "A\tevidence/T-018-DESIGN-20261013/PRE-REVIEW-FINDINGS.md",
+        "A\tevidence/T-018-DESIGN-20261013/PRE-REVIEW-SHA256SUMS.txt",
+        "A\tevidence/T-018-DESIGN-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-DESIGN-20261013/manifest.md",
+        "A\tevidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-G13-20261013/baseline-core.log",
+        "A\tevidence/T-018-G13-20261013/baseline-suite.log",
+        "A\tevidence/T-018-G13-20261013/baseline-t018.log",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/environment-clean-checkout.txt",
+        "A\tevidence/T-018-G13-20261013/environment-working-copy.txt",
+        "A\tevidence/T-018-G13-20261013/fixed-core.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-t018.log",
+        "A\tevidence/T-018-G13-20261013/manifest.md",
+        "A\tevidence/T-018-SCOPE-CORRECTION-MANIFEST.json",
+        "A\tevidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/core-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/environment.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/manifest.md",
+        "A\tevidence/T-018-SYNC-V2-20261013/t018-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log",
+        "A\thg/sync.py",
+        "M\ttests/test_core.py",
+        "A\ttests/test_t018_sync.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "3b160f24e1b0cb446c810b46974612829cace5db",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "e24e5463155ec23b66ba35790c2aceabe13010df",
+          "subject": "feat(hg): T-018 cross-context event synchronization (spool, fail-closed)",
+          "patch_id": "2365a4ad1b40e3cda1a4b52de9aea4d96c020969"
+        },
+        {
+          "commit": "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d",
+          "parents": [
+            "3b160f24e1b0cb446c810b46974612829cace5db"
+          ],
+          "tree": "628f9326f6592d30f8c01abfc62439701882d613",
+          "subject": "test(hg): close unhandled resources in suite",
+          "patch_id": "60a7424502cc34554779eb346ea44c85608bf27a"
+        },
+        {
+          "commit": "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0",
+          "parents": [
+            "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d"
+          ],
+          "tree": "d9d0984b47b99915a2abcbb789e654fd56430200",
+          "subject": "test(hg): record T-018 G13 remediation evidence",
+          "patch_id": "06941c65483df6b07424b1f1df09b3b3e56ef105"
+        },
+        {
+          "commit": "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e",
+          "parents": [
+            "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0"
+          ],
+          "tree": "4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b",
+          "subject": "feat(sync): validate origin records and preflight batches",
+          "patch_id": "ed2abe0d8d60d16c0244f840d36ac4232eb12b3e"
+        },
+        {
+          "commit": "91985c286be7ddb62ec93423af886d3db6e8fcea",
+          "parents": [
+            "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e"
+          ],
+          "tree": "71e4c8d0088a7a30e63944c743608b5a0d3a1353",
+          "subject": "test(sync): record T-018 V2 verification evidence",
+          "patch_id": "c31c35e55a99e4ff2eb45ff7c1c91c83347517b9"
+        },
+        {
+          "commit": "bdf9b8fac1e4b32c31713cfd8632e63e758573f6",
+          "parents": [
+            "91985c286be7ddb62ec93423af886d3db6e8fcea"
+          ],
+          "tree": "3c89c8ed1a3aed6914ffb3b4a0b258ec496ad57f",
+          "subject": "ci: verify HG2 suite twice with resource warnings as errors",
+          "patch_id": "7dafb81086c7b4612f2e48e51243b332e2530a6a"
+        },
+        {
+          "commit": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+          "parents": [
+            "bdf9b8fac1e4b32c31713cfd8632e63e758573f6"
+          ],
+          "tree": "eaae42da98ad94ba8b7c48f2f6e891d71fb1393b",
+          "subject": "ci: compare normalized logs on every verification run",
+          "patch_id": "a6f9bbf1b048932e7e959290b11540c63235a6f9"
+        },
+        {
+          "commit": "6f636c5ebdf7363172fdd2cbda6d72258179589d",
+          "parents": [
+            "4d97c34d8bb7c1091265330aef63dd78d0e72c49"
+          ],
+          "tree": "4a8102c94f85f20b675ed622b30b04704b697717",
+          "subject": "docs: design authenticated T-018 sync gates",
+          "patch_id": "9b2d5cae3dc6369d45808f0786d33a85fb30c13d"
+        },
+        {
+          "commit": "fa90faacb4a47492121480455c1747535ab5817c",
+          "parents": [
+            "6f636c5ebdf7363172fdd2cbda6d72258179589d"
+          ],
+          "tree": "9ec9db57cc76ff72e8330acc6b11635c7941e232",
+          "subject": "docs: record T-018 design pre-review blockers",
+          "patch_id": "756f27abbb46f0356c143f2e056f106cbf369c51"
+        },
+        {
+          "commit": "28e1722a64c4c868f6b4ebe4513494f9b66b3a20",
+          "parents": [
+            "fa90faacb4a47492121480455c1747535ab5817c"
+          ],
+          "tree": "26c46ae13b7908a2fb86a5e306b7aaab64552874",
+          "subject": "docs: remove T-018 signature acceptance requirements",
+          "patch_id": "537b244c0527661a57db2594fb10fc2aa72f62b5"
+        },
+        {
+          "commit": "5acecb51584680cc7dfd2d52269020b55ebbfc1e",
+          "parents": [
+            "28e1722a64c4c868f6b4ebe4513494f9b66b3a20"
+          ],
+          "tree": "bf99af54edcd972df9ba05b4df121abaab3d0de3",
+          "subject": "docs: clarify T-018 review status and evidence boundary",
+          "patch_id": "ca47ac44496a03d4418691e444f5e87585c0555d"
+        },
+        {
+          "commit": "a296abb3016a1cf771d3db1c870dad8e3fdb9adb",
+          "parents": [
+            "5acecb51584680cc7dfd2d52269020b55ebbfc1e"
+          ],
+          "tree": "d0c79756182ac1f596bbd41daf0061fdad87d27c",
+          "subject": "docs: remove T-018 independent review gates",
+          "patch_id": "94e797e5ef72bbc2ba2088a0646b356ae5ebe496"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/ec551a32a64691e53e184e1dfec5d7e180d4581767ce5a9c297fd62c4ad8f295.patch",
+      "snapshot_sha256": "ec551a32a64691e53e184e1dfec5d7e180d4581767ce5a9c297fd62c4ad8f295",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_T018_DEFERRED_NOT_ACTIVATED",
+      "recovery_bundle_ref_sha": "a296abb3016a1cf771d3db1c870dad8e3fdb9adb",
+      "changed_path_count": 49,
+      "commit_count": 12
+    },
+    {
+      "branch": "feat/hexis-edge-schema-guard-20261013",
+      "source_sha": "fa53a5768145279f54f182e8c5cc3c73976fda42",
+      "merge_base": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "recovery_bundle_ref": "refs/remotes/origin/feat/hexis-edge-schema-guard-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "M\tREADME.md",
+        "A\tcontract/PRODUCT_SCOPE_DECISIONS_V1.json",
+        "A\tdocs/GOVERNANCE_SIMPLIFICATION_HG2_V1.md",
+        "M\tdocs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md",
+        "A\tdocs/LEGACY_HANDOFF_STATUS_HG2_V1.md",
+        "A\tdocs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md",
+        "A\tdocs/PRODUCT_SCOPE_DECISIONS_HG2_V1.md",
+        "A\tdocs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md",
+        "M\tevidence/HEXIS-20261013/SHA256SUMS.txt",
+        "A\tevidence/HG2_DURABILITY_P0_EVIDENCE_51676A7.json",
+        "A\tevidence/HG2_P0_SINGLE_PRODUCT_EVIDENCE_E0C3D35.json",
+        "A\tevidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json",
+        "A\tevidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_49AFBC1.json",
+        "A\tevidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json",
+        "A\tevidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json",
+        "A\tevidence/hg2-single-product-clean-tests-e0c3d35.log",
+        "M\thg/history.py",
+        "M\thg/phone_runtime.py",
+        "M\tmanifest.json",
+        "A\ttests/fixtures/hg_store_pre_mapping/fixture_manifest.json",
+        "A\ttests/fixtures/hg_store_pre_mapping/head.json",
+        "A\ttests/fixtures/hg_store_pre_mapping/history.jsonl",
+        "A\ttests/fixtures/hg_store_pre_mapping/runtime_id",
+        "A\ttests/fixtures/hg_store_pre_mapping/state.json",
+        "M\ttests/test_core.py",
+        "A\ttests/test_integrity_v2.py",
+        "A\ttests/test_product_scope_acceptance.py",
+        "A\ttests/test_product_scope_decisions.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "0c8ad10b0f887d5e935122daefcba2bec0b27691",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "f4a3c9f0204b0133efe1876091a610178e6451c8",
+          "subject": "fix(hg2): fail-closed history/checkpoint policy (P0)",
+          "patch_id": "ae54d66b5df4bcc76a04f2aefb20f1dda2021fcd"
+        },
+        {
+          "commit": "40310360f84d53823be2d49eb6c41465092753d9",
+          "parents": [
+            "0c8ad10b0f887d5e935122daefcba2bec0b27691"
+          ],
+          "tree": "b4ad8dcf090cd9bcf645854ac21e4550c2d92d4d",
+          "subject": "fix(hg2): snapshot pre-existing artifacts before creating runtime_id",
+          "patch_id": "d6ab589af4cbe71eb26deb7f19feb63bf5f78ae4"
+        },
+        {
+          "commit": "0a95c03487fbbd739c751cf08a802250af6e5dc2",
+          "parents": [
+            "40310360f84d53823be2d49eb6c41465092753d9"
+          ],
+          "tree": "a012aeac5e0343ded8ab65ebf7b263a47c7ebcd7",
+          "subject": "ci(hg2): run the P0 suite with ResourceWarning as ERROR on the Deep P0 branch",
+          "patch_id": "2fd994a581a8e37078d961d0602a0763e48e36c5"
+        },
+        {
+          "commit": "b28fff890f2d879a77e1fda3ce26c87f3bec7a45",
+          "parents": [
+            "0a95c03487fbbd739c751cf08a802250af6e5dc2"
+          ],
+          "tree": "4dbb75b596e1381b232a65a0a18558b1a0aa934a",
+          "subject": "fix(hg2): reject any state projection divergence and close test resources",
+          "patch_id": "ff1c172bd90eaa3bdd6d1bcff23d43a2ec0960ef"
+        },
+        {
+          "commit": "e0c3d3578d54b830cd55f50a075e3862b3b13cce",
+          "parents": [
+            "b28fff890f2d879a77e1fda3ce26c87f3bec7a45"
+          ],
+          "tree": "28bf83e10f155f224f748dc75910585810bcafdb",
+          "subject": "fix(hg2): fail closed on missing state and require session verifier",
+          "patch_id": "6564d06cb47916be0c0786b6308d73e579efc7b7"
+        },
+        {
+          "commit": "b870b0b252bb6ec024fbeaaa1c7e299110f196c6",
+          "parents": [
+            "e0c3d3578d54b830cd55f50a075e3862b3b13cce"
+          ],
+          "tree": "4f6a41bda5b3ed9f7c6e884327e19529e997d6fa",
+          "subject": "test(hg2): record clean-checkout P0 evidence",
+          "patch_id": "b02fca703ebcc7bda4d337e9204d2f8c18cadbb4"
+        },
+        {
+          "commit": "acac181ebdf121825a04490a2a833757643bef73",
+          "parents": [
+            "b870b0b252bb6ec024fbeaaa1c7e299110f196c6"
+          ],
+          "tree": "5f096e7b59357ed8bad52e87655cc4beb5bc37c6",
+          "subject": "docs(hg2): reconcile CircleCI verification evidence",
+          "patch_id": "6ae3133f35442ceb6e436457e258096eed6f215d"
+        },
+        {
+          "commit": "e7b72d05de9441e662b1ccc4cc56d6c8b1638adc",
+          "parents": [
+            "acac181ebdf121825a04490a2a833757643bef73"
+          ],
+          "tree": "87e6bf37f65427392da8e71a8655db150a1936a8",
+          "subject": "fix(hg2): serialize history writes and fail closed on persistence errors",
+          "patch_id": "ebf378f3a17b6fb7c6bcb165a3f930b5f9d27f2b"
+        },
+        {
+          "commit": "51676a7b8c813f512bdc262708cfed92e39590a0",
+          "parents": [
+            "e7b72d05de9441e662b1ccc4cc56d6c8b1638adc"
+          ],
+          "tree": "38b41e088cb50bcfa845ed03d11b4f878c870495",
+          "subject": "fix(hg2): fsync durable state and serialize initialization",
+          "patch_id": "e4589092c6b4c3ea850ad15abdd8c39fdaeb99e6"
+        },
+        {
+          "commit": "ba85acecb0d486669b0bfadc61958b00af3f6bec",
+          "parents": [
+            "51676a7b8c813f512bdc262708cfed92e39590a0"
+          ],
+          "tree": "d2d95e4af323bccbe19ccdb6a9d99f4d7da1a056",
+          "subject": "docs(hg2): record durability P0 verification evidence",
+          "patch_id": "706d4d5425fc51d105218e4d3d5a7dd9d1c229dd"
+        },
+        {
+          "commit": "b5f49770cba13cd995533cd140b7560d999c441e",
+          "parents": [
+            "ba85acecb0d486669b0bfadc61958b00af3f6bec"
+          ],
+          "tree": "d3b4e9e2abd018187a9e19787d797013ef7cb356",
+          "subject": "docs: record HG2 product scope decisions and gates",
+          "patch_id": "e93b205236b0fd5812a7c72620a675d88baf8055"
+        },
+        {
+          "commit": "d834b7424c89c346b9db55d79dd869ecca46cd31",
+          "parents": [
+            "b5f49770cba13cd995533cd140b7560d999c441e"
+          ],
+          "tree": "26f8e74307de41af317e035be9bd638ca035cffb",
+          "subject": "docs: record HG2 provenance exception and verification boundary",
+          "patch_id": "102d75d77b95487561a098e95f8ae7ada20f3ca4"
+        },
+        {
+          "commit": "49afbc1013aeb5adcb3b7d5854d458197552525c",
+          "parents": [
+            "d834b7424c89c346b9db55d79dd869ecca46cd31"
+          ],
+          "tree": "3e3cf261e902f4b7e3e1edf340ef5ef583bc57ae",
+          "subject": "test: enforce HG2 product scope acceptance gates",
+          "patch_id": "8ff27548c726c68fa588e81a7f057b79091a353d"
+        },
+        {
+          "commit": "74ecb9ef310008d07e2799b567e50b2ebd41f271",
+          "parents": [
+            "49afbc1013aeb5adcb3b7d5854d458197552525c"
+          ],
+          "tree": "acd6620f0c4f98fa311887e49affe0aa837acd79",
+          "subject": "docs: attach exact-sha scope acceptance evidence",
+          "patch_id": "de45ea0b1ae6545b264a600f0075912bdcd5d2d9"
+        },
+        {
+          "commit": "2a0e80c08a786d273b5c786eea35c10704039132",
+          "parents": [
+            "74ecb9ef310008d07e2799b567e50b2ebd41f271"
+          ],
+          "tree": "a5ebee8a0ed688350d23d8e5074bf81727036655",
+          "subject": "docs: bind scope gates to verified acceptance evidence",
+          "patch_id": "1d158856827a81df936f4b0d1053151f13ec1d40"
+        },
+        {
+          "commit": "46e90fb226e0c434158212a69717025745cad337",
+          "parents": [
+            "2a0e80c08a786d273b5c786eea35c10704039132"
+          ],
+          "tree": "1120be25e8c225e11201016cac1bfd92405ea19c",
+          "subject": "docs: extend scope inventory to ops source",
+          "patch_id": "00d56ce4a4de8c151db40a307a9d7d3743b40482"
+        },
+        {
+          "commit": "f7f3065707066dbccfbb70ab976140bef567d5cf",
+          "parents": [
+            "46e90fb226e0c434158212a69717025745cad337"
+          ],
+          "tree": "d30a237d4ca80ac8437a14cddf06e637979d368b",
+          "subject": "docs: bind acceptance gates to latest source inventory",
+          "patch_id": "3a0817dc9888910dade4358d7e69b8962264e649"
+        },
+        {
+          "commit": "e49904db963205ae5863f6b8ed655654f118dbde",
+          "parents": [
+            "f7f3065707066dbccfbb70ab976140bef567d5cf"
+          ],
+          "tree": "8dbd7029b295a338fc9855e69a5fe530889a720b",
+          "subject": "docs: prepare independent HG2 review handoff",
+          "patch_id": "da2409ef69b0d32e956d8c637e2eb2438ac39cbd"
+        },
+        {
+          "commit": "1cbc6810d4ad3cc4aff86ca3fc0328b889efcfde",
+          "parents": [
+            "e49904db963205ae5863f6b8ed655654f118dbde"
+          ],
+          "tree": "37a67082df03c21020a2669cfc97042735d9eb8e",
+          "subject": "fix: reject invalid history event inputs before append",
+          "patch_id": "a95f046d7acf690b0be37a6ff194316a2ce0e3c1"
+        },
+        {
+          "commit": "a7caefa0f529fd54f7f20dc2fda8d5225b8973c5",
+          "parents": [
+            "1cbc6810d4ad3cc4aff86ca3fc0328b889efcfde"
+          ],
+          "tree": "127b410e9090e438af2b6b1332a2bdea3e2c421e",
+          "subject": "fix: validate explicit event identifiers before append",
+          "patch_id": "4fc480ec8e616aeb384eff7e6417090a3ec07ce4"
+        },
+        {
+          "commit": "8c653a5b5d5959e760c1b14669b97660d3941747",
+          "parents": [
+            "a7caefa0f529fd54f7f20dc2fda8d5225b8973c5"
+          ],
+          "tree": "ffa91beee3d89a357d65bb0b0a965640e2336ea6",
+          "subject": "fix: enforce exact durable state artifact semantics",
+          "patch_id": "3b4b41ff2fc7328c98d0e9900b2e2f02a908ada8"
+        },
+        {
+          "commit": "d1f67a35a70f5a048a8dba725d5d3c24e8f05283",
+          "parents": [
+            "8c653a5b5d5959e760c1b14669b97660d3941747"
+          ],
+          "tree": "78ea197ce4527d392d7838f5b163b5acc33b9ce0",
+          "subject": "fix: harden durable JSON verification and snapshots",
+          "patch_id": "00785fb078c07d5aeb724a8247d753413f80cdd2"
+        },
+        {
+          "commit": "dde3ef7b192d0db446d56481d073df150e10da67",
+          "parents": [
+            "d1f67a35a70f5a048a8dba725d5d3c24e8f05283"
+          ],
+          "tree": "2cd0a43b7569886630db217e0e556ddb41018412",
+          "subject": "feat: absorb HEXIS edge request schema guards",
+          "patch_id": "093f4dfb0db0edfc42819a3f906153bf7b3e0acf"
+        },
+        {
+          "commit": "f9517c39cc5361911e03ed9d876921d1df7f0c13",
+          "parents": [
+            "dde3ef7b192d0db446d56481d073df150e10da67"
+          ],
+          "tree": "ae51dc8e4cd2e03b2a2303b7e3c67d42e155aa83",
+          "subject": "docs: record HEXIS integration status",
+          "patch_id": "f67321a7127afd32ec744272b12f6f4b7cf26177"
+        },
+        {
+          "commit": "c086497f8a31248f0aaca03cf0e8f13bdcccf3b3",
+          "parents": [
+            "d1f67a35a70f5a048a8dba725d5d3c24e8f05283",
+            "cdebaeed014371f033f14352f552c6d0d4e69198"
+          ],
+          "tree": "1a33169eac70656872b55942a3e1863091909cd4",
+          "subject": "merge: synchronize candidate with canonical HEXIS absorption",
+          "patch_id": null
+        },
+        {
+          "commit": "fa53a5768145279f54f182e8c5cc3c73976fda42",
+          "parents": [
+            "f9517c39cc5361911e03ed9d876921d1df7f0c13",
+            "c086497f8a31248f0aaca03cf0e8f13bdcccf3b3"
+          ],
+          "tree": "7806d9935aaa8bcacdb9c8f00ae7210d75b954f3",
+          "subject": "merge: align policy changes with canonical HEXIS absorption",
+          "patch_id": "053ac3a14d5837aa5d58685ff6245115d6057a48"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/d8a704296808727133e69b92a229c9b3fce3fec68f58b993a7a85f8709dd9219.patch",
+      "snapshot_sha256": "d8a704296808727133e69b92a229c9b3fce3fec68f58b993a7a85f8709dd9219",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_ALTERNATE_PRODUCT_SCOPE_AND_INTEGRITY_SOURCE_FOR_REVIEW",
+      "recovery_bundle_ref_sha": "fa53a5768145279f54f182e8c5cc3c73976fda42",
+      "changed_path_count": 28,
+      "commit_count": 26
+    },
+    {
+      "branch": "feat/hg-t018-cross-context-sync-20261013",
+      "source_sha": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/feat/hg-t018-cross-context-sync-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "A\t.circleci/config.yml",
+        "A\tdocs/T-018-SYNC-V2-CONTRACT.md",
+        "A\tevidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-G13-20261013/baseline-core.log",
+        "A\tevidence/T-018-G13-20261013/baseline-suite.log",
+        "A\tevidence/T-018-G13-20261013/baseline-t018.log",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/environment-clean-checkout.txt",
+        "A\tevidence/T-018-G13-20261013/environment-working-copy.txt",
+        "A\tevidence/T-018-G13-20261013/fixed-core.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-t018.log",
+        "A\tevidence/T-018-G13-20261013/manifest.md",
+        "A\tevidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/core-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/environment.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/manifest.md",
+        "A\tevidence/T-018-SYNC-V2-20261013/t018-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log",
+        "A\thg/sync.py",
+        "M\ttests/test_core.py",
+        "A\ttests/test_t018_sync.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "3b160f24e1b0cb446c810b46974612829cace5db",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "e24e5463155ec23b66ba35790c2aceabe13010df",
+          "subject": "feat(hg): T-018 cross-context event synchronization (spool, fail-closed)",
+          "patch_id": "2365a4ad1b40e3cda1a4b52de9aea4d96c020969"
+        },
+        {
+          "commit": "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d",
+          "parents": [
+            "3b160f24e1b0cb446c810b46974612829cace5db"
+          ],
+          "tree": "628f9326f6592d30f8c01abfc62439701882d613",
+          "subject": "test(hg): close unhandled resources in suite",
+          "patch_id": "60a7424502cc34554779eb346ea44c85608bf27a"
+        },
+        {
+          "commit": "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0",
+          "parents": [
+            "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d"
+          ],
+          "tree": "d9d0984b47b99915a2abcbb789e654fd56430200",
+          "subject": "test(hg): record T-018 G13 remediation evidence",
+          "patch_id": "06941c65483df6b07424b1f1df09b3b3e56ef105"
+        },
+        {
+          "commit": "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e",
+          "parents": [
+            "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0"
+          ],
+          "tree": "4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b",
+          "subject": "feat(sync): validate origin records and preflight batches",
+          "patch_id": "ed2abe0d8d60d16c0244f840d36ac4232eb12b3e"
+        },
+        {
+          "commit": "91985c286be7ddb62ec93423af886d3db6e8fcea",
+          "parents": [
+            "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e"
+          ],
+          "tree": "71e4c8d0088a7a30e63944c743608b5a0d3a1353",
+          "subject": "test(sync): record T-018 V2 verification evidence",
+          "patch_id": "c31c35e55a99e4ff2eb45ff7c1c91c83347517b9"
+        },
+        {
+          "commit": "bdf9b8fac1e4b32c31713cfd8632e63e758573f6",
+          "parents": [
+            "91985c286be7ddb62ec93423af886d3db6e8fcea"
+          ],
+          "tree": "3c89c8ed1a3aed6914ffb3b4a0b258ec496ad57f",
+          "subject": "ci: verify HG2 suite twice with resource warnings as errors",
+          "patch_id": "7dafb81086c7b4612f2e48e51243b332e2530a6a"
+        },
+        {
+          "commit": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+          "parents": [
+            "bdf9b8fac1e4b32c31713cfd8632e63e758573f6"
+          ],
+          "tree": "eaae42da98ad94ba8b7c48f2f6e891d71fb1393b",
+          "subject": "ci: compare normalized logs on every verification run",
+          "patch_id": "a6f9bbf1b048932e7e959290b11540c63235a6f9"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/7d2c4cdd69514e7a33cc0ab514b9a3d7c9f254393c4bb52dfe3770bdb738b3b0.patch",
+      "snapshot_sha256": "7d2c4cdd69514e7a33cc0ab514b9a3d7c9f254393c4bb52dfe3770bdb738b3b0",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_T018_DEFERRED_NOT_ACTIVATED",
+      "recovery_bundle_ref_sha": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+      "changed_path_count": 41,
+      "commit_count": 7
+    },
+    {
+      "branch": "fix/hg2-p0-v3-integrity-20261013",
+      "source_sha": "b38afe04d9d71b3b605d2745091731c1860bb359",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/fix/hg2-p0-v3-integrity-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "M\thg/history.py",
+        "M\ttests/test_core.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "60390b2c5f925734c88b60d6b460e65b2f6899fe",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "daa622ad9a1e095dc043e0c6e609b69107dd4f6e",
+          "subject": "fix: fail closed on HG2 integrity gaps",
+          "patch_id": "3506d6e0bb066c3a1ee91b7ef5aeea6ee0f4da59"
+        },
+        {
+          "commit": "b38afe04d9d71b3b605d2745091731c1860bb359",
+          "parents": [
+            "60390b2c5f925734c88b60d6b460e65b2f6899fe"
+          ],
+          "tree": "fffa5234d7315ae7652309f7eaaf5300696c59a2",
+          "subject": "fix: reject malformed HG2 history records",
+          "patch_id": "fd5bdeee0ae8cd5556f3343662c9ab61a719c5b3"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/d1a50d7f0f3b7d5270dcbeb73ca0af848ddea4572645ae0468da6bccf02268ba.patch",
+      "snapshot_sha256": "d1a50d7f0f3b7d5270dcbeb73ca0af848ddea4572645ae0468da6bccf02268ba",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_FIX_SOURCE_VARIANT_REQUIRES_OR_IS_SUPERSEDED_BY_CURRENT_CORE_VALIDATION",
+      "recovery_bundle_ref_sha": "b38afe04d9d71b3b605d2745091731c1860bb359",
+      "changed_path_count": 2,
+      "commit_count": 2
+    },
+    {
+      "branch": "fix/hg2-resourcewarning-20261015",
+      "source_sha": "93ace2bf4b55ee1b3e4285529a4e65405fedc91f",
+      "merge_base": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "recovery_bundle_ref": "refs/remotes/origin/fix/hg2-resourcewarning-20261015",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "M\ttests/test_core.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "93ace2bf4b55ee1b3e4285529a4e65405fedc91f",
+          "parents": [
+            "cdebaeed014371f033f14352f552c6d0d4e69198"
+          ],
+          "tree": "a1fb806e2ae196dda97cd6f43df6a346afbd73b4",
+          "subject": "test: close file handles in resource warning checks",
+          "patch_id": "61bf6cd229b68c3f96a77c3aa6d267a861c9a34f"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/5c87cf5d895823b665fd8cb6832526abfbfc9bef6d5648effa619b5bd9d7f6b1.patch",
+      "snapshot_sha256": "5c87cf5d895823b665fd8cb6832526abfbfc9bef6d5648effa619b5bd9d7f6b1",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_FIX_SOURCE_VARIANT_REQUIRES_OR_IS_SUPERSEDED_BY_CURRENT_CORE_VALIDATION",
+      "recovery_bundle_ref_sha": "93ace2bf4b55ee1b3e4285529a4e65405fedc91f",
+      "changed_path_count": 1,
+      "commit_count": 1
+    },
+    {
+      "branch": "fix/hg2-single-product-readiness-20261013",
+      "source_sha": "63942520602108f6aa172a9d419822033271e2b2",
+      "merge_base": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "recovery_bundle_ref": "refs/remotes/origin/fix/hg2-single-product-readiness-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "M\tREADME.md",
+        "A\tcontract/PRODUCT_SCOPE_DECISIONS_V1.json",
+        "A\tdocs/GOVERNANCE_SIMPLIFICATION_HG2_V1.md",
+        "M\tdocs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md",
+        "A\tdocs/LEGACY_HANDOFF_STATUS_HG2_V1.md",
+        "A\tdocs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md",
+        "A\tdocs/PRODUCT_SCOPE_DECISIONS_HG2_V1.md",
+        "A\tdocs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md",
+        "M\tevidence/HEXIS-20261013/SHA256SUMS.txt",
+        "A\tevidence/HG2_DURABILITY_P0_EVIDENCE_51676A7.json",
+        "A\tevidence/HG2_P0_SINGLE_PRODUCT_EVIDENCE_E0C3D35.json",
+        "A\tevidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json",
+        "A\tevidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_49AFBC1.json",
+        "A\tevidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_74ECB9E.json",
+        "A\tevidence/HG2_PRODUCT_SCOPE_DEPENDENCY_INVENTORY_V1.json",
+        "A\tevidence/hg2-single-product-clean-tests-e0c3d35.log",
+        "M\thg/history.py",
+        "M\thg/phone_runtime.py",
+        "M\tmanifest.json",
+        "A\ttests/fixtures/hg_store_pre_mapping/fixture_manifest.json",
+        "A\ttests/fixtures/hg_store_pre_mapping/head.json",
+        "A\ttests/fixtures/hg_store_pre_mapping/history.jsonl",
+        "A\ttests/fixtures/hg_store_pre_mapping/runtime_id",
+        "A\ttests/fixtures/hg_store_pre_mapping/state.json",
+        "M\ttests/test_core.py",
+        "A\ttests/test_integrity_v2.py",
+        "A\ttests/test_product_scope_acceptance.py",
+        "A\ttests/test_product_scope_decisions.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "0c8ad10b0f887d5e935122daefcba2bec0b27691",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "f4a3c9f0204b0133efe1876091a610178e6451c8",
+          "subject": "fix(hg2): fail-closed history/checkpoint policy (P0)",
+          "patch_id": "ae54d66b5df4bcc76a04f2aefb20f1dda2021fcd"
+        },
+        {
+          "commit": "40310360f84d53823be2d49eb6c41465092753d9",
+          "parents": [
+            "0c8ad10b0f887d5e935122daefcba2bec0b27691"
+          ],
+          "tree": "b4ad8dcf090cd9bcf645854ac21e4550c2d92d4d",
+          "subject": "fix(hg2): snapshot pre-existing artifacts before creating runtime_id",
+          "patch_id": "d6ab589af4cbe71eb26deb7f19feb63bf5f78ae4"
+        },
+        {
+          "commit": "0a95c03487fbbd739c751cf08a802250af6e5dc2",
+          "parents": [
+            "40310360f84d53823be2d49eb6c41465092753d9"
+          ],
+          "tree": "a012aeac5e0343ded8ab65ebf7b263a47c7ebcd7",
+          "subject": "ci(hg2): run the P0 suite with ResourceWarning as ERROR on the Deep P0 branch",
+          "patch_id": "2fd994a581a8e37078d961d0602a0763e48e36c5"
+        },
+        {
+          "commit": "b28fff890f2d879a77e1fda3ce26c87f3bec7a45",
+          "parents": [
+            "0a95c03487fbbd739c751cf08a802250af6e5dc2"
+          ],
+          "tree": "4dbb75b596e1381b232a65a0a18558b1a0aa934a",
+          "subject": "fix(hg2): reject any state projection divergence and close test resources",
+          "patch_id": "ff1c172bd90eaa3bdd6d1bcff23d43a2ec0960ef"
+        },
+        {
+          "commit": "e0c3d3578d54b830cd55f50a075e3862b3b13cce",
+          "parents": [
+            "b28fff890f2d879a77e1fda3ce26c87f3bec7a45"
+          ],
+          "tree": "28bf83e10f155f224f748dc75910585810bcafdb",
+          "subject": "fix(hg2): fail closed on missing state and require session verifier",
+          "patch_id": "6564d06cb47916be0c0786b6308d73e579efc7b7"
+        },
+        {
+          "commit": "b870b0b252bb6ec024fbeaaa1c7e299110f196c6",
+          "parents": [
+            "e0c3d3578d54b830cd55f50a075e3862b3b13cce"
+          ],
+          "tree": "4f6a41bda5b3ed9f7c6e884327e19529e997d6fa",
+          "subject": "test(hg2): record clean-checkout P0 evidence",
+          "patch_id": "b02fca703ebcc7bda4d337e9204d2f8c18cadbb4"
+        },
+        {
+          "commit": "acac181ebdf121825a04490a2a833757643bef73",
+          "parents": [
+            "b870b0b252bb6ec024fbeaaa1c7e299110f196c6"
+          ],
+          "tree": "5f096e7b59357ed8bad52e87655cc4beb5bc37c6",
+          "subject": "docs(hg2): reconcile CircleCI verification evidence",
+          "patch_id": "6ae3133f35442ceb6e436457e258096eed6f215d"
+        },
+        {
+          "commit": "e7b72d05de9441e662b1ccc4cc56d6c8b1638adc",
+          "parents": [
+            "acac181ebdf121825a04490a2a833757643bef73"
+          ],
+          "tree": "87e6bf37f65427392da8e71a8655db150a1936a8",
+          "subject": "fix(hg2): serialize history writes and fail closed on persistence errors",
+          "patch_id": "ebf378f3a17b6fb7c6bcb165a3f930b5f9d27f2b"
+        },
+        {
+          "commit": "51676a7b8c813f512bdc262708cfed92e39590a0",
+          "parents": [
+            "e7b72d05de9441e662b1ccc4cc56d6c8b1638adc"
+          ],
+          "tree": "38b41e088cb50bcfa845ed03d11b4f878c870495",
+          "subject": "fix(hg2): fsync durable state and serialize initialization",
+          "patch_id": "e4589092c6b4c3ea850ad15abdd8c39fdaeb99e6"
+        },
+        {
+          "commit": "ba85acecb0d486669b0bfadc61958b00af3f6bec",
+          "parents": [
+            "51676a7b8c813f512bdc262708cfed92e39590a0"
+          ],
+          "tree": "d2d95e4af323bccbe19ccdb6a9d99f4d7da1a056",
+          "subject": "docs(hg2): record durability P0 verification evidence",
+          "patch_id": "706d4d5425fc51d105218e4d3d5a7dd9d1c229dd"
+        },
+        {
+          "commit": "b5f49770cba13cd995533cd140b7560d999c441e",
+          "parents": [
+            "ba85acecb0d486669b0bfadc61958b00af3f6bec"
+          ],
+          "tree": "d3b4e9e2abd018187a9e19787d797013ef7cb356",
+          "subject": "docs: record HG2 product scope decisions and gates",
+          "patch_id": "e93b205236b0fd5812a7c72620a675d88baf8055"
+        },
+        {
+          "commit": "d834b7424c89c346b9db55d79dd869ecca46cd31",
+          "parents": [
+            "b5f49770cba13cd995533cd140b7560d999c441e"
+          ],
+          "tree": "26f8e74307de41af317e035be9bd638ca035cffb",
+          "subject": "docs: record HG2 provenance exception and verification boundary",
+          "patch_id": "102d75d77b95487561a098e95f8ae7ada20f3ca4"
+        },
+        {
+          "commit": "49afbc1013aeb5adcb3b7d5854d458197552525c",
+          "parents": [
+            "d834b7424c89c346b9db55d79dd869ecca46cd31"
+          ],
+          "tree": "3e3cf261e902f4b7e3e1edf340ef5ef583bc57ae",
+          "subject": "test: enforce HG2 product scope acceptance gates",
+          "patch_id": "8ff27548c726c68fa588e81a7f057b79091a353d"
+        },
+        {
+          "commit": "74ecb9ef310008d07e2799b567e50b2ebd41f271",
+          "parents": [
+            "49afbc1013aeb5adcb3b7d5854d458197552525c"
+          ],
+          "tree": "acd6620f0c4f98fa311887e49affe0aa837acd79",
+          "subject": "docs: attach exact-sha scope acceptance evidence",
+          "patch_id": "de45ea0b1ae6545b264a600f0075912bdcd5d2d9"
+        },
+        {
+          "commit": "2a0e80c08a786d273b5c786eea35c10704039132",
+          "parents": [
+            "74ecb9ef310008d07e2799b567e50b2ebd41f271"
+          ],
+          "tree": "a5ebee8a0ed688350d23d8e5074bf81727036655",
+          "subject": "docs: bind scope gates to verified acceptance evidence",
+          "patch_id": "1d158856827a81df936f4b0d1053151f13ec1d40"
+        },
+        {
+          "commit": "46e90fb226e0c434158212a69717025745cad337",
+          "parents": [
+            "2a0e80c08a786d273b5c786eea35c10704039132"
+          ],
+          "tree": "1120be25e8c225e11201016cac1bfd92405ea19c",
+          "subject": "docs: extend scope inventory to ops source",
+          "patch_id": "00d56ce4a4de8c151db40a307a9d7d3743b40482"
+        },
+        {
+          "commit": "f7f3065707066dbccfbb70ab976140bef567d5cf",
+          "parents": [
+            "46e90fb226e0c434158212a69717025745cad337"
+          ],
+          "tree": "d30a237d4ca80ac8437a14cddf06e637979d368b",
+          "subject": "docs: bind acceptance gates to latest source inventory",
+          "patch_id": "3a0817dc9888910dade4358d7e69b8962264e649"
+        },
+        {
+          "commit": "e49904db963205ae5863f6b8ed655654f118dbde",
+          "parents": [
+            "f7f3065707066dbccfbb70ab976140bef567d5cf"
+          ],
+          "tree": "8dbd7029b295a338fc9855e69a5fe530889a720b",
+          "subject": "docs: prepare independent HG2 review handoff",
+          "patch_id": "da2409ef69b0d32e956d8c637e2eb2438ac39cbd"
+        },
+        {
+          "commit": "1cbc6810d4ad3cc4aff86ca3fc0328b889efcfde",
+          "parents": [
+            "e49904db963205ae5863f6b8ed655654f118dbde"
+          ],
+          "tree": "37a67082df03c21020a2669cfc97042735d9eb8e",
+          "subject": "fix: reject invalid history event inputs before append",
+          "patch_id": "a95f046d7acf690b0be37a6ff194316a2ce0e3c1"
+        },
+        {
+          "commit": "a7caefa0f529fd54f7f20dc2fda8d5225b8973c5",
+          "parents": [
+            "1cbc6810d4ad3cc4aff86ca3fc0328b889efcfde"
+          ],
+          "tree": "127b410e9090e438af2b6b1332a2bdea3e2c421e",
+          "subject": "fix: validate explicit event identifiers before append",
+          "patch_id": "4fc480ec8e616aeb384eff7e6417090a3ec07ce4"
+        },
+        {
+          "commit": "8c653a5b5d5959e760c1b14669b97660d3941747",
+          "parents": [
+            "a7caefa0f529fd54f7f20dc2fda8d5225b8973c5"
+          ],
+          "tree": "ffa91beee3d89a357d65bb0b0a965640e2336ea6",
+          "subject": "fix: enforce exact durable state artifact semantics",
+          "patch_id": "3b4b41ff2fc7328c98d0e9900b2e2f02a908ada8"
+        },
+        {
+          "commit": "d1f67a35a70f5a048a8dba725d5d3c24e8f05283",
+          "parents": [
+            "8c653a5b5d5959e760c1b14669b97660d3941747"
+          ],
+          "tree": "78ea197ce4527d392d7838f5b163b5acc33b9ce0",
+          "subject": "fix: harden durable JSON verification and snapshots",
+          "patch_id": "00785fb078c07d5aeb724a8247d753413f80cdd2"
+        },
+        {
+          "commit": "c086497f8a31248f0aaca03cf0e8f13bdcccf3b3",
+          "parents": [
+            "d1f67a35a70f5a048a8dba725d5d3c24e8f05283",
+            "cdebaeed014371f033f14352f552c6d0d4e69198"
+          ],
+          "tree": "1a33169eac70656872b55942a3e1863091909cd4",
+          "subject": "merge: synchronize candidate with canonical HEXIS absorption",
+          "patch_id": null
+        },
+        {
+          "commit": "63942520602108f6aa172a9d419822033271e2b2",
+          "parents": [
+            "c086497f8a31248f0aaca03cf0e8f13bdcccf3b3"
+          ],
+          "tree": "7806d9935aaa8bcacdb9c8f00ae7210d75b954f3",
+          "subject": "feat: absorb HEXIS edge request schema guards (#10)",
+          "patch_id": "154bc197d843d8553cccef1672c3e947cc78b0ec"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/d8a704296808727133e69b92a229c9b3fce3fec68f58b993a7a85f8709dd9219.patch",
+      "snapshot_sha256": "d8a704296808727133e69b92a229c9b3fce3fec68f58b993a7a85f8709dd9219",
+      "duplicate_of": "feat/hexis-edge-schema-guard-20261013",
+      "disposition": "ARCHIVED_ALTERNATE_PRODUCT_SCOPE_AND_INTEGRITY_SOURCE_FOR_REVIEW",
+      "recovery_bundle_ref_sha": "63942520602108f6aa172a9d419822033271e2b2",
+      "changed_path_count": 28,
+      "commit_count": 24
+    },
+    {
+      "branch": "fix/hg2-test-resource-warning-20261013",
+      "source_sha": "6b3fa49367fa68d15409b043b789f3160dae0830",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/fix/hg2-test-resource-warning-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "M\thg/history.py",
+        "M\ttests/test_core.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "60390b2c5f925734c88b60d6b460e65b2f6899fe",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "daa622ad9a1e095dc043e0c6e609b69107dd4f6e",
+          "subject": "fix: fail closed on HG2 integrity gaps",
+          "patch_id": "3506d6e0bb066c3a1ee91b7ef5aeea6ee0f4da59"
+        },
+        {
+          "commit": "b38afe04d9d71b3b605d2745091731c1860bb359",
+          "parents": [
+            "60390b2c5f925734c88b60d6b460e65b2f6899fe"
+          ],
+          "tree": "fffa5234d7315ae7652309f7eaaf5300696c59a2",
+          "subject": "fix: reject malformed HG2 history records",
+          "patch_id": "fd5bdeee0ae8cd5556f3343662c9ab61a719c5b3"
+        },
+        {
+          "commit": "6b3fa49367fa68d15409b043b789f3160dae0830",
+          "parents": [
+            "b38afe04d9d71b3b605d2745091731c1860bb359"
+          ],
+          "tree": "0ccfc8cb9754fd12460f2cb6eec7e30a28acac43",
+          "subject": "test: close response and file handles in HG2 tests",
+          "patch_id": "c94e5b354a369a123bf2f8c0a2e835618eb925d7"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/6010135fb0d9fa944314a5acc3b076198631490999f5ca44d89ae6e6da7ccfe4.patch",
+      "snapshot_sha256": "6010135fb0d9fa944314a5acc3b076198631490999f5ca44d89ae6e6da7ccfe4",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_FIX_SOURCE_VARIANT_REQUIRES_OR_IS_SUPERSEDED_BY_CURRENT_CORE_VALIDATION",
+      "recovery_bundle_ref_sha": "6b3fa49367fa68d15409b043b789f3160dae0830",
+      "changed_path_count": 2,
+      "commit_count": 3
+    },
+    {
+      "branch": "main",
+      "source_sha": "dc29622fce50b328fca5673b1d0385be884ec132",
+      "merge_base": null,
+      "recovery_bundle_ref": "refs/remotes/origin/main",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        ".bootstrap"
+      ],
+      "commit_chain": [],
+      "snapshot_type": "standalone_file_no_common_ancestor",
+      "snapshot_path": "standalone/main-bootstrap-55a0561a1c2d44ae3535e15c005d71ad68bfaa10032aac54bfed4d6eb59e5098.txt",
+      "snapshot_sha256": "55a0561a1c2d44ae3535e15c005d71ad68bfaa10032aac54bfed4d6eb59e5098",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_CLEAN_SLATE_BOOTSTRAP_SUPERSEDED_NOT_ACTIVE",
+      "recovery_bundle_ref_sha": "dc29622fce50b328fca5673b1d0385be884ec132",
+      "changed_path_count": 1,
+      "commit_count": 0
+    },
+    {
+      "branch": "remediation/t018-base-reconcile-20261013",
+      "source_sha": "da3d055201357923f7fab079654d39962e87ccd5",
+      "merge_base": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "recovery_bundle_ref": "refs/remotes/origin/remediation/t018-base-reconcile-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "M\t.circleci/config.yml",
+        "A\tdocs/T-018-SYNC-V2-CONTRACT.md",
+        "A\tevidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-G13-20261013/baseline-core.log",
+        "A\tevidence/T-018-G13-20261013/baseline-suite.log",
+        "A\tevidence/T-018-G13-20261013/baseline-t018.log",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/environment-clean-checkout.txt",
+        "A\tevidence/T-018-G13-20261013/environment-working-copy.txt",
+        "A\tevidence/T-018-G13-20261013/fixed-core.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-t018.log",
+        "A\tevidence/T-018-G13-20261013/manifest.md",
+        "A\tevidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/core-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/environment.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/manifest.md",
+        "A\tevidence/T-018-SYNC-V2-20261013/t018-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log",
+        "A\thg/sync.py",
+        "M\ttests/test_core.py",
+        "A\ttests/test_t018_sync.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "3b160f24e1b0cb446c810b46974612829cace5db",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "e24e5463155ec23b66ba35790c2aceabe13010df",
+          "subject": "feat(hg): T-018 cross-context event synchronization (spool, fail-closed)",
+          "patch_id": "2365a4ad1b40e3cda1a4b52de9aea4d96c020969"
+        },
+        {
+          "commit": "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d",
+          "parents": [
+            "3b160f24e1b0cb446c810b46974612829cace5db"
+          ],
+          "tree": "628f9326f6592d30f8c01abfc62439701882d613",
+          "subject": "test(hg): close unhandled resources in suite",
+          "patch_id": "60a7424502cc34554779eb346ea44c85608bf27a"
+        },
+        {
+          "commit": "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0",
+          "parents": [
+            "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d"
+          ],
+          "tree": "d9d0984b47b99915a2abcbb789e654fd56430200",
+          "subject": "test(hg): record T-018 G13 remediation evidence",
+          "patch_id": "06941c65483df6b07424b1f1df09b3b3e56ef105"
+        },
+        {
+          "commit": "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e",
+          "parents": [
+            "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0"
+          ],
+          "tree": "4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b",
+          "subject": "feat(sync): validate origin records and preflight batches",
+          "patch_id": "ed2abe0d8d60d16c0244f840d36ac4232eb12b3e"
+        },
+        {
+          "commit": "91985c286be7ddb62ec93423af886d3db6e8fcea",
+          "parents": [
+            "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e"
+          ],
+          "tree": "71e4c8d0088a7a30e63944c743608b5a0d3a1353",
+          "subject": "test(sync): record T-018 V2 verification evidence",
+          "patch_id": "c31c35e55a99e4ff2eb45ff7c1c91c83347517b9"
+        },
+        {
+          "commit": "bdf9b8fac1e4b32c31713cfd8632e63e758573f6",
+          "parents": [
+            "91985c286be7ddb62ec93423af886d3db6e8fcea"
+          ],
+          "tree": "3c89c8ed1a3aed6914ffb3b4a0b258ec496ad57f",
+          "subject": "ci: verify HG2 suite twice with resource warnings as errors",
+          "patch_id": "7dafb81086c7b4612f2e48e51243b332e2530a6a"
+        },
+        {
+          "commit": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+          "parents": [
+            "bdf9b8fac1e4b32c31713cfd8632e63e758573f6"
+          ],
+          "tree": "eaae42da98ad94ba8b7c48f2f6e891d71fb1393b",
+          "subject": "ci: compare normalized logs on every verification run",
+          "patch_id": "a6f9bbf1b048932e7e959290b11540c63235a6f9"
+        },
+        {
+          "commit": "f325a33158abe47bbdfafe37fb502688efba4a14",
+          "parents": [
+            "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+            "cdebaeed014371f033f14352f552c6d0d4e69198"
+          ],
+          "tree": "a5c0212acbc91702eabf4f726f74e8671380fde0",
+          "subject": "ci: reconcile T-018 verification with canonical edge guard workflow",
+          "patch_id": "588dca4f2d96d721f73bd8193756c136e4256b0d"
+        },
+        {
+          "commit": "da3d055201357923f7fab079654d39962e87ccd5",
+          "parents": [
+            "f325a33158abe47bbdfafe37fb502688efba4a14"
+          ],
+          "tree": "932d0244b91797ef0559d95b4d59aa73022eac8c",
+          "subject": "ci: preserve test counts in normalized log comparison",
+          "patch_id": "f42c5566ba7bf9db9261792a45a7c79e2e3bb64e"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/26342e7164b8e59c5db3811bcf45c6d6eebc497843057ea96103a04a5dd86f50.patch",
+      "snapshot_sha256": "26342e7164b8e59c5db3811bcf45c6d6eebc497843057ea96103a04a5dd86f50",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_T018_DEFERRED_NOT_ACTIVATED",
+      "recovery_bundle_ref_sha": "da3d055201357923f7fab079654d39962e87ccd5",
+      "changed_path_count": 41,
+      "commit_count": 9
+    },
+    {
+      "branch": "review/t018-design-pre-review-20261013",
+      "source_sha": "fa90faacb4a47492121480455c1747535ab5817c",
+      "merge_base": "d11e71ed8b34338b8568664b39bc777c926826d5",
+      "recovery_bundle_ref": "refs/remotes/origin/review/t018-design-pre-review-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "A\t.circleci/config.yml",
+        "A\tdocs/T-018-SYNC-V2-CONTRACT.md",
+        "A\tdocs/design/T-018-IMPLEMENTATION-DESIGN-V1.md",
+        "A\tdocs/design/T-018-THREAT-MODEL-V1.md",
+        "A\tevidence/T-018-DESIGN-20261013/PRE-REVIEW-FINDINGS.md",
+        "A\tevidence/T-018-DESIGN-20261013/PRE-REVIEW-SHA256SUMS.txt",
+        "A\tevidence/T-018-DESIGN-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-DESIGN-20261013/manifest.md",
+        "A\tevidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-G13-20261013/baseline-core.log",
+        "A\tevidence/T-018-G13-20261013/baseline-suite.log",
+        "A\tevidence/T-018-G13-20261013/baseline-t018.log",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-G13-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/environment-clean-checkout.txt",
+        "A\tevidence/T-018-G13-20261013/environment-working-copy.txt",
+        "A\tevidence/T-018-G13-20261013/fixed-core.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-1.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.log",
+        "A\tevidence/T-018-G13-20261013/fixed-suite-2.normalized.log",
+        "A\tevidence/T-018-G13-20261013/fixed-t018.log",
+        "A\tevidence/T-018-G13-20261013/manifest.md",
+        "A\tevidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/core-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/environment.txt",
+        "A\tevidence/T-018-SYNC-V2-20261013/manifest.md",
+        "A\tevidence/T-018-SYNC-V2-20261013/t018-tests.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.log",
+        "A\tevidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log",
+        "A\thg/sync.py",
+        "M\ttests/test_core.py",
+        "A\ttests/test_t018_sync.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "3b160f24e1b0cb446c810b46974612829cace5db",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "e24e5463155ec23b66ba35790c2aceabe13010df",
+          "subject": "feat(hg): T-018 cross-context event synchronization (spool, fail-closed)",
+          "patch_id": "2365a4ad1b40e3cda1a4b52de9aea4d96c020969"
+        },
+        {
+          "commit": "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d",
+          "parents": [
+            "3b160f24e1b0cb446c810b46974612829cace5db"
+          ],
+          "tree": "628f9326f6592d30f8c01abfc62439701882d613",
+          "subject": "test(hg): close unhandled resources in suite",
+          "patch_id": "60a7424502cc34554779eb346ea44c85608bf27a"
+        },
+        {
+          "commit": "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0",
+          "parents": [
+            "31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d"
+          ],
+          "tree": "d9d0984b47b99915a2abcbb789e654fd56430200",
+          "subject": "test(hg): record T-018 G13 remediation evidence",
+          "patch_id": "06941c65483df6b07424b1f1df09b3b3e56ef105"
+        },
+        {
+          "commit": "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e",
+          "parents": [
+            "8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0"
+          ],
+          "tree": "4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b",
+          "subject": "feat(sync): validate origin records and preflight batches",
+          "patch_id": "ed2abe0d8d60d16c0244f840d36ac4232eb12b3e"
+        },
+        {
+          "commit": "91985c286be7ddb62ec93423af886d3db6e8fcea",
+          "parents": [
+            "e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e"
+          ],
+          "tree": "71e4c8d0088a7a30e63944c743608b5a0d3a1353",
+          "subject": "test(sync): record T-018 V2 verification evidence",
+          "patch_id": "c31c35e55a99e4ff2eb45ff7c1c91c83347517b9"
+        },
+        {
+          "commit": "bdf9b8fac1e4b32c31713cfd8632e63e758573f6",
+          "parents": [
+            "91985c286be7ddb62ec93423af886d3db6e8fcea"
+          ],
+          "tree": "3c89c8ed1a3aed6914ffb3b4a0b258ec496ad57f",
+          "subject": "ci: verify HG2 suite twice with resource warnings as errors",
+          "patch_id": "7dafb81086c7b4612f2e48e51243b332e2530a6a"
+        },
+        {
+          "commit": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+          "parents": [
+            "bdf9b8fac1e4b32c31713cfd8632e63e758573f6"
+          ],
+          "tree": "eaae42da98ad94ba8b7c48f2f6e891d71fb1393b",
+          "subject": "ci: compare normalized logs on every verification run",
+          "patch_id": "a6f9bbf1b048932e7e959290b11540c63235a6f9"
+        },
+        {
+          "commit": "6f636c5ebdf7363172fdd2cbda6d72258179589d",
+          "parents": [
+            "4d97c34d8bb7c1091265330aef63dd78d0e72c49"
+          ],
+          "tree": "4a8102c94f85f20b675ed622b30b04704b697717",
+          "subject": "docs: design authenticated T-018 sync gates",
+          "patch_id": "9b2d5cae3dc6369d45808f0786d33a85fb30c13d"
+        },
+        {
+          "commit": "fa90faacb4a47492121480455c1747535ab5817c",
+          "parents": [
+            "6f636c5ebdf7363172fdd2cbda6d72258179589d"
+          ],
+          "tree": "9ec9db57cc76ff72e8330acc6b11635c7941e232",
+          "subject": "docs: record T-018 design pre-review blockers",
+          "patch_id": "756f27abbb46f0356c143f2e056f106cbf369c51"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/873ca9e2b6429fb4040b8f6b7aa4110ae3151dbf69a0dc41c4f67125976944e1.patch",
+      "snapshot_sha256": "873ca9e2b6429fb4040b8f6b7aa4110ae3151dbf69a0dc41c4f67125976944e1",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_T018_DEFERRED_NOT_ACTIVATED",
+      "recovery_bundle_ref_sha": "fa90faacb4a47492121480455c1747535ab5817c",
+      "changed_path_count": 47,
+      "commit_count": 9
+    },
+    {
+      "branch": "stt-p0-integration-20261013",
+      "source_sha": "e334ede66670b876d745536c7faa553798d98bd2",
+      "merge_base": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "recovery_bundle_ref": "refs/remotes/origin/stt-p0-integration-20261013",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "M\thg/history.py",
+        "M\ttests/test_core.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "60390b2c5f925734c88b60d6b460e65b2f6899fe",
+          "parents": [
+            "d11e71ed8b34338b8568664b39bc777c926826d5"
+          ],
+          "tree": "daa622ad9a1e095dc043e0c6e609b69107dd4f6e",
+          "subject": "fix: fail closed on HG2 integrity gaps",
+          "patch_id": "3506d6e0bb066c3a1ee91b7ef5aeea6ee0f4da59"
+        },
+        {
+          "commit": "b38afe04d9d71b3b605d2745091731c1860bb359",
+          "parents": [
+            "60390b2c5f925734c88b60d6b460e65b2f6899fe"
+          ],
+          "tree": "fffa5234d7315ae7652309f7eaaf5300696c59a2",
+          "subject": "fix: reject malformed HG2 history records",
+          "patch_id": "fd5bdeee0ae8cd5556f3343662c9ab61a719c5b3"
+        },
+        {
+          "commit": "6b3fa49367fa68d15409b043b789f3160dae0830",
+          "parents": [
+            "b38afe04d9d71b3b605d2745091731c1860bb359"
+          ],
+          "tree": "0ccfc8cb9754fd12460f2cb6eec7e30a28acac43",
+          "subject": "test: close response and file handles in HG2 tests",
+          "patch_id": "c94e5b354a369a123bf2f8c0a2e835618eb925d7"
+        },
+        {
+          "commit": "e334ede66670b876d745536c7faa553798d98bd2",
+          "parents": [
+            "cdebaeed014371f033f14352f552c6d0d4e69198",
+            "6b3fa49367fa68d15409b043b789f3160dae0830"
+          ],
+          "tree": "47175b266d4ae11d54731ea616d23a2c3193777b",
+          "subject": "Merge remote-tracking branch 'github/fix/hg2-test-resource-warning-20261013' into stt-p0-integration-20261013",
+          "patch_id": null
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/6010135fb0d9fa944314a5acc3b076198631490999f5ca44d89ae6e6da7ccfe4.patch",
+      "snapshot_sha256": "6010135fb0d9fa944314a5acc3b076198631490999f5ca44d89ae6e6da7ccfe4",
+      "duplicate_of": "fix/hg2-test-resource-warning-20261013",
+      "disposition": "ARCHIVED_FIX_SOURCE_VARIANT_REQUIRES_OR_IS_SUPERSEDED_BY_CURRENT_CORE_VALIDATION",
+      "recovery_bundle_ref_sha": "e334ede66670b876d745536c7faa553798d98bd2",
+      "changed_path_count": 2,
+      "commit_count": 4
+    },
+    {
+      "branch": "stt/hg2-unification-p0-20261016",
+      "source_sha": "a64e49d1619f5d83b5741d13c92961df9b07c79a",
+      "merge_base": "cdebaeed014371f033f14352f552c6d0d4e69198",
+      "recovery_bundle_ref": "refs/remotes/origin/stt/hg2-unification-p0-20261016",
+      "recovery_bundle_sha256": "ad9611f91b11c97dda1c7b4a8b826801c6ea2e16d0836899774cf1d3c7ff0b7e",
+      "changed_paths": [
+        "M\t.circleci/config.yml",
+        "M\tREADME.md",
+        "A\tbenchmarks/hg_cti_v1/README.md",
+        "A\tbenchmarks/hg_cti_v1/analyze_scores.py",
+        "A\tbenchmarks/hg_cti_v1/cases.json",
+        "A\tbenchmarks/hg_cti_v1/freeze_scores.py",
+        "A\tbenchmarks/hg_cti_v1/model-provenance.json",
+        "A\tbenchmarks/hg_cti_v1/preregistration.json",
+        "A\tbenchmarks/hg_cti_v1/run_benchmark.py",
+        "A\tbenchmarks/hg_cti_v1/scoring-rubric.md",
+        "A\tbenchmarks/hg_cti_v2/README.md",
+        "A\tbenchmarks/hg_cti_v2/analyze_scores.py",
+        "A\tbenchmarks/hg_cti_v2/archive/README.md",
+        "A\tbenchmarks/hg_cti_v2/archive/preregistration-freeze-v2.0.json",
+        "A\tbenchmarks/hg_cti_v2/archive/preregistration-freeze-v2.1.json",
+        "A\tbenchmarks/hg_cti_v2/archive/preregistration-v2.0.json",
+        "A\tbenchmarks/hg_cti_v2/archive/preregistration-v2.1.json",
+        "A\tbenchmarks/hg_cti_v2/archive/v2-0-supersession-record.json",
+        "A\tbenchmarks/hg_cti_v2/archive/v2-1-supersession-record.json",
+        "A\tbenchmarks/hg_cti_v2/cases.json",
+        "A\tbenchmarks/hg_cti_v2/freeze_scores.py",
+        "A\tbenchmarks/hg_cti_v2/guard_policy.json",
+        "A\tbenchmarks/hg_cti_v2/model-provenance.json",
+        "A\tbenchmarks/hg_cti_v2/preregistration-freeze.json",
+        "A\tbenchmarks/hg_cti_v2/preregistration.json",
+        "A\tbenchmarks/hg_cti_v2/prompts.json",
+        "A\tbenchmarks/hg_cti_v2/response-schema.json",
+        "A\tbenchmarks/hg_cti_v2/run_benchmark.py",
+        "A\tbenchmarks/hg_cti_v2/scoring-rubric.md",
+        "A\tcontract/ACCEPTANCE_POLICY_V1.md",
+        "M\tcontract/ARCHITECTURE_V1.md",
+        "A\tcontract/AUTHORITATIVE_MONOTONIC_ANCHOR_V1.md",
+        "A\tcontract/AUTHORITY_CONTRACT_V1.md",
+        "A\tcontract/CODE_INTELLIGENCE_V1.md",
+        "A\tcontract/CREATIVE_ASSIMILATION_V1.md",
+        "A\tcontract/CREATIVE_ASSIMILATION_V2.md",
+        "A\tcontract/PRODUCT_SCOPE_DECISIONS_V1.json",
+        "A\tcontract/PROVENANCE_CONTRACT_V1.md",
+        "A\tcontract/T018_SYNC_V2.md",
+        "A\tdocs/ABSORPTION_GATE_REPORT.md",
+        "A\tdocs/ABSORPTION_SOURCE_DECISIONS.md",
+        "A\tdocs/GOVERNANCE_SIMPLIFICATION_HG2_V1.md",
+        "D\tdocs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md",
+        "A\tdocs/HG2_FULL_PRODUCT_UNIFICATION_MATRIX_20261016.md",
+        "A\tdocs/HG_CODE_INTELLIGENCE_USAGE.md",
+        "A\tdocs/HG_CREATIVE_ASSIMILATION_LICENSE_AUDIT.md",
+        "A\tdocs/HG_CREATIVE_ASSIMILATION_SOURCE_MATRIX.md",
+        "A\tdocs/HG_CREATIVE_ASSIMILATION_V1.md",
+        "A\tdocs/HG_CTI_BENCHMARK_PROTOCOL_V1.md",
+        "A\tdocs/HG_CTI_BENCHMARK_PROTOCOL_V2.md",
+        "A\tdocs/HG_CTI_BENCHMARK_PROTOCOL_V2_1.md",
+        "A\tdocs/HG_CTI_BENCHMARK_PROTOCOL_V2_2.md",
+        "A\tdocs/HG_CTI_EXTERNAL_RESEARCH_REGISTER.md",
+        "A\tdocs/HG_CTI_REMEDIATION_DESIGN.md",
+        "A\tdocs/HG_CTI_REMEDIATION_TEST_MATRIX.md",
+        "A\tdocs/HG_REMOTE_DETACHMENT_STATUS.md",
+        "A\tdocs/LEGACY_HANDOFF_STATUS_HG2_V1.md",
+        "A\tdocs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md",
+        "A\tdocs/PRODUCT_SCOPE_DECISIONS_HG2_V1.md",
+        "A\tdocs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md",
+        "A\tdocs/evidence/HG2_CI_BENCHMARK_ITERATION_EXPLORATORY_V1_REGISTRATION.json",
+        "A\tdocs/evidence/HG2_CI_BENCHMARK_ITERATION_EXPLORATORY_V1_RESULT.json",
+        "A\tdocs/evidence/HG2_CI_BENCHMARK_V1_RELIABILITY_NOTE.md",
+        "A\tdocs/evidence/HG2_CI_GROUND_TRUTH_RECEIPT_V2.json",
+        "A\tdocs/evidence/HG2_CI_GROUND_TRUTH_REGISTRATION_V2.json",
+        "A\tdocs/evidence/HG2_CI_GROUND_TRUTH_RESULT_V2.json",
+        "A\tdocs/evidence/HG2_CI_REAL_REPO_REGISTRATION_V1.json",
+        "A\tdocs/evidence/HG2_CI_REAL_REPO_REGISTRATION_V2.json",
+        "A\tdocs/evidence/HG2_CI_REAL_REPO_RESULT_V1.json",
+        "A\tdocs/evidence/HG2_CI_REAL_REPO_RESULT_V2.json",
+        "A\tdocs/evidence/HG2_CI_REMEDIATION_REVIEW_GATE.md",
+        "A\tdocs/evidence/HG2_FINAL_ACCEPTANCE_GATES_20261014.md",
+        "A\tdocs/evidence/HG2_FOUR_SOURCE_ABSORPTION_CLOSURE_20261014.md",
+        "A\tdocs/evidence/HG2_MALFORMED_HISTORY_SHAPE_GUARD_20261015.md",
+        "A\tdocs/evidence/HG2_SOURCE_PROVENANCE_LICENSE_AUDIT.md",
+        "A\tdocs/evidence/HG2_SOURCE_PROVENANCE_RECEIPT_20261014.json",
+        "A\tdocs/evidence/HG2_SOURCE_PROVENANCE_RESULT_20261014.json",
+        "A\tdocs/evidence/HG2_SOURCE_PROVENANCE_VERIFICATION_LOG_20261014.txt",
+        "A\tdocs/evidence/scripts/verify_hg2_source_archive_provenance.py",
+        "A\tdocs/evidence/source-pr15/HG2_CI_GROUND_TRUTH_RESULT_V2.original.json",
+        "D\tevidence/HEXIS-20261013/SHA256SUMS.txt",
+        "D\tevidence/HEXIS-20261013/baseline-counterexample.json",
+        "D\tevidence/HEXIS-20261013/baseline-unittest.log",
+        "D\tevidence/HEXIS-20261013/candidate-unittest.log",
+        "D\tevidence/HEXIS-20261013/environment.txt",
+        "D\tevidence/HEXIS-20261013/focused-guard-tests.log",
+        "A\tevidence/HG-CTI-20261013/SHA256SUMS.txt",
+        "A\tevidence/HG-CTI-20261013/archive-manifest.json",
+        "A\tevidence/HG-CTI-20261013/archive-verification.json",
+        "A\tevidence/HG-CTI-20261013/benchmark-execution-attempt.json",
+        "A\tevidence/HG-CTI-20261013/benchmark-run-local-001/SHA256SUMS.txt",
+        "A\tevidence/HG-CTI-20261013/benchmark-run-local-001/benchmark_analysis.json",
+        "A\tevidence/HG-CTI-20261013/benchmark-run-local-001/benchmark_summary.md",
+        "A\tevidence/HG-CTI-20261013/benchmark-run-local-001/blind_pairs.jsonl",
+        "A\tevidence/HG-CTI-20261013/benchmark-run-local-001/blind_scores.json",
+        "A\tevidence/HG-CTI-20261013/benchmark-run-local-001/raw_runs.jsonl",
+        "A\tevidence/HG-CTI-20261013/benchmark-run-local-001/run_metadata.json",
+        "A\tevidence/HG-CTI-20261013/benchmark-run-local-001/score-freeze.json",
+        "A\tevidence/HG-CTI-20261013/benchmark-scoring-attempt.json",
+        "A\tevidence/HG-CTI-20261013/clean-checkout-archive-verification.json",
+        "A\tevidence/HG-CTI-20261013/clean-checkout-focused.log",
+        "A\tevidence/HG-CTI-20261013/clean-checkout-full.log",
+        "A\tevidence/HG-CTI-20261013/creative-loop-candidate.json",
+        "A\tevidence/HG-CTI-20261013/final-clean-checkout-archive-recheck.json",
+        "R100\tevidence/HEXIS-20261013/baseline-unittest.exit_code.txt\tevidence/HG-CTI-20261013/focused-strict-test.exit_code.txt",
+        "A\tevidence/HG-CTI-20261013/focused-strict-test.log",
+        "R100\tevidence/HEXIS-20261013/candidate-unittest.exit_code.txt\tevidence/HG-CTI-20261013/full-test.exit_code.txt",
+        "A\tevidence/HG-CTI-20261013/full-test.log",
+        "A\tevidence/HG-CTI-20261013/license-api-audit-pinned.json",
+        "A\tevidence/HG-CTI-20261013/license-content-audit.json",
+        "A\tevidence/HG-CTI-20261013/local-inference-smoke-20261013.json",
+        "A\tevidence/HG-CTI-20261013/remediation-audit-v1.md",
+        "A\tevidence/HG-CTI-20261013/upstream-snapshot-comparison.json",
+        "A\tevidence/HG-CTI-20261013/verification-record.json",
+        "A\tevidence/HG-CTI-20261013/verify_archive_manifest.py",
+        "A\tevidence/HG-CTI-20261013/verify_upstream_snapshot.py",
+        "A\tevidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-1-incomplete/SHA256SUMS.txt",
+        "A\tevidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-1-incomplete/attempt-status.json",
+        "A\tevidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-1-incomplete/raw_runs.jsonl",
+        "A\tevidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-2-incomplete/SHA256SUMS.txt",
+        "A\tevidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-2-incomplete/attempt-status.json",
+        "A\tevidence/HG-CTI-20261014/benchmark-run-v2-local-001-attempt-2-incomplete/raw_runs.jsonl",
+        "A\tevidence/HG-CTI-REM-20261014/SHA256SUMS.txt",
+        "R100\tevidence/HEXIS-20261013/focused-guard-tests.exit_code.txt\tevidence/HG-CTI-REM-20261014/clean-checkout-full-tests.exit_code.txt",
+        "A\tevidence/HG-CTI-REM-20261014/clean-checkout-full-tests.log",
+        "R100\tevidence/HEXIS-20261013/git-diff-check.exit_code.txt\tevidence/HG-CTI-REM-20261014/clean-checkout-v1-root-manifest.exit_code.txt",
+        "A\tevidence/HG-CTI-REM-20261014/clean-checkout-v1-root-manifest.log",
+        "A\tevidence/HG-CTI-REM-20261014/clean-checkout-v1-run-manifest.exit_code.txt",
+        "A\tevidence/HG-CTI-REM-20261014/clean-checkout-v1-run-manifest.log",
+        "A\tevidence/HG-CTI-REM-20261014/diff-check.exit_code.txt",
+        "R100\tevidence/HEXIS-20261013/git-diff-check.log\tevidence/HG-CTI-REM-20261014/diff-check.log",
+        "A\tevidence/HG-CTI-REM-20261014/environment.txt",
+        "A\tevidence/HG-CTI-REM-20261014/execution-record.json",
+        "A\tevidence/HG-CTI-REM-20261014/focused-tests.exit_code.txt",
+        "A\tevidence/HG-CTI-REM-20261014/focused-tests.log",
+        "A\tevidence/HG-CTI-REM-20261014/full-tests.exit_code.txt",
+        "A\tevidence/HG-CTI-REM-20261014/full-tests.log",
+        "A\tevidence/HG-CTI-REM-20261014/runner-session-incident-20261014/SHA256SUMS.txt",
+        "A\tevidence/HG-CTI-REM-20261014/runner-session-incident-20261014/blocked-external-action.json",
+        "A\tevidence/HG-CTI-REM-20261014/runner-session-incident-20261014/process-observation.txt",
+        "A\tevidence/HG-CTI-REM-20261014/v1-root-manifest-check.exit_code.txt",
+        "A\tevidence/HG-CTI-REM-20261014/v1-root-manifest-check.log",
+        "A\tevidence/HG-CTI-REM-20261014/v1-run-manifest-check.exit_code.txt",
+        "A\tevidence/HG-CTI-REM-20261014/v1-run-manifest-check.log",
+        "A\tevidence/HG-CTI-REM-20261014/v2-run-status.json",
+        "A\tevidence/HG-CTI-V2-PREREG-20261014/SHA256SUMS.txt",
+        "A\tevidence/HG-CTI-V2-PREREG-20261014/full-tests.log",
+        "A\tevidence/HG-CTI-V2-PREREG-20261014/pre-run-verification.json",
+        "A\tevidence/HG-CTI-V2-PREREG-20261014/token-budget-preflight.json",
+        "A\tevidence/HG-CTI-V2-PREREG-20261014/v1-root-manifest-check.log",
+        "A\tevidence/HG-CTI-V2-PREREG-20261014/v1-run-manifest-check.log",
+        "A\tevidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json",
+        "M\thg/authority.py",
+        "A\thg/creative_assimilation.py",
+        "A\thg/cti_guards.py",
+        "D\thg/edge.py",
+        "M\thg/history.py",
+        "M\thg/phone_runtime.py",
+        "A\thg/provenance.py",
+        "A\thg/sync.py",
+        "A\thg/sync_auth.py",
+        "A\thg/sync_bootstrap.py",
+        "A\thg/v2/creative_assimilation.py",
+        "M\tmanifest.json",
+        "A\ttests/fixtures/code_intelligence_benchmark/case01_basic/src/app.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case01_basic/src/core.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case01_basic/src/entry.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case01_basic/src/unused.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case02_package/pkg/__init__.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case02_package/pkg/base.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case02_package/pkg/consumer.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case02_package/pkg/entry.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case03_dynamic/consumer.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case03_dynamic/core.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case03_dynamic/loader.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case04_nonpython/client.ts",
+        "A\ttests/fixtures/code_intelligence_benchmark/case04_nonpython/consumer.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case04_nonpython/core.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case05_unclassified/consumer.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case05_unclassified/core.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case05_unclassified/runtime.dart",
+        "A\ttests/fixtures/code_intelligence_benchmark/case06_syntax/broken.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case06_syntax/consumer.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case06_syntax/good.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case07_duplicate/consumer.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case07_duplicate/shared.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case07_duplicate/shared/__init__.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case08_impact/leaf.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case08_impact/mid.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case08_impact/side.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case08_impact/top.py",
+        "A\ttests/fixtures/code_intelligence_benchmark/case08_impact/unrelated.py",
+        "A\ttests/fixtures/hg_store_pre_mapping/fixture_manifest.json",
+        "A\ttests/fixtures/hg_store_pre_mapping/head.json",
+        "A\ttests/fixtures/hg_store_pre_mapping/history.jsonl",
+        "A\ttests/fixtures/hg_store_pre_mapping/runtime_id",
+        "A\ttests/fixtures/hg_store_pre_mapping/state.json",
+        "A\ttests/test_authenticated_sync_transaction.py",
+        "A\ttests/test_code_intelligence.py",
+        "M\ttests/test_core.py",
+        "A\ttests/test_creative_assimilation.py",
+        "A\ttests/test_creative_assimilation_v2.py",
+        "A\ttests/test_creative_assimilation_versioning.py",
+        "A\ttests/test_distribution.py",
+        "D\ttests/test_edge_schema_guard.py",
+        "A\ttests/test_hg_cti_benchmark_harness.py",
+        "A\ttests/test_hg_cti_guards.py",
+        "A\ttests/test_hg_cti_v2_harness.py",
+        "A\ttests/test_history_malformed_shapes.py",
+        "A\ttests/test_integrity_v2.py",
+        "A\ttests/test_phone_runtime_sync_integration.py",
+        "A\ttests/test_product_scope_acceptance.py",
+        "A\ttests/test_product_scope_decisions.py",
+        "A\ttests/test_provenance.py",
+        "A\ttests/test_sync_auth.py",
+        "A\ttests/test_sync_bootstrap.py",
+        "A\ttests/test_t018_sync.py",
+        "A\ttools/build_distribution.py",
+        "A\ttools/hg_code_intelligence.py",
+        "A\ttools/hg_provenance.py",
+        "A\ttools/run_code_intelligence_benchmark.py",
+        "A\ttools/run_real_repo_benchmark.py",
+        "A\ttools/run_real_repo_benchmark_v2.py"
+      ],
+      "commit_chain": [
+        {
+          "commit": "1dc3b0f2ec70fa15b790b6a49a31a1a02f4cc187",
+          "parents": [
+            "cdebaeed014371f033f14352f552c6d0d4e69198"
+          ],
+          "tree": "093d9903be070be9aec58f92de7a750ddb68b306",
+          "subject": "chore: detach HG2 candidate from external host infrastructure",
+          "patch_id": "00a7710bb8619a8cdf75b691b52087a85ea8cd24"
+        },
+        {
+          "commit": "9cf294df8ad5fcfb0877438a81d376c17fa425b3",
+          "parents": [
+            "1dc3b0f2ec70fa15b790b6a49a31a1a02f4cc187"
+          ],
+          "tree": "2868abb70b49e61a65da43906afe65d5b46dcd52",
+          "subject": "chore: retire review gate in creative assimilation v2",
+          "patch_id": "35ac54a1efcb8dde8004deda41f23d6e583a5b9d"
+        },
+        {
+          "commit": "207843bd892c0d8543c8e8fec68e2cab9ed57781",
+          "parents": [
+            "9cf294df8ad5fcfb0877438a81d376c17fa425b3"
+          ],
+          "tree": "204d0662f17c13605a5e6cd051f662b01f16965c",
+          "subject": "docs: remove retired review gate wording from v2 contract",
+          "patch_id": "427a136208cb1badad7ee692bf5853cfa2816683"
+        },
+        {
+          "commit": "dcb53c5569cef288c2c4826b39b37cf03901c0b0",
+          "parents": [
+            "207843bd892c0d8543c8e8fec68e2cab9ed57781"
+          ],
+          "tree": "44994456b2a4012888eba72678eb2eacdcba9e06",
+          "subject": "feat: bind HG2 candidate and runtime provenance",
+          "patch_id": "a36d6ec2f3f59fbc2e28f9fb1ebb2416b5462fde"
+        },
+        {
+          "commit": "42525150de2e7ebdc2a488342c663c28ff00d530",
+          "parents": [
+            "dcb53c5569cef288c2c4826b39b37cf03901c0b0"
+          ],
+          "tree": "d8c370d6c467430a3a49652ed6dd9bdfa0b0d976",
+          "subject": "feat: attest HG2 provenance and define anchor contract",
+          "patch_id": "0eb40ce053c103ce30670ad6c41a18f88cfef045"
+        },
+        {
+          "commit": "a270d4e1ebbab36ad5c75ef8c1c87442ecd9fa55",
+          "parents": [
+            "42525150de2e7ebdc2a488342c663c28ff00d530"
+          ],
+          "tree": "763d4c2bb2121ab5380b2b1bed44583870b0439b",
+          "subject": "fix: move CircleCI attestation logic into script",
+          "patch_id": "6186394be271323e663c8f99359fe3c3b448189f"
+        },
+        {
+          "commit": "225754279684e87aefb34fb83a7f2314498f5455",
+          "parents": [
+            "a270d4e1ebbab36ad5c75ef8c1c87442ecd9fa55"
+          ],
+          "tree": "988accf123849c38120896c305e5fd19a0742cf7",
+          "subject": "fix: use CircleCI environment OIDC token command",
+          "patch_id": "8cc9236ab635f97bbc974f540f8235172e6686ef"
+        },
+        {
+          "commit": "872096ed1ce42c815097d1b7a95b75bb788692aa",
+          "parents": [
+            "225754279684e87aefb34fb83a7f2314498f5455"
+          ],
+          "tree": "ebee804cfe1b31c9bef3684d7b8646e366dc774a",
+          "subject": "Align HG2 acceptance with approved scope",
+          "patch_id": "be4801434f2f82ec392915a9667051034eef05a1"
+        },
+        {
+          "commit": "0497054588df7677416db70fd03161cc8e884d27",
+          "parents": [
+            "872096ed1ce42c815097d1b7a95b75bb788692aa"
+          ],
+          "tree": "cb605e626e4504013b9b42dbaa5972afdb6c0e98",
+          "subject": "Retire review and external signing workflows",
+          "patch_id": "f0d577679827aae29a3c60bcb010fbe484510a6a"
+        },
+        {
+          "commit": "a64e49d1619f5d83b5741d13c92961df9b07c79a",
+          "parents": [
+            "0497054588df7677416db70fd03161cc8e884d27"
+          ],
+          "tree": "e8ccb2a1bf8e4b25540372e1fb2707586d853bf9",
+          "subject": "build(hg2): add allowlisted distribution artifact",
+          "patch_id": "a5f5a5e847293617f4ce8734fa279c545a155fe8"
+        }
+      ],
+      "snapshot_type": "git_binary_diff_from_merge_base",
+      "snapshot_path": "patches/0bdb26ec05d0e49f5244f39eb50308e0ffd43edcae32c795cd172742b602a10b.patch",
+      "snapshot_sha256": "0bdb26ec05d0e49f5244f39eb50308e0ffd43edcae32c795cd172742b602a10b",
+      "duplicate_of": null,
+      "disposition": "ARCHIVED_UNIFICATION_SOURCE_VARIANT_NOT_BLINDLY_ACTIVATED",
+      "recovery_bundle_ref_sha": "a64e49d1619f5d83b5741d13c92961df9b07c79a",
+      "changed_path_count": 223,
+      "commit_count": 10
+    }
+  ]
+}

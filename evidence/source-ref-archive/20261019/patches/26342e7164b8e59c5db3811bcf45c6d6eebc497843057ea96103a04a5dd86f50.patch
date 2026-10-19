@@ -1,0 +1,2022 @@
+diff --git a/.circleci/config.yml b/.circleci/config.yml
+index 943fb5d..ea66091 100644
+--- a/.circleci/config.yml
++++ b/.circleci/config.yml
+@@ -2,15 +2,15 @@ version: 2.1
+ jobs:
+   verify:
+     docker:
+-      - image: cimg/python:3.12
++      - image: cimg/python:3.14
+     steps:
+       - checkout
+       - run:
+-          name: Record revision and assert clean checkout
++          name: Record exact revision and assert clean checkout
+           command: |
+             set -eu
+-            printf 'CIRCLE_SHA1=%s\n' "${CIRCLE_SHA1:-unknown}"
+-            printf 'HEAD=%s\n' "$(git rev-parse HEAD)"
++            printf 'CIRCLE_SHA1=%s\\n' "${CIRCLE_SHA1:-unknown}"
++            printf 'HEAD=%s\\n' "$(git rev-parse HEAD)"
+             test -z "$(git status --porcelain)"
+       - run:
+           name: Check patch whitespace
+@@ -18,11 +18,36 @@ jobs:
+             set -eu
+             git diff --check HEAD^ HEAD
+       - run:
+-          name: Run unittest suite with ResourceWarning as ERROR (strict)
++          name: Run suite twice with ResourceWarning as errors and compare logs
+           command: |
+-            set -eu
+-            PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v
++            set -euo pipefail
++            python --version
++            for run in 1 2; do
++              log="/tmp/hg2-suite-${run}.log"
++              if ! PYTHONTRACEMALLOC=10 PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v > "$log" 2>&1; then
++                cat "$log"
++                exit 1
++              fi
++            done
++            python - <<'PY'
++            import re
++            from pathlib import Path
++            logs = [Path(f'/tmp/hg2-suite-{i}.log').read_text() for i in (1, 2)]
++            for i, text in enumerate(logs, 1):
++                if not re.search(r'^Ran [0-9]+ tests in [0-9.]+s$', text, re.M):
++                    raise SystemExit(f'run {i}: missing test summary')
++                if not re.search(r'^OK$', text, re.M):
++                    raise SystemExit(f'run {i}: suite did not report OK')
++                if 'ResourceWarning:' in text or 'Exception ignored' in text:
++                    raise SystemExit(f'run {i}: warning/finalizer failure detected')
++                normalized = re.sub(r'^Ran ([0-9]+) tests in [0-9.]+s$', r'Ran \1 tests in <TIME>', text, flags=re.M)
++                Path(f'/tmp/hg2-suite-{i}.normalized.log').write_text(normalized)
++            if Path('/tmp/hg2-suite-1.normalized.log').read_bytes() != Path('/tmp/hg2-suite-2.normalized.log').read_bytes():
++                raise SystemExit('normalized logs differ')
++            print('ResourceWarning=0; Exception ignored=0; normalized_cmp=PASS')
++            PY
++            sha256sum /tmp/hg2-suite-1.normalized.log /tmp/hg2-suite-2.normalized.log
+ workflows:
+-  hg2-p0-strict-verify:
++  hg2-t018-strict-verification:
+     jobs:
+       - verify
+diff --git a/docs/T-018-SYNC-V2-CONTRACT.md b/docs/T-018-SYNC-V2-CONTRACT.md
+new file mode 100644
+index 0000000..35aba35
+--- /dev/null
++++ b/docs/T-018-SYNC-V2-CONTRACT.md
+@@ -0,0 +1,52 @@
++# T-018 Sync V2 — Contract and Acceptance Boundary
++
++## Status
++
++`PROTOTYPE_ONLY`; this contract does not certify production readiness, runtime integration, or live cross-context memory synchronization. Release remains blocked until the gates below pass independently.
++
++## Scope
++
++T-018 V2 transports origin event records through an on-disk spool and records accepted foreign events as local `sync.received` envelopes. It does not, by itself, merge foreign payloads into the receiver's application state or expose a transport endpoint to other runtime contexts.
++
++## Event integrity
++
++Each exported event carries the source `origin_record` plus its `origin_hash`, `origin_seq`, `origin_prev_hash`, `event_id`, `event_type`, `payload`, and `payload_hash`. The receiver checks:
++
++- required envelope and origin-record fields;
++- source-record hash recomputation using the HG canonical serializer;
++- consistency between envelope fields and the hashed origin record;
++- payload hash and SHA-256 field format;
++- one origin context per batch, where `context_id` is present;
++- in-batch `origin_prev_hash` continuity and consecutive `origin_seq` values;
++- duplicate identity/provenance and event-ID conflicts.
++
++The complete batch is preflighted before any foreign event is appended. A semantically invalid later event must not cause an earlier event from that batch to be accepted.
++
++## Idempotency and failure behavior
++
++An exact repeated event is treated as a duplicate. Reuse of an event ID with different payload or provenance is a conflict. Invalid batches are rejected and recorded; their foreign events are not applied. Local rejection/conflict audit events are expected and are not evidence that the rejected foreign payload was accepted.
++
++## Explicit security limitations
++
++- SHA-256 without a secret or signature proves consistency of the supplied record, not the identity of the sender. A party able to rewrite the entire batch can fabricate a new record and recompute its hashes.
++- `origin_context` is a claimed context label, not a cryptographically authenticated identity.
++- For the first event received from a context, this prototype does not possess an independently trusted origin checkpoint. Its `origin_prev_hash` is therefore not anchored to a previously trusted source head.
++- The spool transport has no peer authentication or authorization contract in this module.
++- `hg/phone_runtime.py` does not instantiate or call `SyncContext`; T-018 is not connected to the canonical phone runtime by this branch alone.
++- `sync.received` records preserve foreign event payloads and provenance; this module does not merge them into shared memory or application state.
++
++These limitations are blockers for `LIVE_VERIFIED` and production memory synchronization. Do not describe the current module as authenticated cross-device sync or as a shared memory backend.
++
++## Required production gates
++
++1. Define and implement authenticated peer identity (for example, signed origin records or a reviewed MAC/key-management contract).
++2. Define a trusted initial origin checkpoint and per-origin cursor policy; reject gaps and forks against the last accepted origin head.
++3. Define data-classification, sharing permissions, retention and conflict-resolution semantics.
++4. Integrate through the single canonical state owner without opening a second independent `StateStore` on the same directory.
++5. Define a transport/API and failure/retry behavior; do not assume local spool files are a cross-runtime transport.
++6. Test two actual authorized runtime contexts, restart, tamper, replay, sequence gaps, conflicts and offline recovery.
++7. Obtain independent review and provenance for the tested runtime deployment.
++
++## Canonical boundary
++
++This branch is an isolated feature branch. It does not modify `hg-genesis` or establish that the canonical `OAI-GIANG/GO` branch has a runtime implementation. The current canonical GO README states `PRODUCT_IMPLEMENTATION: NOT_STARTED` and `RELEASE: BLOCKED` (README blob SHA `79d9db52df0b341ac5dd091dea851185b7ff72d3`, branch `hg-genesis`, observed head `c6f37fce653d8f7515404829d72c95605b227442`).
+diff --git a/evidence/T-018-G13-20261013/SHA256SUMS.txt b/evidence/T-018-G13-20261013/SHA256SUMS.txt
+new file mode 100644
+index 0000000..4fdeccc
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/SHA256SUMS.txt
+@@ -0,0 +1,18 @@
++10d1abe25d9ecb301891b89d0d7e598f28271accf33e62d286b92b9fb6e33ab6  baseline-core.log
++5889d3f74229d1a333592fe18059d64010a4efba85a366d13ffc84abbc6949c6  baseline-suite.log
++f4385a6307ef23be4f590136acc1fa0aa2f626b0938c6aab6c08994f1cb34a55  baseline-t018.log
++61e9be70ceebfe68784deb9a6c41df59164a310ab62cffd3b82748e12f2953c6  clean-suite-1.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  clean-suite-1.normalized.log
++9a262ffd4f18b0fc3bd84da5f880a20ff2b0d8e4693284d564629bd348d4a4f0  clean-suite-2.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  clean-suite-2.normalized.log
++59bc8fe950d99581015ac0fa10cf034e9d0885720d03dd53d929368900b1de9f  fixed-core.log
++936e92089bf5db0637a9b58fb3150723ec1207dc8e33f04fa7577a81e86d6604  fixed-suite-1.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  fixed-suite-1.normalized.log
++cbfdcb04fb1c3b72b25af56ef6327d81eab334e2716c6bdbf01030c86cc0838a  fixed-suite-2.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  fixed-suite-2.normalized.log
++4a565fae8a646c5cc89c95442ff6ce0a00b7e7d856616584bdec557bc0ed1b4d  fixed-t018.log
++998853c288bc71e2672e4c6a868075898f7c88bce7992c888d94c9bb2625f829  clean-checkout-commit.txt
++ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841  clean-checkout-status.txt
++e60c87f7abb069f4ede3076757cce546e71201139adf9abf469d69f25262d6f0  clean-checkout-tree.txt
++0afe76de11223644cda0aeea7f928b577c6c58637399123f9edd0e29c5a33a3c  environment-clean-checkout.txt
++3313bef641be8b81a7c06ea1bd8466820169d939cd3231356bb206f3dc8c56e3  environment-working-copy.txt
+diff --git a/evidence/T-018-G13-20261013/baseline-core.log b/evidence/T-018-G13-20261013/baseline-core.log
+new file mode 100644
+index 0000000..e241c96
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/baseline-core.log
+@@ -0,0 +1,162 @@
++test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 403: 'Forbidden'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 413: 'Content Too Large'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x79bd95b060>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++ok
++test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/head.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 102, in test_checkpoint_mismatch
++    open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpg9iaxr56/head.json' mode='w' encoding='utf-8'>
++ok
++test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpryh3qmlp/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpryh3qmlp/history.jsonl' mode='r' encoding='utf-8'>
++ok
++test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpxxtht1zi/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpxxtht1zi/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpxxtht1zi/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpxxtht1zi/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpko457t8b/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpko457t8b/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpko457t8b/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpko457t8b/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpspe_p86e/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpspe_p86e/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpspe_p86e/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpspe_p86e/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpz1moxb23/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpz1moxb23/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpz1moxb23/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpz1moxb23/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpbybcx8k3/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpbybcx8k3/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpbybcx8k3/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpbybcx8k3/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp5wetm819/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp5wetm819/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp5wetm819/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp5wetm819/history.jsonl' mode='w' encoding='utf-8'>
++ok
++test_identity (tests.test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/__init__.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/__init__.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/authority.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/authority.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/edge.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/edge.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/history.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/history.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/identity.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/identity.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/phone_runtime.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/phone_runtime.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/sync.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/sync.py' mode='r' encoding='utf-8'>
++ok
++test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... ok
++
++----------------------------------------------------------------------
++Ran 12 tests in 3.079s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/baseline-suite.log b/evidence/T-018-G13-20261013/baseline-suite.log
+new file mode 100644
+index 0000000..ebaa7d2
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/baseline-suite.log
+@@ -0,0 +1,238 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 403: 'Forbidden'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 413: 'Content Too Large'>
++Exception ignored while calling deallocator <function _TemporaryFileCloser.__del__ at 0x7a2eb5b110>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/usr/lib/python3.14/tempfile.py", line 484, in __del__
++    _warnings.warn(self.warn_message, ResourceWarning)
++ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
++ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpomla888k/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpomla888k/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpomla888k/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpomla888k/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpomla888k/head.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 102, in test_checkpoint_mismatch
++    open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpomla888k/head.json' mode='w' encoding='utf-8'>
++ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmptw1knza6/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmptw1knza6/history.jsonl' mode='r' encoding='utf-8'>
++ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpbel5veu_/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpbel5veu_/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpbel5veu_/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpbel5veu_/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp8h0dtwq8/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp8h0dtwq8/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp8h0dtwq8/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp8h0dtwq8/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpm5i62svg/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpm5i62svg/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpm5i62svg/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpm5i62svg/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpk8mshc97/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpk8mshc97/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpk8mshc97/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpk8mshc97/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpyng3u8rr/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpyng3u8rr/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpyng3u8rr/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpyng3u8rr/history.jsonl' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpuzxblxpr/history.jsonl' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 15, in lines
++    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpuzxblxpr/history.jsonl' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpuzxblxpr/history.jsonl' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 19, in put
++    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpuzxblxpr/history.jsonl' mode='w' encoding='utf-8'>
++ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/__init__.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/__init__.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/authority.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/authority.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/edge.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/edge.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/history.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/history.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/identity.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/identity.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/phone_runtime.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/phone_runtime.py' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/sync.py' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_core.py", line 32, in test_no_legacy_reference
++    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/home/hg2-t018-remediation-20261013/hg/sync.py' mode='r' encoding='utf-8'>
++ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp54yga9vw/spool/inbox/.consumed-ctx-a-89c35e7aa2d7.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 77, in test_duplicate_event_id_different_payload_is_conflict
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp54yga9vw/spool/inbox/.consumed-ctx-a-89c35e7aa2d7.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp54yga9vw/spool/inbox/conflict.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 81, in test_duplicate_event_id_different_payload_is_conflict
++    open(p, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp54yga9vw/spool/inbox/conflict.json' mode='w' encoding='utf-8'>
++ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpft8aqkab/spool/inbox/.consumed-ctx-a-1681e5340e2f.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 64, in test_duplicate_event_id_is_idempotent
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpft8aqkab/spool/inbox/.consumed-ctx-a-1681e5340e2f.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpft8aqkab/spool/inbox/again.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 66, in test_duplicate_event_id_is_idempotent
++    open(replay, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpft8aqkab/spool/inbox/again.json' mode='w' encoding='utf-8'>
++ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpnjsiol72/spool/inbox/.consumed-ctx-a-663af7812326.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 151, in test_restart_recovery_keeps_state_and_no_reapply
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpnjsiol72/spool/inbox/.consumed-ctx-a-663af7812326.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpnjsiol72/spool/inbox/again2.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 152, in test_restart_recovery_keeps_state_and_no_reapply
++    open(os.path.join(self.b.spool, "inbox", "again2.json"), "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpnjsiol72/spool/inbox/again2.json' mode='w' encoding='utf-8'>
++ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpkm6d65ux/spool/outbox/chain.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 113, in test_stale_in_batch_chain_and_self_origin_rejected
++    open(os.path.join(self.a.spool, "outbox", "chain.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [e1, e2]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpkm6d65ux/spool/outbox/chain.json' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpkm6d65ux/spool/outbox/self.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 118, in test_stale_in_batch_chain_and_self_origin_rejected
++    open(os.path.join(self.b.spool, "outbox", "self.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [own]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpkm6d65ux/spool/outbox/self.json' mode='w' encoding='utf-8'>
++ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpjrp9boxq/spool/outbox/ctx-a-689a04e291d5.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 89, in test_tampered_payload_rejected
++    raw = json.loads(open(p).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpjrp9boxq/spool/outbox/ctx-a-689a04e291d5.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpjrp9boxq/spool/outbox/ctx-a-689a04e291d5.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 91, in test_tampered_payload_rejected
++    open(p, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpjrp9boxq/spool/outbox/ctx-a-689a04e291d5.json' mode='w' encoding='utf-8'>
++ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpnzlp6pcc/spool/outbox/trunc.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 125, in test_truncated_batch_rejected_and_audited
++    open(p, "w").write('{"schema": "HG_SYNC_BATCH_V1", "events": [')
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpnzlp6pcc/spool/outbox/trunc.json' mode='w' encoding='utf-8'>
++ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp56jmbdom/spool/outbox/bad.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 98, in test_unsupported_schema_and_missing_field_rejected
++    open(p, "w").write(json.dumps({"schema": "OTHER", "events": [{}]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp56jmbdom/spool/outbox/bad.json' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp56jmbdom/spool/outbox/missing.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 104, in test_unsupported_schema_and_missing_field_rejected
++    open(os.path.join(self.a.spool, "outbox", "missing.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [ev]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp56jmbdom/spool/outbox/missing.json' mode='w' encoding='utf-8'>
++ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 4.206s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/baseline-t018.log b/evidence/T-018-G13-20261013/baseline-t018.log
+new file mode 100644
+index 0000000..a8a8300
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/baseline-t018.log
+@@ -0,0 +1,81 @@
++test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (tests.test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/.consumed-ctx-a-b8d9c257e4b7.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 77, in test_duplicate_event_id_different_payload_is_conflict
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/.consumed-ctx-a-b8d9c257e4b7.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/conflict.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 81, in test_duplicate_event_id_different_payload_is_conflict
++    open(p, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpsgtjs7u6/spool/inbox/conflict.json' mode='w' encoding='utf-8'>
++ok
++test_duplicate_event_id_is_idempotent (tests.test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/.consumed-ctx-a-2f0846698f78.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 64, in test_duplicate_event_id_is_idempotent
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/.consumed-ctx-a-2f0846698f78.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/again.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 66, in test_duplicate_event_id_is_idempotent
++    open(replay, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp_1arfnps/spool/inbox/again.json' mode='w' encoding='utf-8'>
++ok
++test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/.consumed-ctx-a-89c6cbfde757.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 151, in test_restart_recovery_keeps_state_and_no_reapply
++    raw = json.loads(open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"])).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/.consumed-ctx-a-89c6cbfde757.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/again2.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 152, in test_restart_recovery_keeps_state_and_no_reapply
++    open(os.path.join(self.b.spool, "inbox", "again2.json"), "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpb0i180po/spool/inbox/again2.json' mode='w' encoding='utf-8'>
++ok
++test_stale_in_batch_chain_and_self_origin_rejected (tests.test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/chain.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 113, in test_stale_in_batch_chain_and_self_origin_rejected
++    open(os.path.join(self.a.spool, "outbox", "chain.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [e1, e2]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/chain.json' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/self.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 118, in test_stale_in_batch_chain_and_self_origin_rejected
++    open(os.path.join(self.b.spool, "outbox", "self.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [own]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp0q49xicl/spool/outbox/self.json' mode='w' encoding='utf-8'>
++ok
++test_tampered_payload_rejected (tests.test_t018_sync.SyncTests.test_tampered_payload_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='rb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 89, in test_tampered_payload_rejected
++    raw = json.loads(open(p).read())
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='r' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 91, in test_tampered_payload_rejected
++    open(p, "w").write(json.dumps(raw))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpix0cmmis/spool/outbox/ctx-a-d66bf9cff66d.json' mode='w' encoding='utf-8'>
++ok
++test_truncated_batch_rejected_and_audited (tests.test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmpmvmhmi5e/spool/outbox/trunc.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 125, in test_truncated_batch_rejected_and_audited
++    open(p, "w").write('{"schema": "HG_SYNC_BATCH_V1", "events": [')
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmpmvmhmi5e/spool/outbox/trunc.json' mode='w' encoding='utf-8'>
++ok
++test_two_processes_are_used (tests.test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (tests.test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/bad.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 98, in test_unsupported_schema_and_missing_field_rejected
++    open(p, "w").write(json.dumps({"schema": "OTHER", "events": [{}]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/bad.json' mode='w' encoding='utf-8'>
++Exception ignored while finalizing file <_io.FileIO name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/missing.json' mode='wb' closefd=True>:
++Traceback (most recent call last):
++  File "/data/data/com.termux/files/home/hg2-t018-remediation-20261013/tests/test_t018_sync.py", line 104, in test_unsupported_schema_and_missing_field_rejected
++    open(os.path.join(self.a.spool, "outbox", "missing.json"), "w").write(json.dumps({"schema": BATCH_SCHEMA, "events": [ev]}))
++ResourceWarning: unclosed file <_io.TextIOWrapper name='/data/data/com.termux/files/usr/tmp/tmp6gj62ufu/spool/outbox/missing.json' mode='w' encoding='utf-8'>
++ok
++
++----------------------------------------------------------------------
++Ran 11 tests in 0.945s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/clean-checkout-commit.txt b/evidence/T-018-G13-20261013/clean-checkout-commit.txt
+new file mode 100644
+index 0000000..925b072
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-checkout-commit.txt
+@@ -0,0 +1 @@
++31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d
+diff --git a/evidence/T-018-G13-20261013/clean-checkout-status.txt b/evidence/T-018-G13-20261013/clean-checkout-status.txt
+new file mode 100644
+index 0000000..7a37f24
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-checkout-status.txt
+@@ -0,0 +1 @@
++## HEAD (no branch)
+diff --git a/evidence/T-018-G13-20261013/clean-checkout-tree.txt b/evidence/T-018-G13-20261013/clean-checkout-tree.txt
+new file mode 100644
+index 0000000..905fa9c
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-checkout-tree.txt
+@@ -0,0 +1 @@
++628f9326f6592d30f8c01abfc62439701882d613
+diff --git a/evidence/T-018-G13-20261013/clean-suite-1.log b/evidence/T-018-G13-20261013/clean-suite-1.log
+new file mode 100644
+index 0000000..ed289be
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-suite-1.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 4.181s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/clean-suite-1.normalized.log b/evidence/T-018-G13-20261013/clean-suite-1.normalized.log
+new file mode 100644
+index 0000000..edf0a13
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-suite-1.normalized.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-G13-20261013/clean-suite-2.log b/evidence/T-018-G13-20261013/clean-suite-2.log
+new file mode 100644
+index 0000000..cc9d4a0
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-suite-2.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 4.214s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/clean-suite-2.normalized.log b/evidence/T-018-G13-20261013/clean-suite-2.normalized.log
+new file mode 100644
+index 0000000..edf0a13
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/clean-suite-2.normalized.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-G13-20261013/environment-clean-checkout.txt b/evidence/T-018-G13-20261013/environment-clean-checkout.txt
+new file mode 100644
+index 0000000..852f749
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/environment-clean-checkout.txt
+@@ -0,0 +1,2 @@
++Python 3.14.6
++Linux localhost 6.6.118-android15-8-gebdfad32d749-ab15099304-4k #1 SMP PREEMPT Thu Mar 26 19:01:13 UTC 2026 aarch64 Android
+diff --git a/evidence/T-018-G13-20261013/environment-working-copy.txt b/evidence/T-018-G13-20261013/environment-working-copy.txt
+new file mode 100644
+index 0000000..99df90c
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/environment-working-copy.txt
+@@ -0,0 +1,7 @@
++Python 3.14.6
++Linux localhost 6.6.118-android15-8-gebdfad32d749-ab15099304-4k #1 SMP PREEMPT Thu Mar 26 19:01:13 UTC 2026 aarch64 Android
++3b160f24e1b0cb446c810b46974612829cace5db
++e24e5463155ec23b66ba35790c2aceabe13010df
++5b542b517766ed38997544930d39d9c28c3f683d7936b9d652f1e009239389c4  hg/sync.py
++4c8cd8d5c3bc1049a0064c08c81c44709a402e2e7716a66f5e81167bdd2c5af9  tests/test_t018_sync.py
++fd3f4dbe926dee749dfd237e409516687dec2714c545ce2442aad399541f2f17  tests/test_core.py
+diff --git a/evidence/T-018-G13-20261013/fixed-core.log b/evidence/T-018-G13-20261013/fixed-core.log
+new file mode 100644
+index 0000000..1c25a75
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-core.log
+@@ -0,0 +1,17 @@
++test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (tests.test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... ok
++
++----------------------------------------------------------------------
++Ran 12 tests in 3.007s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-suite-1.log b/evidence/T-018-G13-20261013/fixed-suite-1.log
+new file mode 100644
+index 0000000..16e240c
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-suite-1.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 3.600s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-suite-1.normalized.log b/evidence/T-018-G13-20261013/fixed-suite-1.normalized.log
+new file mode 100644
+index 0000000..edf0a13
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-suite-1.normalized.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-suite-2.log b/evidence/T-018-G13-20261013/fixed-suite-2.log
+new file mode 100644
+index 0000000..1c40de0
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-suite-2.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in 3.384s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-suite-2.normalized.log b/evidence/T-018-G13-20261013/fixed-suite-2.normalized.log
+new file mode 100644
+index 0000000..edf0a13
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-suite-2.normalized.log
+@@ -0,0 +1,28 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 23 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-G13-20261013/fixed-t018.log b/evidence/T-018-G13-20261013/fixed-t018.log
+new file mode 100644
+index 0000000..26af47f
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/fixed-t018.log
+@@ -0,0 +1,16 @@
++test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (tests.test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (tests.test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (tests.test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (tests.test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (tests.test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (tests.test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (tests.test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 11 tests in 0.644s
++
++OK
+diff --git a/evidence/T-018-G13-20261013/manifest.md b/evidence/T-018-G13-20261013/manifest.md
+new file mode 100644
+index 0000000..6660577
+--- /dev/null
++++ b/evidence/T-018-G13-20261013/manifest.md
+@@ -0,0 +1,37 @@
++# HG2 T-018 G13 Resource-Leak Remediation Evidence
++
++- Repository: `OAI-GIANG/HG2`
++- Branch: `feat/hg-t018-cross-context-sync-20261013`
++- Baseline commit: `3b160f24e1b0cb446c810b46974612829cace5db`
++- Tested code commit: `31f9fcc24af3aa9b8014da8a7faa6dbf8602fb0d`
++- Tested code tree: `628f9326f6592d30f8c01abfc62439701882d613`
++- Parent: `3b160f24e1b0cb446c810b46974612829cace5db`
++- Environment: Python 3.14.6; Android 15; aarch64
++- Changes: only `tests/test_core.py` and `tests/test_t018_sync.py` in the code commit.
++- Root causes observed before fix: unmanaged file handles in both test files and unclosed `urllib.error.HTTPError` objects in `EdgeTests.call()`.
++- Fix: context-manage file reads/writes and close HTTPError in `finally`; no warnings were suppressed.
++- Baseline test results: T-018 11 tests / core 12 tests / full suite 23 tests; exit 0, but ResourceWarnings present.
++- Post-fix: core 12/12, T-018 11/11, full suite 23/23 twice; exit 0; `ResourceWarning: 0`; `Exception ignored: 0`.
++- Clean checkout at tested code commit: full suite 23/23 twice; exit 0; `ResourceWarning: 0`; `Exception ignored: 0`; normalized logs identical.
++- Normalization: only `Ran N tests in <duration>s` timing line replaced with a fixed token. No warning/error/test result lines removed.
++- Normalized log SHA-256: `e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b` (both clean-checkout runs and both working-copy runs).
++
++## SHA-256 manifest
++10d1abe25d9ecb301891b89d0d7e598f28271accf33e62d286b92b9fb6e33ab6  baseline-core.log
++5889d3f74229d1a333592fe18059d64010a4efba85a366d13ffc84abbc6949c6  baseline-suite.log
++f4385a6307ef23be4f590136acc1fa0aa2f626b0938c6aab6c08994f1cb34a55  baseline-t018.log
++61e9be70ceebfe68784deb9a6c41df59164a310ab62cffd3b82748e12f2953c6  clean-suite-1.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  clean-suite-1.normalized.log
++9a262ffd4f18b0fc3bd84da5f880a20ff2b0d8e4693284d564629bd348d4a4f0  clean-suite-2.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  clean-suite-2.normalized.log
++59bc8fe950d99581015ac0fa10cf034e9d0885720d03dd53d929368900b1de9f  fixed-core.log
++936e92089bf5db0637a9b58fb3150723ec1207dc8e33f04fa7577a81e86d6604  fixed-suite-1.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  fixed-suite-1.normalized.log
++cbfdcb04fb1c3b72b25af56ef6327d81eab334e2716c6bdbf01030c86cc0838a  fixed-suite-2.log
++e301c03d38105b66c2dabdd11ba8d145568fa655e731343b7aa1f813526f951b  fixed-suite-2.normalized.log
++4a565fae8a646c5cc89c95442ff6ce0a00b7e7d856616584bdec557bc0ed1b4d  fixed-t018.log
++998853c288bc71e2672e4c6a868075898f7c88bce7992c888d94c9bb2625f829  clean-checkout-commit.txt
++ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841  clean-checkout-status.txt
++e60c87f7abb069f4ede3076757cce546e71201139adf9abf469d69f25262d6f0  clean-checkout-tree.txt
++0afe76de11223644cda0aeea7f928b577c6c58637399123f9edd0e29c5a33a3c  environment-clean-checkout.txt
++3313bef641be8b81a7c06ea1bd8466820169d939cd3231356bb206f3dc8c56e3  environment-working-copy.txt
+diff --git a/evidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt b/evidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt
+new file mode 100644
+index 0000000..d8f858f
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/SHA256SUMS.txt
+@@ -0,0 +1,14 @@
++d19cf4a3143345b001de674677418e31f809007eb290cf7155301a9b8bbef683  clean-suite-1.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-1.normalized.log
++c55d5c106bce0c330ed8ff4ecbfae67b99c89a2793b552c55588bade5590a2b9  clean-suite-2.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-2.normalized.log
++55fcdc636a602b4c95e5ed7a35792acafc023c07ab5dcdabf51311c2e4ab176c  core-tests.log
++d08a41db2d4f5ee6adaef07cd74b6fa51d16f6a0b9eaac5af1c6440e30415072  t018-tests.log
++d629a47427d9ab3e5c243735f356bde4badac2c143c7dba12e9c4d3d3e2f77b5  working-suite-1.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-1.normalized.log
++d5ab5fa948ed4966ca892822ced164a1a0d511f8c1dd1c7476ae6e983fdecef2  working-suite-2.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-2.normalized.log
++14423faf868f8a209c2a1e5e27f93b9f6cce4fb5e024683c20ffaffc3d42081b  clean-checkout-commit.txt
++ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841  clean-checkout-status.txt
++4c9c66d5a77a5083f108d99e8a72d8d2b2829ea18b63407dc0ece02727febee7  clean-checkout-tree.txt
++0afe76de11223644cda0aeea7f928b577c6c58637399123f9edd0e29c5a33a3c  environment.txt
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt b/evidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt
+new file mode 100644
+index 0000000..5b14b95
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-checkout-commit.txt
+@@ -0,0 +1 @@
++e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt b/evidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt
+new file mode 100644
+index 0000000..7a37f24
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-checkout-status.txt
+@@ -0,0 +1 @@
++## HEAD (no branch)
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt b/evidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt
+new file mode 100644
+index 0000000..3a13be0
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-checkout-tree.txt
+@@ -0,0 +1 @@
++4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-suite-1.log b/evidence/T-018-SYNC-V2-20261013/clean-suite-1.log
+new file mode 100644
+index 0000000..0fdbfd1
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-suite-1.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in 4.490s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log b/evidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log
+new file mode 100644
+index 0000000..5d008e4
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-suite-1.normalized.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-suite-2.log b/evidence/T-018-SYNC-V2-20261013/clean-suite-2.log
+new file mode 100644
+index 0000000..715e540
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-suite-2.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in 4.446s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log b/evidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log
+new file mode 100644
+index 0000000..5d008e4
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/clean-suite-2.normalized.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/core-tests.log b/evidence/T-018-SYNC-V2-20261013/core-tests.log
+new file mode 100644
+index 0000000..6611d0d
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/core-tests.log
+@@ -0,0 +1,17 @@
++test_disjoint_and_deny (tests.test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (tests.test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (tests.test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (tests.test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (tests.test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (tests.test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (tests.test_core.PhoneTests.test_local_and_offline) ... ok
++
++----------------------------------------------------------------------
++Ran 12 tests in 3.020s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/environment.txt b/evidence/T-018-SYNC-V2-20261013/environment.txt
+new file mode 100644
+index 0000000..852f749
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/environment.txt
+@@ -0,0 +1,2 @@
++Python 3.14.6
++Linux localhost 6.6.118-android15-8-gebdfad32d749-ab15099304-4k #1 SMP PREEMPT Thu Mar 26 19:01:13 UTC 2026 aarch64 Android
+diff --git a/evidence/T-018-SYNC-V2-20261013/manifest.md b/evidence/T-018-SYNC-V2-20261013/manifest.md
+new file mode 100644
+index 0000000..5424b34
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/manifest.md
+@@ -0,0 +1,31 @@
++# T-018 Sync V2 — Verification Evidence
++
++- Repository: `OAI-GIANG/HG2`
++- Branch: `feat/hg-t018-cross-context-sync-20261013`
++- Tested code commit: `e3e71823f65ddb3ce25b82a7ea7a95e43cb07b9e`
++- Tested code tree: `4b5f7e71ee4d143879347cee5fe1f08fb2df2d7b`
++- Parent: `8aa7ae879ee7102f481b7ac0fd8c2b2585682ca0`
++- Environment: Python 3.14.6, Android 15, aarch64
++- T-018 tests: 15/15, exit 0, no `ResourceWarning` or ignored finalizer warnings.
++- Core tests: 12/12, exit 0, no `ResourceWarning` or ignored finalizer warnings.
++- Full suite: 27/27, exit 0, `OK`, zero `ResourceWarning` and zero `Exception ignored`, two working-copy runs and two clean-checkout runs.
++- Normalized full-suite outputs compare equal in both pairs.
++- Normalization changes only the unittest elapsed-time line; no outcomes or warnings are filtered.
++- Scope of code changes in this phase: `hg/sync.py`, `tests/test_t018_sync.py`, and `docs/T-018-SYNC-V2-CONTRACT.md`.
++- Limitations remain: no authenticated peer identity/signature, no trusted first-origin checkpoint, no runtime wiring, and no shared-memory merge. This evidence does not establish `LIVE_VERIFIED`.
++
++## SHA-256
++d19cf4a3143345b001de674677418e31f809007eb290cf7155301a9b8bbef683  clean-suite-1.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-1.normalized.log
++c55d5c106bce0c330ed8ff4ecbfae67b99c89a2793b552c55588bade5590a2b9  clean-suite-2.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  clean-suite-2.normalized.log
++55fcdc636a602b4c95e5ed7a35792acafc023c07ab5dcdabf51311c2e4ab176c  core-tests.log
++d08a41db2d4f5ee6adaef07cd74b6fa51d16f6a0b9eaac5af1c6440e30415072  t018-tests.log
++d629a47427d9ab3e5c243735f356bde4badac2c143c7dba12e9c4d3d3e2f77b5  working-suite-1.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-1.normalized.log
++d5ab5fa948ed4966ca892822ced164a1a0d511f8c1dd1c7476ae6e983fdecef2  working-suite-2.log
++b993a26b44e445ea1ac414614563018296fe9aa99833b03379fe792c611c9dc6  working-suite-2.normalized.log
++14423faf868f8a209c2a1e5e27f93b9f6cce4fb5e024683c20ffaffc3d42081b  clean-checkout-commit.txt
++ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841  clean-checkout-status.txt
++4c9c66d5a77a5083f108d99e8a72d8d2b2829ea18b63407dc0ece02727febee7  clean-checkout-tree.txt
++0afe76de11223644cda0aeea7f928b577c6c58637399123f9edd0e29c5a33a3c  environment.txt
+diff --git a/evidence/T-018-SYNC-V2-20261013/t018-tests.log b/evidence/T-018-SYNC-V2-20261013/t018-tests.log
+new file mode 100644
+index 0000000..d55ee23
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/t018-tests.log
+@@ -0,0 +1,20 @@
++test_a_to_b_via_spool (tests.test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (tests.test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (tests.test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (tests.test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (tests.test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (tests.test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (tests.test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (tests.test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (tests.test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (tests.test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (tests.test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (tests.test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (tests.test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (tests.test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (tests.test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 15 tests in 1.378s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/working-suite-1.log b/evidence/T-018-SYNC-V2-20261013/working-suite-1.log
+new file mode 100644
+index 0000000..e8d8c70
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/working-suite-1.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in 4.511s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log b/evidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log
+new file mode 100644
+index 0000000..5d008e4
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/working-suite-1.normalized.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in <TIME>
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/working-suite-2.log b/evidence/T-018-SYNC-V2-20261013/working-suite-2.log
+new file mode 100644
+index 0000000..b66d126
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/working-suite-2.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in 4.483s
++
++OK
+diff --git a/evidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log b/evidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log
+new file mode 100644
+index 0000000..5d008e4
+--- /dev/null
++++ b/evidence/T-018-SYNC-V2-20261013/working-suite-2.normalized.log
+@@ -0,0 +1,32 @@
++test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
++test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
++test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
++test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
++test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
++test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
++test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
++test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
++test_identity (test_core.IdentityTests.test_identity) ... ok
++test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
++test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
++test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
++test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
++test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
++test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
++test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
++test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
++test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
++test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
++test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
++test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
++test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
++test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
++test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
++test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
++test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
++test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
++
++----------------------------------------------------------------------
++Ran 27 tests in <TIME>
++
++OK
+diff --git a/hg/sync.py b/hg/sync.py
+new file mode 100644
+index 0000000..f5c7063
+--- /dev/null
++++ b/hg/sync.py
+@@ -0,0 +1,230 @@
++"""HG T-018 cross-context event synchronization (spool-based, fail-closed).
++
++Design invariants
++- Each context owns its OWN StateStore/log. A local log only ever contains records the local
++  writer produced; foreign events are recorded as local "sync.received" envelopes carrying the
++  origin provenance, so local seq/prev_hash invariants can never be broken by remote input.
++- Exchange happens through an on-disk two-way spool (outbox/inbox/conflicts) with
++  write-temp -> fsync -> os.replace (atomic publish, never a partially visible batch).
++- Every batch is validated before any local write: schema, required fields, payload hash,
++  in-batch chain continuity, duplicate detection (idempotency) and conflict detection.
++- Fail-closed: any invalid input is rejected with a specific reason and an audit record; nothing
++  is written for rejected input.
++"""
++from __future__ import annotations
++
++import json
++import os
++import time
++import uuid
++
++from .history import PRODUCT_ID, SCHEMA, StateStore, canonical, digest
++
++SYNC_SCHEMA = "HG_SYNC_V2"
++BATCH_SCHEMA = "HG_SYNC_BATCH_V2"
++REQUIRED_EVENT_FIELDS = ("event_id", "event_type", "payload", "payload_hash",
++                         "origin_context", "origin_seq", "origin_prev_hash", "origin_hash",
++                         "origin_record")
++REQUIRED_ORIGIN_RECORD_FIELDS = ("seq", "event_id", "event_type", "recorded_at", "correlation_id",
++                                 "causation_id", "product_id", "runtime_id", "schema", "payload",
++                                 "prev_hash", "record_hash")
++
++
++def _is_sha256(value: object) -> bool:
++    return isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
++
++
++class SyncError(Exception):
++    """Raised for rejected batches/events (fail-closed)."""
++
++
++class SyncContext:
++    def __init__(self, context_id: str, state_dir: str, spool_dir: str, clock=time.time) -> None:
++        self.context_id = context_id
++        self.spool = spool_dir
++        self._clock = clock
++        for sub in ("inbox", "outbox", "conflicts"):
++            os.makedirs(os.path.join(spool_dir, sub), exist_ok=True)
++        self.audit_path = os.path.join(spool_dir, "sync-audit.jsonl")
++        self.store = StateStore(state_dir)  # fail-closed on corrupt history
++
++    # ---------------------------------------------------------------- audit
++    def _audit(self, record: dict) -> None:
++        with open(self.audit_path, "a", encoding="utf-8") as fh:
++            fh.write(canonical(record) + "\n")
++            fh.flush()
++            os.fsync(fh.fileno())
++
++    def audit_records(self) -> list:
++        if not os.path.exists(self.audit_path):
++            return []
++        with open(self.audit_path, "r", encoding="utf-8") as fh:
++            return [json.loads(line) for line in fh.read().splitlines() if line.strip()]
++
++    # --------------------------------------------------------------- export
++    def local_event(self, event_type: str, payload: dict) -> dict:
++        rec = self.store.emit(event_type, payload)
++        origin_record = json.loads(canonical(rec))
++        return {"event_id": rec["event_id"], "event_type": rec["event_type"], "payload": origin_record["payload"],
++                "payload_hash": digest(origin_record["payload"]), "origin_context": self.context_id,
++                "origin_seq": origin_record["seq"], "origin_prev_hash": origin_record["prev_hash"],
++                "origin_hash": origin_record["record_hash"], "origin_record": origin_record}
++
++    def export_batch(self, events: list) -> dict:
++        batch = {"schema": BATCH_SCHEMA, "context_id": self.context_id, "created_at": self._clock(),
++                 "events": events}
++        blob = canonical(batch).encode("utf-8")
++        name = "%s-%s.json" % (self.context_id[:8], uuid.uuid4().hex[:12])
++        target = os.path.join(self.spool, "outbox", name)
++        tmp = target + ".tmp"
++        with open(tmp, "wb") as fh:
++            fh.write(blob)
++            fh.flush()
++            os.fsync(fh.fileno())
++        os.replace(tmp, target)
++        self._audit({"op": "export", "file": name, "batch_hash": digest(batch),
++                     "events": len(events), "at": self._clock()})
++        return {"file": name, "batch_hash": digest(batch), "events": len(events)}
++
++    def publish(self, event_type: str, payload: dict) -> dict:
++        return self.export_batch([self.local_event(event_type, payload)])
++
++    # --------------------------------------------------------------- import
++    def _received_index(self) -> dict:
++        index = {}
++        for rec in self.store.replay():
++            if rec["event_type"] == "sync.received":
++                payload = rec["payload"]
++                key = (payload.get("origin_context"), payload.get("event_id"))
++                index[key] = {field: payload.get(field) for field in
++                              ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")}
++        return index
++
++    def import_batch(self, path_or_name: str) -> dict:
++        name = os.path.basename(path_or_name)
++        path = path_or_name if os.path.exists(path_or_name) else os.path.join(self.spool, "inbox", name)
++        if not os.path.exists(path):
++            raise SyncError("batch file missing")
++        with open(path, "rb") as fh:
++            raw = fh.read()
++        try:
++            batch = json.loads(raw.decode("utf-8"))
++        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
++            self._reject(name, "MALFORMED_OR_TRUNCATED_BATCH", raw)
++            raise SyncError("malformed batch") from exc
++        if not isinstance(batch, dict) or batch.get("schema") != BATCH_SCHEMA:
++            self._reject(name, "UNSUPPORTED_BATCH_SCHEMA", raw)
++            raise SyncError("unsupported batch schema")
++        events = batch.get("events")
++        if not isinstance(events, list) or not events:
++            self._reject(name, "EMPTY_BATCH", raw)
++            raise SyncError("empty batch")
++        batch_origin = batch.get("context_id")
++        if not isinstance(batch_origin, str) or not batch_origin:
++            self._reject(name, "INVALID_BATCH_CONTEXT", raw)
++            raise SyncError("invalid batch context")
++        index = self._received_index()
++        accepted, duplicates, pending = [], [], []
++        prev_origin_hash = None
++        prev_origin_seq = None
++        observed_origin = None
++
++        # Preflight the entire batch before appending any received event. A malformed later
++        # event must not leave an earlier prefix partially applied.
++        for ev in events:
++            if not isinstance(ev, dict) or any(f not in ev for f in REQUIRED_EVENT_FIELDS):
++                self._reject(name, "MISSING_REQUIRED_FIELD", raw)
++                raise SyncError("missing required field")
++            if (not isinstance(ev["event_id"], str) or not ev["event_id"]
++                    or not isinstance(ev["event_type"], str) or not ev["event_type"]
++                    or not isinstance(ev["origin_context"], str) or not ev["origin_context"]
++                    or not isinstance(ev["origin_seq"], int) or isinstance(ev["origin_seq"], bool)
++                    or ev["origin_seq"] < 1):
++                self._reject(name, "INVALID_EVENT_METADATA", raw)
++                raise SyncError("invalid event metadata")
++            if ev["origin_context"] == self.context_id:
++                self._reject(name, "SELF_ORIGIN_EVENT", raw)
++                raise SyncError("self-origin event")
++            if observed_origin is None:
++                observed_origin = ev["origin_context"]
++                if batch_origin is not None and batch_origin != observed_origin:
++                    self._reject(name, "BATCH_ORIGIN_MISMATCH", raw)
++                    raise SyncError("batch origin mismatch")
++            elif ev["origin_context"] != observed_origin:
++                self._reject(name, "MIXED_ORIGIN_CONTEXTS", raw)
++                raise SyncError("mixed origin contexts")
++            if (not _is_sha256(ev["payload_hash"]) or not _is_sha256(ev["origin_prev_hash"])
++                    or not _is_sha256(ev["origin_hash"])):
++                self._reject(name, "INVALID_HASH_FORMAT", raw)
++                raise SyncError("invalid hash format")
++            if digest(ev["payload"]) != ev["payload_hash"]:
++                self._reject(name, "PAYLOAD_HASH_MISMATCH", raw)
++                raise SyncError("payload hash mismatch")
++            origin_record = ev["origin_record"]
++            if not isinstance(origin_record, dict) or any(
++                    field not in origin_record for field in REQUIRED_ORIGIN_RECORD_FIELDS):
++                self._reject(name, "INVALID_ORIGIN_RECORD", raw)
++                raise SyncError("invalid origin record")
++            origin_core = {key: value for key, value in origin_record.items() if key != "record_hash"}
++            if (origin_record.get("record_hash") != ev["origin_hash"]
++                    or digest(origin_core) != ev["origin_hash"]):
++                self._reject(name, "ORIGIN_RECORD_HASH_MISMATCH", raw)
++                raise SyncError("origin record hash mismatch")
++            if origin_record.get("schema") != SCHEMA or origin_record.get("product_id") != PRODUCT_ID:
++                self._reject(name, "UNSUPPORTED_ORIGIN_RECORD_SCHEMA", raw)
++                raise SyncError("unsupported origin record schema")
++            if (origin_record.get("event_id") != ev["event_id"]
++                    or origin_record.get("event_type") != ev["event_type"]
++                    or origin_record.get("payload") != ev["payload"]
++                    or origin_record.get("seq") != ev["origin_seq"]
++                    or origin_record.get("prev_hash") != ev["origin_prev_hash"]):
++                self._reject(name, "ORIGIN_RECORD_ENVELOPE_MISMATCH", raw)
++                raise SyncError("origin record envelope mismatch")
++            if prev_origin_hash is not None and (
++                    ev["origin_prev_hash"] != prev_origin_hash
++                    or ev["origin_seq"] != prev_origin_seq + 1):
++                self._reject(name, "IN_BATCH_CHAIN_BREAK", raw)
++                raise SyncError("in-batch chain break")
++            prev_origin_hash = ev["origin_hash"]
++            prev_origin_seq = ev["origin_seq"]
++            key = (ev["origin_context"], ev["event_id"])
++            if key in index:
++                known = index[key]
++                if all(known.get(field) == ev.get(field) for field in
++                       ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")):
++                    duplicates.append(ev["event_id"])
++                    continue
++                self._conflict(name, "DUPLICATE_EVENT_ID_DIFFERENT_PROVENANCE", raw)
++                raise SyncError("duplicate event id with different provenance")
++            index[key] = {field: ev.get(field) for field in
++                          ("event_type", "payload_hash", "origin_seq", "origin_prev_hash", "origin_hash")}
++            accepted.append(ev["event_id"])
++            pending.append(ev)
++
++        # Only apply after every event has passed preflight validation.
++        for ev in pending:
++            self.store.emit("sync.received", {"event_id": ev["event_id"], "event_type": ev["event_type"],
++                                              "payload": ev["payload"], "payload_hash": ev["payload_hash"],
++                                              "origin_context": ev["origin_context"], "origin_seq": ev["origin_seq"],
++                                              "origin_prev_hash": ev["origin_prev_hash"], "origin_hash": ev["origin_hash"],
++                                              "origin_record": ev["origin_record"]})
++        os.replace(path, os.path.join(self.spool, "inbox", ".consumed-" + name))
++        self._audit({"op": "import", "file": name, "accepted": accepted, "duplicates": duplicates,
++                     "batch_hash": digest(batch), "at": self._clock()})
++        return {"accepted": accepted, "duplicates": duplicates}
++
++    # ------------------------------------------------------------ rejection
++    def _reject(self, name: str, reason: str, raw: bytes) -> None:
++        self._audit({"op": "reject", "file": name, "reason": reason, "batch_sha256": digest(raw.decode("utf-8", "replace")),
++                     "at": self._clock()})
++        self.store.emit("sync.rejected", {"file": name, "reason": reason})
++
++    def _conflict(self, name: str, reason: str, raw: bytes) -> None:
++        dest = os.path.join(self.spool, "conflicts", name)
++        try:
++            os.replace(self.spool + "/inbox/" + name, dest)
++        except OSError:
++            with open(dest, "wb") as fh:
++                fh.write(raw)
++        self._audit({"op": "conflict", "file": name, "reason": reason, "at": self._clock()})
++        self.store.emit("sync.conflict", {"file": name, "reason": reason})
+diff --git a/tests/test_core.py b/tests/test_core.py
+index 9bd75db..5320e2d 100644
+--- a/tests/test_core.py
++++ b/tests/test_core.py
+@@ -12,11 +12,13 @@ TOKEN = "edge-token-x"
+ 
+ 
+ def lines(d):
+-    return [l for l in open(os.path.join(d, "history.jsonl"), encoding="utf-8").read().splitlines() if l.strip()]
++    with open(os.path.join(d, "history.jsonl"), encoding="utf-8") as fh:
++        return [l for l in fh.read().splitlines() if l.strip()]
+ 
+ 
+ def put(d, ls):
+-    open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8").write("\n".join(ls) + "\n")
++    with open(os.path.join(d, "history.jsonl"), "w", encoding="utf-8") as fh:
++        fh.write("\n".join(ls) + "\n")
+ 
+ 
+ class IdentityTests(unittest.TestCase):
+@@ -29,7 +31,8 @@ class IdentityTests(unittest.TestCase):
+         for base, _dirs, files in os.walk(os.path.join(ROOT, "hg")):
+             for name in files:
+                 if name.endswith(".py"):
+-                    text = open(os.path.join(base, name), encoding="utf-8").read().lower()
++                    with open(os.path.join(base, name), encoding="utf-8") as fh:
++                        text = fh.read().lower()
+                     for m in ("go_runtime", "paradise", "love", "hg_ops", "governance_engine"):
+                         if m in text:
+                             found.append((name, m))
+@@ -99,7 +102,8 @@ class HistoryTests(unittest.TestCase):
+ 
+     def test_checkpoint_mismatch(self):
+         s, d = self._case(lambda L: L)
+-        open(os.path.join(d, "head.json"), "w", encoding="utf-8").write(json.dumps({"seq": 99, "head_hash": ZERO}))
++        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"seq": 99, "head_hash": ZERO}))
+         self.assertEqual(s.verify()["reason"], "checkpoint_mismatch")
+         with self.assertRaises(HistoryError):
+             StateStore(d)
+@@ -145,7 +149,10 @@ class EdgeTests(unittest.TestCase):
+             with urllib.request.urlopen(req, timeout=4) as r:
+                 return r.status, r.read().decode()
+         except urllib.error.HTTPError as e:
+-            return e.code, e.read().decode()
++            try:
++                return e.code, e.read().decode()
++            finally:
++                e.close()
+ 
+     def test_edge_behaviour(self):
+         self.assertEqual(self.call("/health")[0], 200)
+diff --git a/tests/test_t018_sync.py b/tests/test_t018_sync.py
+new file mode 100644
+index 0000000..6cb1d2f
+--- /dev/null
++++ b/tests/test_t018_sync.py
+@@ -0,0 +1,241 @@
++"""T-018 cross-context synchronization tests: two real processes, spool transport, fail-closed."""
++import json, os, subprocess, sys, tempfile, unittest
++from hg.history import StateStore
++from hg.sync import BATCH_SCHEMA, SyncContext, SyncError, digest
++
++ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++LOCAL = "local-device-credential"
++
++
++def ctx(context_id, base):
++    return SyncContext(context_id, os.path.join(base, context_id, "state"), os.path.join(base, "spool"))
++
++
++def child(code):
++    return subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=ROOT,
++                          env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1"))
++
++
++class SyncTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp()
++        self.a = ctx("ctx-a", self.tmp)
++        self.b = ctx("ctx-b", self.tmp)
++
++    def _publish(self, c, payload):
++        return c.publish("note.created", payload)
++
++    def _move(self, src, dst, name):
++        os.replace(os.path.join(src.spool, "outbox", name), os.path.join(dst.spool, "inbox", name))
++
++    def test_a_to_b_via_spool(self):
++        out = self._publish(self.a, {"note": "from-a"})
++        self._move(self.a, self.b, out["file"])
++        res = self.b.import_batch(out["file"])
++        self.assertEqual(len(res["accepted"]), 1)
++        received = [r for r in self.b.store.replay() if r["event_type"] == "sync.received"]
++        self.assertEqual(received[0]["payload"]["payload"]["note"], "from-a")
++        self.assertEqual(received[0]["payload"]["origin_context"], "ctx-a")
++        self.assertTrue(self.b.store.verify()["ok"])
++
++    def test_b_to_a_via_spool(self):
++        out = self._publish(self.b, {"note": "from-b"})
++        self._move(self.b, self.a, out["file"])
++        res = self.a.import_batch(out["file"])
++        self.assertEqual(len(res["accepted"]), 1)
++        self.assertTrue(self.a.store.verify()["ok"])
++        self.assertEqual(self.a.store.replay()[-1]["payload"]["origin_context"], "ctx-b")
++
++    def test_two_processes_are_used(self):
++        code = ("import os,sys;sys.path.insert(0,%r);from hg.sync import SyncContext;"
++                "p=%r;c=SyncContext('ctx-a',os.path.join(p,'ctx-a','state'),os.path.join(p,'spool'));"
++                "print(c.publish('note.created',{'note':'from-child'})['file'])" % (ROOT, self.tmp))
++        r = child(code)
++        self.assertEqual(r.returncode, 0, r.stderr)
++        name = r.stdout.strip()
++        self.assertTrue(os.path.exists(os.path.join(self.a.spool, "outbox", name)))
++        self._move(self.a, self.b, name)
++        self.assertEqual(len(self.b.import_batch(name)["accepted"]), 1)
++
++    def test_duplicate_event_id_is_idempotent(self):
++        out = self._publish(self.a, {"note": "dup"})
++        self._move(self.a, self.b, out["file"])
++        self.b.import_batch(out["file"])
++        with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        replay = os.path.join(self.b.spool, "inbox", "again.json")
++        with open(replay, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        before = len(self.b.store.replay())
++        res = self.b.import_batch("again.json")
++        self.assertEqual(res["accepted"], [])
++        self.assertEqual(len(res["duplicates"]), 1)
++        self.assertEqual(len(self.b.store.replay()), before)
++
++    def test_duplicate_event_id_different_payload_is_conflict(self):
++        out = self._publish(self.a, {"note": "one"})
++        self._move(self.a, self.b, out["file"])
++        self.b.import_batch(out["file"])
++        with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        ev = raw["events"][0]
++        changed_payload = {"note": "changed"}
++        origin_core = dict(ev["origin_record"])
++        origin_core.pop("record_hash")
++        origin_core["payload"] = changed_payload
++        changed_origin_hash = digest(origin_core)
++        ev["origin_record"] = {**origin_core, "record_hash": changed_origin_hash}
++        ev["origin_hash"] = changed_origin_hash
++        ev["payload"] = changed_payload
++        ev["payload_hash"] = digest(changed_payload)
++        p = os.path.join(self.b.spool, "inbox", "conflict.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        with self.assertRaises(SyncError):
++            self.b.import_batch("conflict.json")
++        self.assertTrue(os.path.exists(os.path.join(self.b.spool, "conflicts", "conflict.json")))
++
++    def test_tampered_payload_rejected(self):
++        out = self._publish(self.a, {"note": "x"})
++        p = os.path.join(self.a.spool, "outbox", out["file"])
++        with open(p, encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        raw["events"][0]["payload"] = {"note": "tampered"}
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        self._move(self.a, self.b, out["file"])
++        with self.assertRaises(SyncError):
++            self.b.import_batch(out["file"])
++
++    def test_unsupported_schema_and_missing_field_rejected(self):
++        p = os.path.join(self.a.spool, "outbox", "bad.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": "OTHER", "events": [{}]}))
++        self._move(self.a, self.b, "bad.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("bad.json")
++        ev = self.a.local_event("note.created", {"note": "m"})
++        del ev["origin_hash"]
++        with open(os.path.join(self.a.spool, "outbox", "missing.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [ev]}))
++        self._move(self.a, self.b, "missing.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("missing.json")
++
++    def test_multi_event_batch_preserves_origin_chain(self):
++        first = self.a.local_event("note.created", {"n": 1})
++        second = self.a.local_event("note.created", {"n": 2})
++        p = os.path.join(self.a.spool, "outbox", "two-events.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
++        self._move(self.a, self.b, "two-events.json")
++        result = self.b.import_batch("two-events.json")
++        self.assertEqual(result["accepted"], [first["event_id"], second["event_id"]])
++        received = [r["payload"] for r in self.b.store.replay() if r["event_type"] == "sync.received"]
++        self.assertEqual([r["origin_seq"] for r in received], [first["origin_seq"], second["origin_seq"]])
++        self.assertTrue(self.b.store.verify()["ok"])
++
++    def test_rehashed_payload_without_matching_origin_record_rejected(self):
++        out = self._publish(self.a, {"note": "original"})
++        p = os.path.join(self.a.spool, "outbox", out["file"])
++        with open(p, encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        raw["events"][0]["payload"] = {"note": "forged"}
++        raw["events"][0]["payload_hash"] = digest(raw["events"][0]["payload"])
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        self._move(self.a, self.b, out["file"])
++        with self.assertRaises(SyncError):
++            self.b.import_batch(out["file"])
++        self.assertFalse(any(r["event_type"] == "sync.received" for r in self.b.store.replay()))
++
++    def test_origin_sequence_gap_rejected_before_apply(self):
++        first = self.a.local_event("note.created", {"n": 1})
++        second = self.a.local_event("note.created", {"n": 2})
++        second["origin_seq"] += 2
++        origin_core = dict(second["origin_record"])
++        origin_core.pop("record_hash")
++        origin_core["seq"] = second["origin_seq"]
++        second["origin_hash"] = digest(origin_core)
++        second["origin_record"] = {**origin_core, "record_hash": second["origin_hash"]}
++        p = os.path.join(self.a.spool, "outbox", "sequence-gap.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
++        self._move(self.a, self.b, "sequence-gap.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("sequence-gap.json")
++        self.assertFalse(any(r["event_type"] == "sync.received" for r in self.b.store.replay()))
++
++    def test_invalid_later_event_does_not_partially_apply_batch(self):
++        first = self.a.local_event("note.created", {"n": 1})
++        second = self.a.local_event("note.created", {"n": 2})
++        del second["origin_hash"]
++        p = os.path.join(self.a.spool, "outbox", "partial-invalid.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [first, second]}))
++        self._move(self.a, self.b, "partial-invalid.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("partial-invalid.json")
++        received = [r for r in self.b.store.replay() if r["event_type"] == "sync.received"]
++        self.assertEqual(received, [])
++        self.assertTrue(any(r["event_type"] == "sync.rejected" for r in self.b.store.replay()))
++
++    def test_stale_in_batch_chain_and_self_origin_rejected(self):
++        e1 = self.a.local_event("note.created", {"n": 1})
++        e2 = self.a.local_event("note.created", {"n": 2})
++        e2["origin_prev_hash"] = "0" * 64
++        origin_core = dict(e2["origin_record"])
++        origin_core.pop("record_hash")
++        origin_core["prev_hash"] = e2["origin_prev_hash"]
++        e2["origin_hash"] = digest(origin_core)
++        e2["origin_record"] = {**origin_core, "record_hash": e2["origin_hash"]}
++        with open(os.path.join(self.a.spool, "outbox", "chain.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-a", "events": [e1, e2]}))
++        self._move(self.a, self.b, "chain.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("chain.json")
++        own = self.b.local_event("note.created", {"n": 3})
++        with open(os.path.join(self.b.spool, "outbox", "self.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps({"schema": BATCH_SCHEMA, "context_id": "ctx-b", "events": [own]}))
++        os.replace(os.path.join(self.b.spool, "outbox", "self.json"), os.path.join(self.b.spool, "inbox", "self.json"))
++        with self.assertRaises(SyncError):
++            self.b.import_batch("self.json")
++
++    def test_truncated_batch_rejected_and_audited(self):
++        p = os.path.join(self.a.spool, "outbox", "trunc.json")
++        with open(p, "w", encoding="utf-8") as fh:
++            fh.write('{"schema": "HG_SYNC_BATCH_V2", "events": [')
++        self._move(self.a, self.b, "trunc.json")
++        with self.assertRaises(SyncError):
++            self.b.import_batch("trunc.json")
++        self.assertTrue(any(r["op"] == "reject" for r in self.b.audit_records()))
++
++    def test_concurrent_updates_do_not_overwrite(self):
++        out_a = self._publish(self.a, {"note": "a"})
++        out_b = self._publish(self.b, {"note": "b"})
++        self._move(self.a, self.b, out_a["file"])
++        self._move(self.b, self.a, out_b["file"])
++        self.b.import_batch(out_a["file"])
++        self.a.import_batch(out_b["file"])
++        self.assertTrue(self.a.store.verify()["ok"])
++        self.assertTrue(self.b.store.verify()["ok"])
++        self.assertEqual(len(self.a.store.replay()), 3)
++        self.assertEqual(len(self.b.store.replay()), 3)
++
++    def test_restart_recovery_keeps_state_and_no_reapply(self):
++        out = self._publish(self.a, {"note": "persist"})
++        self._move(self.a, self.b, out["file"])
++        self.b.import_batch(out["file"])
++        before = self.b.store.audit_export()["head_hash"]
++        reopened = ctx("ctx-b", self.tmp)
++        self.assertEqual(reopened.store.audit_export()["head_hash"], before)
++        self.assertTrue(reopened.store.verify()["ok"])
++        with open(os.path.join(self.b.spool, "inbox", ".consumed-" + out["file"]), encoding="utf-8") as fh:
++            raw = json.loads(fh.read())
++        with open(os.path.join(self.b.spool, "inbox", "again2.json"), "w", encoding="utf-8") as fh:
++            fh.write(json.dumps(raw))
++        self.assertEqual(reopened.import_batch("again2.json")["duplicates"], [out and raw["events"][0]["event_id"]])
++
++
++if __name__ == "__main__":
++    unittest.main()
