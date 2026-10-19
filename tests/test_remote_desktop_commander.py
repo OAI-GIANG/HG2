@@ -48,7 +48,11 @@ class RemoteDesktopCommanderTests(unittest.TestCase):
         self.assertEqual(result["reason_code"], "REMOTE_DRY_RUN_VALIDATED")
         self.assertEqual(len(result["argument_sha256"]), 64)
         self.assertEqual(len(result["decision_digest"]), 64)
+        self.assertEqual(result["adapter_id"], "hg.rdc.status")
+        self.assertEqual(result["adapter_version"], "1")
         self.assertNotIn("arguments", result)
+        # The decision names the admitted adapter but does not call it.
+        self.assertFalse(result["executable"])
 
     def test_unregistered_operation_fails_closed(self):
         result = RemoteDesktopCommander().prepare(
@@ -61,6 +65,7 @@ class RemoteDesktopCommanderTests(unittest.TestCase):
         result = commander.prepare(command(), granted_capabilities=set())
         self.assertFalse(result["ok"])
         self.assertEqual(result["reason_code"], "REMOTE_CAPABILITY_NOT_GRANTED")
+        self.assertEqual(result["adapter_id"], "hg.rdc.status")
 
     def test_raw_shell_operations_are_forbidden(self):
         with self.assertRaisesRegex(RemoteCommandError, "REMOTE_RAW_SHELL_OPERATION_FORBIDDEN"):

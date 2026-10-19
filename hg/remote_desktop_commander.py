@@ -160,35 +160,39 @@ class RemoteDesktopCommander:
                 allow_destructive: bool = False) -> dict[str, Any]:
         """Return a redacted deterministic decision; never dispatch the operation.
 
-        High-risk approval must be verified by a trusted policy adapter against the
-        exact request digest, principal, target, operation, and approval reference.
-        A caller-supplied boolean or a non-empty approval string is never sufficient.
+        `executable=True` means only that the request passed admission checks. It is
+        never proof that an adapter was invoked, and this class deliberately does not
+        perform that invocation. High-risk approval must be verified by a trusted
+        policy adapter against the exact request digest, principal, target, operation,
+        and approval reference. A caller-supplied boolean or non-empty approval string
+        is never sufficient. The decision records the registered adapter identity so
+        audit consumers can bind admission to an intended implementation.
         """
         value = validate_remote_command(command)
         if type(dry_run) is not bool or type(allow_destructive) is not bool:
             raise RemoteCommandError("REMOTE_COMMAND_POLICY_FLAGS_INVALID")
         operation = self._operations.get(value["operation_id"])
         if operation is None:
-            return self._decision(value, ok=False, executable=False,
+            return self._decision(value, operation=None, ok=False, executable=False,
                                   reason="REMOTE_OPERATION_UNREGISTERED", dry_run=dry_run)
         if (tuple(value["required_capabilities"]) != operation.required_capabilities
                 or value["risk_class"] != operation.risk_class):
-            return self._decision(value, ok=False, executable=False,
+            return self._decision(value, operation=operation, ok=False, executable=False,
                                   reason="REMOTE_OPERATION_CONTRACT_MISMATCH", dry_run=dry_run)
         if not isinstance(granted_capabilities, (set, frozenset, tuple, list)) or any(
             not isinstance(cap, str) for cap in granted_capabilities
         ):
             raise RemoteCommandError("REMOTE_GRANTED_CAPABILITIES_INVALID")
         if not set(operation.required_capabilities).issubset(set(granted_capabilities)):
-            return self._decision(value, ok=False, executable=False,
+            return self._decision(value, operation=operation, ok=False, executable=False,
                                   reason="REMOTE_CAPABILITY_NOT_GRANTED", dry_run=dry_run)
         if operation.risk_class == "DESTRUCTIVE" and not allow_destructive:
-            return self._decision(value, ok=False, executable=False,
+            return self._decision(value, operation=operation, ok=False, executable=False,
                                   reason="REMOTE_DESTRUCTIVE_ACTION_DISABLED", dry_run=dry_run)
         if operation.risk_class in _HIGH_RISK:
             if not isinstance(value["approval_ref"], str) or not callable(approval_verifier):
                 return self._decision(
-                    value, ok=False, executable=False,
+                    value, operation=operation, ok=False, executable=False,
                     reason="REMOTE_APPROVAL_REQUIRED", dry_run=dry_run,
                 )
             statement = {
@@ -210,18 +214,18 @@ class RemoteDesktopCommander:
                 approval_verified = False
             if not approval_verified:
                 return self._decision(
-                    value, ok=False, executable=False,
+                    value, operation=operation, ok=False, executable=False,
                     reason="REMOTE_APPROVAL_UNVERIFIED", dry_run=dry_run,
                 )
         if dry_run:
-            return self._decision(value, ok=True, executable=False,
+            return self._decision(value, operation=operation, ok=True, executable=False,
                                   reason="REMOTE_DRY_RUN_VALIDATED", dry_run=True)
-        return self._decision(value, ok=True, executable=True,
+        return self._decision(value, operation=operation, ok=True, executable=True,
                               reason="REMOTE_COMMAND_ADMITTED_TO_ADAPTER", dry_run=False)
 
     @staticmethod
-    def _decision(command: Mapping[str, Any], *, ok: bool, executable: bool,
-                  reason: str, dry_run: bool) -> dict[str, Any]:
+    def _decision(command: Mapping[str, Any], *, operation: RemoteOperation | None,
+                  ok: bool, executable: bool, reason: str, dry_run: bool) -> dict[str, Any]:
         envelope = {
             "schema_version": REMOTE_DECISION_SCHEMA,
             "command_id": command["command_id"],
@@ -230,6 +234,8 @@ class RemoteDesktopCommander:
             "operation_id": command["operation_id"],
             "source_revision": command["source_revision"],
             "risk_class": command["risk_class"],
+            "adapter_id": operation.adapter_id if operation else None,
+            "adapter_version": operation.adapter_version if operation else None,
             "ok": ok,
             "executable": executable,
             "dry_run": dry_run,

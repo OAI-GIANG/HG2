@@ -4,6 +4,8 @@ Date: 2026-10-20
 Repository: `OAI-GIANG/HG2`
 Audit target at start: `31db6ef4fedaaf6eb04f65bc88487e7c14e17ad1`
 
+Latest pre-integration-audit HEAD: `8d4d6f00e3953ef467c8ceed23697aa1ff9ae00e` (CircleCI #290 passed before the current source changes).
+
 ## Decision
 
 **NOT CLOSED — MERGE/DEPLOY BLOCKED.** This is an evidence audit, not an approval.
@@ -14,9 +16,10 @@ Audit target at start: `31db6ef4fedaaf6eb04f65bc88487e7c14e17ad1`
 - GitHub records review `5575758755` from `doquocoai07-sys` on that exact commit with state `COMMENTED`. It is not an approval.
 - The authenticated GitHub CLI session on the Termux host is `OAI-GIANG`; the repository collaborator listing contains only `OAI-GIANG`. The reviewer's permission endpoint reports `read`.
 - Commit status reports `ci/circleci: verify` as `success` at `https://circleci.com/gh/OAI-GIANG/HG2/289`.
-- Targeted `python -m unittest tests.test_remote_desktop_commander -v`: 9 tests passed. These cover unregistered operation denial, missing capability denial, raw shell/secret-key rejection, high-risk approval verifier requirement, exact command/argument digest binding, verifier rejection, destructive feature switch, dry-run non-execution, and duplicate registration denial.
-- The previously recorded full suite result for the implementation commit is 333 tests passed. This audit did not rerun the full suite because no implementation source or test code changed.
-- `adb devices -l` returned no attached target devices. The current host is Android/Termux (`aarch64`, Android kernel); `cmd.exe`, `powershell.exe`, and `xfreerdp` were not found. This does not identify or validate the intended desktop target.
+- Targeted `python -m unittest tests.test_remote_desktop_commander -v`: 9 tests passed before and after the latest admission-receipt metadata change. The latest tests also assert registered adapter identity is present in decision receipts and absent for unregistered operations. Coverage includes unregistered operation denial, missing capability denial, raw shell/secret-key rejection, high-risk approval verifier requirement, exact command/argument digest binding, verifier rejection, destructive feature switch, dry-run non-execution, and duplicate registration denial.
+- The previously recorded full suite result for the earlier implementation commit is 333 tests passed. The present focused source/test change ran the 9 targeted Remote Desktop Commander tests and compiled only the changed Python files; the full suite has not been rerun.
+- `adb devices -l` returned no attached target devices. The current host was identified as OPPO PKC110, Android 15/Termux (`aarch64`, Android kernel); `cmd.exe`, `powershell.exe`, and `xfreerdp` were not found. The intended desktop OS/device is therefore **UNIDENTIFIED**, not assumed to be Windows or Linux desktop. This does not identify or validate a desktop target.
+- Source inventory shows `hg.remote_desktop_commander.RemoteDesktopCommander` is an admission contract only; it deliberately does not invoke adapters. `hg.capability_registry.RuntimeDomainBinding` can bind Python callables but does not itself enforce hard timeouts. Existing `/api/ask` bindings explicitly set `hard_timeout_enforced=False`. No target-side desktop operation adapter or OS process supervisor was found in this scope.
 
 ## Acceptance gate matrix
 
@@ -27,6 +30,7 @@ Audit target at start: `31db6ef4fedaaf6eb04f65bc88487e7c14e17ad1`
 | High-risk approval fail-closed | PARTIAL / contract tests pass | Unit tests show no verifier or false verifier blocks and bind digest fields. A trusted production approval adapter/service and target-side enforcement are not evidenced. |
 | Actual target desktop adapter | BLOCKED | No target device was attached/discovered and no OS-specific desktop adapter is bound through the runtime registry. Do not infer execution from an admitted decision. |
 | OS-enforced timeout | BLOCKED | No target adapter/process supervisor or target-side timeout/cancellation evidence was found. HTTP client timeout settings are not proof of process-tree termination on a desktop target. |
+| Adapter identity in admission receipts | IMPLEMENTED / TARGET UNVERIFIED | The latest source change now carries the registered `adapter_id` and `adapter_version` in the decision digest, including null values for unregistered operations. This improves audit binding only; it does not execute or authenticate a target adapter. |
 | Independent review | BLOCKED if required | GitHub records `COMMENTED`, not `APPROVED`; reviewer has read permission. The account identity alone does not establish an independent human reviewer. Obtain an eligible independent reviewer if the acceptance policy requires one. |
 | Live integration/deployment | NOT RUN | No target adapter and target integration fixture are available; no live desktop operation or deployment was attempted. |
 
@@ -36,4 +40,4 @@ Audit target at start: `31db6ef4fedaaf6eb04f65bc88487e7c14e17ad1`
 
 ## Revalidation protocol
 
-After any push, record the new PR HEAD, commit status, and review commit IDs. Do not rerun the full 333-test suite for this documentation-only audit; rerun it if implementation/test sources change. Keep the pre-existing untracked `docs/architecture/HG2-P0-CONTRACT-STATE-OWNER-PREFLIGHT-2026-10-20.md` untouched.
+After the latest source/test change, run only the targeted Remote Desktop Commander test module (9 tests), compile the changed Python files and check whitespace; the full 333-test suite has not been rerun. After push, record the new PR HEAD and CI state. Do not claim CI is green until it succeeds on the new HEAD. Keep the pre-existing untracked `docs/architecture/HG2-P0-CONTRACT-STATE-OWNER-PREFLIGHT-2026-10-20.md` untouched.
