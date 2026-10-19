@@ -1,0 +1,60 @@
+{
+  "schema": "HG2_INDEPENDENT_ARCHITECTURE_R2_RESULT_V1",
+  "repository": "OAI-GIANG/HG2",
+  "candidate_branch": "stt/hg2-brain-orchestrator-r1-20261019",
+  "base_ref": "hg-genesis",
+  "base_sha": "1dca305b4d6e9442e259442486efb5127cc0cb09",
+  "environment": "Termux Android ARM64, Python 3.14.6",
+  "review": {
+    "architecture_artifact": "docs/architecture/HG2-INDEPENDENT-ARCHITECTURE-R2.md",
+    "implementation": "hg/brain_orchestrator.py",
+    "tests": "tests/test_brain_orchestrator.py",
+    "runtime_manifest": "manifest.json",
+    "test_log": "evidence/HG2-INDEPENDENT-ARCHITECTURE-R2-TESTS.log",
+    "focused_tests": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python -m unittest tests.test_brain_orchestrator -v",
+      "count": 21,
+      "status": "PASS"
+    },
+    "full_suite": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v",
+      "count": 240,
+      "failures": 0,
+      "status": "PASS",
+      "duration_seconds": 21.482
+    },
+    "other_checks": {
+      "py_compile": "PASS",
+      "manifest_json_parse": "PASS",
+      "git_diff_check": "PASS"
+    },
+    "status": "CANDIDATE_CORE_TESTED"
+  },
+  "boundaries": {
+    "production_api_integration": "OPEN",
+    "persistent_orchestration_state": "OPEN",
+    "real_worker_adapters": "NOT_BOUND",
+    "capability_inventory_trust_root": "NOT_BOUND",
+    "trusted_runtime_evidence_backend": "INJECTED_CONTRACT_ONLY",
+    "cross_process_trace_propagation": "OPEN",
+    "independent_review": "NOT_OBTAINED",
+    "production_release": "BLOCKED",
+    "merge": "NOT_PERFORMED",
+    "deploy": "NOT_PERFORMED"
+  },
+  "evidence_hashes": {
+    "hg/brain_orchestrator.py": "10c32e23e0dd0669eec86767d29d1a1995860036c0d84f9811bfbf74a6480eee",
+    "tests/test_brain_orchestrator.py": "e18d57a0b250ac8d84af8787cbca7333440361d6f21f00c1f23cab0d089141e3",
+    "manifest.json": "64239e32be4759e92d1ac8d19c90813a514f7a716bc689840b92182265f1d063",
+    "docs/architecture/HG2-INDEPENDENT-ARCHITECTURE-R2.md": "60104791a6e652f6eafb29b605f55c2e3e96a5389fcc0e91bcd95104042b0cef",
+    "evidence/HG2-INDEPENDENT-ARCHITECTURE-R2-TESTS.log": "e407d826030c0f8d31b562dd149387be61a14f24b3b4881a7c75c955ff8e6bec"
+  },
+  "sources": [
+    "https://learn.microsoft.com/en-us/azure/architecture/patterns/saga",
+    "https://learn.microsoft.com/en-us/azure/architecture/patterns/idempotent-consumer",
+    "https://learn.microsoft.com/en-us/azure/architecture/patterns/transactional-outbox",
+    "https://opentelemetry.io/docs/concepts/context-propagation/",
+    "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/"
+  ],
+  "next_gate": "Bind a durable authorised request-to-router-to-worker-to-result path, add real integration tests and obtain independent review before merging or production deployment."
+}
