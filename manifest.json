@@ -13,7 +13,8 @@
     "hg.sync",
     "hg.sync_auth",
     "hg.sync_bootstrap",
-    "hg.brain_orchestrator"
+    "hg.brain_orchestrator",
+    "hg.capability_registry"
   ],
   "origin": "clean_room"
 }

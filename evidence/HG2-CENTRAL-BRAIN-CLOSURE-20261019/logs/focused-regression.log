@@ -1,0 +1,93 @@
+test_bound_healthy_adapter_projects_only_its_capability (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_bound_healthy_adapter_projects_only_its_capability) ... ok
+test_invalid_timeout_or_revision_rejected (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_invalid_timeout_or_revision_rejected) ... ok
+test_invalid_worker_context_returns_blocked_without_calling_adapter (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_invalid_worker_context_returns_blocked_without_calling_adapter) ... ok
+test_only_one_adapter_may_own_a_domain_in_v1 (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_only_one_adapter_may_own_a_domain_in_v1) ... ok
+test_registry_digest_binds_implementation_version_and_side_effect_class (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_registry_digest_binds_implementation_version_and_side_effect_class) ... ok
+test_request_dispatch_calls_adapter_once_and_enforces_budget (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_request_dispatch_calls_adapter_once_and_enforces_budget) ... ok
+test_unbound_registry_exposes_no_capability (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_unbound_registry_exposes_no_capability) ... ok
+test_unhashable_or_nontext_capability_ids_fail_closed (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_unhashable_or_nontext_capability_ids_fail_closed) ... ok
+test_unhealthy_adapter_is_blocked_before_dispatch (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_unhealthy_adapter_is_blocked_before_dispatch) ... ok
+test_unknown_domain_and_capability_owner_mismatch_fail_closed (tests.test_capability_registry.RuntimeCapabilityRegistryTests.test_unknown_domain_and_capability_owner_mismatch_fail_closed) ... ok
+test_conflicting_same_claim_digests_are_inconclusive (tests.test_brain_orchestrator.BrainOrchestratorTests.test_conflicting_same_claim_digests_are_inconclusive) ... ok
+test_deadline_stops_dispatch_before_next_branch (tests.test_brain_orchestrator.BrainOrchestratorTests.test_deadline_stops_dispatch_before_next_branch) ... ok
+test_different_outputs_are_allowed_without_agreement_policy (tests.test_brain_orchestrator.BrainOrchestratorTests.test_different_outputs_are_allowed_without_agreement_policy) ... ok
+test_duplicate_or_foreign_branch_result_is_inconclusive (tests.test_brain_orchestrator.BrainOrchestratorTests.test_duplicate_or_foreign_branch_result_is_inconclusive) ... ok
+test_empty_expected_domain_set_is_not_success (tests.test_brain_orchestrator.BrainOrchestratorTests.test_empty_expected_domain_set_is_not_success) ... ok
+test_failure_dominates_other_nonfatal_statuses (tests.test_brain_orchestrator.BrainOrchestratorTests.test_failure_dominates_other_nonfatal_statuses) ... ok
+test_five_domain_route_and_execution (tests.test_brain_orchestrator.BrainOrchestratorTests.test_five_domain_route_and_execution) ... ok
+test_manifest_declares_dependency_free_coordinator (tests.test_brain_orchestrator.BrainOrchestratorTests.test_manifest_declares_dependency_free_coordinator) ... ok
+test_max_steps_budget_blocks_before_dispatch (tests.test_brain_orchestrator.BrainOrchestratorTests.test_max_steps_budget_blocks_before_dispatch) ... ok
+test_missing_adapter_does_not_count_as_capability (tests.test_brain_orchestrator.BrainOrchestratorTests.test_missing_adapter_does_not_count_as_capability) ... ok
+test_missing_capability_blocks_before_any_worker_runs (tests.test_brain_orchestrator.BrainOrchestratorTests.test_missing_capability_blocks_before_any_worker_runs) ... ok
+test_missing_result_cannot_aggregate_to_success (tests.test_brain_orchestrator.BrainOrchestratorTests.test_missing_result_cannot_aggregate_to_success) ... ok
+test_no_workers_call_when_source_contract_invalid (tests.test_brain_orchestrator.BrainOrchestratorTests.test_no_workers_call_when_source_contract_invalid) ... ok
+test_non_sha_source_revision_rejected_before_dispatch (tests.test_brain_orchestrator.BrainOrchestratorTests.test_non_sha_source_revision_rejected_before_dispatch) ... ok
+test_partial_result_preserves_partial_status (tests.test_brain_orchestrator.BrainOrchestratorTests.test_partial_result_preserves_partial_status) ... ok
+test_result_request_mismatch_fails_closed (tests.test_brain_orchestrator.BrainOrchestratorTests.test_result_request_mismatch_fails_closed) ... ok
+test_route_branch_budget_blocks (tests.test_brain_orchestrator.BrainOrchestratorTests.test_route_branch_budget_blocks) ... ok
+test_same_request_identity_with_different_goal_has_different_plan_digest (tests.test_brain_orchestrator.BrainOrchestratorTests.test_same_request_identity_with_different_goal_has_different_plan_digest) ... ok
+test_unknown_capability_and_unsafe_constraints_rejected (tests.test_brain_orchestrator.BrainOrchestratorTests.test_unknown_capability_and_unsafe_constraints_rejected) ... ok
+test_unverified_evidence_cannot_return_success (tests.test_brain_orchestrator.BrainOrchestratorTests.test_unverified_evidence_cannot_return_success) ... ok
+test_worker_exception_is_in_doubt_and_stops_following_branches (tests.test_brain_orchestrator.BrainOrchestratorTests.test_worker_exception_is_in_doubt_and_stops_following_branches) ... ok
+test_ask_fails_closed_when_precall_audit_write_fails (tests.test_server.ServerTests.test_ask_fails_closed_when_precall_audit_write_fails) ... 127.0.0.1 - - [19/Oct/2026 21:22:58] HG_API "POST /api/ask HTTP/1.1" 503 -
+ok
+test_ask_requires_client_idempotency_key (tests.test_server.ServerTests.test_ask_requires_client_idempotency_key) ... 127.0.0.1 - - [19/Oct/2026 21:22:59] HG_API "POST /api/ask HTTP/1.1" 400 -
+ok
+test_ask_uses_authorized_context_and_audits_call (tests.test_server.ServerTests.test_ask_uses_authorized_context_and_audits_call) ... 127.0.0.1 - - [19/Oct/2026 21:22:59] HG_API "POST /api/ask HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:22:59] HG_API "POST /api/ask HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:22:59] HG_API "POST /api/ask HTTP/1.1" 409 -
+127.0.0.1 - - [19/Oct/2026 21:22:59] HG_API "POST /api/ask HTTP/1.1" 409 -
+ok
+test_ask_without_provider_config_fails_closed (tests.test_server.ServerTests.test_ask_without_provider_config_fails_closed) ... 127.0.0.1 - - [19/Oct/2026 21:23:00] HG_API "POST /api/ask HTTP/1.1" 503 -
+ok
+test_concurrent_duplicate_ask_is_not_dispatched_twice (tests.test_server.ServerTests.test_concurrent_duplicate_ask_is_not_dispatched_twice) ... 127.0.0.1 - - [19/Oct/2026 21:23:00] HG_API "POST /api/ask HTTP/1.1" 409 -
+127.0.0.1 - - [19/Oct/2026 21:23:00] HG_API "POST /api/ask HTTP/1.1" 200 -
+ok
+test_create_list_read_delete (tests.test_server.ServerTests.test_create_list_read_delete) ... 127.0.0.1 - - [19/Oct/2026 21:23:01] HG_API "POST /api/memory HTTP/1.1" 201 -
+127.0.0.1 - - [19/Oct/2026 21:23:01] HG_API "GET /api/memory HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:23:01] HG_API "GET /api/memory/api-fact HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:23:01] HG_API "GET /api/memory/search?q=Single+system HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:23:01] HG_API "GET /api/memory/context?q=Single+system HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:23:01] HG_API "DELETE /api/memory/api-fact HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:23:01] HG_API "GET /api/memory/api-fact HTTP/1.1" 404 -
+ok
+test_credential_expiry_and_revocation_fail_closed (tests.test_server.ServerTests.test_credential_expiry_and_revocation_fail_closed) ... 127.0.0.1 - - [19/Oct/2026 21:23:01] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 21:23:01] HG_API "GET /api/memory HTTP/1.1" 401 -
+ok
+test_health_and_auth (tests.test_server.ServerTests.test_health_and_auth) ... 127.0.0.1 - - [19/Oct/2026 21:23:02] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:23:02] HG_API "GET /api/health HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:23:02] HG_API "GET /api/library HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 21:23:02] HG_API "GET /api/library HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 21:23:02] HG_API "GET /api/library HTTP/1.1" 403 -
+127.0.0.1 - - [19/Oct/2026 21:23:02] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 21:23:02] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 21:23:02] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 21:23:02] HG_API "POST /api/memory HTTP/1.1" 401 -
+ok
+test_library_endpoint_empty_state_and_path_integrity_fail_closed (tests.test_server.ServerTests.test_library_endpoint_empty_state_and_path_integrity_fail_closed) ... 127.0.0.1 - - [19/Oct/2026 21:23:03] HG_API "GET /api/library HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 21:23:03] HG_API "GET /api/library HTTP/1.1" 503 -
+ok
+test_memory_evidence_verifier_rejects_tampered_context (tests.test_server.ServerTests.test_memory_evidence_verifier_rejects_tampered_context) ... ok
+test_phone_runtime_restart_marks_orphan_provider_call_in_doubt (tests.test_server.ServerTests.test_phone_runtime_restart_marks_orphan_provider_call_in_doubt) ... ok
+test_production_server_creates_fresh_state_under_process_lock (tests.test_server.ServerTests.test_production_server_creates_fresh_state_under_process_lock) ... ok
+test_scope_enforced_and_no_duplicate_json_keys (tests.test_server.ServerTests.test_scope_enforced_and_no_duplicate_json_keys) ... 127.0.0.1 - - [19/Oct/2026 21:23:05] HG_API "POST /api/memory HTTP/1.1" 403 -
+127.0.0.1 - - [19/Oct/2026 21:23:05] HG_API "POST /api/memory HTTP/1.1" 400 -
+ok
+test_second_http_server_cannot_own_same_state_directory (tests.test_server.ServerTests.test_second_http_server_cannot_own_same_state_directory) ... ok
+test_source_provenance_mismatch_degrades_health (tests.test_server.ServerTests.test_source_provenance_mismatch_degrades_health) ... 127.0.0.1 - - [19/Oct/2026 21:23:06] HG_API "GET /api/health HTTP/1.1" 503 -
+ok
+test_startup_fails_closed_for_invalid_credential_ids_or_revocation_list (tests.test_server.ServerTests.test_startup_fails_closed_for_invalid_credential_ids_or_revocation_list) ... ok
+test_startup_fails_when_read_and_write_credentials_match (tests.test_server.ServerTests.test_startup_fails_when_read_and_write_credentials_match) ... ok
+test_startup_fails_without_credential_expiry (tests.test_server.ServerTests.test_startup_fails_without_credential_expiry) ... ok
+test_startup_fails_without_token (tests.test_server.ServerTests.test_startup_fails_without_token) ... ok
+test_checkpoint_mismatch (tests.test_core.HistoryTests.test_checkpoint_mismatch) ... ok
+test_event_id_retry_is_idempotent_only_for_the_same_operation (tests.test_core.HistoryTests.test_event_id_retry_is_idempotent_only_for_the_same_operation) ... ok
+test_genesis_and_chain (tests.test_core.HistoryTests.test_genesis_and_chain) ... ok
+test_idempotent (tests.test_core.HistoryTests.test_idempotent) ... ok
+test_restart_in_new_process (tests.test_core.HistoryTests.test_restart_in_new_process) ... ok
+test_tamper_matrix (tests.test_core.HistoryTests.test_tamper_matrix) ... ok
+
+----------------------------------------------------------------------
+Ran 56 tests in 10.733s
+
+OK

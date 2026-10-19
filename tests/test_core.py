@@ -48,6 +48,20 @@ class AuthorityTests(unittest.TestCase):
 
 
 class HistoryTests(unittest.TestCase):
+    def test_event_id_retry_is_idempotent_only_for_the_same_operation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store = StateStore(directory)
+            first = store.emit("test.operation", {"value": "stable"}, event_id="stable-operation-id")
+            retry = store.emit("test.operation", {"value": "stable"}, event_id="stable-operation-id")
+            self.assertEqual(retry["record_hash"], first["record_hash"])
+            self.assertEqual(len(store.replay()), 2)  # genesis plus exactly one operation
+            with self.assertRaisesRegex(HistoryError, "different operation"):
+                store.emit("test.operation", {"value": "changed"}, event_id="stable-operation-id")
+            with self.assertRaisesRegex(HistoryError, "different operation"):
+                store.emit("other.operation", {"value": "stable"}, event_id="stable-operation-id")
+            self.assertEqual(len(store.replay()), 2)
+            self.assertTrue(store.verify()["ok"])
+
     def test_genesis_and_chain(self):
         with tempfile.TemporaryDirectory() as d:
             s = StateStore(d, clock=lambda: 1750000000.0)

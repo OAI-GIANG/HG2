@@ -14,6 +14,7 @@ from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
 from .contracts import (
+    BRAIN_WORKER_CONTEXT_V1,
     CAPABILITY_RESULT_V1,
     ContractError,
     canonical_digest,
@@ -238,6 +239,7 @@ class BrainOrchestrator:
             invoked.append(branch)
             try:
                 raw = workers[branch]({
+                    "schema_version": BRAIN_WORKER_CONTEXT_V1,
                     "request_id": norm["request_id"],
                     "correlation_id": norm["correlation_id"],
                     "goal": norm["goal"],

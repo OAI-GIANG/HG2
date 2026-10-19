@@ -223,8 +223,22 @@ class StateStore:
 
     def emit(self, event_type, payload, *, correlation_id=None, causation_id=None, event_id=None):
         with self._lock:
-            if event_id and event_id in self._by_id:
-                return self._by_id[event_id]
+            if event_id is not None:
+                if not isinstance(event_id, str) or not event_id.strip():
+                    raise HistoryError("event_id must be a non-empty string")
+                existing = self._by_id.get(event_id)
+                if existing is not None:
+                    # Idempotency means the same identity and same operation, not
+                    # silently accepting a different event body under an old ID.
+                    same_operation = (
+                        existing.get("event_type") == event_type
+                        and canonical(existing.get("payload")) == canonical(payload)
+                        and (correlation_id is None or existing.get("correlation_id") == correlation_id)
+                        and (causation_id is None or existing.get("causation_id") == causation_id)
+                    )
+                    if not same_operation:
+                        raise HistoryError("event_id reused for a different operation")
+                    return existing
             seq = (self._events[-1]["seq"] if self._events else 0) + 1
             prev = self._events[-1]["record_hash"] if self._events else ZERO
             core = {"seq": seq, "event_id": event_id or uuid.uuid4().hex, "event_type": event_type,

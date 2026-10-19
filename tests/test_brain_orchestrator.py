@@ -48,6 +48,7 @@ class BrainOrchestratorTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         manifest = json.loads((root / "manifest.json").read_text())
         self.assertIn("hg.brain_orchestrator", manifest["modules"])
+        self.assertIn("hg.capability_registry", manifest["modules"])
         self.assertEqual(manifest["dependencies"], {})
 
     def setUp(self):

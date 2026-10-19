@@ -168,6 +168,8 @@ AI-generated tests may supplement but may not replace the frozen acceptance orac
 | CH-R3-08 | EXT-04: prefer simple composable design | Keep responsibilities logical; split only on measured benefit | P2 measured decision record |
 | CH-R3-09 | No actual human review artifact existed | Explicitly mark human independent review as NOT OBTAINED; do not relabel literature synthesis | Human review gate if required |
 | CH-R3-10 | Hash integrity can be overclaimed | Separate byte integrity, provenance, semantic verification and reviewer independence | P0-C forged-evidence suite |
+| CH-R3-11 | OWASP published a versioned 2026 LLM Top 10 on 2026-08-04; prior source table referred to the 2025 taxonomy as current | Pin the 2026 taxonomy (EXT-02/03), and add idempotent-consumer, SQLite atomic-commit and OS-lock caveats (EXT-14/15/16) | P1-A threat corpus refresh; P0-A retry/restart tests; P1-B process-lock tests |
+| CH-R3-12 | A static capability allowlist cannot establish that a callable, healthy, policy-bounded adapter exists | Implement a versioned fail-closed RuntimeCapabilityRegistry; project only bound/ready adapters into BrainOrchestrator; hash a registry snapshot into audit and response metadata | Registry owner/duplicate/unbound/readiness/budget tests; five-domain completeness and operational gates remain OPEN |
 
 ## 8. Readiness and honest status
 
@@ -176,5 +178,10 @@ AI-generated tests may supplement but may not replace the frozen acceptance orac
 - STT SYNTHESIS: recommendations and trade-offs recorded; they are not attributed to external authors as HG2-specific opinions.
 - INDEPENDENT HUMAN REVIEW: NOT OBTAINED.
 - IMPLEMENTED: only source behavior evidenced by the specific commit and files; this plan itself is documentation.
-- TESTED / VERIFIED / OPERATIONAL: must be assigned per capability from actual evidence, never inherited from this plan.
+- IMPLEMENTED / TESTED (candidate; final evidence file is evidence/HG2-CENTRAL-BRAIN-CLOSURE-20261019 after final regression): durable request/plan/attempt/step audit receipts on the existing PhoneRuntime journal; stable Idempotency-Key admission and input/source conflict handling; in-process concurrent duplicate suppression and response replay; conservative IN_DOUBT recovery after a persisted provider start without completion; event-id payload conflict rejection; source/integrity/ACL/retrieval-byte verifier for memory context; production HTTP single-writer lock acquired before PhoneRuntime startup.
+- IMPLEMENTED / TESTED (candidate): versioned RuntimeCapabilityRegistry with deterministic registry digest, domain-owner validation, explicit adapter lifecycle/authority/side-effect/timeout metadata, readiness-gated capability projection, invocation budgets, and audit/response binding. Current /api/ask binds only memory.search and synthesis.propose; three logical domains remain UNBOUND.
+- LIMITATION: this file-backed StateStore still writes event log then projection/head files separately. A crash in between can make startup fail closed; there is no automatic atomic transaction or safe rebuild path across those files. WorkflowService/SQLiteStateStore and DurableTransactionStore remain unintegrated; no second workflow database was created.
+- LIMITATION: answer bodies are not persisted; in-process retries return the cached response, while post-restart retries of already finished operations return a conflict instead of calling provider again. Memory context verification does not prove semantic truth of generated answers.
+- Remaining blockers: atomic journal/projection recovery; hard wall-clock adapter timeout; three unbound domain adapters; independent semantic/provenance verifier; frozen classification/answer-quality corpus; exact-device lifecycle/performance and deployed-service tests; live-provider evidence; actual independent human review. External research is not a human reviewer.
+- TESTED / VERIFIED / OPERATIONAL: assigned per capability from final recorded evidence only; local fakes do not promote the live provider or deployment.
 - Release status remains OPEN / DRAFT until the mandatory gates have evidence and authorized acceptance.
