@@ -2,6 +2,18 @@
   "schema": "HG2_INDEPENDENT_ARCHITECTURE_R2_RESULT_V1",
   "repository": "OAI-GIANG/HG2",
   "candidate_branch": "stt/hg2-brain-orchestrator-r1-20261019",
+  "candidate_head": "c45449c5b637dd7b9d506f31d4374dc409bee0f6",
+  "pull_request": {
+    "number": 29,
+    "url": "https://github.com/OAI-GIANG/HG2/pull/29",
+    "state": "OPEN",
+    "draft": true,
+    "base": "hg-genesis",
+    "base_sha": "1dca305b4d6e9442e259442486efb5127cc0cb09",
+    "review_decision": "PENDING",
+    "circleci_check": "SUCCESS",
+    "circleci_url": "https://circleci.com/gh/OAI-GIANG/HG2/276"
+  },
   "base_ref": "hg-genesis",
   "base_sha": "1dca305b4d6e9442e259442486efb5127cc0cb09",
   "environment": "Termux Android ARM64, Python 3.14.6",
