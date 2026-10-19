@@ -147,6 +147,8 @@ class BrainOrchestratorTests(unittest.TestCase):
 
     def test_empty_expected_domain_set_is_not_success(self):
         self.assertEqual(aggregate_results([], expected_branches=[]), "INCONCLUSIVE")
+        self.assertEqual(aggregate_results([None], expected_branches=["a"]), "INCONCLUSIVE")
+        self.assertEqual(aggregate_results(None, expected_branches=["a"]), "INCONCLUSIVE")
 
     def test_max_steps_budget_blocks_before_dispatch(self):
         req = request(["memory.search", "research.analyze"], max_steps=1)

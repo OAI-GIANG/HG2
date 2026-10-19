@@ -281,13 +281,15 @@ def aggregate_results(
     in_doubt: bool = False,
 ) -> str:
     """Strict status aggregation. Conflicts never resolve by arrival order."""
+    if not isinstance(results, list):
+        return "INCONCLUSIVE"
+    if any(not isinstance(item, Mapping) for item in results):
+        return "INCONCLUSIVE"
     if in_doubt or any(item.get("status") == "IN_DOUBT" for item in results):
         return "IN_DOUBT"
     expected = tuple(expected_branches)
     if (not expected or len(expected) != len(set(expected))
             or any(not isinstance(branch, str) or not branch for branch in expected)):
-        return "INCONCLUSIVE"
-    if any(not isinstance(item, Mapping) for item in results):
         return "INCONCLUSIVE"
     observed = [item.get("branch_id") for item in results]
     if len(observed) != len(set(observed)) or any(branch not in expected for branch in observed):

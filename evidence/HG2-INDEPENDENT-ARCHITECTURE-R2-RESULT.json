@@ -21,7 +21,7 @@
       "count": 240,
       "failures": 0,
       "status": "PASS",
-      "duration_seconds": 21.482
+      "duration_seconds": 21.694
     },
     "other_checks": {
       "py_compile": "PASS",
