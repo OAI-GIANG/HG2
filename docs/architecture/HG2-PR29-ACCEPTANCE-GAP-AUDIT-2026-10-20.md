@@ -4,7 +4,7 @@ Date: 2026-10-20
 Repository: `OAI-GIANG/HG2`
 Audit target at start: `31db6ef4fedaaf6eb04f65bc88487e7c14e17ad1`
 
-Latest HEAD after adapter-identity receipt update: `32959616bbed62e99d2b10ada64c56fbbea4b848` (CircleCI #291 passed).
+Latest HEAD before owner-approval policy update: `b8e70219f98f5fd529b4dc6e03fb02ee5a40c9f1` (CircleCI #292 passed).
 
 ## Decision
 
@@ -31,13 +31,13 @@ Latest HEAD after adapter-identity receipt update: `32959616bbed62e99d2b10ada64c
 | Actual target desktop adapter | BLOCKED | No target device was attached/discovered and no OS-specific desktop adapter is bound through the runtime registry. Do not infer execution from an admitted decision. |
 | OS-enforced timeout | BLOCKED | No target adapter/process supervisor or target-side timeout/cancellation evidence was found. HTTP client timeout settings are not proof of process-tree termination on a desktop target. |
 | Adapter identity in admission receipts | IMPLEMENTED / TARGET UNVERIFIED | Commit `32959616bbed62e99d2b10ada64c56fbbea4b848` carries registered `adapter_id` and `adapter_version` in the decision digest, including null values for unregistered operations. Focused tests and CircleCI #291 pass. This improves audit binding only; it does not execute or authenticate a target adapter. |
-| Independent review | BLOCKED if required | GitHub records `COMMENTED`, not `APPROVED`; reviewer has read permission. The account identity alone does not establish an independent human reviewer. Obtain an eligible independent reviewer if the acceptance policy requires one. |
+| Independent review | NOT A MANDATORY GATE (owner policy) | The repository owner may approve their own change under explicit owner authorization. GitHub still records the actual review state; `COMMENTED` is not `APPROVED`. No independent-review claim is made. If GitHub branch protection/rulesets separately require approving reviews, the repository owner must adjust that repository policy intentionally; do not bypass technical safety gates. |
 | Live integration/deployment | NOT RUN | No target adapter and target integration fixture are available; no live desktop operation or deployment was attempted. |
 
 ## Safety conclusion
 
-`RemoteDesktopCommander.prepare()` is an admission/decision boundary and does not execute an adapter. A positive `executable` decision is not execution evidence. Do not merge or deploy the live runtime until a named target, adapter implementation, OS-specific timeout/cancellation behavior, trusted approval integration, and target integration evidence are available and reviewed. Do not invent target details or claim OS-enforced timeout based only on a unit test.
+`RemoteDesktopCommander.prepare()` is an admission/decision boundary and does not execute an adapter. A positive `executable` decision is not execution evidence. Do not merge or deploy the live runtime until a named target, adapter implementation, OS-specific timeout/cancellation behavior, trusted approval integration, and target integration evidence are available. Independent human review is not a mandatory HG2 gate under the owner-approval policy; the owner remains responsible for authorizing the release. Do not invent target details or claim OS-enforced timeout based only on a unit test.
 
 ## Revalidation protocol
 
-After the latest source/test change, the targeted Remote Desktop Commander module passed (9 tests), the changed Python files compiled, `git diff --check` passed, and CircleCI #291 passed on HEAD `32959616bbed62e99d2b10ada64c56fbbea4b848`. The full 333-test suite was not rerun. The PR remains open and unmerged. Keep the pre-existing untracked `docs/architecture/HG2-P0-CONTRACT-STATE-OWNER-PREFLIGHT-2026-10-20.md` untouched.
+After the latest source/test change, the targeted Remote Desktop Commander module passed (9 tests), the changed Python files compiled, `git diff --check` passed, and CircleCI #291 passed on HEAD `32959616bbed62e99d2b10ada64c56fbbea4b848`. The full 333-test suite was not rerun. The PR remains open and unmerged. Independent human review has been removed as a mandatory HG2 acceptance gate by owner decision; actual GitHub review states must still be reported accurately. The PR HEAD/CI should be rechecked after this policy change. Keep the pre-existing untracked `docs/architecture/HG2-P0-CONTRACT-STATE-OWNER-PREFLIGHT-2026-10-20.md` untouched.
