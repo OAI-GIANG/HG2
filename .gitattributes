@@ -1,0 +1,2 @@
+# Preserve historical source diffs byte-for-byte; whitespace checks apply to live code, not archived patch payloads.
+evidence/source-ref-archive/20261019/patches/*.patch whitespace=-blank-at-eol
