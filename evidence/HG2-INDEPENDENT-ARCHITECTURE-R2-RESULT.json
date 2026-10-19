@@ -2,7 +2,7 @@
   "schema": "HG2_INDEPENDENT_ARCHITECTURE_R2_RESULT_V1",
   "repository": "OAI-GIANG/HG2",
   "candidate_branch": "stt/hg2-brain-orchestrator-r1-20261019",
-  "candidate_head": "c45449c5b637dd7b9d506f31d4374dc409bee0f6",
+  "implementation_commit": "e968224882104f3707fd1a01d801a7491d32ea6a",
   "pull_request": {
     "number": 29,
     "url": "https://github.com/OAI-GIANG/HG2/pull/29",
@@ -11,8 +11,7 @@
     "base": "hg-genesis",
     "base_sha": "1dca305b4d6e9442e259442486efb5127cc0cb09",
     "review_decision": "PENDING",
-    "circleci_check": "PASS",
-    "circleci_url": "https://circleci.com/gh/OAI-GIANG/HG2/277"
+    "circleci_check": "PENDING_AFTER_NEW_PUSH"
   },
   "base_ref": "hg-genesis",
   "base_sha": "1dca305b4d6e9442e259442486efb5127cc0cb09",
@@ -20,9 +19,13 @@
   "review": {
     "architecture_artifact": "docs/architecture/HG2-INDEPENDENT-ARCHITECTURE-R2.md",
     "implementation": "hg/brain_orchestrator.py",
-    "tests": "tests/test_brain_orchestrator.py",
+    "runtime_integration": "hg/server.py POST /api/ask",
+    "tests": [
+      "tests/test_brain_orchestrator.py",
+      "tests/test_server.py"
+    ],
     "runtime_manifest": "manifest.json",
-    "test_log": "evidence/HG2-INDEPENDENT-ARCHITECTURE-R2-TESTS.log",
+    "end_to_end_test_log": "evidence/HG2-USER-ACCEPTANCE-E2E-TESTS.log",
     "focused_tests": {
       "command": "PYTHONDONTWRITEBYTECODE=1 python -m unittest tests.test_brain_orchestrator -v",
       "count": 21,
@@ -33,32 +36,60 @@
       "count": 240,
       "failures": 0,
       "status": "PASS",
-      "duration_seconds": 21.694
+      "duration_seconds": 19.843
+    },
+    "http_integration": {
+      "path": "POST /api/ask -> BrainOrchestrator -> authorized memory adapter -> deterministic fake model gateway -> typed aggregation -> audit event",
+      "status": "PASS",
+      "assertions": [
+        "request and correlation IDs included",
+        "runtime source-manifest SHA bound",
+        "memory evidence reference verified",
+        "invoked branches are memory_knowledge and research_synthesis",
+        "result statuses SUCCESS and RESPONSE_ONLY",
+        "aggregate status PARTIAL, not SUCCESS",
+        "model call audit event persisted"
+      ],
+      "provider_credentials_required": false
     },
     "other_checks": {
       "py_compile": "PASS",
       "manifest_json_parse": "PASS",
       "git_diff_check": "PASS"
     },
-    "status": "CANDIDATE_CORE_TESTED"
+    "status": "LOCAL_HTTP_E2E_TESTED_WITH_DETERMINISTIC_FAKE_GATEWAY"
   },
   "boundaries": {
-    "production_api_integration": "OPEN",
+    "local_api_router_integration": "TESTED",
+    "live_external_model_provider": "NOT_TESTED",
+    "deployed_phone_runtime": "NOT_TESTED",
     "persistent_orchestration_state": "OPEN",
-    "real_worker_adapters": "NOT_BOUND",
+    "bound_real_domains": [
+      "memory_knowledge",
+      "research_synthesis"
+    ],
+    "unbound_domains": [
+      "planning_coordination",
+      "tools_execution",
+      "security_verification"
+    ],
     "capability_inventory_trust_root": "NOT_BOUND",
-    "trusted_runtime_evidence_backend": "INJECTED_CONTRACT_ONLY",
+    "durable_conflict_adjudication": "OPEN",
+    "trusted_runtime_evidence_backend": "LOCAL_MEMORY_MANIFEST_VERIFIED_IN_REQUEST",
     "cross_process_trace_propagation": "OPEN",
-    "independent_review": "NOT_OBTAINED",
+    "user_acceptance": "PENDING_DIRECT_USE",
     "production_release": "BLOCKED",
     "merge": "NOT_PERFORMED",
     "deploy": "NOT_PERFORMED"
   },
   "evidence_hashes": {
+    "hg/server.py": "c28991974e09c7840f4db9d84bf6efef9e73b82bb68fd83e86faee742eab3499",
     "hg/brain_orchestrator.py": "efe06ce035065a72c74a447912698d224903070b9796fd7204413993612265b7",
+    "tests/test_server.py": "2cc27fe24e5c03e8e385ba1d668b816056e285d9a87fed7ca0fc656600aa3da1",
     "tests/test_brain_orchestrator.py": "860ce9a41ae4b9f818b0f8ec308cbcd084f78641cd96a27b710c836aacf9fd87",
     "manifest.json": "64239e32be4759e92d1ac8d19c90813a514f7a716bc689840b92182265f1d063",
-    "docs/architecture/HG2-INDEPENDENT-ARCHITECTURE-R2.md": "60104791a6e652f6eafb29b605f55c2e3e96a5389fcc0e91bcd95104042b0cef",
+    "docs/architecture/HG2-INDEPENDENT-ARCHITECTURE-R2.md": "7d07604ca0922ab56449ec7d930889718199255bf527b7e794e0208cc71cd691",
+    "evidence/HG2-USER-ACCEPTANCE-E2E-TESTS.log": "0dd6234a0efb707231b404d7ed1603f86720f11b854ef0881a76fc835f6edb18",
     "evidence/HG2-INDEPENDENT-ARCHITECTURE-R2-TESTS.log": "a861c26769af5fcd418016d4b31550a39efacf6c04c468ed3bd3b09f7498242f"
   },
   "sources": [
@@ -68,5 +99,5 @@
     "https://opentelemetry.io/docs/concepts/context-propagation/",
     "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/"
   ],
-  "next_gate": "Bind a durable authorised request-to-router-to-worker-to-result path, add real integration tests and obtain independent review before merging or production deployment."
+  "next_gate": "Verify the pushed candidate and CI, then run with the actual configured model provider and intended phone runtime; implement durable orchestration state and capability-registry authority before claiming all five domains operational."
 }
