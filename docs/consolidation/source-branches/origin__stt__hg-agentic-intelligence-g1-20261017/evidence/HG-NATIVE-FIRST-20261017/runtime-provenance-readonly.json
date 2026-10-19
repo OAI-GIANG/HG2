@@ -1,0 +1,23 @@
+{
+  "schema_version": "hg.native-runtime-provenance-observation.v1",
+  "classification": "READ_ONLY_LOCAL_UNATTESTED_OBSERVATION",
+  "observed_on": {
+    "device": "Termux on Android",
+    "android_release_reported_by_getprop": "16",
+    "python": "3.14.6",
+    "local_clock_attested": false
+  },
+  "service_manager": "Termux runit/sv",
+  "active_services_observed": [
+    {"service":"hg-backend","status":"run","pid":10805,"service_path":"/data/data/com.termux/files/usr/var/service/hg-backend","process_cwd":"/data/data/com.termux/files/usr/var/service/hg-backend","uptime_seconds_reported_by_sv":1672},
+    {"service":"hg-runtime","status":"run","pid":10809,"service_path":"/data/data/com.termux/files/usr/var/service/hg-runtime","process_cwd":"/data/data/com.termux/files/usr/var/service/hg-runtime","uptime_seconds_reported_by_sv":1672}
+  ],
+  "additional_python_process": {"pid":10804,"process_cwd":"/data/data/com.termux/files/home/hg2-phone","repository_head":"4d97c34d8bb7c1091265330aef63dd78d0e72c49","branch_state":"DETACHED_HEAD","worktree_state":"DIRTY_WITH_MODIFIED_DELETED_AND_UNTRACKED_FILES","is_native_first_candidate":false},
+  "native_first_candidate_observed_at_capture": {"path":"/data/data/com.termux/files/home/hg-agentic-g1-work","branch":"stt/hg-agentic-intelligence-g1-20261017","head":"02c543dc4851d3e45f92a6e520054fb6b3aee41d","worktree_state":"TEST_COVERAGE_EDIT_PENDING","canonical_base":"9d83a113ccdf1aeda656e494593fa55b9078c803"},
+  "secret_config_metadata_only": {"path":"/data/data/com.termux/files/home/.config/hg/secret.env","exists":true,"mode_octal":"0600","owner":"u0_a460:u0_a460","size_bytes":271,"content_read":false,"content_hashed":false,"credentials_validated":false,"trust_root_established":false},
+  "gates": {"runtime_processes_present":"OBSERVED","runtime_source_to_candidate_provenance":"BLOCKED_MISMATCH","production_trust_roots":"BLOCKED","local_sqlite_recovery_and_idempotency_tests":"PASS_IN_TEST_HARNESS","actual_phone_power_loss_recovery":"NOT_RUN","production_side_effect_acceptance":"BLOCKED"},
+  "actions_taken": ["Read-only inspection of process names and working directories","Read-only sv status query for hg-backend and hg-runtime","Read-only repository HEAD/worktree inspection for the running hg2-phone checkout","Read-only permission/owner/size inspection of secret config metadata"],
+  "actions_not_taken": ["No service restart, stop, deployment, cutover, restore, or runtime mutation","No secret content read, export, or content hash","No claim that the active runtime is built from the native-first candidate"],
+  "disposition": "RUNTIME_PROVENANCE_BLOCKED; PRESERVE_RUNNING_SERVICES_AND_DIRTY_CHECKOUT; NO_CUTOVER",
+  "trust_note": "These are local observations without an independently attested runner or device clock. Active process state does not prove source provenance, health correctness, trust roots, or production acceptance."
+}

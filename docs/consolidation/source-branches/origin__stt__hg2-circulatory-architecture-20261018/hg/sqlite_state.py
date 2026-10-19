@@ -1,0 +1,833 @@
+"""Transactional SQLite state backend for HG2's phone-owned runtime.
+
+This backend is opt-in until legacy-state migration and runtime cutover are separately verified.
+"""
+from __future__ import annotations
+
+import json
+import os
+import sqlite3
+import threading
+import time
+import uuid
+from typing import Any
+
+from .contracts import (
+    ContractError,
+    SCHEMA_VERSION,
+    ZERO_DIGEST,
+    canonical_json,
+    create_event,
+    parse_json_no_duplicate_keys,
+    validate_event,
+)
+from .workflow import WorkflowError, transition_task, validate_task
+from .policy import PolicyError, decide_approval, validate_approval_request, consume_mutation_permit, MUTATION_EVENT_ACTIONS
+
+_PRODUCT_ID = "HG"
+_OWNER_ID = "phone"
+_REQUIRED_META = ("runtime_id", "state_owner_id", "last_seq", "head_digest", "last_ack_cursor", "last_ack_sequence", "backend_schema")
+_SQLITE_SCHEMA_VERSION = "3"
+
+
+class SQLiteStateError(RuntimeError):
+    """Raised when the transactional state backend cannot safely continue."""
+
+
+class IdempotencyConflict(SQLiteStateError):
+    """An idempotency key was reused for a different operation."""
+
+
+def _apply_task_event(event: dict[str, Any], tasks: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """Validate a task event against the previous projection and return the new projection."""
+    if event["event_type"] == "workflow.task.created":
+        task = validate_task(event["payload"])
+        task_id = task["task_id"]
+        if task_id in tasks or task["state"] != "PENDING" or task["version"] != 1:
+            raise WorkflowError("TASK_CREATE_PROJECTION_INVALID")
+        updated = dict(tasks)
+        updated[task_id] = task
+        return updated
+    if event["event_type"] != "workflow.task.transitioned":
+        return tasks
+    payload = event["payload"]
+    if not isinstance(payload, dict) or set(payload) != {"task", "transition"}:
+        raise WorkflowError("TASK_TRANSITION_EVENT_SCHEMA_INVALID")
+    task = validate_task(payload["task"])
+    transition = payload["transition"]
+    if not isinstance(transition, dict) or set(transition) != {
+        "from_state", "requested_state", "approval_id", "approval_status", "reason"
+    }:
+        raise WorkflowError("TASK_TRANSITION_METADATA_INVALID")
+    task_id = task["task_id"]
+    previous = tasks.get(task_id)
+    if previous is None:
+        raise WorkflowError("TASK_TRANSITION_WITHOUT_CREATE")
+    if transition["from_state"] != previous["state"]:
+        raise WorkflowError("TASK_TRANSITION_SOURCE_MISMATCH")
+    expected = transition_task(
+        previous,
+        target_state=transition["requested_state"],
+        actor_id=event["actor_id"],
+        now=task["updated_at"],
+        reason=transition["reason"],
+        result_digest=task["result_digest"],
+        error_code=task["error_code"],
+        approval_id=transition["approval_id"],
+        approval_status=transition["approval_status"],
+    )
+    if canonical_json(expected) != canonical_json(task):
+        raise WorkflowError("TASK_TRANSITION_RESULT_MISMATCH")
+    updated = dict(tasks)
+    updated[task_id] = task
+    return updated
+
+
+def _apply_approval_event(event: dict[str, Any], approvals: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Validate approval events against the previous persisted approval projection."""
+    if event["event_type"] == "policy.approval.created":
+        approval = validate_approval_request(event["payload"])
+        approval_id = approval["approval_id"]
+        if approval_id in approvals or approval["status"] != "PENDING" or approval["version"] != 1:
+            raise PolicyError("APPROVAL_CREATE_PROJECTION_INVALID")
+        updated = dict(approvals)
+        updated[approval_id] = approval
+        return updated
+    if event["event_type"] != "policy.approval.decided":
+        return approvals
+    payload = event["payload"]
+    if not isinstance(payload, dict) or set(payload) != {"approval", "transition"}:
+        raise PolicyError("APPROVAL_TRANSITION_EVENT_SCHEMA_INVALID")
+    approval = validate_approval_request(payload["approval"])
+    transition = payload["transition"]
+    if not isinstance(transition, dict) or set(transition) != {"decision", "approver_id", "reason"}:
+        raise PolicyError("APPROVAL_TRANSITION_METADATA_INVALID")
+    approval_id = approval["approval_id"]
+    previous = approvals.get(approval_id)
+    if previous is None:
+        raise PolicyError("APPROVAL_TRANSITION_WITHOUT_REQUEST")
+    if event["actor_id"] != transition["approver_id"]:
+        raise PolicyError("APPROVAL_ACTOR_MISMATCH")
+    expected = decide_approval(
+        previous,
+        decision=transition["decision"],
+        approver_id=transition["approver_id"],
+        now=approval["decided_at"],
+        reason=transition["reason"],
+    )
+    if canonical_json(expected) != canonical_json(approval):
+        raise PolicyError("APPROVAL_TRANSITION_RESULT_MISMATCH")
+    updated = dict(approvals)
+    updated[approval_id] = approval
+    return updated
+
+
+class SQLiteStateStore:
+    """Append-only, hash-chained events and projections in one SQLite transaction."""
+
+    def __init__(self, directory: str, *, clock=time.time, database_name="hg2-state.sqlite3"):
+        self.directory = os.path.abspath(str(directory))
+        os.makedirs(self.directory, exist_ok=True)
+        self.path = os.path.join(self.directory, database_name)
+        self._clock = clock
+        self._lock = threading.RLock()
+        self._conn = sqlite3.connect(
+            self.path, timeout=5.0, isolation_level=None, check_same_thread=False
+        )
+        self._conn.row_factory = sqlite3.Row
+        self._conn.execute("PRAGMA foreign_keys=ON")
+        self._conn.execute("PRAGMA busy_timeout=5000")
+        self._conn.execute("PRAGMA journal_mode=WAL")
+        self._conn.execute("PRAGMA synchronous=FULL")
+        self._initialize()
+        result = self.verify()
+        if not result["ok"]:
+            self._conn.close()
+            raise SQLiteStateError("state integrity failed: " + result["reason"])
+        self.runtime_id = self._meta()["runtime_id"]
+
+    def _meta(self) -> dict[str, str]:
+        return {row["key"]: row["value"] for row in self._conn.execute("SELECT key, value FROM metadata")}
+
+    def _set_meta(self, key: str, value: str) -> None:
+        self._conn.execute(
+            "INSERT INTO metadata(key, value) VALUES(?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (key, value),
+        )
+
+    def _initialize(self) -> None:
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL)"
+                )
+                self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS events ("
+                    "sequence INTEGER PRIMARY KEY CHECK(sequence > 0), "
+                    "event_id TEXT NOT NULL UNIQUE, idempotency_key TEXT UNIQUE, "
+                    "event_type TEXT NOT NULL, event_json TEXT NOT NULL, "
+                    "previous_digest TEXT NOT NULL, record_digest TEXT NOT NULL)"
+                )
+                self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS sessions (session_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)"
+                )
+                self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS counters (event_type TEXT PRIMARY KEY, count INTEGER NOT NULL CHECK(count >= 0))"
+                )
+                self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS tasks (task_id TEXT PRIMARY KEY, task_json TEXT NOT NULL)"
+                )
+                self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS approvals (approval_id TEXT PRIMARY KEY, approval_json TEXT NOT NULL)"
+                )
+                self._conn.execute(
+                    "CREATE TABLE IF NOT EXISTS outbox ("
+                    "event_id TEXT PRIMARY KEY REFERENCES events(event_id), "
+                    "sequence INTEGER NOT NULL UNIQUE, event_digest TEXT NOT NULL, "
+                    "status TEXT NOT NULL CHECK(status IN ('pending', 'acked')), "
+                    "attempts INTEGER NOT NULL DEFAULT 0 CHECK(attempts >= 0), "
+                    "created_at REAL NOT NULL, acked_at REAL, remote_cursor INTEGER)"
+                )
+                event_count = self._conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+                meta = self._meta()
+                if event_count == 0 and not meta:
+                    runtime_id = uuid.uuid4().hex
+                    self._set_meta("runtime_id", runtime_id)
+                    self._set_meta("state_owner_id", _OWNER_ID)
+                    self._set_meta("last_seq", "0")
+                    self._set_meta("head_digest", ZERO_DIGEST)
+                    self._set_meta("last_ack_cursor", "0")
+                    self._set_meta("last_ack_sequence", "0")
+                    self._set_meta("backend_schema", _SQLITE_SCHEMA_VERSION)
+                    genesis = create_event(
+                        event_type="hg.genesis",
+                        sequence=1,
+                        actor_id="system",
+                        authority_context={"principal": "system", "reason": "genesis"},
+                        runtime_id=runtime_id,
+                        state_owner_id=_OWNER_ID,
+                        payload={"product_id": _PRODUCT_ID, "schema_version": SCHEMA_VERSION},
+                        previous_digest=ZERO_DIGEST,
+                        correlation_id="genesis",
+                        event_id="genesis-" + runtime_id,
+                        recorded_at=self._clock(),
+                    )
+                    self._insert_event(genesis)
+                elif event_count == 0 or any(key not in meta for key in _REQUIRED_META):
+                    raise SQLiteStateError("partial state initialization; refusing automatic repair")
+                self._conn.execute("COMMIT")
+            except Exception:
+                if self._conn.in_transaction:
+                    self._conn.execute("ROLLBACK")
+                raise
+
+    def _insert_event(self, event: dict[str, Any]) -> None:
+        self._conn.execute(
+            "INSERT INTO events(sequence, event_id, idempotency_key, event_type, event_json, previous_digest, record_digest) "
+            "VALUES(?, ?, ?, ?, ?, ?, ?)",
+            (
+                event["sequence"], event["event_id"], event["idempotency_key"], event["event_type"],
+                canonical_json(event), event["previous_digest"], event["record_digest"],
+            ),
+        )
+        self._apply_projection(event)
+        self._set_meta("last_seq", str(event["sequence"]))
+        self._set_meta("head_digest", event["record_digest"])
+
+    def _apply_projection(self, event: dict[str, Any]) -> None:
+        if event["event_type"] in ("policy.approval.created", "policy.approval.decided"):
+            actual_approvals = {
+                row["approval_id"]: parse_json_no_duplicate_keys(row["approval_json"])
+                for row in self._conn.execute("SELECT approval_id, approval_json FROM approvals")
+            }
+            projected_approvals = _apply_approval_event(event, actual_approvals)
+            approval_id = event["payload"]["approval_id"] if event["event_type"] == "policy.approval.created" else event["payload"]["approval"]["approval_id"]
+            self._conn.execute(
+                "INSERT INTO approvals(approval_id, approval_json) VALUES(?, ?) "
+                "ON CONFLICT(approval_id) DO UPDATE SET approval_json=excluded.approval_json",
+                (approval_id, canonical_json(projected_approvals[approval_id])),
+            )
+        if event["event_type"] in ("workflow.task.created", "workflow.task.transitioned"):
+            actual_tasks = {
+                row["task_id"]: parse_json_no_duplicate_keys(row["task_json"])
+                for row in self._conn.execute("SELECT task_id, task_json FROM tasks")
+            }
+            projected_tasks = _apply_task_event(event, actual_tasks)
+            task_id = event["payload"]["task_id"] if event["event_type"] == "workflow.task.created" else event["payload"]["task"]["task_id"]
+            self._conn.execute(
+                "INSERT INTO tasks(task_id, task_json) VALUES(?, ?) "
+                "ON CONFLICT(task_id) DO UPDATE SET task_json=excluded.task_json",
+                (task_id, canonical_json(projected_tasks[task_id])),
+            )
+        if event["event_type"] == "session.created":
+            session_id = event["payload"].get("session_id")
+            if isinstance(session_id, str) and session_id:
+                self._conn.execute(
+                    "INSERT INTO sessions(session_id, payload_json) VALUES(?, ?) "
+                    "ON CONFLICT(session_id) DO UPDATE SET payload_json=excluded.payload_json",
+                    (session_id, canonical_json(event["payload"])),
+                )
+        self._conn.execute(
+            "INSERT INTO counters(event_type, count) VALUES(?, 1) "
+            "ON CONFLICT(event_type) DO UPDATE SET count=count+1",
+            (event["event_type"],),
+        )
+
+    def _event_by_id(self, event_id: str) -> dict[str, Any] | None:
+        row = self._conn.execute("SELECT event_json FROM events WHERE event_id=?", (event_id,)).fetchone()
+        return None if row is None else parse_json_no_duplicate_keys(row["event_json"])
+
+    def _event_by_idempotency(self, key: str) -> dict[str, Any] | None:
+        row = self._conn.execute(
+            "SELECT event_json FROM events WHERE idempotency_key=?", (key,)
+        ).fetchone()
+        return None if row is None else parse_json_no_duplicate_keys(row["event_json"])
+
+    def import_verified_events(
+        self, events: list[dict[str, Any]], source_metadata: dict[str, Any], *,
+        actor_id: str | None = None, authority_context: dict[str, Any] | None = None,
+        correlation_id: str | None = None, mutation_permit=None,
+    ) -> dict[str, Any]:
+        """Replace a fresh genesis only with a verified, policy-authorized import permit."""
+        if not isinstance(events, list) or not events:
+            raise SQLiteStateError("MIGRATION_EVENTS_REQUIRED")
+        required_source = {
+            "source_runtime_id", "source_head_hash", "source_event_count",
+            "source_log_sha256", "source_head_sha256", "source_state_sha256",
+            "source_runtime_id_sha256",
+        }
+        if not isinstance(source_metadata, dict) or set(source_metadata) != required_source:
+            raise SQLiteStateError("MIGRATION_METADATA_INVALID")
+        source_runtime_id = source_metadata["source_runtime_id"]
+        if not isinstance(source_runtime_id, str) or not source_runtime_id.strip():
+            raise SQLiteStateError("MIGRATION_SOURCE_RUNTIME_INVALID")
+        source_count = source_metadata["source_event_count"]
+        if isinstance(source_count, bool) or not isinstance(source_count, int) or source_count != len(events):
+            raise SQLiteStateError("MIGRATION_EVENT_COUNT_MISMATCH")
+        digest_fields = ("source_head_hash", "source_log_sha256", "source_head_sha256", "source_state_sha256", "source_runtime_id_sha256")
+        for field in digest_fields:
+            value = source_metadata[field]
+            if not isinstance(value, str) or len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+                raise SQLiteStateError("MIGRATION_DIGEST_INVALID")
+        previous = ZERO_DIGEST
+        task_projection: dict[str, dict[str, Any]] = {}
+        approval_projection: dict[str, dict[str, Any]] = {}
+        for expected_sequence, candidate in enumerate(events, 1):
+            event = validate_event(candidate)
+            if event["sequence"] != expected_sequence or event["previous_digest"] != previous:
+                raise SQLiteStateError("MIGRATION_CHAIN_INVALID")
+            if event["runtime_id"] != self.runtime_id or event["state_owner_id"] != _OWNER_ID:
+                raise SQLiteStateError("MIGRATION_TARGET_OWNER_MISMATCH")
+            try:
+                task_projection = _apply_task_event(event, task_projection)
+                approval_projection = _apply_approval_event(event, approval_projection)
+            except (WorkflowError, PolicyError, ContractError, KeyError, TypeError) as exc:
+                raise SQLiteStateError("MIGRATION_PROJECTION_INVALID") from exc
+            previous = event["record_digest"]
+
+        effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
+        import_payload = {"events": events, "source_metadata": source_metadata}
+        if not consume_mutation_permit(
+            mutation_permit, event_type="state.migration.import", actor_id=actor_id,
+            payload=import_payload, correlation_id=correlation_id, authority_context=effective_authority,
+        ):
+            raise SQLiteStateError("MUTATION_AUTHORIZATION_REQUIRED")
+
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                current = self._conn.execute("SELECT sequence, event_type FROM events ORDER BY sequence").fetchall()
+                meta = self._meta()
+                if (
+                    len(current) != 1
+                    or current[0]["sequence"] != 1
+                    or current[0]["event_type"] != "hg.genesis"
+                    or self._conn.execute("SELECT COUNT(*) FROM outbox").fetchone()[0] != 0
+                    or any(key.startswith("migration_") for key in meta)
+                ):
+                    raise SQLiteStateError("MIGRATION_TARGET_NOT_FRESH")
+                self._conn.execute("DELETE FROM events")
+                self._conn.execute("DELETE FROM sessions")
+                self._conn.execute("DELETE FROM counters")
+                self._conn.execute("DELETE FROM tasks")
+                self._set_meta("last_seq", "0")
+                self._set_meta("head_digest", ZERO_DIGEST)
+                self._set_meta("last_ack_cursor", "0")
+                self._set_meta("last_ack_sequence", "0")
+                for event in events:
+                    self._insert_event(event)
+                self._set_meta("migration_status", "VERIFIED_IMPORT")
+                self._set_meta("migration_schema", "HG_STATE_V1")
+                self._set_meta("migration_source_runtime_id", source_runtime_id)
+                self._set_meta("migration_source_head_hash", source_metadata["source_head_hash"])
+                self._set_meta("migration_source_event_count", str(source_metadata["source_event_count"]))
+                self._set_meta("migration_source_log_sha256", source_metadata["source_log_sha256"])
+                self._set_meta("migration_source_head_sha256", source_metadata["source_head_sha256"])
+                self._set_meta("migration_source_state_sha256", source_metadata["source_state_sha256"])
+                self._set_meta("migration_source_runtime_id_sha256", source_metadata["source_runtime_id_sha256"])
+                verification = self.verify()
+                if not verification["ok"]:
+                    raise SQLiteStateError("MIGRATION_TARGET_VERIFY_FAILED_" + verification["reason"])
+                self._conn.execute("COMMIT")
+                return verification
+            except Exception:
+                if self._conn.in_transaction:
+                    self._conn.execute("ROLLBACK")
+                raise
+
+    def get_event_by_idempotency(self, key: str) -> dict[str, Any] | None:
+        if not isinstance(key, str) or not key:
+            return None
+        with self._lock:
+            return self._event_by_idempotency(key)
+
+    def get_approval(self, approval_id: str) -> dict[str, Any] | None:
+        if not isinstance(approval_id, str) or not approval_id:
+            return None
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT approval_json FROM approvals WHERE approval_id=?", (approval_id,)
+            ).fetchone()
+            if row is None:
+                return None
+            try:
+                return validate_approval_request(parse_json_no_duplicate_keys(row["approval_json"]))
+            except (ContractError, PolicyError) as exc:
+                raise SQLiteStateError("APPROVAL_PROJECTION_INVALID") from exc
+
+    def get_task(self, task_id: str) -> dict[str, Any] | None:
+        if not isinstance(task_id, str) or not task_id:
+            return None
+        with self._lock:
+            row = self._conn.execute("SELECT task_json FROM tasks WHERE task_id=?", (task_id,)).fetchone()
+            if row is None:
+                return None
+            try:
+                return validate_task(parse_json_no_duplicate_keys(row["task_json"]))
+            except (ContractError, WorkflowError) as exc:
+                raise SQLiteStateError("TASK_PROJECTION_INVALID") from exc
+
+    def emit(
+        self,
+        event_type: str,
+        payload: dict[str, Any],
+        *,
+        correlation_id: str | None = None,
+        causation_id: str | None = None,
+        event_id: str | None = None,
+        actor_id: str = "local-user",
+        authority_context: dict[str, Any] | None = None,
+        idempotency_key: str | None = None,
+        evidence_refs: list[str] | None = None,
+        sync_required: bool = False,
+        mutation_permit=None,
+    ) -> dict[str, Any]:
+        if not isinstance(sync_required, bool):
+            raise SQLiteStateError("INVALID_SYNC_REQUIRED")
+        effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
+        if event_type == "hg.genesis":
+            raise SQLiteStateError("GENESIS_EVENT_RESERVED")
+        if not consume_mutation_permit(
+            mutation_permit, event_type=event_type, actor_id=actor_id, payload=payload,
+            correlation_id=correlation_id, causation_id=causation_id,
+            idempotency_key=idempotency_key, event_id=event_id,
+            authority_context=effective_authority, evidence_refs=evidence_refs,
+            sync_required=sync_required,
+        ):
+            raise SQLiteStateError("MUTATION_AUTHORIZATION_REQUIRED")
+        def matches_existing_operation(existing):
+            try:
+                normalized_refs = [] if evidence_refs is None else evidence_refs
+                return (
+                    existing["event_type"] == event_type
+                    and existing["actor_id"] == actor_id
+                    and existing["authority_context"] == effective_authority
+                    and canonical_json(existing["payload"]) == canonical_json(payload)
+                    and existing["correlation_id"] == correlation_id
+                    and existing["causation_id"] == causation_id
+                    and existing["idempotency_key"] == idempotency_key
+                    and existing["evidence_refs"] == normalized_refs
+                )
+            except (ContractError, KeyError, TypeError, ValueError):
+                return False
+
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                if event_id is not None:
+                    existing = self._event_by_id(event_id)
+                    if existing is not None:
+                        same_operation = matches_existing_operation(existing)
+                        if not same_operation:
+                            raise IdempotencyConflict("EVENT_ID_REUSED")
+                        has_outbox = self._conn.execute("SELECT 1 FROM outbox WHERE event_id=?", (event_id,)).fetchone() is not None
+                        if has_outbox != sync_required:
+                            raise IdempotencyConflict("EVENT_DELIVERY_POLICY_CONFLICT")
+                        self._conn.execute("COMMIT")
+                        return existing
+                if idempotency_key is not None:
+                    existing = self._event_by_idempotency(idempotency_key)
+                    if existing is not None:
+                        same_operation = matches_existing_operation(existing)
+                        if not same_operation:
+                            raise IdempotencyConflict("IDEMPOTENCY_KEY_REUSED")
+                        has_outbox = self._conn.execute("SELECT 1 FROM outbox WHERE event_id=?", (existing["event_id"],)).fetchone() is not None
+                        if has_outbox != sync_required:
+                            raise IdempotencyConflict("EVENT_DELIVERY_POLICY_CONFLICT")
+                        self._conn.execute("COMMIT")
+                        return existing
+                meta = self._meta()
+                seq = int(meta["last_seq"]) + 1
+                event = create_event(
+                    event_type=event_type,
+                    sequence=seq,
+                    actor_id=actor_id,
+                    authority_context=effective_authority,
+                    runtime_id=meta["runtime_id"],
+                    state_owner_id=meta["state_owner_id"],
+                    payload=payload,
+                    previous_digest=meta["head_digest"],
+                    correlation_id=correlation_id,
+                    causation_id=causation_id,
+                    idempotency_key=idempotency_key,
+                    evidence_refs=evidence_refs,
+                    event_id=event_id,
+                    recorded_at=self._clock(),
+                )
+                self._insert_event(event)
+                if sync_required:
+                    self._conn.execute(
+                        "INSERT INTO outbox(event_id, sequence, event_digest, status, created_at) VALUES(?, ?, ?, 'pending', ?)",
+                        (event["event_id"], event["sequence"], event["record_digest"], event["recorded_at"]),
+                    )
+                self._conn.execute("COMMIT")
+                return event
+            except Exception:
+                if self._conn.in_transaction:
+                    self._conn.execute("ROLLBACK")
+                raise
+
+    def pending_outbox(self, limit: int = 100) -> list[dict[str, Any]]:
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 1000:
+            raise SQLiteStateError("INVALID_OUTBOX_LIMIT")
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT o.event_id, o.sequence, o.event_digest, o.attempts, o.created_at, e.event_json "
+                "FROM outbox o JOIN events e ON e.event_id=o.event_id "
+                "WHERE o.status='pending' ORDER BY o.sequence LIMIT ?",
+                (limit,),
+            ).fetchall()
+            return [
+                {
+                    "event_id": row["event_id"],
+                    "sequence": row["sequence"],
+                    "event_digest": row["event_digest"],
+                    "attempts": row["attempts"],
+                    "created_at": row["created_at"],
+                    "event": parse_json_no_duplicate_keys(row["event_json"]),
+                }
+                for row in rows
+            ]
+
+    def record_outbox_attempt(
+        self, event_id: str, *, actor_id: str | None = None,
+        authority_context: dict[str, Any] | None = None, correlation_id: str | None = None,
+        mutation_permit=None,
+    ) -> int:
+        if not isinstance(event_id, str) or not event_id.strip():
+            raise SQLiteStateError("OUTBOX_EVENT_ID_INVALID")
+        effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
+        if not consume_mutation_permit(
+            mutation_permit, event_type="sync.outbox.attempt", actor_id=actor_id,
+            payload={"event_id": event_id}, correlation_id=correlation_id,
+            authority_context=effective_authority,
+        ):
+            raise SQLiteStateError("MUTATION_AUTHORIZATION_REQUIRED")
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                row = self._conn.execute(
+                    "SELECT attempts, status FROM outbox WHERE event_id=?", (event_id,)
+                ).fetchone()
+                if row is None or row["status"] != "pending":
+                    raise SQLiteStateError("OUTBOX_EVENT_NOT_PENDING")
+                attempts = row["attempts"] + 1
+                self._conn.execute("UPDATE outbox SET attempts=? WHERE event_id=?", (attempts, event_id))
+                self._conn.execute("COMMIT")
+                return attempts
+            except Exception:
+                if self._conn.in_transaction:
+                    self._conn.execute("ROLLBACK")
+                raise
+
+    def acknowledge_outbox(
+        self, event_id: str, remote_cursor: int, *, actor_id: str | None = None,
+        authority_context: dict[str, Any] | None = None, correlation_id: str | None = None,
+        mutation_permit=None,
+    ) -> bool:
+        if isinstance(remote_cursor, bool) or not isinstance(remote_cursor, int) or remote_cursor < 1:
+            raise SQLiteStateError("INVALID_REMOTE_CURSOR")
+        if not isinstance(event_id, str) or not event_id.strip():
+            raise SQLiteStateError("OUTBOX_EVENT_ID_INVALID")
+        effective_authority = authority_context if authority_context is not None else {"principal": actor_id}
+        if not consume_mutation_permit(
+            mutation_permit, event_type="sync.outbox.acknowledge", actor_id=actor_id,
+            payload={"event_id": event_id, "remote_cursor": remote_cursor},
+            correlation_id=correlation_id, authority_context=effective_authority,
+        ):
+            raise SQLiteStateError("MUTATION_AUTHORIZATION_REQUIRED")
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                row = self._conn.execute("SELECT * FROM outbox WHERE event_id=?", (event_id,)).fetchone()
+                if row is None:
+                    raise SQLiteStateError("OUTBOX_EVENT_NOT_FOUND")
+                if row["status"] == "acked":
+                    if row["remote_cursor"] == remote_cursor:
+                        self._conn.execute("COMMIT")
+                        return True
+                    raise SQLiteStateError("OUTBOX_ACK_CONFLICT")
+                meta = self._meta()
+                if remote_cursor <= int(meta["last_ack_cursor"]):
+                    raise SQLiteStateError("REMOTE_CURSOR_NOT_MONOTONIC")
+                if row["sequence"] <= int(meta["last_ack_sequence"]):
+                    raise SQLiteStateError("OUTBOX_SEQUENCE_NOT_MONOTONIC")
+                earlier_pending = self._conn.execute(
+                    "SELECT COUNT(*) FROM outbox WHERE status='pending' AND sequence < ?",
+                    (row["sequence"],),
+                ).fetchone()[0]
+                if earlier_pending:
+                    raise SQLiteStateError("OUTBOX_ACK_OUT_OF_ORDER")
+                self._conn.execute(
+                    "UPDATE outbox SET status='acked', acked_at=?, remote_cursor=? WHERE event_id=?",
+                    (self._clock(), remote_cursor, event_id),
+                )
+                self._set_meta("last_ack_cursor", str(remote_cursor))
+                self._set_meta("last_ack_sequence", str(row["sequence"]))
+                self._conn.execute("COMMIT")
+                return True
+            except Exception:
+                if self._conn.in_transaction:
+                    self._conn.execute("ROLLBACK")
+                raise
+
+    def replay(self) -> list[dict[str, Any]]:
+        with self._lock:
+            rows = self._conn.execute("SELECT event_json FROM events ORDER BY sequence").fetchall()
+            return [parse_json_no_duplicate_keys(row["event_json"]) for row in rows]
+
+    def verify(self) -> dict[str, Any]:
+        with self._lock:
+            try:
+                integrity = self._conn.execute("PRAGMA integrity_check").fetchone()[0]
+                if integrity != "ok":
+                    return {"ok": False, "events": 0, "reason": "sqlite_integrity_failure"}
+                meta = self._meta()
+                if any(key not in meta for key in _REQUIRED_META):
+                    return {"ok": False, "events": 0, "reason": "metadata_missing"}
+                if meta["state_owner_id"] != _OWNER_ID:
+                    return {"ok": False, "events": 0, "reason": "state_owner_mismatch"}
+                previous = ZERO_DIGEST
+                expected_seq = 1
+                seen_ids = set()
+                expected_counters: dict[str, int] = {}
+                expected_sessions: dict[str, str] = {}
+                expected_tasks: dict[str, dict[str, Any]] = {}
+                expected_approvals: dict[str, dict[str, Any]] = {}
+                migration_last_ref = None
+                rows = self._conn.execute("SELECT * FROM events ORDER BY sequence").fetchall()
+                for row in rows:
+                    try:
+                        event = validate_event(parse_json_no_duplicate_keys(row["event_json"]))
+                    except ContractError as exc:
+                        return {"ok": False, "events": expected_seq - 1, "reason": "invalid_event_" + str(exc)}
+                    if event["sequence"] != expected_seq or row["sequence"] != expected_seq:
+                        return {"ok": False, "events": expected_seq - 1, "reason": "sequence_gap"}
+                    if event["previous_digest"] != previous or row["previous_digest"] != previous:
+                        return {"ok": False, "events": expected_seq - 1, "reason": "chain_break"}
+                    if event["record_digest"] != row["record_digest"]:
+                        return {"ok": False, "events": expected_seq - 1, "reason": "record_digest_column_mismatch"}
+                    if event["event_id"] != row["event_id"] or event["event_type"] != row["event_type"]:
+                        return {"ok": False, "events": expected_seq - 1, "reason": "event_column_mismatch"}
+                    if event["idempotency_key"] != row["idempotency_key"]:
+                        return {"ok": False, "events": expected_seq - 1, "reason": "idempotency_column_mismatch"}
+                    if event["runtime_id"] != meta["runtime_id"] or event["state_owner_id"] != _OWNER_ID:
+                        return {"ok": False, "events": expected_seq - 1, "reason": "event_owner_mismatch"}
+                    if meta.get("migration_status") == "VERIFIED_IMPORT":
+                        imported_count = int(meta["migration_source_event_count"])
+                        if event["sequence"] <= imported_count:
+                            authority = event["authority_context"]
+                            refs = event["evidence_refs"]
+                            if (
+                                authority.get("migration") != "HG_STATE_V1"
+                                or authority.get("source_runtime_id") != meta["migration_source_runtime_id"]
+                                or authority.get("source_sequence") != event["sequence"]
+                                or not isinstance(refs, list) or not refs
+                                or not isinstance(authority.get("source_event_id"), str) or not authority.get("source_event_id")
+                                or not isinstance(refs[0], str) or len(refs[0]) != 64
+                                or any(ch not in "0123456789abcdef" for ch in refs[0])
+                            ):
+                                return {"ok": False, "events": expected_seq - 1, "reason": "migration_lineage_mismatch"}
+                            if event["sequence"] == imported_count:
+                                migration_last_ref = refs[0]
+                    if event["event_id"] in seen_ids:
+                        return {"ok": False, "events": expected_seq - 1, "reason": "duplicate_event_id"}
+                    seen_ids.add(event["event_id"])
+                    expected_counters[event["event_type"]] = expected_counters.get(event["event_type"], 0) + 1
+                    if event["event_type"] in ("policy.approval.created", "policy.approval.decided"):
+                        try:
+                            expected_approvals = _apply_approval_event(event, expected_approvals)
+                        except (PolicyError, ContractError, KeyError, TypeError):
+                            return {"ok": False, "events": expected_seq - 1, "reason": "approval_event_projection_invalid"}
+                    if event["event_type"] in ("workflow.task.created", "workflow.task.transitioned"):
+                        try:
+                            expected_tasks = _apply_task_event(event, expected_tasks)
+                        except (WorkflowError, ContractError, KeyError, TypeError):
+                            return {"ok": False, "events": expected_seq - 1, "reason": "task_event_projection_invalid"}
+                    if event["event_type"] == "session.created":
+                        session_id = event["payload"].get("session_id")
+                        if isinstance(session_id, str) and session_id:
+                            expected_sessions[session_id] = canonical_json(event["payload"])
+                    previous = event["record_digest"]
+                    expected_seq += 1
+                last_seq = expected_seq - 1
+                if int(meta["last_seq"]) != last_seq or meta["head_digest"] != previous:
+                    return {"ok": False, "events": last_seq, "reason": "checkpoint_mismatch"}
+                actual_counters = {
+                    row["event_type"]: row["count"]
+                    for row in self._conn.execute("SELECT event_type, count FROM counters")
+                }
+                if actual_counters != expected_counters:
+                    return {"ok": False, "events": last_seq, "reason": "counter_projection_mismatch"}
+                actual_sessions = {
+                    row["session_id"]: row["payload_json"]
+                    for row in self._conn.execute("SELECT session_id, payload_json FROM sessions")
+                }
+                if actual_sessions != expected_sessions:
+                    return {"ok": False, "events": last_seq, "reason": "session_projection_mismatch"}
+                outbox_rows = self._conn.execute("SELECT * FROM outbox ORDER BY sequence").fetchall()
+                last_cursor = 0
+                last_acked_sequence = 0
+                pending_sequences = []
+                for outbox_row in outbox_rows:
+                    event_row = self._conn.execute(
+                        "SELECT record_digest FROM events WHERE event_id=?", (outbox_row["event_id"],)
+                    ).fetchone()
+                    if event_row is None or event_row["record_digest"] != outbox_row["event_digest"]:
+                        return {"ok": False, "events": last_seq, "reason": "outbox_event_mismatch"}
+                    if outbox_row["status"] == "pending":
+                        if outbox_row["acked_at"] is not None or outbox_row["remote_cursor"] is not None:
+                            return {"ok": False, "events": last_seq, "reason": "outbox_status_order_mismatch"}
+                        pending_sequences.append(outbox_row["sequence"])
+                    elif outbox_row["status"] == "acked":
+                        if any(pending_sequence < outbox_row["sequence"] for pending_sequence in pending_sequences):
+                            return {"ok": False, "events": last_seq, "reason": "outbox_ack_order_mismatch"}
+                        cursor = outbox_row["remote_cursor"]
+                        if cursor is None or cursor <= last_cursor or outbox_row["sequence"] <= last_acked_sequence:
+                            return {"ok": False, "events": last_seq, "reason": "outbox_cursor_not_monotonic"}
+                        if outbox_row["acked_at"] is None:
+                            return {"ok": False, "events": last_seq, "reason": "outbox_ack_time_missing"}
+                        last_cursor = cursor
+                        last_acked_sequence = outbox_row["sequence"]
+                    else:
+                        return {"ok": False, "events": last_seq, "reason": "outbox_status_invalid"}
+                if int(meta["last_ack_cursor"]) != last_cursor or int(meta["last_ack_sequence"]) != last_acked_sequence:
+                    return {"ok": False, "events": last_seq, "reason": "outbox_checkpoint_mismatch"}
+                actual_approvals = {
+                    row["approval_id"]: row["approval_json"]
+                    for row in self._conn.execute("SELECT approval_id, approval_json FROM approvals")
+                }
+                expected_approval_json = {key: canonical_json(value) for key, value in expected_approvals.items()}
+                if actual_approvals != expected_approval_json:
+                    return {"ok": False, "events": last_seq, "reason": "approval_projection_mismatch"}
+                actual_tasks = {
+                    row["task_id"]: row["task_json"]
+                    for row in self._conn.execute("SELECT task_id, task_json FROM tasks")
+                }
+                expected_task_json = {key: canonical_json(value) for key, value in expected_tasks.items()}
+                if actual_tasks != expected_task_json:
+                    return {"ok": False, "events": last_seq, "reason": "task_projection_mismatch"}
+                if meta["backend_schema"] != _SQLITE_SCHEMA_VERSION:
+                    return {"ok": False, "events": last_seq, "reason": "unsupported_backend_schema"}
+                migration_fields = (
+                    "migration_status", "migration_schema", "migration_source_runtime_id",
+                    "migration_source_head_hash", "migration_source_event_count",
+                    "migration_source_log_sha256", "migration_source_head_sha256",
+                    "migration_source_state_sha256", "migration_source_runtime_id_sha256",
+                )
+                present_migration_fields = [key for key in migration_fields if key in meta]
+                if present_migration_fields and len(present_migration_fields) != len(migration_fields):
+                    return {"ok": False, "events": last_seq, "reason": "migration_metadata_partial"}
+                if present_migration_fields:
+                    if meta["migration_status"] != "VERIFIED_IMPORT" or meta["migration_schema"] != "HG_STATE_V1":
+                        return {"ok": False, "events": last_seq, "reason": "migration_status_invalid"}
+                    if meta["migration_source_runtime_id"] == meta["runtime_id"]:
+                        return {"ok": False, "events": last_seq, "reason": "migration_runtime_identity_collision"}
+                    source_count = int(meta["migration_source_event_count"])
+                    if source_count < 1 or source_count > last_seq:
+                        return {"ok": False, "events": last_seq, "reason": "migration_event_count_mismatch"}
+                    if migration_last_ref != meta["migration_source_head_hash"]:
+                        return {"ok": False, "events": last_seq, "reason": "migration_source_head_reference_mismatch"}
+                    for field in ("migration_source_head_hash", "migration_source_log_sha256", "migration_source_head_sha256", "migration_source_state_sha256", "migration_source_runtime_id_sha256"):
+                        value = meta[field]
+                        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+                            return {"ok": False, "events": last_seq, "reason": "migration_digest_invalid"}
+                return {
+                    "ok": True, "events": last_seq, "last_seq": last_seq,
+                    "head_digest": previous, "last_ack_cursor": last_cursor,
+                    "pending_outbox": sum(1 for item in outbox_rows if item["status"] == "pending"),
+                    "reason": "chain_ok",
+                }
+            except (sqlite3.DatabaseError, ContractError, ValueError, TypeError):
+                return {"ok": False, "events": 0, "reason": "state_read_failure"}
+
+    def audit_export(self) -> dict[str, Any]:
+        events = self.replay()
+        verification = self.verify()
+        meta = self._meta()
+        sessions = {
+            row["session_id"]: parse_json_no_duplicate_keys(row["payload_json"])
+            for row in self._conn.execute("SELECT session_id, payload_json FROM sessions")
+        }
+        counters = {
+            row["event_type"]: row["count"]
+            for row in self._conn.execute("SELECT event_type, count FROM counters")
+        }
+        return {
+            "schema": SCHEMA_VERSION,
+            "product_id": _PRODUCT_ID,
+            "runtime_id": meta["runtime_id"],
+            "events": len(events),
+            "last_seq": int(meta["last_seq"]),
+            "head_digest": meta["head_digest"],
+            "last_ack_cursor": int(meta["last_ack_cursor"]),
+            "pending_outbox": self._conn.execute("SELECT COUNT(*) FROM outbox WHERE status='pending'").fetchone()[0],
+            "migration": {
+                key: value for key, value in meta.items() if key.startswith("migration_")
+            } or None,
+            "verify": verification,
+            "state": {
+                "sessions": sessions,
+                "counters": counters,
+                "tasks": {
+                    row["task_id"]: validate_task(parse_json_no_duplicate_keys(row["task_json"]))
+                    for row in self._conn.execute("SELECT task_id, task_json FROM tasks")
+                },
+                "approvals": {
+                    row["approval_id"]: validate_approval_request(parse_json_no_duplicate_keys(row["approval_json"]))
+                    for row in self._conn.execute("SELECT approval_id, approval_json FROM approvals")
+                },
+            },
+        }
+
+    def close(self) -> None:
+        with self._lock:
+            self._conn.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        self.close()

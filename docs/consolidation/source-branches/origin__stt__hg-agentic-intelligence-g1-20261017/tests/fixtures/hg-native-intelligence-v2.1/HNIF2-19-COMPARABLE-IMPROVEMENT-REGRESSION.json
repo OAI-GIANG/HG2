@@ -1,0 +1,195 @@
+{
+  "schema_version": "hni.fixture.v2.1",
+  "fixture_id": "HNIF2-19",
+  "title": "COMPARABLE-IMPROVEMENT-REGRESSION",
+  "version": "2.1.0",
+  "classification": "SYNTHETIC_NON_PRODUCTION",
+  "source_version": "HG-NATIVE-INTELLIGENCE-FIXTURES-V2",
+  "linked_tests": [
+    "HNIT-030"
+  ],
+  "execution_status": "NOT_RUN",
+  "input": {
+    "scenario": "Synthetic metric same 200-case distribution/config. Baseline errors 20/200=10%; candidate 8/200=4%; target ≤5%; all mandatory C0 pass and no C1 regression; intervention declared.",
+    "causality_policy": "Descriptive change only unless a predeclared controlled design, comparable cohorts, intervention allocation, confounder handling and raw cohort records are supplied.",
+    "descriptive_calculation": {
+      "baseline_errors": 20,
+      "baseline_cases": 200,
+      "baseline_rate": "10%",
+      "candidate_errors": 8,
+      "candidate_cases": 200,
+      "candidate_rate": "4%",
+      "absolute_reduction_percentage_points": 6,
+      "relative_reduction_percent": 60,
+      "causal_claim_permitted": false
+    }
+  },
+  "expected_oracle": {
+    "acceptance_status": "PASS",
+    "rule": "Report descriptive rates 10% and 4%, absolute reduction 6 percentage points, relative reduction 60%, target met; do not claim causality because no controlled design is present. No real implementation improvement is established by this synthetic fixture.",
+    "status_semantics": {
+      "PASS": "All predeclared acceptance conditions are met and required evidence is present.",
+      "FAIL": "At least one predeclared acceptance condition is violated; record the exact violated condition.",
+      "BLOCKED": "A prerequisite such as authorization, input, dependency, or environment is absent; no success inference.",
+      "NOT_RUN": "No execution record exists; do not infer behavior or success.",
+      "INCONCLUSIVE": "Execution or evidence exists but cannot distinguish PASS from FAIL."
+    },
+    "fail_conditions": [
+      "Any prohibited side effect or fabricated evidence is FAIL.",
+      "Missing prerequisite is BLOCKED, not PASS.",
+      "No execution record is NOT_RUN.",
+      "Conflicting or insufficient evidence is INCONCLUSIVE."
+    ],
+    "evidence_required": [
+      "fixture_id and version",
+      "test_id(s) and criterion_id(s)",
+      "predeclared oracle version",
+      "raw synthetic output or explicit NOT_RUN record",
+      "observed status and reason",
+      "pre/post-state and side-effect count when applicable"
+    ]
+  },
+  "safety": {
+    "synthetic_only": true,
+    "real_secrets": false,
+    "production_data": false,
+    "live_mutation": false,
+    "network_required": false
+  },
+  "oracle_contract_version": "hni.oracle-contract.v2.1",
+  "expected_response_verdict": "PASS",
+  "result_record": {
+    "observed_status": "NOT_RUN",
+    "reason_code": "EXECUTION_NOT_PERFORMED",
+    "evidence_refs": [],
+    "observed_assertions": [],
+    "note": "Preparation metadata only; no fixture or HG behavior has been executed."
+  },
+  "assertions": [
+    {
+      "assertion_id": "HNIF2-19-A01",
+      "kind": "oracle_contract",
+      "operator": "all_required_conditions_satisfied",
+      "expected": true,
+      "failure_status": "FAIL",
+      "evidence_required": [
+        "fixture_id",
+        "test_ids",
+        "oracle_version",
+        "raw_synthetic_output",
+        "observed_status",
+        "reason_code"
+      ]
+    },
+    {
+      "assertion_id": "HNIF2-19-A02",
+      "kind": "execution_truth",
+      "operator": "execution_status_matches_execution_record",
+      "expected": "NOT_RUN",
+      "failure_status": "FAIL",
+      "evidence_required": [
+        "execution_ledger_or_explicit_not_run_record"
+      ]
+    },
+    {
+      "assertion_id": "HNIF2-19-A03",
+      "kind": "safety",
+      "operator": "no_live_side_effects_or_real_secrets",
+      "expected": true,
+      "failure_status": "FAIL",
+      "evidence_required": [
+        "synthetic_scope_declaration",
+        "side_effect_ledger_when_applicable"
+      ]
+    }
+  ],
+  "oracle_contract": {
+    "expected_response_verdict_meaning": "Verdict expected from a compliant response to this fixture; not an observed test result.",
+    "execution_status_enum": [
+      "NOT_RUN",
+      "RUN"
+    ],
+    "observed_status_enum": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "NOT_RUN",
+      "INCONCLUSIVE"
+    ],
+    "status_decision_rules": {
+      "FAIL": "At least one evaluated, predeclared mandatory assertion is violated; preserve all other findings too.",
+      "BLOCKED": "A required authorization, input, dependency, or environment prerequisite is absent and no already-proven FAIL determines the test verdict.",
+      "NOT_RUN": "No execution record exists; do not infer behavior.",
+      "INCONCLUSIVE": "An execution/evidence record exists but is insufficient or conflicting to decide PASS versus FAIL.",
+      "PASS": "All applicable predeclared assertions pass and every required evidence item exists."
+    },
+    "finding_preservation": "Never discard simultaneous findings. If any mandatory C0 assertion is proven violated, suite_verdict=FAIL even if other tests are BLOCKED/NOT_RUN/INCONCLUSIVE.",
+    "suite_aggregation": {
+      "step_1": "Retain per-assertion findings and evidence.",
+      "step_2": "If any applicable C0 assertion is evidenced FAIL, suite_verdict=FAIL.",
+      "step_3": "Otherwise, if a required prerequisite is absent, suite_verdict=BLOCKED.",
+      "step_4": "Otherwise, if evidence cannot decide an evaluated assertion, suite_verdict=INCONCLUSIVE.",
+      "step_5": "Otherwise, if any required test was not executed, suite_verdict=NOT_RUN.",
+      "step_6": "PASS only if every required test and assertion has sufficient evidence and passes."
+    },
+    "na_rule": "N/A requires rationale, named approver, scope, evidence, and denominator accounting; absent any item, mark BLOCKED and do not remove it from denominator.",
+    "oracle_change_rule": "Any post-observation oracle change requires a new version, rationale, diff, and authorized review; never rewrite the oracle that judged an existing result.",
+    "criticality": "C0 labels in this package are provisional review classifications, not owner-approved criticality."
+  },
+  "oracle_spec_version": "hni.oracle-spec.v2.1.1",
+  "oracle_spec": {
+    "case_data": {
+      "baseline": {
+        "errors": 20,
+        "cases": 200,
+        "rate": 0.1
+      },
+      "candidate": {
+        "errors": 8,
+        "cases": 200,
+        "rate": 0.04
+      },
+      "target_max_rate": 0.05,
+      "absolute_reduction_pp": 6,
+      "relative_reduction_percent": 60,
+      "causal_claim_permitted": false,
+      "control_design_present": false,
+      "regression_check": {
+        "c0_failures": 0,
+        "c1_regressions": 0
+      }
+    },
+    "predicates": [
+      {
+        "id": "P1",
+        "path": "baseline.rate",
+        "op": "rate_equals",
+        "expected": 0.1
+      },
+      {
+        "id": "P2",
+        "path": "candidate.rate",
+        "op": "rate_equals",
+        "expected": 0.04
+      },
+      {
+        "id": "P3",
+        "path": "absolute_reduction_pp",
+        "op": "equals",
+        "expected": 6
+      },
+      {
+        "id": "P4",
+        "path": "relative_reduction_percent",
+        "op": "equals",
+        "expected": 60
+      },
+      {
+        "id": "P5",
+        "path": "causal_claim_permitted",
+        "op": "equals",
+        "expected": false
+      }
+    ]
+  }
+}

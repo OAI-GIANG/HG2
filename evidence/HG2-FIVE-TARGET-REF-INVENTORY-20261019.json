@@ -1,0 +1,668 @@
+{
+  "repository": "OAI-GIANG/HG2",
+  "rule": "No branch created by this operation. All candidate names are existing refs. Mapping is provisional and only the brain target is currently verified as receiving the latest working commits.",
+  "remote_branch_count_observed": 37,
+  "local_branch_count_observed": 4,
+  "protected_genesis": {
+    "ref": "hg-genesis",
+    "sha": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+    "status": "must remain unchanged",
+    "counting_note": "Owner requested preserve hg-genesis and exactly five refs total; whether genesis counts as one of five FUNCTIONAL branches is not yet consistently defined. Therefore this mapping is provisional and no source refs should be deleted yet."
+  },
+  "candidate_five_functional_targets": [
+    {
+      "name": "stt/hg2-brain-consolidation-20261018",
+      "role": "brain — single command/authority entry point",
+      "sha": "47856802639a7f6353efc14d01dae2ac40509bbe",
+      "status": "EXISTING_TARGET"
+    },
+    {
+      "name": "stt/hg2-single-system-20261017",
+      "role": "memory-knowledge-history — provisional",
+      "sha": "4229892a2569eca68fcbcf32bae0c7d34dc07fa5",
+      "status": "EXISTING_CANDIDATE"
+    },
+    {
+      "name": "stt/hg2-voice-tools-design-20261018",
+      "role": "creative-research-experiments — provisional",
+      "sha": "115f57716facfbe48b8263f8df4170675027d3d9",
+      "status": "EXISTING_CANDIDATE"
+    },
+    {
+      "name": "stt/hg2-gap-integration-20261018",
+      "role": "tools-tasks-automation — provisional",
+      "sha": "7e2ba99ffd5f1c5738073ababa88d01ede198fca",
+      "status": "EXISTING_CANDIDATE"
+    },
+    {
+      "name": "stt/hg2-circulatory-architecture-20261018",
+      "role": "security-policy-verification-sync — provisional",
+      "sha": "c5b27193baa95e741c0082cae81656a630e24d8d",
+      "status": "EXISTING_CANDIDATE"
+    }
+  ],
+  "required_mapping_status": "NOT_FINAL — source branch file-level crosswalk shows many unique paths; mapping and content integration must precede pruning",
+  "high_risk_content_gaps": [
+    {
+      "branch": "ci/hg2-circleci-external-20261013",
+      "sha": "0c71e400a6510fbe06b6fa9fe2bdff414fcb2ef8",
+      "file_count": 12,
+      "exact_file_count_in_target": 5,
+      "missing_path_count": 1,
+      "differing_blob_count": 6,
+      "missing_examples": [
+        "docs/review/HG2_P0_V3_INDEPENDENT_REVIEW_CHECKLIST.md"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "design/t018-auth-checkpoint-memory-20261013",
+      "sha": "6f636c5ebdf7363172fdd2cbda6d72258179589d",
+      "file_count": 54,
+      "exact_file_count_in_target": 22,
+      "missing_path_count": 24,
+      "differing_blob_count": 8,
+      "missing_examples": [
+        "docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md",
+        "docs/design/T-018-THREAT-MODEL-V1.md",
+        "evidence/T-018-DESIGN-20261013/SHA256SUMS.txt",
+        "evidence/T-018-DESIGN-20261013/manifest.md",
+        "evidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "evidence/T-018-G13-20261013/baseline-core.log",
+        "evidence/T-018-G13-20261013/baseline-suite.log",
+        "evidence/T-018-G13-20261013/baseline-t018.log",
+        "evidence/T-018-G13-20261013/clean-checkout-commit.txt",
+        "evidence/T-018-G13-20261013/clean-checkout-status.txt"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "hg/sync.py",
+        "manifest.json",
+        "tests/test_core.py",
+        "tests/test_t018_sync.py"
+      ]
+    },
+    {
+      "branch": "docs/hg-adr-001-primary-platform-20261013",
+      "sha": "0338b0fa2777239a6e143663ac8827a2ee638ca6",
+      "file_count": 11,
+      "exact_file_count_in_target": 5,
+      "missing_path_count": 1,
+      "differing_blob_count": 5,
+      "missing_examples": [
+        "docs/decisions/HG-ADR-001.md"
+      ],
+      "differing_examples": [
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "docs/hg-selective-absorption-v2-20261013",
+      "sha": "0503337200157d3cde0f424ce4c5635b1e42185f",
+      "file_count": 11,
+      "exact_file_count_in_target": 5,
+      "missing_path_count": 1,
+      "differing_blob_count": 5,
+      "missing_examples": [
+        "docs/HG_SELECTIVE_ABSORPTION_V2_VERIFIED_REFERENCE.md"
+      ],
+      "differing_examples": [
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "docs/t018-remove-signature-scope-20261013",
+      "sha": "a296abb3016a1cf771d3db1c870dad8e3fdb9adb",
+      "file_count": 58,
+      "exact_file_count_in_target": 21,
+      "missing_path_count": 28,
+      "differing_blob_count": 9,
+      "missing_examples": [
+        "docs/design/T-018-ACCEPTANCE-CRITERIA-V2.md",
+        "docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md",
+        "docs/design/T-018-THREAT-MODEL-V1.md",
+        "evidence/T-018-DESIGN-20261013/PRE-REVIEW-FINDINGS.md",
+        "evidence/T-018-DESIGN-20261013/PRE-REVIEW-SHA256SUMS.txt",
+        "evidence/T-018-DESIGN-20261013/SHA256SUMS.txt",
+        "evidence/T-018-DESIGN-20261013/manifest.md",
+        "evidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "evidence/T-018-G13-20261013/baseline-core.log",
+        "evidence/T-018-G13-20261013/baseline-suite.log"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "docs/T-018-SYNC-V2-CONTRACT.md",
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "hg/sync.py",
+        "manifest.json",
+        "tests/test_core.py",
+        "tests/test_t018_sync.py"
+      ]
+    },
+    {
+      "branch": "feat/hexis-edge-schema-guard-20261013",
+      "sha": "fa53a5768145279f54f182e8c5cc3c73976fda42",
+      "file_count": 45,
+      "exact_file_count_in_target": 18,
+      "missing_path_count": 18,
+      "differing_blob_count": 9,
+      "missing_examples": [
+        "contract/PRODUCT_SCOPE_DECISIONS_V1.json",
+        "docs/GOVERNANCE_SIMPLIFICATION_HG2_V1.md",
+        "docs/LEGACY_HANDOFF_STATUS_HG2_V1.md",
+        "docs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md",
+        "docs/PRODUCT_SCOPE_DECISIONS_HG2_V1.md",
+        "docs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md",
+        "evidence/HG2_DURABILITY_P0_EVIDENCE_51676A7.json",
+        "evidence/HG2_P0_SINGLE_PRODUCT_EVIDENCE_E0C3D35.json",
+        "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json",
+        "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_49AFBC1.json"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "README.md",
+        "docs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md",
+        "evidence/HEXIS-20261013/SHA256SUMS.txt",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py",
+        "tests/test_integrity_v2.py"
+      ]
+    },
+    {
+      "branch": "feat/hg-t018-cross-context-sync-20261013",
+      "sha": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+      "file_count": 50,
+      "exact_file_count_in_target": 22,
+      "missing_path_count": 20,
+      "differing_blob_count": 8,
+      "missing_examples": [
+        "evidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "evidence/T-018-G13-20261013/baseline-core.log",
+        "evidence/T-018-G13-20261013/baseline-suite.log",
+        "evidence/T-018-G13-20261013/baseline-t018.log",
+        "evidence/T-018-G13-20261013/clean-checkout-commit.txt",
+        "evidence/T-018-G13-20261013/clean-checkout-status.txt",
+        "evidence/T-018-G13-20261013/clean-checkout-tree.txt",
+        "evidence/T-018-G13-20261013/clean-suite-1.log",
+        "evidence/T-018-G13-20261013/clean-suite-1.normalized.log",
+        "evidence/T-018-G13-20261013/clean-suite-2.log"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "hg/sync.py",
+        "manifest.json",
+        "tests/test_core.py",
+        "tests/test_t018_sync.py"
+      ]
+    },
+    {
+      "branch": "feature/hg-creative-assimilation-v1-20261013",
+      "sha": "61480680a0b300be946e403bde2cb272dbbacc20",
+      "file_count": 70,
+      "exact_file_count_in_target": 19,
+      "missing_path_count": 46,
+      "differing_blob_count": 5,
+      "missing_examples": [
+        "benchmarks/hg_cti_v1/README.md",
+        "benchmarks/hg_cti_v1/analyze_scores.py",
+        "benchmarks/hg_cti_v1/cases.json",
+        "benchmarks/hg_cti_v1/freeze_scores.py",
+        "benchmarks/hg_cti_v1/model-provenance.json",
+        "benchmarks/hg_cti_v1/preregistration.json",
+        "benchmarks/hg_cti_v1/run_benchmark.py",
+        "benchmarks/hg_cti_v1/scoring-rubric.md",
+        "contract/CREATIVE_ASSIMILATION_V1.md",
+        "docs/HG_CREATIVE_ASSIMILATION_LICENSE_AUDIT.md"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "feature/hg2-code-intelligence-absorb-20261014",
+      "sha": "9ebd4687b0ff1af7c0652907f787158ce3cadee3",
+      "file_count": 16,
+      "exact_file_count_in_target": 5,
+      "missing_path_count": 6,
+      "differing_blob_count": 5,
+      "missing_examples": [
+        "contract/CODE_INTELLIGENCE_V1.md",
+        "docs/ABSORPTION_GATE_REPORT.md",
+        "docs/ABSORPTION_SOURCE_DECISIONS.md",
+        "docs/HG_CODE_INTELLIGENCE_USAGE.md",
+        "tests/test_code_intelligence.py",
+        "tools/hg_code_intelligence.py"
+      ],
+      "differing_examples": [
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "fix/hg2-code-intelligence-coverage-failclosed-20261014",
+      "sha": "b64aaf52233dc643f06c9dd9932baf48223447d3",
+      "file_count": 66,
+      "exact_file_count_in_target": 5,
+      "missing_path_count": 55,
+      "differing_blob_count": 6,
+      "missing_examples": [
+        "contract/CODE_INTELLIGENCE_V1.md",
+        "docs/ABSORPTION_GATE_REPORT.md",
+        "docs/ABSORPTION_SOURCE_DECISIONS.md",
+        "docs/HG_CODE_INTELLIGENCE_USAGE.md",
+        "docs/evidence/HG2_CI_BENCHMARK_ITERATION_EXPLORATORY_V1_REGISTRATION.json",
+        "docs/evidence/HG2_CI_BENCHMARK_ITERATION_EXPLORATORY_V1_RESULT.json",
+        "docs/evidence/HG2_CI_BENCHMARK_V1_RELIABILITY_NOTE.md",
+        "docs/evidence/HG2_CI_GROUND_TRUTH_RECEIPT_V2.json",
+        "docs/evidence/HG2_CI_GROUND_TRUTH_REGISTRATION_V2.json",
+        "docs/evidence/HG2_CI_GROUND_TRUTH_RESULT_V2.json"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "fix/hg2-single-product-readiness-20261013",
+      "sha": "63942520602108f6aa172a9d419822033271e2b2",
+      "file_count": 45,
+      "exact_file_count_in_target": 18,
+      "missing_path_count": 18,
+      "differing_blob_count": 9,
+      "missing_examples": [
+        "contract/PRODUCT_SCOPE_DECISIONS_V1.json",
+        "docs/GOVERNANCE_SIMPLIFICATION_HG2_V1.md",
+        "docs/LEGACY_HANDOFF_STATUS_HG2_V1.md",
+        "docs/PRODUCT_SCOPE_ACCEPTANCE_HG2_V1.md",
+        "docs/PRODUCT_SCOPE_DECISIONS_HG2_V1.md",
+        "docs/SINGLE_PRODUCT_PARITY_MATRIX_V1.md",
+        "evidence/HG2_DURABILITY_P0_EVIDENCE_51676A7.json",
+        "evidence/HG2_P0_SINGLE_PRODUCT_EVIDENCE_E0C3D35.json",
+        "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_46E90FB.json",
+        "evidence/HG2_PRODUCT_SCOPE_ACCEPTANCE_EVIDENCE_49AFBC1.json"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "README.md",
+        "docs/HEXIS_SELECTIVE_ABSORPTION_REPORT.md",
+        "evidence/HEXIS-20261013/SHA256SUMS.txt",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py",
+        "tests/test_integrity_v2.py"
+      ]
+    },
+    {
+      "branch": "main",
+      "sha": "dc29622fce50b328fca5673b1d0385be884ec132",
+      "file_count": 1,
+      "exact_file_count_in_target": 0,
+      "missing_path_count": 1,
+      "differing_blob_count": 0,
+      "missing_examples": [
+        ".bootstrap"
+      ],
+      "differing_examples": []
+    },
+    {
+      "branch": "remediation/hg-cti-p0-guards-20261014",
+      "sha": "725133488d517ffaa87c34eb0aff97b6145815f4",
+      "file_count": 133,
+      "exact_file_count_in_target": 19,
+      "missing_path_count": 109,
+      "differing_blob_count": 5,
+      "missing_examples": [
+        "benchmarks/hg_cti_v1/README.md",
+        "benchmarks/hg_cti_v1/analyze_scores.py",
+        "benchmarks/hg_cti_v1/cases.json",
+        "benchmarks/hg_cti_v1/freeze_scores.py",
+        "benchmarks/hg_cti_v1/model-provenance.json",
+        "benchmarks/hg_cti_v1/preregistration.json",
+        "benchmarks/hg_cti_v1/run_benchmark.py",
+        "benchmarks/hg_cti_v1/scoring-rubric.md",
+        "benchmarks/hg_cti_v2/README.md",
+        "benchmarks/hg_cti_v2/analyze_scores.py"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "remediation/hg2-authority-recovery-20261014",
+      "sha": "f1a58eed86b6cfdb10055591323a006ec9ed58c8",
+      "file_count": 25,
+      "exact_file_count_in_target": 19,
+      "missing_path_count": 1,
+      "differing_blob_count": 5,
+      "missing_examples": [
+        "evidence/HG2-AUTHORITY-RECOVERY-20261014/authority-matrix.json"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "remediation/hg2-readonly-connector-20261014",
+      "sha": "f852bc768290fb2606586b1946a7016140a9371b",
+      "file_count": 40,
+      "exact_file_count_in_target": 19,
+      "missing_path_count": 16,
+      "differing_blob_count": 5,
+      "missing_examples": [
+        "docs/FINAL_STATUS_20261014.md",
+        "docs/HG2_PHONE_READONLY_CONNECTOR.md",
+        "docs/PHONE_RUNTIME_DEPLOYMENT_20261014.md",
+        "docs/evidence/20261014/FINAL_RUNTIME_INVENTORY.json",
+        "docs/evidence/20261014/LOCAL_ROUTE_AUTH_HARDENING.json",
+        "docs/evidence/20261014/PHONE_RUNTIME_AUTH_BLOCK_20261014.json",
+        "docs/evidence/20261014/PHONE_RUNTIME_E2E_PROOF.json",
+        "docs/evidence/20261014/PHONE_RUNTIME_NEGATIVE_GATES.json",
+        "docs/evidence/20261014/PHONE_RUNTIME_STABILITY.json",
+        "docs/evidence/20261014/POST_AUDIT_VERIFIER_RESTART.json"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "remediation/stt-independent-redteam-review-20261014",
+      "sha": "bcec1836df81ac979214094c64e61f03bde5c5f3",
+      "file_count": 29,
+      "exact_file_count_in_target": 19,
+      "missing_path_count": 5,
+      "differing_blob_count": 5,
+      "missing_examples": [
+        "docs/redteam/20261014/ACCEPTANCE_MATRIX.md",
+        "docs/redteam/20261014/INDEPENDENT_REDTEAM_REVIEW.md",
+        "docs/redteam/20261014/PHONE_GITHUB_READONLY_PROOF.md",
+        "docs/redteam/20261014/SHA256SUMS.txt",
+        "docs/redteam/20261014/evidence/PHONE_RUNTIME_AUTH_BLOCK_20261014.json"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "remediation/t018-base-reconcile-20261013",
+      "sha": "da3d055201357923f7fab079654d39962e87ccd5",
+      "file_count": 63,
+      "exact_file_count_in_target": 36,
+      "missing_path_count": 20,
+      "differing_blob_count": 7,
+      "missing_examples": [
+        "evidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "evidence/T-018-G13-20261013/baseline-core.log",
+        "evidence/T-018-G13-20261013/baseline-suite.log",
+        "evidence/T-018-G13-20261013/baseline-t018.log",
+        "evidence/T-018-G13-20261013/clean-checkout-commit.txt",
+        "evidence/T-018-G13-20261013/clean-checkout-status.txt",
+        "evidence/T-018-G13-20261013/clean-checkout-tree.txt",
+        "evidence/T-018-G13-20261013/clean-suite-1.log",
+        "evidence/T-018-G13-20261013/clean-suite-1.normalized.log",
+        "evidence/T-018-G13-20261013/clean-suite-2.log"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "hg/sync.py",
+        "manifest.json",
+        "tests/test_core.py",
+        "tests/test_t018_sync.py"
+      ]
+    },
+    {
+      "branch": "review/t018-design-pre-review-20261013",
+      "sha": "fa90faacb4a47492121480455c1747535ab5817c",
+      "file_count": 56,
+      "exact_file_count_in_target": 22,
+      "missing_path_count": 26,
+      "differing_blob_count": 8,
+      "missing_examples": [
+        "docs/design/T-018-IMPLEMENTATION-DESIGN-V1.md",
+        "docs/design/T-018-THREAT-MODEL-V1.md",
+        "evidence/T-018-DESIGN-20261013/PRE-REVIEW-FINDINGS.md",
+        "evidence/T-018-DESIGN-20261013/PRE-REVIEW-SHA256SUMS.txt",
+        "evidence/T-018-DESIGN-20261013/SHA256SUMS.txt",
+        "evidence/T-018-DESIGN-20261013/manifest.md",
+        "evidence/T-018-G13-20261013/SHA256SUMS.txt",
+        "evidence/T-018-G13-20261013/baseline-core.log",
+        "evidence/T-018-G13-20261013/baseline-suite.log",
+        "evidence/T-018-G13-20261013/baseline-t018.log"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "hg/sync.py",
+        "manifest.json",
+        "tests/test_core.py",
+        "tests/test_t018_sync.py"
+      ]
+    },
+    {
+      "branch": "stt/hg-agentic-intelligence-g1-20261017",
+      "sha": "78f1149c9aa4d3f7920c33c19a8954db0927ddb4",
+      "file_count": 130,
+      "exact_file_count_in_target": 65,
+      "missing_path_count": 61,
+      "differing_blob_count": 4,
+      "missing_examples": [
+        ".gitattributes",
+        "docs/HG-NATIVE-INTELLIGENCE-CRITERIA-DRAFT-V1.md",
+        "docs/HG_AGENTIC_INTELLIGENCE_G1.md",
+        "docs/HG_NATIVE_INTELLIGENCE_CRITERIA_V1.md",
+        "docs/HNI30-EVALUATOR-DESIGN-NOTE-V1.md",
+        "docs/HNI30-EVALUATOR-ORACLE-V1.json",
+        "evidence/HG-AGENTIC-INTELLIGENCE-20261017/strict-unittest-2d4098ee.json",
+        "evidence/HG-AGENTIC-INTELLIGENCE-20261017/strict-unittest-2d4098ee.log",
+        "evidence/HG-AGENTIC-INTELLIGENCE-20261017/strict-unittest-2edd3e2.json",
+        "evidence/HG-AGENTIC-INTELLIGENCE-20261017/strict-unittest-2edd3e2.log"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json"
+      ]
+    },
+    {
+      "branch": "stt/hg2-circulatory-architecture-20261018",
+      "sha": "c5b27193baa95e741c0082cae81656a630e24d8d",
+      "file_count": 182,
+      "exact_file_count_in_target": 79,
+      "missing_path_count": 94,
+      "differing_blob_count": 9,
+      "missing_examples": [
+        "contract/CIRCULATORY_ARCHITECTURE_V1.md",
+        "contract/CODE_INTELLIGENCE_V1.md",
+        "docs/HG2_CIRCULATORY_MODULE_MAP_V1.md",
+        "docs/HG2_CIRCULATORY_RESTRUCTURE_ROADMAP_V1.md",
+        "docs/HG2_CLEANUP_DECISION_MATRIX_20261018.md",
+        "docs/HG2_GITHUB_CLEANUP_INVENTORY_20261018.md",
+        "docs/HG2_UNIFIED_BRAIN_GROUP_AUDIT_MATRIX_20261018.md",
+        "docs/HG2_UNIFIED_BRAIN_GROUP_G1_G3_IMPLEMENTATION_20261018.md",
+        "docs/HG_CODE_INTELLIGENCE_USAGE.md",
+        "evidence/CIRCULATORY-RESTRUCTURE-20261018/approval-digest-binding-report.json"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "README.md",
+        "hg/authority.py",
+        "hg/edge.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "hg/sync.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "stt/hg2-gap-integration-20261018",
+      "sha": "7e2ba99ffd5f1c5738073ababa88d01ede198fca",
+      "file_count": 77,
+      "exact_file_count_in_target": 59,
+      "missing_path_count": 11,
+      "differing_blob_count": 7,
+      "missing_examples": [
+        "contract/ACCEPTANCE_MATRIX_V1.md",
+        "contract/AUTHENTICATION_V1.md",
+        "hg/agent.py",
+        "hg/provider.py",
+        "hg/toolplane.py",
+        "scripts/update_provenance_graph.py",
+        "tests/test_agent.py",
+        "tests/test_auth.py",
+        "tests/test_contract_completeness.py",
+        "tests/test_provider.py"
+      ],
+      "differing_examples": [
+        "README.md",
+        "contract/ARCHITECTURE_V1.md",
+        "hg/auth.py",
+        "hg/authority.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json"
+      ]
+    },
+    {
+      "branch": "stt/hg2-single-system-20261017",
+      "sha": "4229892a2569eca68fcbcf32bae0c7d34dc07fa5",
+      "file_count": 106,
+      "exact_file_count_in_target": 70,
+      "missing_path_count": 32,
+      "differing_blob_count": 4,
+      "missing_examples": [
+        "contract/HG2_SINGLE_SYSTEM_DECISION_V1.md",
+        "evidence/HG2-BACKEND-RESTORE-REVALIDATION-20261017.json",
+        "evidence/HG2-BACKEND-RESTORE-REVALIDATION-R2-20261017.json",
+        "evidence/HG2-BACKEND-STATE-RECONCILIATION-20261017.json",
+        "evidence/HG2-DUAL-SOURCE-API-ACCEPTANCE-20261017.json",
+        "evidence/HG2-DUAL-SOURCE-IMPORT-DRYRUN-20261017.json",
+        "evidence/HG2-DUAL-SOURCE-IMPORT-DRYRUN-R2-20261017.json",
+        "evidence/HG2-DUAL-SOURCE-IMPORT-REHEARSAL-20261017.json",
+        "evidence/HG2-LEGACY-MIGRATION-PREFLIGHT-20261017.json",
+        "evidence/HG2-PRODUCTION-CUTOVER-GATE-STATUS-20261017.json"
+      ],
+      "differing_examples": [
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json",
+        "tests/test_core.py"
+      ]
+    },
+    {
+      "branch": "stt/hg2-unification-p0-20261016",
+      "sha": "a64e49d1619f5d83b5741d13c92961df9b07c79a",
+      "file_count": 216,
+      "exact_file_count_in_target": 11,
+      "missing_path_count": 189,
+      "differing_blob_count": 16,
+      "missing_examples": [
+        "benchmarks/hg_cti_v1/README.md",
+        "benchmarks/hg_cti_v1/analyze_scores.py",
+        "benchmarks/hg_cti_v1/cases.json",
+        "benchmarks/hg_cti_v1/freeze_scores.py",
+        "benchmarks/hg_cti_v1/model-provenance.json",
+        "benchmarks/hg_cti_v1/preregistration.json",
+        "benchmarks/hg_cti_v1/run_benchmark.py",
+        "benchmarks/hg_cti_v1/scoring-rubric.md",
+        "benchmarks/hg_cti_v2/README.md",
+        "benchmarks/hg_cti_v2/analyze_scores.py"
+      ],
+      "differing_examples": [
+        ".circleci/config.yml",
+        "README.md",
+        "contract/ARCHITECTURE_V1.md",
+        "docs/evidence/HG2_MALFORMED_HISTORY_SHAPE_GUARD_20261015.md",
+        "hg/authority.py",
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "hg/provenance.py",
+        "hg/sync.py",
+        "manifest.json"
+      ]
+    },
+    {
+      "branch": "stt/hg2-voice-tools-design-20261018",
+      "sha": "115f57716facfbe48b8263f8df4170675027d3d9",
+      "file_count": 111,
+      "exact_file_count_in_target": 60,
+      "missing_path_count": 48,
+      "differing_blob_count": 3,
+      "missing_examples": [
+        "docs/HG2_VIETNAMESE_SPEECH_INTELLIGENCE_RESEARCH_V1.md",
+        "docs/HG2_VOICE_TOOLS_DESIGN_V1.md",
+        "evidence/HG2-VOICE-ANNOUNCEMENT-20261018/EXECUTION.json",
+        "evidence/HG2-VOICE-ANNOUNCEMENT-20261018/RESULT.md",
+        "evidence/HG2-VOICE-INTELLIGENCE-ACCEPTANCE-20261018/CORPUS_ADMISSION_RECHECK.json",
+        "evidence/HG2-VOICE-INTELLIGENCE-ACCEPTANCE-20261018/CORPUS_RIGHTS_GATE.json",
+        "evidence/HG2-VOICE-INTELLIGENCE-ACCEPTANCE-20261018/CORPUS_RIGHTS_GATE.md",
+        "evidence/HG2-VOICE-INTELLIGENCE-ACCEPTANCE-20261018/IMPLEMENTATION_TESTS.json",
+        "evidence/HG2-VOICE-INTELLIGENCE-ACCEPTANCE-20261018/SYNTHETIC_RUN.json",
+        "evidence/HG2-VOICE-INTELLIGENCE-RESEARCH-20261018/ARCHIVE_AUDIT.json"
+      ],
+      "differing_examples": [
+        "hg/history.py",
+        "hg/phone_runtime.py",
+        "manifest.json"
+      ]
+    }
+  ],
+  "refs_deleted": []
+}

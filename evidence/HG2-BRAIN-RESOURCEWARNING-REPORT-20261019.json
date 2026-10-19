@@ -1,0 +1,12 @@
+{
+  "repository": "OAI-GIANG/HG2",
+  "target": "stt/hg2-brain-consolidation-20261018",
+  "base_head": "f8712bdafb428081f3ab418f625e9d402e5a36cb",
+  "change": "Changed both StateStore history reads to context-managed file handles; no data semantics changed.",
+  "tests": 219,
+  "result": "PASS",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+  "test_log_sha256": "98a992335e52c53fbfafe6fdfee7abec4fc2c8036ef97291a0ab2088c165d2e1",
+  "diff_check": "PASS",
+  "remote_ref_count_before_push": 25
+}

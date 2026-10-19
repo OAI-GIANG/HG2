@@ -1,0 +1,326 @@
+{
+  "api_acceptance": {
+    "base_url": "http://127.0.0.1:8788",
+    "checks": {
+      "durable_outbox_fail_closed_status": {
+        "detail": {
+          "status": "NOT_CONFIGURED"
+        },
+        "ok": true
+      },
+      "durable_status_authenticated": {
+        "detail": {
+          "http_status": 200,
+          "status": "NOT_CONFIGURED"
+        },
+        "ok": true
+      },
+      "durable_sync_not_configured_fail_closed": {
+        "detail": {
+          "code": "DURABLE_NOT_CONFIGURED",
+          "http_status": 503
+        },
+        "ok": true
+      },
+      "health_and_integrity": {
+        "detail": {
+          "http_status": 200,
+          "integrity": true
+        },
+        "ok": true
+      },
+      "imported_memory_projection": {
+        "detail": {
+          "expected_count": 31,
+          "http_status": 200,
+          "observed_count": 31
+        },
+        "ok": true
+      },
+      "library_metadata_and_blob_hashes": {
+        "detail": {
+          "count": 4,
+          "hashes_verified": true,
+          "http_status": 200,
+          "quarantined_count": 13
+        },
+        "ok": true
+      },
+      "memory_create": {
+        "detail": {
+          "http_status": 201
+        },
+        "ok": true
+      },
+      "memory_delete_tombstone": {
+        "detail": {
+          "http_status": 200,
+          "status": "tombstoned"
+        },
+        "ok": true
+      },
+      "memory_projection_restored": {
+        "detail": {
+          "count": 31,
+          "http_status": 200
+        },
+        "ok": true
+      },
+      "memory_read_after_create": {
+        "detail": {
+          "count": 32,
+          "http_status": 200
+        },
+        "ok": true
+      },
+      "model_gateway_no_network": {
+        "detail": {
+          "configured": false,
+          "network_called": false,
+          "provider": "openai_compatible",
+          "status": "NOT_CONFIGURED"
+        },
+        "ok": true
+      },
+      "no_real_model_call": {
+        "detail": {
+          "code": "MODEL_NOT_CONFIGURED",
+          "http_status": 503
+        },
+        "ok": true
+      },
+      "read_token_cannot_write": {
+        "detail": {
+          "http_status": 401,
+          "response_code": "UNAUTHORIZED"
+        },
+        "ok": true
+      },
+      "read_write_credential_separation": {
+        "detail": {
+          "response_code": "UNAUTHORIZED",
+          "write_token_cannot_read": true
+        },
+        "ok": true
+      },
+      "source_to_process_identity": {
+        "detail": {
+          "commit_matches": true,
+          "process_pid_matches": true,
+          "source_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6"
+        },
+        "ok": true
+      },
+      "ui_http": {
+        "detail": {
+          "expected_title_present": true,
+          "http_status": 200
+        },
+        "ok": true
+      },
+      "ui_security_headers": {
+        "detail": {
+          "cache_control": "no-store",
+          "csp_present": true
+        },
+        "ok": true
+      }
+    },
+    "durable_replication_enabled": false,
+    "expected_commit": "ac4c6b980befa73aeae989b3543227d85ce0f023",
+    "expected_source_manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
+    "finished_at_unix": 1792229446,
+    "initial_active_memory_count": 31,
+    "library_assets_expected": 4,
+    "library_quarantine_count": 13,
+    "model_provider_called": false,
+    "process_pid": "3728",
+    "schema": "HG2_SINGLE_SYSTEM_STAGING_ACCEPTANCE_V1",
+    "status": "PASS"
+  },
+  "backup_restore": {
+    "backup_byte_identical": true,
+    "history_head_sha256": "d84b818e0ef16f25cf91638da47c53ac25b74b24245a368ad0d16f2b7dd89212",
+    "initial_event_count": 127,
+    "location": "/data/data/com.termux/files/home/tmp/HG2-SINGLE-SYSTEM-STAGING-RESTORE-20261017-R2",
+    "restore_event_count": 127,
+    "restore_history_head_sha256": "d84b818e0ef16f25cf91638da47c53ac25b74b24245a368ad0d16f2b7dd89212",
+    "restore_integrity_ok": true,
+    "restored_tree_sha256": "41b649b3abb4d75c7aa42a8eaa7732fa32bdda47c9ff6544b08fbf5df1726f97",
+    "snapshot_tree_sha256": "41b649b3abb4d75c7aa42a8eaa7732fa32bdda47c9ff6544b08fbf5df1726f97",
+    "source_bytes": 5077003,
+    "source_files": 8
+  },
+  "branch": "stt/hg2-single-system-20261017",
+  "candidate_commit": "ac4c6b980befa73aeae989b3543227d85ce0f023",
+  "canonical_base": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+  "production_blockers": [
+    "Production runtime/source/artifact/process provenance is not yet this candidate.",
+    "Production API read/write credentials and approved source-manifest configuration are not provisioned.",
+    "The available legacy backend does not implement HG2 durable batch contract.",
+    "Encrypted replica storage, authenticated HTTPS front door, dedicated scoped credential, and production rollback rehearsal remain unproven."
+  ],
+  "production_unchanged": {
+    "durable_remote_called": false,
+    "production_cutover_performed": false,
+    "real_model_provider_called": false,
+    "source_sha256_after": "85cf707201e925e64948e919158546eaf2c8f0e306760be092d379a2d165515f",
+    "source_sha256_before": "85cf707201e925e64948e919158546eaf2c8f0e306760be092d379a2d165515f",
+    "source_state_path": "/data/data/com.termux/files/home/hg/core/runtime/data/state.json",
+    "source_unchanged": true,
+    "tracked_processes_after": {
+      "10804": {
+        "alive": true,
+        "cmdline": [
+          "python3",
+          "-u",
+          "/data/data/com.termux/files/home/hg2-service/entry.py"
+        ]
+      },
+      "10805": {
+        "alive": true,
+        "cmdline": [
+          "python3",
+          "-u",
+          "/data/data/com.termux/files/home/hg/backend/hg_backend.py"
+        ]
+      },
+      "10809": {
+        "alive": true,
+        "cmdline": [
+          "python3",
+          "-u",
+          "/data/data/com.termux/files/home/hg/core/runtime/hg_runtime.py"
+        ]
+      }
+    },
+    "tracked_processes_before": {
+      "10804": {
+        "alive": true,
+        "cmdline": [
+          "python3",
+          "-u",
+          "/data/data/com.termux/files/home/hg2-service/entry.py"
+        ]
+      },
+      "10805": {
+        "alive": true,
+        "cmdline": [
+          "python3",
+          "-u",
+          "/data/data/com.termux/files/home/hg/backend/hg_backend.py"
+        ]
+      },
+      "10809": {
+        "alive": true,
+        "cmdline": [
+          "python3",
+          "-u",
+          "/data/data/com.termux/files/home/hg/core/runtime/hg_runtime.py"
+        ]
+      }
+    },
+    "tracked_processes_unchanged": true
+  },
+  "repository": "OAI-GIANG/HG2",
+  "runtime_source_manifest": {
+    "files": [
+      {
+        "bytes": 51,
+        "path": "hg/__init__.py",
+        "sha256": "ade9650e06ace02b679cce2fa459bf801a53063746e2799b768c68c660efccb5"
+      },
+      {
+        "bytes": 968,
+        "path": "hg/authority.py",
+        "sha256": "1531473ebe1f3534a91bb9c992ae8bf7d6944f5f6ce5ebcb48008d8267572068"
+      },
+      {
+        "bytes": 7898,
+        "path": "hg/durable.py",
+        "sha256": "11f6580213405f49f4ffd534e58a1a45712fa5ebc31643de1effe5350d1d4cb1"
+      },
+      {
+        "bytes": 6472,
+        "path": "hg/edge.py",
+        "sha256": "489eecdaa7166143416db81d0ed4ae4787c6da6a39f86b8d129468543307a6c1"
+      },
+      {
+        "bytes": 7666,
+        "path": "hg/history.py",
+        "sha256": "77e188d73c82668dcce5b89f2cfd9470d8ee75dffd103c86d2818e9f4f05fbbc"
+      },
+      {
+        "bytes": 235,
+        "path": "hg/identity.py",
+        "sha256": "128211f8cb18cf8f8359721097244fe5fcc008b41cbb6b73dac64ee61e68a227"
+      },
+      {
+        "bytes": 13004,
+        "path": "hg/memory.py",
+        "sha256": "4c1e5b1346bc757ad6308d23a56850e5c79d3292ef07a47d2f551c406c97ec54"
+      },
+      {
+        "bytes": 6192,
+        "path": "hg/model_gateway.py",
+        "sha256": "f5dac0ef3406301ddfa75b8df8a38b2123a5a7cc37aa62873a7aef36f2c0d472"
+      },
+      {
+        "bytes": 2890,
+        "path": "hg/phone_runtime.py",
+        "sha256": "238cfc38c1c172cdb967d7b279c969ca986fbce4a93991c34cf9c60d2190ed67"
+      },
+      {
+        "bytes": 3350,
+        "path": "hg/provenance.py",
+        "sha256": "2081ff229d92c4a3b82d1a360f14fb207c98410fad17127c97b2178bcc20f629"
+      },
+      {
+        "bytes": 16068,
+        "path": "hg/replica.py",
+        "sha256": "bff7234ce97b25c2051e959aaad907f420e16c9470b5959b2d6947b3e3c057e5"
+      },
+      {
+        "bytes": 18617,
+        "path": "hg/server.py",
+        "sha256": "dcdb4f4d69c28d1da53080adced7aec6aa474af498f986a16e0f95d430e01622"
+      },
+      {
+        "bytes": 7436,
+        "path": "ui/index.html",
+        "sha256": "4a657779befd33a11c8121b07ca609f66c2ec766900d3c56a42c6420d73f4fe9"
+      }
+    ],
+    "manifest_sha256": "64efebf0470208504ea7dcf13d4ccb10352f2633a82ace20dabb475d2cb2c5a6",
+    "schema": "HG_RUNTIME_SOURCE_MANIFEST_V1"
+  },
+  "schema": "HG2_SOURCE_PROVENANCE_STAGING_V1",
+  "smoke_summary": {
+    "checks_passed": 17,
+    "checks_total": 17,
+    "evidence_output": "evidence/HG2-SOURCE-PROVENANCE-STAGING-20261017.json",
+    "status": "PASS"
+  },
+  "snapshot_import": {
+    "active_memory_count": 31,
+    "counts": {
+      "conversations_imported": 4,
+      "devices_redacted": 2,
+      "library_imported": 4,
+      "library_quarantined": 13,
+      "memory_imported": 31,
+      "memory_quarantined": 2,
+      "messages_imported": 68
+    },
+    "integrity": {
+      "events": 127,
+      "head_hash": "d84b818e0ef16f25cf91638da47c53ac25b74b24245a368ad0d16f2b7dd89212",
+      "ok": true,
+      "reason": "chain_ok"
+    },
+    "source_hash_matches_frozen_preflight": true,
+    "source_sha256": "85cf707201e925e64948e919158546eaf2c8f0e306760be092d379a2d165515f",
+    "status": "IMPORTED_TO_NEW_TARGET_ONLY"
+  },
+  "status": "PASS_STAGING_ONLY"
+}
