@@ -109,6 +109,8 @@ class ServerTests(unittest.TestCase):
         self.rt.memory.remember({"id":"ask-memory","type":"fact","title":"HG2","content":"single runtime","scope_id":"owner"},
             principal_id="test-owner",grants={"owner"},idempotency_key="ask-memory-create")
         class FakeGateway:
+            def status(self):
+                return {"configured": True, "status": "CONFIGURED", "network_called": False}
             def ask(self, query, context):
                 assert context["manifest"]["model_called"] is False
                 return {"answer":"mock answer","model":"fake-model","manifest":{
@@ -117,6 +119,10 @@ class ServerTests(unittest.TestCase):
         self.rt.model_gateway=FakeGateway()
         status, body=self.call("/api/ask","POST",{"query":"What is HG2?"},token=READ_TOKEN)
         self.assertEqual(status,200); self.assertEqual(body["answer"],"mock answer")
+        self.assertEqual(body["brain"]["status"], "PARTIAL")
+        self.assertEqual(body["brain"]["invoked_branches"], ["memory_knowledge", "research_synthesis"])
+        self.assertEqual([item["status"] for item in body["brain"]["branch_results"]], ["SUCCESS", "RESPONSE_ONLY"])
+        self.assertRegex(body["brain"]["plan_digest"], r"^[0-9a-f]{64}$")
         self.assertEqual(body["context_manifest"]["model_called"],False)
         self.assertIn("model.call.completed",[e["event_type"] for e in self.rt.store.replay()])
     def test_ask_without_provider_config_fails_closed(self):

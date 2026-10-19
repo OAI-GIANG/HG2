@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import uuid
 import json
 import math
 import os
@@ -21,6 +22,8 @@ from .memory import MemoryConflict, MemoryDenied, MemoryErrorBase, MemoryIdempot
 from .model_gateway import ModelGatewayError, ModelNotConfigured
 from .durable import DurableError
 from .phone_runtime import PhoneRuntime
+from .brain_orchestrator import BrainOrchestrator, BRANCH_CAPABILITIES
+from .contracts import BRAIN_REQUEST_V1, CAPABILITY_RESULT_V1, canonical_digest
 
 MAX_BODY = 256 * 1024
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
@@ -403,19 +406,77 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                 query = body.get("query")
                 if not isinstance(query, str) or not query.strip() or len(query) > 12000:
                     raise MemoryValidationError("query must contain 1..12000 characters")
-                context = self.server.runtime.memory.build_context(query, grants=grants, limit=10, max_chars=12000)
-                result = self.server.runtime.model_gateway.ask(query, context)
+                if not self.server.runtime.model_gateway.status().get("configured"):
+                    raise ModelNotConfigured("model gateway configuration missing")
+                request_id = "ask-" + uuid.uuid4().hex
+                correlation_id = "corr-" + uuid.uuid4().hex
+                source_revision = self.server.build_identity.get("source_manifest_sha256", "")
+                request = {"schema_version": BRAIN_REQUEST_V1, "request_id": request_id,
+                           "correlation_id": correlation_id, "goal": query,
+                           "constraints": {"required_capabilities": ["memory.search", "synthesis.propose"],
+                                           "max_branches": 2, "max_steps": 2, "deadline_seconds": 50.0,
+                                           "conflict_policy": "INDEPENDENT_OUTPUTS"},
+                           "source_revision": source_revision}
+                payloads = {}
+                evidence = {}
+                def capability_result(ctx, *, status, digest, error_code=None, evidence_refs=None):
+                    return {"schema_version": CAPABILITY_RESULT_V1,
+                            "request_id": ctx["request_id"], "correlation_id": ctx["correlation_id"],
+                            "status": status, "output_digest": digest, "error_code": error_code,
+                            "evidence_refs": [] if evidence_refs is None else evidence_refs,
+                            "source_revision": ctx["source_revision"]}
+                def memory_worker(ctx):
+                    context_value = self.server.runtime.memory.build_context(
+                        query, grants=grants, limit=10, max_chars=12000)
+                    digest = canonical_digest(context_value["manifest"])
+                    evidence[digest] = context_value["manifest"]
+                    payloads["context"] = context_value
+                    return capability_result(ctx, status="SUCCESS", digest=digest,
+                                             evidence_refs=["evidence:sha256:" + digest])
+                def synthesis_worker(ctx):
+                    context_value = payloads.get("context")
+                    if not isinstance(context_value, dict):
+                        return capability_result(ctx, status="BLOCKED", digest=None,
+                                                 error_code="AUTHORIZED_MEMORY_CONTEXT_UNAVAILABLE")
+                    result_value = self.server.runtime.model_gateway.ask(query, context_value)
+                    digest = canonical_digest(result_value["manifest"])
+                    payloads["result"] = result_value
+                    payloads["model_digest"] = digest
+                    # A provider response proves that text was returned, not that an external action was executed.
+                    return capability_result(ctx, status="RESPONSE_ONLY", digest=digest,
+                                             error_code="PROVIDER_RESPONSE_ONLY_NOT_EXECUTION_PROOF")
+                workers = {"memory_knowledge": memory_worker, "research_synthesis": synthesis_worker}
+                inventory = {"memory_knowledge": {"memory.search"},
+                             "research_synthesis": {"synthesis.propose"}}
+                brain_result = BrainOrchestrator().execute(
+                    request, available_capabilities=inventory, workers=workers,
+                    evidence_verifier=lambda ref: (isinstance(ref, str) and ref.startswith("evidence:sha256:")
+                        and ref[16:] in evidence and canonical_digest(evidence[ref[16:]]) == ref[16:]))
+                if brain_result["status"] not in {"PARTIAL", "SUCCESS"} or "result" not in payloads:
+                    self._send(503, {"ok": False, "error": {"code": "BRAIN_ORCHESTRATION_" + str(brain_result["status"])},
+                                     "brain": brain_result})
+                    return
+                context = payloads["context"]
+                result = payloads["result"]
                 manifest = result["manifest"]
                 audit = {"operation": "model_answer", "model": result.get("model"),
                          "query_sha256": manifest.get("query_sha256"),
                          "context_manifest_sha256": manifest.get("context_manifest_sha256"),
                          "request_sha256": manifest.get("request_sha256"),
                          "response_sha256": manifest.get("response_sha256"),
-                         "manifest_sha256": manifest.get("manifest_sha256")}
+                         "manifest_sha256": manifest.get("manifest_sha256"),
+                         "brain_status": brain_result["status"],
+                         "brain_plan_digest": brain_result.get("plan_digest"),
+                         "brain_request_id": request_id}
                 self.server.runtime.store.emit("model.call.completed", audit,
-                    correlation_id=context.get("query_id"), event_id="model-call:" + str(manifest.get("manifest_sha256")))
+                    correlation_id=correlation_id, event_id="model-call:" + str(manifest.get("manifest_sha256")))
                 self._send(200, {"ok": True, "answer": result["answer"], "model": result["model"],
-                                 "context_manifest": context["manifest"], "model_manifest": manifest})
+                                 "context_manifest": context["manifest"], "model_manifest": manifest,
+                                 "brain": {"request_id": request_id, "correlation_id": correlation_id,
+                                           "source_revision": source_revision, "status": brain_result["status"],
+                                           "plan_digest": brain_result.get("plan_digest"),
+                                           "invoked_branches": brain_result.get("invoked_branches", []),
+                                           "branch_results": brain_result.get("branch_results", [])}})
             except TimeoutError:
                 self.close_connection = True
                 self._send(408, {"ok": False, "error": {"code": "REQUEST_TIMEOUT"}}, headers={"Connection": "close"})

@@ -69,19 +69,25 @@ The new tests use synthetic worker adapters and a deterministic test evidence ve
 - production backend availability for any of the five domains;
 - persistence/replay of orchestration plans and results;
 - real authorization for external tools;
-- live HTTP/API integration or model-driven domain classification;
+- live external model-provider integration or model-driven domain classification;
 - end-to-end correctness on a deployed phone runtime;
-- human-independent review or signed artifact provenance.
+- production execution of the three unbound logical domains.
+
+## Runtime integration status after user-acceptance R2 follow-up
+
+`POST /api/ask` now calls the orchestrator with two real in-process adapters: the existing authorized-memory context builder and the configured model gateway. The route binds request/correlation IDs and the runtime source-manifest SHA, verifies the memory-context evidence reference, and includes the plan digest, invoked logical domains and typed branch results in the response and audit event. A local HTTP integration test exercises this path with the actual `PhoneRuntime`/`HGHTTPServer`, real local memory state and a deterministic fake model gateway. It proves the API-to-router-to-adapter-to-aggregate wiring without needing provider credentials.
+
+The answer branch is deliberately `RESPONSE_ONLY`; therefore the overall route reports `PARTIAL`, not `SUCCESS`. A generated answer is not proof that an external action was executed. Only `memory_knowledge` and `research_synthesis` are bound by this API path. The other three logical domains are not represented as operational merely because they exist in the registry.
 
 ## Release gates
 
-P0-F01 (real API/request-to-router-to-worker-to-result integration): OPEN until exact-runtime E2E test is added.
-P0-F02 (real conflict adjudication and terminal no-capability behavior): core semantics TESTED; production integration OPEN.
+P0-F01 (API/request-to-router-to-worker-to-result integration): local HTTP E2E wiring TESTED with deterministic fake gateway; live-provider and deployed-phone verification OPEN.
+P0-F02 (conflict adjudication and terminal no-capability behavior): core fail-closed semantics TESTED; production capability-registry absence and conflict adjudication across durable workers OPEN.
 P1 (durable task ledger and transactional dispatch binding): OPEN.
 P1 (trusted capability inventory and evidence root): OPEN.
 P1 (causal trace/span propagation): OPEN.
 P1 (extended outage/restore and Termux resource thresholds): OPEN.
-Independent reviewer: NOT OBTAINED.
+User acceptance: PENDING direct use of the integrated route on the intended runtime.
 Production, merge and deployment: NOT APPROVED by this candidate.
 
-This R2 candidate closes the architecture-design work product, but it does not declare the overall five-domain HG runtime or the P0 integration gate closed.
+This R2 candidate closes the architecture-design work product and establishes local API-to-router integration evidence; it does not declare all five logical domains operational or the overall P0 release gate closed.
