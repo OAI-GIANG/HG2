@@ -108,11 +108,15 @@ class ServerTests(unittest.TestCase):
     def test_ask_uses_authorized_context_and_audits_call(self):
         self.rt.memory.remember({"id":"ask-memory","type":"fact","title":"HG2","content":"single runtime","scope_id":"owner"},
             principal_id="test-owner",grants={"owner"},idempotency_key="ask-memory-create")
+        test_case = self
         class FakeGateway:
             def status(self):
                 return {"configured": True, "status": "CONFIGURED", "network_called": False}
             def ask(self, query, context):
                 assert context["manifest"]["model_called"] is False
+                event_types = [event["event_type"] for event in test_case.rt.store.replay()]
+                test_case.assertIn("model.call.started", event_types)
+                test_case.assertEqual(event_types[-1], "model.call.started")
                 return {"answer":"mock answer","model":"fake-model","manifest":{
                     "query_sha256":"a"*64,"context_manifest_sha256":context["manifest"]["manifest_sha256"],
                     "request_sha256":"b"*64,"response_sha256":"c"*64,"manifest_sha256":"d"*64}}
@@ -124,7 +128,45 @@ class ServerTests(unittest.TestCase):
         self.assertEqual([item["status"] for item in body["brain"]["branch_results"]], ["SUCCESS", "RESPONSE_ONLY"])
         self.assertRegex(body["brain"]["plan_digest"], r"^[0-9a-f]{64}$")
         self.assertEqual(body["context_manifest"]["model_called"],False)
-        self.assertIn("model.call.completed",[e["event_type"] for e in self.rt.store.replay()])
+        events = self.rt.store.replay()
+        event_types = [event["event_type"] for event in events]
+        self.assertIn("model.call.started", event_types)
+        self.assertIn("model.call.completed", event_types)
+        self.assertLess(event_types.index("model.call.started"), event_types.index("model.call.completed"))
+        start_event = next(event for event in events if event["event_type"] == "model.call.started")
+        self.assertEqual(start_event["payload"]["brain_request_id"], body["brain"]["request_id"])
+        self.assertNotIn("What is HG2?", json.dumps(start_event["payload"]))
+
+    def test_ask_fails_closed_when_precall_audit_write_fails(self):
+        self.rt.memory.remember({"id":"audit-fail-memory","type":"fact","title":"HG2","content":"single runtime","scope_id":"owner"},
+            principal_id="test-owner", grants={"owner"}, idempotency_key="audit-fail-memory-create")
+        class FakeGateway:
+            def __init__(self):
+                self.calls = 0
+            def status(self):
+                return {"configured": True, "status": "CONFIGURED", "network_called": False}
+            def ask(self, query, context):
+                self.calls += 1
+                return {"answer":"must not be reached","model":"fake-model","manifest":{
+                    "query_sha256":"a"*64,"context_manifest_sha256":context["manifest"]["manifest_sha256"],
+                    "request_sha256":"b"*64,"response_sha256":"c"*64,"manifest_sha256":"d"*64}}
+        gateway = FakeGateway()
+        self.rt.model_gateway = gateway
+        original_emit = self.rt.store.emit
+        def fail_start(event_type, payload, **kwargs):
+            if event_type == "model.call.started":
+                raise OSError("simulated audit storage failure")
+            return original_emit(event_type, payload, **kwargs)
+        with patch.object(self.rt.store, "emit", side_effect=fail_start):
+            status, body = self.call("/api/ask", "POST", {"query":"Do not call without an audit record"}, token=READ_TOKEN)
+        self.assertEqual(status, 503)
+        self.assertEqual(body["brain"]["status"], "BLOCKED")
+        self.assertEqual(body["brain"]["branch_results"][-1]["error_code"], "PRECALL_AUDIT_WRITE_FAILED")
+        self.assertEqual(gateway.calls, 0)
+        event_types = [event["event_type"] for event in self.rt.store.replay()]
+        self.assertNotIn("model.call.started", event_types)
+        self.assertNotIn("model.call.completed", event_types)
+
     def test_ask_without_provider_config_fails_closed(self):
         from hg.model_gateway import ModelGateway
         self.rt.model_gateway=ModelGateway(base_url="",api_key="",model="")

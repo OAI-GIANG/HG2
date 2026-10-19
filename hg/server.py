@@ -438,6 +438,23 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                     if not isinstance(context_value, dict):
                         return capability_result(ctx, status="BLOCKED", digest=None,
                                                  error_code="AUTHORIZED_MEMORY_CONTEXT_UNAVAILABLE")
+                    audit_start = {
+                        "operation": "model_answer",
+                        "query_sha256": hashlib.sha256(query.encode("utf-8")).hexdigest(),
+                        "context_manifest_sha256": context_value["manifest"].get("manifest_sha256"),
+                        "brain_plan_digest": ctx.get("plan_digest"),
+                        "brain_request_id": ctx["request_id"],
+                    }
+                    try:
+                        self.server.runtime.store.emit(
+                            "model.call.started", audit_start,
+                            correlation_id=correlation_id,
+                            event_id="model-call-start:" + ctx["request_id"],
+                        )
+                    except Exception:
+                        # Fail closed: do not contact the provider without a durable start record.
+                        return capability_result(ctx, status="BLOCKED", digest=None,
+                                                 error_code="PRECALL_AUDIT_WRITE_FAILED")
                     result_value = self.server.runtime.model_gateway.ask(query, context_value)
                     digest = canonical_digest(result_value["manifest"])
                     payloads["result"] = result_value

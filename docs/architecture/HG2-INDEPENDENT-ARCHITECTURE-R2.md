@@ -1,5 +1,7 @@
 # HG2 Independent Architecture — R2 Candidate
 
+> **Superseded scope reference:** the more complete central-brain design, independent critique, capability contracts, failure/test matrix, disposition decisions and external-research matrix are consolidated in [HG2-CENTRAL-BRAIN-MASTER-PLAN-R2.md](HG2-CENTRAL-BRAIN-MASTER-PLAN-R2.md) and its companion R2 documents. This candidate note remains as historical/runtime-integration evidence; its local test claims do not establish production readiness.
+
 Date: 2026-10-19
 Repository: OAI-GIANG/HG2 only
 Base: `hg-genesis` at `1dca305b4d6e9442e259442486efb5127cc0cb09`
