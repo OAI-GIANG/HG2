@@ -10,6 +10,7 @@ import os
 import re
 import socket
 import threading
+import unicodedata
 import time
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -488,15 +489,31 @@ class HGRequestHandler(BaseHTTPRequestHandler):
             # Re-read authorized records from the canonical event log, re-check per-record
             # checksums/ACLs, and recompute lexical selection independently of the worker output.
             visible = self.server.runtime.memory.list_active(grants=grants, limit=500)
-            terms = set(re.findall(r"[^\W_]+", query.casefold(), flags=re.UNICODE))
+            stop_words = {
+                "a", "an", "and", "are", "as", "at", "be", "by", "can", "do", "does",
+                "for", "from", "how", "i", "in", "is", "it", "me", "of", "on", "or",
+                "please", "tell", "that", "the", "this", "to", "was", "what", "when",
+                "where", "which", "who", "why", "with", "you", "your", "one", "s",
+            }
+
+            def normalized_terms(value):
+                folded = unicodedata.normalize("NFC", unicodedata.normalize("NFC", value).casefold())
+                return {term for term in re.findall(r"[^\W_]+", folded, flags=re.UNICODE)
+                        if term not in stop_words}
+
+            terms = normalized_terms(query)
+            if not terms:
+                return False
             matches = []
             for record in visible:
-                text = (str(record.get("title", "")) + " " + str(record.get("content", ""))).casefold()
-                words = set(re.findall(r"[^\W_]+", text, flags=re.UNICODE))
+                text = unicodedata.normalize("NFC", str(record.get("title", "")) + " " + str(record.get("content", "")))
+                words = normalized_terms(text)
                 overlap = terms & words
                 if not overlap:
                     continue
-                score = len(overlap) / max(1, len(terms))
+                score = len(overlap) / len(terms)
+                if score <= 0.5:
+                    continue
                 matches.append({**record, "score": round(score, 6)})
             matches.sort(key=lambda item: (-item["score"], item["id"]))
             matches = matches[:10]

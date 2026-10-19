@@ -1,0 +1,295 @@
+{
+  "schema_version": "hg.memory-recall-evaluation.v1",
+  "oracle_sha256": "65bf2dc5557e770ab388a368130d285b527d095eda85fcb7efa4627acb9f7061",
+  "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
+  "cases_total": 15,
+  "cases_passed": 15,
+  "cases_failed": 0,
+  "micro_precision": 1.0,
+  "micro_recall": 1.0,
+  "expected_retrieval_cases_pass": true,
+  "acl_isolation_pass": true,
+  "precision_gate_pass": true,
+  "recall_gate_pass": true,
+  "mrr_over_retrieved_relevant_cases": 1.0,
+  "unicode_composed_decomposed_same_results": true,
+  "restart_replay_same_record": true,
+  "acl_leakage_ids_observed": [],
+  "semantic_recall_claim": false,
+  "all_pass": true,
+  "cases": [
+    {
+      "id": "Q01",
+      "kind": "exact_terms",
+      "query": "OAI-GIANG HG2 execution repository",
+      "relevant_ids": [
+        "mem-project-canonical"
+      ],
+      "retrieved_ids": [
+        "mem-project-canonical"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "0b6e7f2d1d851771e3cf71cc04ff11385578a397c0d468501ca38fd5ac34078a",
+      "manifest_sha256": "65b6c23854e4a84f5516d41983ec0ccd5a047a763dbbce78caf0c7c115e88df5"
+    },
+    {
+      "id": "Q02",
+      "kind": "exact_terms",
+      "query": "P0-A StateStore event journal recovery",
+      "relevant_ids": [
+        "mem-state-recovery"
+      ],
+      "retrieved_ids": [
+        "mem-state-recovery"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "d9a9414304a04c3bbcfcad2f21e8812704608c02f3630159d0949378f4fb5542",
+      "manifest_sha256": "4e4701bcf31f91438ecfcd6399753f3e6bb4e966bc336368dbe65906d2152180"
+    },
+    {
+      "id": "Q03",
+      "kind": "exact_terms",
+      "query": "MP3 Vietnamese speech synthesis",
+      "relevant_ids": [
+        "mem-voice-vietnamese"
+      ],
+      "retrieved_ids": [
+        "mem-voice-vietnamese"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "a38563df33b641c5838878f171164c2c79318ef2d603586e2653ece274b4752b",
+      "manifest_sha256": "48190323a70b208ed9245351a58a7afa64238d379485580d74598127a05b4ef9"
+    },
+    {
+      "id": "Q04",
+      "kind": "exact_terms",
+      "query": "explicit scope grants memory retrieval",
+      "relevant_ids": [
+        "mem-authorization"
+      ],
+      "retrieved_ids": [
+        "mem-authorization"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "2f48754b54018fc2c0b2525af70b5715005af4791c44a8dc1a146c6593b3c9fc",
+      "manifest_sha256": "35bbe71d5c023da39d962eefa607e4e36cac599c59d8fef1b3cdf4ee005b73f3"
+    },
+    {
+      "id": "Q05",
+      "kind": "exact_terms",
+      "query": "trust labels verified provenance",
+      "relevant_ids": [
+        "mem-trust"
+      ],
+      "retrieved_ids": [
+        "mem-trust"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "5e7a011b91c59d1dc61d4bc233b203601de985d5aa96da87ff06e1646579ddc6",
+      "manifest_sha256": "bd383cf0752735da1250aa52ebe91811836ffc15c322c813c06830d17c1c08d4"
+    },
+    {
+      "id": "Q06",
+      "kind": "exact_terms",
+      "query": "gathering 18 November 2026",
+      "relevant_ids": [
+        "mem-event"
+      ],
+      "retrieved_ids": [
+        "mem-event"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "425fc4443f7d7bd3780c266a106dfa91b411bf45213e30c2b672eb5a98c4b189",
+      "manifest_sha256": "ed99fb4a5a778c5c0cb9f607365179ef7d91df4e368cfdc35ee2612fbc0e6f0e"
+    },
+    {
+      "id": "Q07",
+      "kind": "vietnamese_diacritics",
+      "query": "Cơ chế ghi nhớ phải truy hồi thông tin",
+      "relevant_ids": [
+        "mem-decomposed-vietnamese"
+      ],
+      "retrieved_ids": [
+        "mem-decomposed-vietnamese"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "a93e4c2f34c0fc942d15e0dfffb2a1fd811b8191f69b4e0c45608e909909f3ad",
+      "manifest_sha256": "ba5bacae2214ae11cc4a32b786949d78ab09fa699eb77a42bdd22d5ef13c1cfc"
+    },
+    {
+      "id": "Q08",
+      "kind": "unicode_decomposed",
+      "query": "Cơ chế ghi nhớ phải truy hồi thông tin",
+      "relevant_ids": [
+        "mem-decomposed-vietnamese"
+      ],
+      "retrieved_ids": [
+        "mem-decomposed-vietnamese"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "9380ee9989546a54c76e0160a2faade040ccc5d8bd304c12ddcec4537e5bf091",
+      "manifest_sha256": "b9ac60b0196ac01b3a9162aeb853add8b1d1f1673cc29ff8da3ef091218d5383"
+    },
+    {
+      "id": "Q09",
+      "kind": "casefold",
+      "query": "oai-giang hg2 EXECUTION REPOSITORY",
+      "relevant_ids": [
+        "mem-project-canonical"
+      ],
+      "retrieved_ids": [
+        "mem-project-canonical"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "928b37e575b96eca0a15802721028b9b87bc4d7c01469280b1aa3358055f7bf0",
+      "manifest_sha256": "10c17d859b507c2fdb6c2c68550d127cfff6167beee00771dfd43f27d71dcb5b"
+    },
+    {
+      "id": "Q10",
+      "kind": "negative_false_positive",
+      "query": "gardening soil roses unrelated",
+      "relevant_ids": [],
+      "retrieved_ids": [],
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": null,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "5da806cac31776bece6538d30dbc0b65a8246a2dfff1ff0c6cf1baa6dd1957b4",
+      "manifest_sha256": "5b55d1425b21a6bd8e1c5de642248067a2458a5f2d8a99ad38c48de01a64147e"
+    },
+    {
+      "id": "Q11",
+      "kind": "acl_leakage_negative",
+      "query": "private confidential synthetic test note",
+      "relevant_ids": [],
+      "retrieved_ids": [],
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": null,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "8ee23543e902f6c2c24171fdf23bef70c73ce86a948b575dce9f1eec31ea173a",
+      "manifest_sha256": "cceda7a7fec9f35f62d1c5ba101091723b2c4b88e7e8ab9d2ac4bc7b838dd462"
+    },
+    {
+      "id": "Q12",
+      "kind": "acl_granted",
+      "query": "confidential synthetic test note",
+      "relevant_ids": [
+        "mem-scope-private"
+      ],
+      "retrieved_ids": [
+        "mem-scope-private"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "f4667d05230af69278d841ad940b0c155b78d8602f15c8efa48491222bb5bc83",
+      "manifest_sha256": "1c84f68088cb605491320ad72f50348e5929ace39ff64530b3515a071ce06792"
+    },
+    {
+      "id": "Q13",
+      "kind": "paraphrase_partial_overlap",
+      "query": "community event",
+      "relevant_ids": [
+        "mem-event"
+      ],
+      "retrieved_ids": [
+        "mem-event"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "107a291e800142431002f8aa1ba798e45c80b71dbfa490225593e21db4e9963f",
+      "manifest_sha256": "4e2aac775ccee40811a9226991f636c8094db2ffcac063e90656e0bb18f02f5c"
+    },
+    {
+      "id": "Q14",
+      "kind": "natural_language_paraphrase",
+      "query": "what is the one approved execution repository?",
+      "relevant_ids": [
+        "mem-project-canonical"
+      ],
+      "retrieved_ids": [
+        "mem-project-canonical"
+      ],
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": 1,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "caed406a9836d5f8edce17895cb9b21c656cd14e947d55a4e6455dd9bc39ed4b",
+      "manifest_sha256": "9b01ef7a3e9363aa3e67792955e5631f75670dcd3a4241221525b265d000c57f"
+    },
+    {
+      "id": "Q15",
+      "kind": "no_match",
+      "query": "unrelated completely absent xyz qqq",
+      "relevant_ids": [],
+      "retrieved_ids": [],
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "first_relevant_rank": null,
+      "forbidden_ids": [],
+      "case_pass": true,
+      "query_id": "8237f97e53e5a3aa5a0102252fe603410acc66d02694117538ad1eb2f835157b",
+      "manifest_sha256": "d0c1b7737121fe18a6d6a67c6da9c133ebd1b7260d161362ad73049f9851eb7f"
+    }
+  ]
+}

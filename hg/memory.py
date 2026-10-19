@@ -9,6 +9,7 @@ import hashlib
 import json
 import re
 import threading
+import unicodedata
 from typing import Any
 
 from .history import StateStore, canonical
@@ -197,17 +198,39 @@ class MemoryStore:
             raise MemoryValidationError("query must contain 1..4000 characters")
         if not isinstance(limit, int) or not 1 <= limit <= 50:
             raise MemoryValidationError("limit must be 1..50")
-        terms = set(re.findall(r"[^\W_]+", query.casefold(), flags=re.UNICODE))
+        # NFC around casefold makes canonically equivalent Vietnamese forms match.
+        # This is lexical retrieval; it does not claim semantic paraphrase support.
+        stop_words = {
+            "a", "an", "and", "are", "as", "at", "be", "by", "can", "do", "does",
+            "for", "from", "how", "i", "in", "is", "it", "me", "of", "on", "or",
+            "please", "tell", "that", "the", "this", "to", "was", "what", "when",
+            "where", "which", "who", "why", "with", "you", "your", "one", "s",
+        }
+
+        def tokens(value: str) -> set[str]:
+            folded = unicodedata.normalize("NFC", unicodedata.normalize("NFC", value).casefold())
+            return {term for term in re.findall(r"[^\W_]+", folded, flags=re.UNICODE)
+                    if term not in stop_words}
+
+        terms = tokens(query)
+        if not terms:
+            raise MemoryValidationError("query must contain at least one searchable token")
         visible = self.list_active(grants=grants, limit=500)
         matches = []
         for rec in visible:
-            text = (str(rec.get("title", "")) + " " + str(rec.get("content", ""))).casefold()
-            words = set(re.findall(r"[^\W_]+", text, flags=re.UNICODE))
+            text = unicodedata.normalize("NFC", str(rec.get("title", "")) + " " + str(rec.get("content", "")))
+            words = tokens(text)
             overlap = terms & words
             if not overlap:
                 continue
-            score = len(overlap) / max(1, len(terms))
-            matches.append({**rec, "score": round(score, 6)})
+            score = len(overlap) / len(terms)
+            # Minimum overlap threshold suppresses records matching only incidental terms.
+            if score <= 0.5:
+                continue
+            matches.append({**rec, "score": round(score, 6),
+                            "retrieval_method": "unicode_normalized_lexical_overlap",
+                            "query_term_coverage": round(score, 6),
+                            "matched_terms": sorted(overlap)})
         matches.sort(key=lambda x: (-x["score"], x["id"]))
         matches = matches[:limit]
         query_id = _sha({"query": query, "state_head": self.store.audit_export()["head_hash"]})

@@ -51,6 +51,22 @@ class MemoryTests(unittest.TestCase):
         self.assertTrue(context["context"][0]["content_is_untrusted_data"])
         self.assertFalse(context["manifest"]["model_called"])
         self.assertEqual(len(context["manifest"]["manifest_sha256"]), 64)
+    def test_retrieval_matches_composed_and_decomposed_vietnamese(self):
+        import unicodedata
+        rec = {"id":"vn-memory", "type":"fact", "title":"Dữ liệu tiếng Việt",
+               "content":"Cơ chế ghi nhớ phải truy hồi thông tin", "scope_id":"owner"}
+        self.mem.remember(rec, principal_id="p", grants=self.grants, idempotency_key="vn-k1")
+        composed = self.mem.retrieve("Cơ chế ghi nhớ phải truy hồi thông tin", grants=self.grants)
+        decomposed = self.mem.retrieve(unicodedata.normalize("NFD", "Cơ chế ghi nhớ phải truy hồi thông tin"), grants=self.grants)
+        self.assertEqual([x["id"] for x in composed["matches"]], [x["id"] for x in decomposed["matches"]])
+        self.assertEqual(composed["matches"][0]["retrieval_method"], "unicode_normalized_lexical_overlap")
+
+    def test_retrieval_empty_or_punctuation_only_query_fails_closed(self):
+        from hg.memory import MemoryValidationError
+        for query in ("", "   ", "?!—..."):
+            with self.subTest(query=query), self.assertRaises(MemoryValidationError):
+                self.mem.retrieve(query, grants=self.grants)
+
     def test_history_integrity_covers_memory_mutation(self):
         self.mem.remember(self.rec, principal_id="p", grants=self.grants, idempotency_key="k1")
         self.assertTrue(self.state.verify()["ok"])
