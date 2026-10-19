@@ -1,0 +1,4 @@
+bc4c0bdcea6e0c4730b815ae1aeb0e035ef4567965b6cb812800010c41fa26d0  tools/voice/hg_voice/text_stress.py
+0a2846e682363df90dc51f8a0965bcd1fba4a4f79dd00d9ef31e09a26888a16f  tools/voice/tests/test_text_stress.py
+bdf9947da94ee1cb053ff1f5a84fbbeea6ce93abae1b76b61d8f54ad2a807e58  evidence/HG2-VOICE-TEXT-STRESS-20261018/report.json
+22c4b8d14c56d9ac387c19e949b58799380d899df5b706bab043cfd79bbc3b97  evidence/HG2-VOICE-TEXT-STRESS-20261018/synthetic-pairs.jsonl

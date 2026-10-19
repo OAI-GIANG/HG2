@@ -1,0 +1,98 @@
+{
+  "repository": "OAI-GIANG/HG2",
+  "target": "stt/hg2-voice-tools-design-20261018",
+  "base_head": "09be7a6154f2f4ddbb488d39903a7b7304ab4546",
+  "source": "stt/hg2-unification-p0-20261016",
+  "integration": "Ported CTI benchmark V2 experiment harness, guard policy and implementation, guard/V2 harness tests, and V2/V2.1/V2.2 protocol and remediation documents. V1 and its existing tests were unchanged.",
+  "ported_files": [
+    {
+      "path": "benchmarks/hg_cti_v2/README.md",
+      "source_sha256": "8432a051a2820d77d4d8c34c1312d66a51a9ad4792811ac2b3781fc76709d7cb",
+      "local_sha256": "8432a051a2820d77d4d8c34c1312d66a51a9ad4792811ac2b3781fc76709d7cb",
+      "identical_to_source": true
+    },
+    {
+      "path": "benchmarks/hg_cti_v2/run_benchmark.py",
+      "source_sha256": "b00b4005f4c4171b50340825c5987715776730d3a81d938cafb59f98190010dd",
+      "local_sha256": "b00b4005f4c4171b50340825c5987715776730d3a81d938cafb59f98190010dd",
+      "identical_to_source": true
+    },
+    {
+      "path": "benchmarks/hg_cti_v2/analyze_scores.py",
+      "source_sha256": "c348e57cd2d42b294142edc143c0606bd62dabf3d0258ed9ed4a87c0da730fa7",
+      "local_sha256": "c348e57cd2d42b294142edc143c0606bd62dabf3d0258ed9ed4a87c0da730fa7",
+      "identical_to_source": true
+    },
+    {
+      "path": "benchmarks/hg_cti_v2/guard_policy.json",
+      "source_sha256": "a9529858ecf4fe583c36c4b174247ed549297bd8a44eecf33f7874207f81862e",
+      "local_sha256": "a9529858ecf4fe583c36c4b174247ed549297bd8a44eecf33f7874207f81862e",
+      "identical_to_source": true
+    },
+    {
+      "path": "hg/cti_guards.py",
+      "source_sha256": "4a863d0390fc7ad7022f9ea0a133dafa5bbff9d072cc6a3225c7512f8eb48aeb",
+      "local_sha256": "4a863d0390fc7ad7022f9ea0a133dafa5bbff9d072cc6a3225c7512f8eb48aeb",
+      "identical_to_source": true
+    },
+    {
+      "path": "tests/test_hg_cti_guards.py",
+      "source_sha256": "a89f59d8345bcd9f9a38b0009218fc846d71d9d8b11407241a80cb3a7b86daea",
+      "local_sha256": "a89f59d8345bcd9f9a38b0009218fc846d71d9d8b11407241a80cb3a7b86daea",
+      "identical_to_source": true
+    },
+    {
+      "path": "tests/test_hg_cti_v2_harness.py",
+      "source_sha256": "dc1da84b63494fff168bbff026c0fe64278daf832529cd09047ab484e86684a8",
+      "local_sha256": "dc1da84b63494fff168bbff026c0fe64278daf832529cd09047ab484e86684a8",
+      "identical_to_source": true
+    },
+    {
+      "path": "docs/HG_CTI_BENCHMARK_PROTOCOL_V2.md",
+      "source_sha256": "64f8364c470e0af0b43db92bcb85bbc46beb1d26413bdd9ae7a1fb573cf016a8",
+      "local_sha256": "64f8364c470e0af0b43db92bcb85bbc46beb1d26413bdd9ae7a1fb573cf016a8",
+      "identical_to_source": true
+    },
+    {
+      "path": "docs/HG_CTI_BENCHMARK_PROTOCOL_V2_1.md",
+      "source_sha256": "8d31a34fe5e6a12f3cf2baa1a896b6175e5828a69ecae0a9f0365c72b96aad47",
+      "local_sha256": "8d31a34fe5e6a12f3cf2baa1a896b6175e5828a69ecae0a9f0365c72b96aad47",
+      "identical_to_source": true
+    },
+    {
+      "path": "docs/HG_CTI_BENCHMARK_PROTOCOL_V2_2.md",
+      "source_sha256": "34d7ef99ae1698189472d6df8d7d561f99a78abd6f8f6e69b9233ce5a08756f3",
+      "local_sha256": "34d7ef99ae1698189472d6df8d7d561f99a78abd6f8f6e69b9233ce5a08756f3",
+      "identical_to_source": true
+    },
+    {
+      "path": "docs/HG_CTI_EXTERNAL_RESEARCH_REGISTER.md",
+      "source_sha256": "2eced705030e7303754f9c775493598cb66107f978aa6dc8b217e5d167b23076",
+      "local_sha256": "2eced705030e7303754f9c775493598cb66107f978aa6dc8b217e5d167b23076",
+      "identical_to_source": true
+    },
+    {
+      "path": "docs/HG_CTI_REMEDIATION_DESIGN.md",
+      "source_sha256": "4de90342903b277b8439177adbbf957c9d58e42d3849688c040a14233becbbb2",
+      "local_sha256": "4de90342903b277b8439177adbbf957c9d58e42d3849688c040a14233becbbb2",
+      "identical_to_source": true
+    },
+    {
+      "path": "docs/HG_CTI_REMEDIATION_TEST_MATRIX.md",
+      "source_sha256": "7680af779f86638eb696d5f980aac6d9c093eb49b82159d737e2c1ed7f6c8336",
+      "local_sha256": "7680af779f86638eb696d5f980aac6d9c093eb49b82159d737e2c1ed7f6c8336",
+      "identical_to_source": true
+    }
+  ],
+  "tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "count": 328,
+    "result": "PASS",
+    "log_sha256": "c9069f63b412c4d4ca63a6c139197c3821b9e20e683384fa36521130ef8b8c35"
+  },
+  "json_parse": "PASS for 13 CTI V2 JSON files",
+  "diff_check": "PASS",
+  "source_ref_deleted": false,
+  "remote_ref_count_before_push": 25,
+  "benchmark_execution": "Not claimed as a fresh benchmark run; the test suite validates harness contracts and fixtures."
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "hg.native-improvement-plan.v1",
+  "classification": "SYNTHETIC_ENGINEERING_PLAN",
+  "criteria_version": "1.0.0",
+  "criteria_status": "AUTHORED_NOT_YET_PRODUCTION_VALIDATED",
+  "cp0_historical_equivalence": "NOT_CLAIMED",
+  "experiment_policy": {
+    "baseline_must_be_pinned": true,
+    "candidate_must_be_pinned": true,
+    "dataset_and_oracle_predeclared": true,
+    "same_environment_for_paired_runs": true,
+    "report_negative_results": true,
+    "preserve_critical_regressions": true,
+    "no_claim_of_causality_from_unmatched_results": true,
+    "promotion_requires_separate_authorized_gate": true
+  },
+  "execution_status": "NOT_RUN",
+  "hypotheses": [
+    {"id":"EXP-01","target":"HNI-01","hypothesis":"Explicit goal/constraint extraction will reduce hard-constraint misses.","metric":"hard_constraint_miss_rate","design":"matched fixed prompts; blinded predeclared constraint oracle","minimum_sample_size":100,"baseline":"NOT_RUN","candidate":"NOT_RUN","acceptance":"candidate miss rate <= baseline and no C0 regression"},
+    {"id":"EXP-02","target":"HNI-02","hypothesis":"Claim-to-evidence mapping will reduce unsupported factual claims.","metric":"unsupported_material_claim_rate","design":"same source pack, frozen claim annotation rules, blinded adjudication","minimum_sample_size":100,"baseline":"NOT_RUN","candidate":"NOT_RUN","acceptance":"strict reduction without loss of required material coverage"},
+    {"id":"EXP-03","target":"HNI-06","hypothesis":"Counterexample prompting will uncover more seeded critical failures.","metric":"critical_counterexample_recall","design":"held-out red-team cases with versioned expected predicates","minimum_sample_size":50,"baseline":"NOT_RUN","candidate":"NOT_RUN","acceptance":"higher recall and no fabricated evidence increase"},
+    {"id":"EXP-04","target":"HNI-07","hypothesis":"A predeclared feasibility-first rubric will reduce infeasible top-ranked options.","metric":"infeasible_top_rank_rate","design":"fixed design tasks; compute arithmetic deterministically; blinded relevance review","minimum_sample_size":50,"baseline":"NOT_RUN","candidate":"NOT_RUN","acceptance":"zero hard-disqualified option ranked first"},
+    {"id":"EXP-05","target":"HNI-09","hypothesis":"Versioned feedback with held-out regressions will produce measurable improvement rather than anecdotal change.","metric":"paired_pass_delta","design":"matched cases; pin both SHAs/config/oracle; do not tune on held-out set","minimum_sample_size":100,"baseline":"NOT_RUN","candidate":"NOT_RUN","acceptance":"positive predeclared gain and zero C0 regression"},
+    {"id":"EXP-06","target":"HNI-10","hypothesis":"Pinned run identity will make unstable outputs detectable and attributable.","metric":"repeatability_rate","design":"10 repetitions on identical pinned fixtures, record all raw outputs and environment","minimum_sample_size":10,"baseline":"NOT_RUN","candidate":"NOT_RUN","acceptance":"meet a tolerance fixed before observing results"},
+    {"id":"EXP-07","target":"HNI-11","hypothesis":"A tool action ledger plus before/after snapshot will detect unauthorized side effects.","metric":"unauthorized_effect_detection_rate","design":"synthetic adapters with allowed/denied actions and idempotency retries","minimum_sample_size":50,"baseline":"NOT_RUN","candidate":"NOT_RUN","acceptance":"all forbidden actions denied and duplicate effect count remains zero"},
+    {"id":"EXP-08","target":"HNI-13","hypothesis":"Restart/corruption tests will expose recovery paths that can otherwise overstate success.","metric":"unsafe_success_after_fault_count","design":"process restart, concurrent retry, truncated journal and DB fault injection; no device power loss in this experiment","minimum_sample_size":30,"baseline":"NOT_RUN","candidate":"NOT_RUN","acceptance":"zero success promotion when state is unresolved"}
+  ],
+  "note": "This file is an experiment plan only. Values are sample-size targets and predeclared policies, not observed outcomes or proof that the hypotheses are true. All experiments remain NOT_RUN until raw evidence is captured."
+}

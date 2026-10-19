@@ -1,0 +1,17 @@
+{
+  "source_branch": "stt/hg-agentic-intelligence-g1-20261017",
+  "source_sha": "78f1149c9aa4d3f7920c33c19a8954db0927ddb4",
+  "target_branch": "stt/hg2-voice-tools-design-20261018",
+  "target_merge_commit": "24e91b0e72dbb8b5802894954133ed11756b6d8c",
+  "merge_parent_check": "TO_BE_RECHECKED_BEFORE_REF_PRUNE",
+  "source_path_count": 68,
+  "test_command": "python -m unittest tests.test_agentic_integration tests.test_agentic_primitives tests.test_durable_transactions tests.test_hni30_evaluator tests.test_model_provider tests.test_native_benchmark tests.test_native_criteria tests.test_native_improvement_plan tests.test_native_oracle tests.test_task_contract -v",
+  "test_count": 174,
+  "test_result": "OK",
+  "test_log_path": "evidence/HG2-AGENTIC-INTELLIGENCE-MERGE-TESTS-20261019.log",
+  "test_log_sha256": "d996e63feadfbfe4362e995d46c21850655685da631cb9053270e8b0ee97c3be",
+  "source_commit_preservation": "Merge completed with source branch as second parent; verify ancestry before deleting branch ref.",
+  "untracked_preexisting_files_preserved": [
+    "docs/review/"
+  ]
+}

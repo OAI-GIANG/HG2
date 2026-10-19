@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task": "HG2 Voice Tools Vietnamese WER/CER acceptance preparation",
+  "status": "PROTOCOL_READY_DATASET_BLOCKED",
+  "ci_commit": "99256c1a48d6d0a7ba127b17a162e0edc6375651",
+  "ci_provider": "CircleCI",
+  "ci_status": "success",
+  "approved_vietnamese_corpus_present": false,
+  "wer_cer_acceptance_executed": false,
+  "personal_recordings_used": false,
+  "microphone_used": false,
+  "model_downloaded": false,
+  "network_fallback": false,
+  "runtime_integration": false,
+  "merge_or_deploy": false,
+  "release_status": "NOT_RELEASED",
+  "blocker": "APPROVED_VIETNAMESE_CORPUS_NOT_PROVIDED"
+}

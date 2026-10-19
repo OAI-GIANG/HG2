@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "stt/hg2-voice-tools-design-20261018",
+  "previous_stage_c_commit": "99256c1a48d6d0a7ba127b17a162e0edc6375651",
+  "runtime": "Termux / Android ARM64",
+  "python": "3.14.6",
+  "repository_regression_tests": {"run": 26, "failures": 0, "errors": 0, "resource_warning_policy": "error"},
+  "voice_tools_tests": {"run": 23, "failures": 0, "errors": 0, "resource_warning_policy": "error"},
+  "metric_synthetic_smoke": {"utterances": 1, "wer": 0.0, "cer": 0.0, "status": "SCORED_NOT_ACCEPTANCE", "is_asr_quality_evidence": false},
+  "git_diff_check": "PASS",
+  "circleci_commit_99256c1a_status": "success",
+  "canonical_hg_genesis": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+  "approved_vietnamese_corpus_present": false,
+  "real_vietnamese_wer_cer_run": false,
+  "personal_recordings_used": false,
+  "microphone_used": false,
+  "model_downloaded": false,
+  "manifest_or_hg_runtime_changed": false,
+  "release_status": "NOT_RELEASED",
+  "disposition": "KEEP_DRAFT_DATASET_BLOCKED"
+}

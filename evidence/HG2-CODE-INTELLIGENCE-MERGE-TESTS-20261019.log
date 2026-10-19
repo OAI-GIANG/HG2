@@ -1,0 +1,22 @@
+test_builds_python_import_graph_and_hashes_without_source_text (tests.test_code_intelligence.CodeIntelligenceTests.test_builds_python_import_graph_and_hashes_without_source_text) ... ok
+test_changed_path_escape_is_rejected (tests.test_code_intelligence.CodeIntelligenceTests.test_changed_path_escape_is_rejected) ... ok
+test_dotfile_changed_path_is_not_mangled (tests.test_code_intelligence.CodeIntelligenceTests.test_dotfile_changed_path_is_not_mangled) ... ok
+test_dynamic_import_alias_marks_impact_incomplete (tests.test_code_intelligence.CodeIntelligenceTests.test_dynamic_import_alias_marks_impact_incomplete) ... ok
+test_dynamic_import_marks_impact_incomplete (tests.test_code_intelligence.CodeIntelligenceTests.test_dynamic_import_marks_impact_incomplete) ... ok
+test_file_count_limit_fails_without_partial_report (tests.test_code_intelligence.CodeIntelligenceTests.test_file_count_limit_fails_without_partial_report) ... ok
+test_impact_returns_known_reverse_dependents (tests.test_code_intelligence.CodeIntelligenceTests.test_impact_returns_known_reverse_dependents) ... ok
+test_indexing_does_not_execute_repository_code (tests.test_code_intelligence.CodeIntelligenceTests.test_indexing_does_not_execute_repository_code) ... ok
+test_missing_changed_path_is_unresolved (tests.test_code_intelligence.CodeIntelligenceTests.test_missing_changed_path_is_unresolved) ... ok
+test_non_python_source_marks_impact_incomplete_and_changes_snapshot (tests.test_code_intelligence.CodeIntelligenceTests.test_non_python_source_marks_impact_incomplete_and_changes_snapshot) ... ok
+test_oversize_python_file_is_disclosed (tests.test_code_intelligence.CodeIntelligenceTests.test_oversize_python_file_is_disclosed) ... ok
+test_reproducible_snapshot_and_staleness_detection (tests.test_code_intelligence.CodeIntelligenceTests.test_reproducible_snapshot_and_staleness_detection) ... ok
+test_secret_files_are_not_enumerated_or_hashed (tests.test_code_intelligence.CodeIntelligenceTests.test_secret_files_are_not_enumerated_or_hashed) ... ok
+test_source_revision_must_be_present_but_unknown_is_allowed (tests.test_code_intelligence.CodeIntelligenceTests.test_source_revision_must_be_present_but_unknown_is_allowed) ... ok
+test_symlinks_are_not_followed (tests.test_code_intelligence.CodeIntelligenceTests.test_symlinks_are_not_followed) ... ok
+test_syntax_error_is_disclosed_and_reduces_coverage (tests.test_code_intelligence.CodeIntelligenceTests.test_syntax_error_is_disclosed_and_reduces_coverage) ... ok
+test_total_byte_limit_fails_without_partial_report (tests.test_code_intelligence.CodeIntelligenceTests.test_total_byte_limit_fails_without_partial_report) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.034s
+
+OK

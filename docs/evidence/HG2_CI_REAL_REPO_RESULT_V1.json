@@ -1,0 +1,260 @@
+{
+  "analyzer_sha256": "bee7216245f01491c111d43e1c11efae131a0be5757e6f9e910b5e263eb92342",
+  "benchmark_id": "HG2-CI-REAL-REPO-GROUND-TRUTH-20261014-V1",
+  "candidate": {
+    "git_head": "8ba14093c2445012e0729665ae9d59db0320431a",
+    "git_tree": "4112792aabae54bb4342bc0f833c427c34aa9930",
+    "working_tree_status_before_run": ""
+  },
+  "cases": [
+    {
+      "archive_sha256": "c4e96b4921aeebcd2b590c2645017ae7c8873104db4d7f228197f89f94249306",
+      "case_id": "iniconfig-316fbfa",
+      "changed_path": "src/iniconfig/exceptions.py",
+      "command": [
+        "/data/data/com.termux/files/usr/bin/python",
+        "/data/data/com.termux/files/home/hg2-absorption-candidate-20261014/tools/hg_code_intelligence.py",
+        "--repo",
+        "/data/data/com.termux/files/usr/tmp/hg2-real-repo-benchmark-20261014/iniconfig",
+        "--revision",
+        "316fbfaf2752d89326e1e75b45cd070f5b5ace9a",
+        "--changed",
+        "src/iniconfig/exceptions.py",
+        "--output",
+        "/data/data/com.termux/files/usr/tmp/hg2-real-benchmark-xf5gwvzb/iniconfig-316fbfa.json"
+      ],
+      "commit": "316fbfaf2752d89326e1e75b45cd070f5b5ace9a",
+      "corpus_identity_checks": {
+        "archive_sha256": true,
+        "clean_worktree": true,
+        "head": true,
+        "tree": true
+      },
+      "coverage": {
+        "coverage_complete_for_all_repository_source": false,
+        "dynamic_import_sites": 0,
+        "files_seen": 16,
+        "python_files_parse_failed": 0,
+        "python_files_parsed": 5,
+        "python_files_total": 5,
+        "source_files_recognized": 10,
+        "unclassified_files_count": 6,
+        "unsupported_source_files": 5
+      },
+      "edge_fn": 0,
+      "edge_fp": 1,
+      "edge_tp": 3,
+      "expected_coverage_complete": false,
+      "expected_dependents": [
+        "src/iniconfig/__init__.py",
+        "src/iniconfig/_parse.py"
+      ],
+      "expected_edges": [
+        [
+          "src/iniconfig/__init__.py",
+          "src/iniconfig/_parse.py"
+        ],
+        [
+          "src/iniconfig/__init__.py",
+          "src/iniconfig/exceptions.py"
+        ],
+        [
+          "src/iniconfig/_parse.py",
+          "src/iniconfig/exceptions.py"
+        ]
+      ],
+      "expected_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "metrics": {
+        "all_expected_dependents_exact": true,
+        "all_expected_edges_exact": false,
+        "coverage_state_correct": true,
+        "dependent_precision": 1.0,
+        "dependent_recall": 1.0,
+        "edge_precision": 0.75,
+        "edge_recall": 1.0,
+        "impact_status_correct": true
+      },
+      "pass": false,
+      "predicted_dependents": [
+        "src/iniconfig/__init__.py",
+        "src/iniconfig/_parse.py"
+      ],
+      "predicted_edges": [
+        [
+          "src/iniconfig/__init__.py",
+          "src/iniconfig/__init__.py"
+        ],
+        [
+          "src/iniconfig/__init__.py",
+          "src/iniconfig/_parse.py"
+        ],
+        [
+          "src/iniconfig/__init__.py",
+          "src/iniconfig/exceptions.py"
+        ],
+        [
+          "src/iniconfig/_parse.py",
+          "src/iniconfig/exceptions.py"
+        ]
+      ],
+      "predicted_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "raw_report_sha256": "d722858d0dedcc9c2ea57cba8ca093d64f80bab671dd8343280b5ecaf72ae09b",
+      "repo_url": "https://github.com/pytest-dev/iniconfig",
+      "report_sha256": "9b17f13e742361442f2eaf1e5ab4e022b2eea802df6cb925076001d7e40c58f8",
+      "snapshot_sha256": "c6bdf83578c301204c95a731f9f8c894508c79d0a1f282c550cdb9319a2ddc73",
+      "tree": "aa54aaecaf1b811eb342ec0ca68ce3b71756d26c"
+    },
+    {
+      "archive_sha256": "52b135977f2d7a94058232d53466674d3e8b0163326c9cd67bde61d82a995110",
+      "case_id": "tomli-43a86ad",
+      "changed_path": "src/tomli/_re.py",
+      "command": [
+        "/data/data/com.termux/files/usr/bin/python",
+        "/data/data/com.termux/files/home/hg2-absorption-candidate-20261014/tools/hg_code_intelligence.py",
+        "--repo",
+        "/data/data/com.termux/files/usr/tmp/hg2-real-repo-benchmark-20261014/tomli",
+        "--revision",
+        "43a86ade8b795c6ef9b4ec53372a607cd1ed426f",
+        "--changed",
+        "src/tomli/_re.py",
+        "--output",
+        "/data/data/com.termux/files/usr/tmp/hg2-real-benchmark-xf5gwvzb/tomli-43a86ad.json"
+      ],
+      "commit": "43a86ade8b795c6ef9b4ec53372a607cd1ed426f",
+      "corpus_identity_checks": {
+        "archive_sha256": true,
+        "clean_worktree": true,
+        "head": true,
+        "tree": true
+      },
+      "coverage": {
+        "coverage_complete_for_all_repository_source": false,
+        "dynamic_import_sites": 1,
+        "files_seen": 1010,
+        "python_files_parse_failed": 0,
+        "python_files_parsed": 14,
+        "python_files_total": 14,
+        "source_files_recognized": 996,
+        "unclassified_files_count": 14,
+        "unsupported_source_files": 982
+      },
+      "edge_fn": 0,
+      "edge_fp": 5,
+      "edge_tp": 3,
+      "expected_coverage_complete": false,
+      "expected_dependents": [
+        "src/tomli/__init__.py",
+        "src/tomli/_parser.py"
+      ],
+      "expected_edges": [
+        [
+          "src/tomli/__init__.py",
+          "src/tomli/_parser.py"
+        ],
+        [
+          "src/tomli/_parser.py",
+          "src/tomli/_re.py"
+        ],
+        [
+          "tests/test_data.py",
+          "tests/burntsushi.py"
+        ]
+      ],
+      "expected_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "metrics": {
+        "all_expected_dependents_exact": true,
+        "all_expected_edges_exact": false,
+        "coverage_state_correct": true,
+        "dependent_precision": 1.0,
+        "dependent_recall": 1.0,
+        "edge_precision": 0.375,
+        "edge_recall": 1.0,
+        "impact_status_correct": true
+      },
+      "pass": false,
+      "predicted_dependents": [
+        "src/tomli/__init__.py",
+        "src/tomli/_parser.py"
+      ],
+      "predicted_edges": [
+        [
+          "src/tomli/__init__.py",
+          "src/tomli/_parser.py"
+        ],
+        [
+          "src/tomli/_parser.py",
+          "src/tomli/_re.py"
+        ],
+        [
+          "src/tomli/_parser.py",
+          "src/tomli/_types.py"
+        ],
+        [
+          "src/tomli/_re.py",
+          "src/tomli/_types.py"
+        ],
+        [
+          "tests/test_data.py",
+          "tests/__init__.py"
+        ],
+        [
+          "tests/test_data.py",
+          "tests/burntsushi.py"
+        ],
+        [
+          "tests/test_error.py",
+          "tests/__init__.py"
+        ],
+        [
+          "tests/test_misc.py",
+          "tests/__init__.py"
+        ]
+      ],
+      "predicted_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE",
+      "raw_report_sha256": "4c73de4c93ca3b4c3b5de11aacb48fde9eac7f4d7f9afd15c99a29f16cb1db47",
+      "repo_url": "https://github.com/hukkin/tomli",
+      "report_sha256": "c2dbdfc55e1eef57c0afcee0e09c8c79df95d9b7ce3e45f41189e651abdc43fe",
+      "snapshot_sha256": "1688e753b198a506e950289f7eaa126382af675327e77fa60e2dfe2dced460dc",
+      "tree": "45107c0973cfef7355190d03de3dd44a7a02fac0"
+    }
+  ],
+  "command": "PYTHONDONTWRITEBYTECODE=1 python tools/run_real_repo_benchmark.py",
+  "completed_utc": "2026-10-14T08:41:45.377490+00:00",
+  "environment": {
+    "machine": "aarch64",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
+    "system": "Android"
+  },
+  "limitations": [
+    "Static import edges are not runtime call/data-flow edges.",
+    "Exact-name module resolution does not model src-layout package installation; unresolved imports are not counted as local edges.",
+    "Unsupported source/config files and unclassified files intentionally make repository-wide coverage incomplete.",
+    "Passing two repositories does not establish correctness for all repositories or languages."
+  ],
+  "method": "Run analyzer CLI on pinned clean public repositories; compare exact resolved local import-edge set, reverse-dependent set for preregistered changed path, repository coverage state, and impact status. Repository code is parsed as data and never executed.",
+  "registration_sha256": "fa8739c0a6664acad1cfa6af3f66fd8d394e84c18c8911c10a956147eaee1606",
+  "runner_sha256": "7ae9f21ce51ef4b11ff80b6a4e7db67be032618260e2fa888d00ede0835f6933",
+  "summary": {
+    "benchmark_pass": false,
+    "case_count": 2,
+    "case_fail_count": 2,
+    "case_pass_count": 0,
+    "coverage_state_accuracy": 1.0,
+    "impact_status_accuracy": 1.0,
+    "overall_dependent_precision": 1.0,
+    "overall_dependent_recall": 1.0,
+    "overall_edge_precision": 0.5,
+    "overall_edge_recall": 1.0,
+    "thresholds_met": {
+      "all_cases_pass": false,
+      "coverage_state_accuracy_min": true,
+      "impact_status_accuracy_min": true,
+      "minimum_cases": true,
+      "overall_dependent_precision_min": true,
+      "overall_dependent_recall_min": true,
+      "overall_edge_precision_min": false,
+      "overall_edge_recall_min": true
+    }
+  }
+}

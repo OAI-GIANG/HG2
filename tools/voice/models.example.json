@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "engines": [
+    {
+      "id": "whisper.cpp",
+      "task": "stt",
+      "processing": "LOCAL",
+      "status": "candidate",
+      "artifact": null,
+      "sha256": null
+    },
+    {
+      "id": "espeak-ng",
+      "task": "tts",
+      "processing": "LOCAL",
+      "status": "available-if-installed",
+      "artifact": null,
+      "sha256": null
+    },
+    {
+      "id": "vieneu-nano",
+      "task": "tts",
+      "processing": "LOCAL",
+      "status": "blocked-unverified",
+      "artifact": null,
+      "sha256": null
+    },
+    {
+      "id": "termux-system-tts",
+      "task": "tts",
+      "processing": "DEVICE_SYSTEM_OR_UNKNOWN",
+      "status": "optional-unverified",
+      "artifact": null,
+      "sha256": null
+    }
+  ]
+}

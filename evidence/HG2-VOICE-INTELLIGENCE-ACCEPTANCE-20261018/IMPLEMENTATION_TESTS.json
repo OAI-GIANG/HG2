@@ -1,0 +1,37 @@
+{
+  "branch": "stt/hg2-voice-tools-design-20261018",
+  "base_commit_expected": "9d83a113ccdf1aeda656e494593fa55b9078c803",
+  "scope": "metrics and JSONL evaluator hardening only; VEA V1 and Corpus Admission preserved",
+  "voice_tools_tests": {
+    "command": "PYTHONPATH=tools/voice:tools/voice/tests python -W error::ResourceWarning -m unittest discover -s tools/voice/tests -v",
+    "passed": 46,
+    "failed": 0,
+    "runtime_seconds": 0.052,
+    "success": true,
+    "log_sha256": "2a0fa113377f1fadc458f1ee288b3b5907eed947e590caa4910175876e167be0"
+  },
+  "repository_regression_tests": {
+    "command": "python -W error::ResourceWarning -m unittest discover -s tests -v",
+    "passed": 26,
+    "failed": 0,
+    "runtime_seconds": 3.652,
+    "success": true,
+    "log_sha256": "f3c92d2b5e97b971b3a76acb9998e3f79498dea0deae0e383bc3e610f4a192a4"
+  },
+  "compileall": "PASS",
+  "git_diff_check": "PASS",
+  "new_edge_cases": [
+    "empty reference and hypothesis return undefined per-pair WER/CER",
+    "empty sequence edit distance",
+    "composed and decomposed Unicode equivalence",
+    "malformed JSON reports line number and fails closed",
+    "invalid UTF-8 fails closed",
+    "missing/non-string/wrong-shape JSONL rows fail closed",
+    "SHA-256 of exact raw JSONL bytes emitted in result"
+  ],
+  "synthetic_run_evidence": "SYNTHETIC_RUN.json",
+  "vietnamese_wer_cer_benchmark": "NOT_RUN_BLOCKED_NO_APPROVED_CORPUS",
+  "manifest_or_core_runtime_changed": false,
+  "merge_or_deploy": false,
+  "release_status": "NOT_RELEASED"
+}

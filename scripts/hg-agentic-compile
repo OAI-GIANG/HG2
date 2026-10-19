@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""Read a natural-language request from stdin and return a validated, non-executable plan."""
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+# Allow running directly from an HG2 checkout without installing HG as a package.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from hg.agentic_intelligence import compile_request
+from hg.model_provider import ModelProviderError
+from hg.task_compiler import CompileError
+from hg.task_contract import MAX_CONTRACT_BYTES
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Compile a natural-language request into an HG Task Contract v1 draft. Never executes tasks."
+    )
+    parser.add_argument(
+        "--config",
+        default=None,
+        help="Optional mode-0600 provider config path; default is ~/.config/hg/secret.env",
+    )
+    args = parser.parse_args()
+    request_text = sys.stdin.read(MAX_CONTRACT_BYTES + 1)
+    if len(request_text.encode("utf-8", errors="replace")) > MAX_CONTRACT_BYTES:
+        print(json.dumps({"status": "BLOCKED", "code": "TASK_REQUEST_TOO_LARGE"}))
+        return 2
+    try:
+        result = compile_request(request_text, config_path=args.config)
+    except (CompileError, ModelProviderError) as exc:
+        # Stable reason code only. Do not echo request content, URL, provider body or secret data.
+        code = getattr(exc, "code", "TASK_COMPILATION_FAILED")
+        detail = getattr(exc, "detail", "")
+        output = {"status": "BLOCKED", "code": code}
+        if detail and isinstance(detail, str) and detail.isascii() and len(detail) <= 96:
+            output["detail_code"] = detail
+        print(json.dumps(output, sort_keys=True))
+        return 2
+    print(json.dumps(result, ensure_ascii=False, sort_keys=True, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

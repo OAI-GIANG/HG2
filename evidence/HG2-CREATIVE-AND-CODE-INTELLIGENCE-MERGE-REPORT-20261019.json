@@ -1,0 +1,28 @@
+{
+  "target_branch": "stt/hg2-voice-tools-design-20261018",
+  "target_merge_commit": "98e8ac29e5ad646ec619e61d2b96de8f385dd86c",
+  "source_commits": {
+    "feature/hg-creative-assimilation-v1-20261013": "61480680a0b300be946e403bde2cb272dbbacc20",
+    "feature/hg2-code-intelligence-absorb-20261014": "9ebd4687b0ff1af7c0652907f787158ce3cadee3"
+  },
+  "path_counts": {
+    "creative_assimilation": 46,
+    "code_intelligence": 6
+  },
+  "test_evidence": [
+    {
+      "log": "evidence/HG2-CODE-INTELLIGENCE-MERGE-TESTS-20261019.log",
+      "sha256": "d556d6848c566e4709de31ad2b4ddfa00869d0868f4df33dddd4e74f9f9facdc",
+      "expected_test_count": 17,
+      "result": "OK"
+    },
+    {
+      "log": "evidence/HG2-CREATIVE-ASSIMILATION-MERGE-TESTS-20261019.log",
+      "sha256": "8cf6a46f900d017c9801992ca3eb4211e137185c5712fd0fafe97453cc0c1b5d",
+      "expected_test_count": 31,
+      "result": "OK"
+    }
+  ],
+  "prune_rule": "Do not delete source refs until fresh ancestry checks against this target succeed.",
+  "status": "MERGED_CODE_TESTS_RECHECKED"
+}

@@ -1,0 +1,18 @@
+{
+  "criteria_source_sha256": "37cd344933a8a9a3ebf1802b2756a52ecb2bcab9d02dcca8ce74807c3cad8b26",
+  "criterion_count": 30,
+  "critical_criteria": [
+    "HNI-20",
+    "HNI-22",
+    "HNI-23",
+    "HNI-24",
+    "HNI-26",
+    "HNI-27",
+    "HNI-29"
+  ],
+  "oracle_status": "DESIGN_CANDIDATE_NOT_APPROVED_NOT_RELEASED",
+  "oracle_version": "hni30.oracle.v1.0.0",
+  "runtime_approval": "NOT_APPROVED",
+  "runtime_execution": "NOT_RUN",
+  "valid": true
+}

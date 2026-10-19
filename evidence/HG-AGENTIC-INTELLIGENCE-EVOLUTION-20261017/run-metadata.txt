@@ -1,0 +1,13 @@
+candidate_commit=dff0eb0bd6a5a9b73facad25e9c800407e6ee98b
+candidate_branch=stt/hg-agentic-intelligence-g1-20261017
+canonical_base=9d83a113ccdf1aeda656e494593fa55b9078c803
+canonical_remote_head=9d83a113ccdf1aeda656e494593fa55b9078c803
+python=3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0
+platform=Android-16-aarch64-64bit-ELF
+architecture=aarch64
+strict_suite_summary=Ran 200 tests in 5.170s
+circleci_job_153=PASS
+hni30_runtime_execution=NOT_RUN
+live_model_smoke=BLOCKED_AFTER_3_ATTEMPTS
+production_runtime_changed=false
+canonical_write=false
