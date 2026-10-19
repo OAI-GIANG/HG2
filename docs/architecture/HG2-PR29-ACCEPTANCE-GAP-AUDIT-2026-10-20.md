@@ -4,7 +4,7 @@ Date: 2026-10-20
 Repository: `OAI-GIANG/HG2`
 Audit target at start: `31db6ef4fedaaf6eb04f65bc88487e7c14e17ad1`
 
-Latest pre-integration-audit HEAD: `8d4d6f00e3953ef467c8ceed23697aa1ff9ae00e` (CircleCI #290 passed before the current source changes).
+Latest HEAD after adapter-identity receipt update: `32959616bbed62e99d2b10ada64c56fbbea4b848` (CircleCI #291 passed).
 
 ## Decision
 
@@ -30,7 +30,7 @@ Latest pre-integration-audit HEAD: `8d4d6f00e3953ef467c8ceed23697aa1ff9ae00e` (C
 | High-risk approval fail-closed | PARTIAL / contract tests pass | Unit tests show no verifier or false verifier blocks and bind digest fields. A trusted production approval adapter/service and target-side enforcement are not evidenced. |
 | Actual target desktop adapter | BLOCKED | No target device was attached/discovered and no OS-specific desktop adapter is bound through the runtime registry. Do not infer execution from an admitted decision. |
 | OS-enforced timeout | BLOCKED | No target adapter/process supervisor or target-side timeout/cancellation evidence was found. HTTP client timeout settings are not proof of process-tree termination on a desktop target. |
-| Adapter identity in admission receipts | IMPLEMENTED / TARGET UNVERIFIED | The latest source change now carries the registered `adapter_id` and `adapter_version` in the decision digest, including null values for unregistered operations. This improves audit binding only; it does not execute or authenticate a target adapter. |
+| Adapter identity in admission receipts | IMPLEMENTED / TARGET UNVERIFIED | Commit `32959616bbed62e99d2b10ada64c56fbbea4b848` carries registered `adapter_id` and `adapter_version` in the decision digest, including null values for unregistered operations. Focused tests and CircleCI #291 pass. This improves audit binding only; it does not execute or authenticate a target adapter. |
 | Independent review | BLOCKED if required | GitHub records `COMMENTED`, not `APPROVED`; reviewer has read permission. The account identity alone does not establish an independent human reviewer. Obtain an eligible independent reviewer if the acceptance policy requires one. |
 | Live integration/deployment | NOT RUN | No target adapter and target integration fixture are available; no live desktop operation or deployment was attempted. |
 
@@ -40,4 +40,4 @@ Latest pre-integration-audit HEAD: `8d4d6f00e3953ef467c8ceed23697aa1ff9ae00e` (C
 
 ## Revalidation protocol
 
-After the latest source/test change, run only the targeted Remote Desktop Commander test module (9 tests), compile the changed Python files and check whitespace; the full 333-test suite has not been rerun. After push, record the new PR HEAD and CI state. Do not claim CI is green until it succeeds on the new HEAD. Keep the pre-existing untracked `docs/architecture/HG2-P0-CONTRACT-STATE-OWNER-PREFLIGHT-2026-10-20.md` untouched.
+After the latest source/test change, the targeted Remote Desktop Commander module passed (9 tests), the changed Python files compiled, `git diff --check` passed, and CircleCI #291 passed on HEAD `32959616bbed62e99d2b10ada64c56fbbea4b848`. The full 333-test suite was not rerun. The PR remains open and unmerged. Keep the pre-existing untracked `docs/architecture/HG2-P0-CONTRACT-STATE-OWNER-PREFLIGHT-2026-10-20.md` untouched.
