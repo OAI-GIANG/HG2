@@ -14,7 +14,10 @@
     "hg.sync_auth",
     "hg.sync_bootstrap",
     "hg.brain_orchestrator",
-    "hg.capability_registry"
+    "hg.capability_registry",
+    "hg.unified_harness",
+    "hg.remote_desktop_commander",
+    "hg.skill_contract"
   ],
   "origin": "clean_room"
 }

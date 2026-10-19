@@ -32,6 +32,7 @@ from .phone_runtime import PhoneRuntime
 from .brain_orchestrator import BrainOrchestrator
 from .capability_registry import RuntimeCapabilityRegistry, RuntimeDomainBinding
 from .contracts import BRAIN_REQUEST_V1, CAPABILITY_RESULT_V1, canonical_digest
+from .unified_harness import UnifiedHarness
 
 MAX_BODY = 256 * 1024
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
@@ -125,6 +126,10 @@ class HGHTTPServer(ThreadingHTTPServer):
         rate_limit = _bounded_int("HG_RATE_LIMIT_REQUESTS", 120, 1, 10000)
         rate_window = _bounded_float("HG_RATE_LIMIT_WINDOW_SECONDS", 60.0, 1.0, 3600.0)
         self.rate_limiter = FixedWindowRateLimiter(rate_limit, rate_window)
+        # HG Unified Harness is the source-revision and execution-trace gate around
+        # the existing Brain/registry path. Standard is fail-closed on invariants;
+        # strict mode additionally blocks side effects without enforced timeouts.
+        self.harness = UnifiedHarness(profile=os.environ.get("HG_HARNESS_PROFILE", "standard"))
         self._connection_slots = threading.BoundedSemaphore(self.max_connections)
         self._ask_lock = threading.RLock()
         self._ask_active = set()
@@ -967,6 +972,66 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                 correlation_id=correlation_id,
                 event_id="brain-request-planned:" + request_id,
             )
+            harness_gate = None
+            if plan.get("status") == "ROUTABLE":
+                harness_gate = self.server.harness.before_dispatch(
+                    plan=plan,
+                    registry_snapshot=registry_snapshot,
+                    source_revision=source_revision,
+                )
+                try:
+                    self.server.runtime.store.emit(
+                        "brain.request.harness.gated", {
+                            "schema_version": "HG_UNIFIED_HARNESS_V1",
+                            "request_id": request_id,
+                            "correlation_id": correlation_id,
+                            "input_sha256": input_digest,
+                            "plan_digest": plan.get("plan_digest"),
+                            "registry_digest": registry_digest,
+                            "profile": harness_gate["profile"],
+                            "ok": harness_gate["ok"],
+                            "reason_code": harness_gate["reason_code"],
+                            "receipt_digest": harness_gate["receipt_digest"],
+                            "checks": harness_gate["checks"],
+                            "warnings": harness_gate["warnings"],
+                        },
+                        correlation_id=correlation_id,
+                        event_id="brain-request-harness-gated:" + request_id,
+                    )
+                except Exception:
+                    self._send(503, {"ok": False, "error": {
+                        "code": "HARNESS_PRE_DISPATCH_RECEIPT_WRITE_FAILED",
+                        "request_id": request_id,
+                    }})
+                    return
+                if not harness_gate["ok"]:
+                    try:
+                        self.server.runtime.store.emit(
+                            "brain.request.blocked", {
+                                "request_id": request_id,
+                                "correlation_id": correlation_id,
+                                "plan_digest": plan.get("plan_digest"),
+                                "status": "BLOCKED_HARNESS_GATE",
+                                "error_code": harness_gate["reason_code"],
+                                "harness_gate_digest": harness_gate["receipt_digest"],
+                            },
+                            correlation_id=correlation_id,
+                            event_id="brain-request-harness-blocked:" + request_id,
+                        )
+                    except Exception:
+                        self._send(503, {"ok": False, "error": {
+                            "code": "HARNESS_BLOCKED_RECEIPT_WRITE_FAILED",
+                            "request_id": request_id,
+                        }})
+                        return
+                    self._send(503, {
+                        "ok": False,
+                        "error": {"code": harness_gate["reason_code"], "request_id": request_id},
+                        "brain": {"status": "BLOCKED_HARNESS_GATE", "plan_digest": plan.get("plan_digest")},
+                        "harness_gate": harness_gate,
+                    })
+                    return
+
             self.server.runtime.store.emit(
                 "brain.request.started", {
                     "request_id": request_id,
@@ -1005,10 +1070,20 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                     grants=grants, request_id=request_id,
                 ),
             )
-            if brain_result["status"] not in {"PARTIAL", "SUCCESS"} or "result" not in payloads:
-                status = brain_result.get("status")
-                event_type = "brain.request.in_doubt" if status == "IN_DOUBT" else "brain.request.blocked"
-                code = ("BRAIN_ORCHESTRATION_" + str(status))
+            outcome_gate = self.server.harness.verify_outcome(
+                plan=plan, result=brain_result, source_revision=source_revision,
+            )
+            if (not outcome_gate["ok"]
+                    or brain_result["status"] not in {"PARTIAL", "SUCCESS"}
+                    or "result" not in payloads):
+                if not outcome_gate["ok"]:
+                    status = "BLOCKED_HARNESS_OUTPUT_GATE"
+                    event_type = "brain.request.blocked"
+                    code = outcome_gate["reason_code"]
+                else:
+                    status = brain_result.get("status")
+                    event_type = "brain.request.in_doubt" if status == "IN_DOUBT" else "brain.request.blocked"
+                    code = ("BRAIN_ORCHESTRATION_" + str(status))
                 try:
                     self.server.runtime.store.emit(
                         event_type, {
@@ -1018,6 +1093,9 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                             "plan_digest": brain_result.get("plan_digest", plan.get("plan_digest")),
                             "status": status,
                             "error_code": code,
+                            "harness_gate_digest": (outcome_gate.get("receipt_digest")
+                                                    if not outcome_gate.get("ok") else None),
+                            "harness_profile": self.server.harness.profile,
                         },
                         correlation_id=correlation_id,
                         event_id=event_type.replace(".", "-") + ":" + request_id,
@@ -1028,6 +1106,11 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                     "ok": False,
                     "error": {"code": code, "request_id": request_id},
                     "brain": brain_result,
+                    "unified_harness": {
+                        "profile": self.server.harness.profile,
+                        "pre_dispatch": harness_gate,
+                        "quality_gate": outcome_gate,
+                    },
                 })
                 return
 
@@ -1042,6 +1125,11 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                 "plan_digest": brain_result.get("plan_digest"),
                 "status": brain_result["status"],
                 "model_manifest_sha256": manifest.get("manifest_sha256"),
+                "harness_profile": self.server.harness.profile,
+                "harness_pre_dispatch_digest": (
+                    harness_gate.get("receipt_digest") if isinstance(harness_gate, dict) else None
+                ),
+                "harness_quality_gate_digest": outcome_gate.get("receipt_digest"),
             }
             self.server.runtime.store.emit(
                 "brain.request.finished", terminal_payload,
@@ -1068,6 +1156,11 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                     "key_sha256": operation_digest,
                     "key_supplied": supplied_idempotency,
                     "replayed": False,
+                },
+                "unified_harness": {
+                    "profile": self.server.harness.profile,
+                    "pre_dispatch": harness_gate,
+                    "quality_gate": outcome_gate,
                 },
                 "capability_registry": {
                     "schema_version": registry_snapshot["schema_version"],

@@ -139,6 +139,16 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(body["context_manifest"]["model_called"],False)
         events = self.rt.store.replay()
         event_types = [event["event_type"] for event in events]
+        self.assertIn("brain.request.harness.gated", event_types)
+        gate_event = next(event for event in events if event["event_type"] == "brain.request.harness.gated")
+        self.assertTrue(gate_event["payload"]["ok"])
+        self.assertRegex(gate_event["payload"]["receipt_digest"], r"^[0-9a-f]{64}$")
+        self.assertLess(event_types.index("brain.request.planned"), event_types.index("brain.request.harness.gated"))
+        self.assertLess(event_types.index("brain.request.harness.gated"), event_types.index("brain.request.started"))
+        self.assertLess(event_types.index("brain.request.harness.gated"), event_types.index("model.call.started"))
+        self.assertEqual(body["unified_harness"]["pre_dispatch"]["reason_code"], "HARNESS_DISPATCH_ALLOWED")
+        self.assertEqual(body["unified_harness"]["quality_gate"]["result_status"], "PARTIAL")
+        self.assertTrue(body["unified_harness"]["quality_gate"]["ok"])
         self.assertIn("model.call.started", event_types)
         self.assertIn("model.call.completed", event_types)
         self.assertLess(event_types.index("model.call.started"), event_types.index("model.call.completed"))
@@ -222,6 +232,44 @@ class ServerTests(unittest.TestCase):
         event_types = [event["event_type"] for event in self.rt.store.replay()]
         self.assertNotIn("model.call.started", event_types)
         self.assertNotIn("model.call.completed", event_types)
+
+    def test_strict_harness_blocks_provider_before_dispatch_and_persists_receipt(self):
+        from hg.unified_harness import UnifiedHarness
+        self.srv.harness = UnifiedHarness(profile="strict")
+        self.rt.memory.remember(
+            {"id": "strict-harness-memory", "type": "fact", "title": "HG2",
+             "content": "strict harness pre-dispatch gate", "scope_id": "owner"},
+            principal_id="test-owner", grants={"owner"}, idempotency_key="strict-harness-memory-create")
+
+        class FakeGateway:
+            def __init__(self):
+                self.calls = 0
+            def status(self):
+                return {"configured": True, "status": "CONFIGURED", "network_called": False}
+            def ask(self, query, context):
+                self.calls += 1
+                raise AssertionError("strict harness must block before provider call")
+
+        gateway = FakeGateway()
+        self.rt.model_gateway = gateway
+        status, body = self.call(
+            "/api/ask", "POST", {"query": "strict pre-dispatch test"},
+            token=READ_TOKEN, headers={"Idempotency-Key": "strict-harness-block-01"})
+        self.assertEqual(status, 503)
+        self.assertEqual(body["brain"]["status"], "BLOCKED_HARNESS_GATE")
+        self.assertEqual(body["error"]["code"], "HARNESS_STRICT_TIMEOUT_GATE_BLOCKED")
+        self.assertEqual(gateway.calls, 0)
+        events = self.rt.store.replay()
+        event_types = [event["event_type"] for event in events]
+        self.assertIn("brain.request.harness.gated", event_types)
+        self.assertLess(event_types.index("brain.request.harness.gated"),
+                        event_types.index("brain.request.blocked"))
+        self.assertNotIn("brain.request.started", event_types)
+        self.assertNotIn("model.call.started", event_types)
+        gate_event = next(event for event in events if event["event_type"] == "brain.request.harness.gated")
+        self.assertFalse(gate_event["payload"]["ok"])
+        self.assertEqual(gate_event["payload"]["profile"], "strict")
+        self.assertTrue(self.rt.store.verify()["ok"])
 
     def test_ask_without_provider_config_fails_closed(self):
         from hg.model_gateway import ModelGateway
