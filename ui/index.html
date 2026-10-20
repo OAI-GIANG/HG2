@@ -16,6 +16,7 @@
 <script>
 (() => {
   let readToken = '', writeToken = '';
+  let pendingAskKey = '', pendingAskQuery = '';
   const el = id => document.getElementById(id);
   const status = (msg, bad=false) => { el('status').textContent = msg; el('status').className = 'status' + (bad ? ' danger' : ''); };
   async function api(path, options={}, write=false) {
@@ -40,7 +41,8 @@
       const del=document.createElement('button'); del.textContent='Xóa (tạo tombstone)'; del.onclick=async()=>{writeToken=el('writeToken').value;if(!writeToken){status('Cần token ghi.',true);return;}if(!confirm('Đánh dấu xóa bản ghi '+r.id+'?'))return;try{const j=await api('/api/memory/'+encodeURIComponent(r.id),{method:'DELETE',body:JSON.stringify({expected_version:r.version,idempotency_key:'ui-delete-'+crypto.randomUUID()})},true);status('Đã tạo tombstone cho '+j.memory.id);el('refresh').click();}catch(e){status('Xóa thất bại: '+e.message,true);}}; card.append(del); root.append(card);
     }
   }
-  el('ask').onsubmit=async ev=>{ev.preventDefault();readToken=el('readToken').value;const query=el('question').value.trim();if(!readToken||!query){status('Cần token đọc và câu hỏi.',true);return;}try{status('HG đang xử lý…');const j=await api('/api/ask',{method:'POST',body:JSON.stringify({query})});el('answer').hidden=false;el('answer').textContent=j.answer;status('Hoàn tất · model '+j.model+' · context '+(j.context_manifest?.manifest_sha256||''));}catch(e){status('HG chưa trả lời được: '+e.message,true);}};
+  el('question').addEventListener('input',()=>{const current=el('question').value.trim();if(pendingAskKey&&current!==pendingAskQuery){pendingAskKey='';pendingAskQuery='';}});
+  el('ask').onsubmit=async ev=>{ev.preventDefault();readToken=el('readToken').value;const query=el('question').value.trim();if(!readToken||!query){status('Cần token đọc và câu hỏi.',true);return;}if(!pendingAskKey||pendingAskQuery!==query){pendingAskKey='ui-ask-'+crypto.randomUUID();pendingAskQuery=query;}try{status('HG đang xử lý…');const j=await api('/api/ask',{method:'POST',headers:{'Idempotency-Key':pendingAskKey},body:JSON.stringify({query})});el('answer').hidden=false;el('answer').textContent=j.answer;status('Hoàn tất · model '+j.model+' · context '+(j.context_manifest?.manifest_sha256||''));pendingAskKey='';pendingAskQuery='';}catch(e){status('HG chưa trả lời được: '+e.message+' · Giữ nguyên câu hỏi để thử lại an toàn; nếu trạng thái IN_DOUBT, không tự gọi lại tác vụ đó. Nếu phản hồi đã mất sau khi khởi động lại, sửa câu hỏi chỉ khi chủ động tạo yêu cầu mới.',true);}};
   el('create').onsubmit=async ev=>{ev.preventDefault();writeToken=el('writeToken').value;if(!writeToken){status('Cần token ghi.',true);return;}
     const record={id:el('id').value,type:el('type').value,title:el('title').value,content:el('content').value,scope_id:el('scope').value};
     try{const j=await api('/api/memory',{method:'POST',body:JSON.stringify({record,idempotency_key:'ui-create-'+crypto.randomUUID()})},true);status('Đã lưu '+j.memory.id+' · version '+j.memory.version);el('create').reset();el('scope').value='owner';el('refresh').click();}catch(e){status('Lưu thất bại: '+e.message,true);}

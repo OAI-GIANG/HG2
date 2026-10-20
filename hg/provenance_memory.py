@@ -105,6 +105,8 @@ def create_memory_record(
             raise MemoryError("MEMORY_SCHEMA_INVALID", "expiry must follow observation")
     if memory_key is not None:
         _text(memory_key, "memory_key", 256)
+    if len(parents) != len(parents_raw):
+        problems.append("DUPLICATE_PARENT_MEMORY_ID_COLLAPSED")
     value_digest = hashlib.sha256(statement.encode("utf-8")).hexdigest()
     record = {
         "schema_version": "hg.provenance-memory.v1",
@@ -163,6 +165,61 @@ def assess_memory(
     return {"trusted": False, "status": "UNVERIFIED", "reasons": sorted(set(reasons))}
 
 
+def effective_memory_trust(record: dict[str, Any]) -> str:
+    """Never accept caller labels as proof; only preserve a conservative revocation marker."""
+    if type(record) is dict and record.get("schema_version") == "hg.provenance-memory.v1":
+        if record.get("trust_level") == "REVOKED":
+            return "REVOKED"
+    return "UNVERIFIED"
+
+
+def memory_freshness(record: dict[str, Any], *, now: datetime | None = None) -> dict[str, Any]:
+    """Classify freshness only; stale records are never silently rewritten or promoted."""
+    if type(record) is not dict or record.get("schema_version") != "hg.provenance-memory.v1":
+        return {"status": "UNVERIFIED", "usable": False, "reasons": ["MEMORY_SCHEMA_INVALID"]}
+    reasons = []
+    supplied_digest = record.get("record_digest")
+    unsigned = dict(record)
+    unsigned.pop("record_digest", None)
+    expected_digest = hashlib.sha256(canonical_json(unsigned).encode("utf-8")).hexdigest()
+    if not isinstance(supplied_digest, str) or supplied_digest != expected_digest:
+        reasons.append("MEMORY_RECORD_DIGEST_MISMATCH")
+    if record.get("trust_level") == "REVOKED":
+        reasons.append("MEMORY_REVOKED")
+    try:
+        observed = datetime.fromisoformat(str(record.get("observed_at", "")).replace("Z", "+00:00"))
+        if observed.tzinfo is None or observed.utcoffset() is None:
+            raise ValueError("timezone")
+    except (ValueError, TypeError):
+        reasons.append("OBSERVATION_TIME_INVALID")
+        observed = None
+    try:
+        expiry = datetime.fromisoformat(str(record.get("expires_at", "")).replace("Z", "+00:00"))
+        if expiry.tzinfo is None or expiry.utcoffset() is None:
+            raise ValueError("timezone")
+    except (ValueError, TypeError):
+        reasons.append("EXPIRY_POLICY_MISSING_OR_INVALID")
+        expiry = None
+    current = now or datetime.now().astimezone()
+    if current.tzinfo is None or current.utcoffset() is None:
+        raise ValueError("now must be timezone-aware")
+    if expiry is not None and expiry <= current:
+        reasons.append("MEMORY_EXPIRED")
+    if observed is not None and observed > current:
+        reasons.append("OBSERVATION_IN_FUTURE")
+    if "MEMORY_RECORD_DIGEST_MISMATCH" in reasons:
+        status = "UNVERIFIED"
+    elif "MEMORY_REVOKED" in reasons:
+        status = "REVOKED"
+    elif "MEMORY_EXPIRED" in reasons:
+        status = "EXPIRED"
+    elif reasons:
+        status = "FRESHNESS_UNKNOWN"
+    else:
+        status = "WITHIN_EXPIRY"
+    return {"status": status, "usable": status == "WITHIN_EXPIRY", "reasons": sorted(set(reasons))}
+
+
 def detect_memory_conflicts(records: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
     """Detect exact-key conflicts only; never choose a winner implicitly."""
     by_key: dict[tuple[str, str], list[dict[str, Any]]] = {}
@@ -197,6 +254,12 @@ class SQLiteProvenanceMemoryStore:
         self.db_path = os.fspath(db_path)
         if not self.db_path or self.db_path == ":memory:":
             raise MemoryError("MEMORY_STORAGE_INVALID", "durable file-backed database required")
+        parent = os.path.dirname(os.path.abspath(self.db_path))
+        if os.path.islink(self.db_path):
+            raise MemoryError("MEMORY_STORAGE_INVALID", "database path must not be a symlink")
+        os.makedirs(parent, mode=0o700, exist_ok=True)
+        if os.stat(parent).st_mode & 0o077:
+            raise MemoryError("MEMORY_STORAGE_INVALID", "database directory must be private (mode 0700)")
         if type(max_records) is not int or not 1 <= max_records <= 1_000_000:
             raise MemoryError("MEMORY_RESOURCE_LIMIT", "invalid max_records")
         if type(busy_timeout_ms) is not int or not 100 <= busy_timeout_ms <= 120_000:
@@ -211,6 +274,7 @@ class SQLiteProvenanceMemoryStore:
                 journal = db.execute("PRAGMA journal_mode=WAL").fetchone()[0]
                 if str(journal).lower() != "wal":
                     raise MemoryError("MEMORY_STORAGE_UNAVAILABLE", "SQLite WAL mode unavailable")
+                os.chmod(self.db_path, 0o600)
                 version = db.execute("PRAGMA user_version").fetchone()[0]
                 if version not in (0, 1):
                     raise MemoryError("MEMORY_SCHEMA_UNSUPPORTED", str(version))

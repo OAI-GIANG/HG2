@@ -1,0 +1,304 @@
+{
+  "schema_version": "HG2_CENTRAL_BRAIN_R2_AUDIT_V1",
+  "audit_id": "HG2-CENTRAL-BRAIN-R2-AUDIT-20261019",
+  "recorded_at_local": "2026-10-19T19:15:50+07:00",
+  "repository": "OAI-GIANG/HG2",
+  "worktree": "/data/data/com.termux/files/home/HG2-CONSOLIDATION",
+  "device": {
+    "desktop_commander_device": "localhost",
+    "os_reported": "Android 15 / Linux kernel 6.6.118",
+    "architecture": "aarch64",
+    "git_version": "2.55.0",
+    "python_runtime": "Python 3.14.6 (reported in existing PR evidence; test command ran in this Termux checkout)"
+  },
+  "baseline": {
+    "branch": "stt/hg2-brain-orchestrator-r1-20261019",
+    "head_before_patch": "67afde1ca027b4012ce0dde190dda00918da3aff",
+    "tree_before_patch": "28d042fb4c14f9d0f43a96841021403f702170b5",
+    "base_branch": "hg-genesis",
+    "base_commit": "1dca305b4d6e9442e259442486efb5127cc0cb09",
+    "remote_ref_observed": "67afde1ca027b4012ce0dde190dda00918da3aff",
+    "worktree_clean_before_patch": true,
+    "verification_method": [
+      "git rev-parse",
+      "git status --porcelain=v2",
+      "git branch -vv",
+      "git ls-remote origin refs/heads/stt/hg2-brain-orchestrator-r1-20261019 refs/heads/hg-genesis"
+    ],
+    "boundary": "Other local worktrees, including ~/HG2 on stt/hg2-voice-tools-design-20261018 and unrelated untracked review/cache files, were left untouched."
+  },
+  "finding": {
+    "id": "F-01",
+    "severity": "HIGH",
+    "root_cause": "POST /api/ask wrote model.call.completed after the provider response but did not persist the required redacted start event before calling the provider.",
+    "change": "hg/server.py now appends model.call.started to the canonical StateStore before ModelGateway.ask. If the start-event append raises, the synthesis adapter returns BLOCKED/PRECALL_AUDIT_WRITE_FAILED and the provider adapter is not invoked.",
+    "negative_test": "tests/test_server.py::ServerTests.test_ask_fails_closed_when_precall_audit_write_fails",
+    "positive_test": "tests/test_server.py::ServerTests.test_ask_uses_authorized_context_and_audits_call",
+    "status": "TESTED_IN_LOCAL_TEST_RUNTIME",
+    "limitations": [
+      "A deterministic fake gateway validates the call boundary; this does not prove a deployed runtime or live-provider behavior.",
+      "The start event contains digests and request/plan identifiers, not the raw query.",
+      "A successful provider response remains RESPONSE_ONLY; aggregate API status remains PARTIAL rather than implying external action completion."
+    ]
+  },
+  "test_evidence": [
+    {
+      "id": "E-R2-BASELINE-001",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+      "result": "PASS",
+      "tests": 240,
+      "duration_seconds": 21.429,
+      "exit_code": 0,
+      "log_path_device_tmp": "/data/data/com.termux/files/usr/tmp/hg2-r2-baseline-20261019185311.log",
+      "log_sha256": "32de458237595c9f8e5b50b1fad1bbccf792290ad88aaec13b149a3f3e92a6b2",
+      "interpretation": "Pre-change baseline only; not evidence for the patch.",
+      "log_path_repository": "evidence/logs/HG2-CENTRAL-BRAIN-R2-BASELINE-20261019.log"
+    },
+    {
+      "id": "E-R2-FOCUSED-002",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest tests.test_server tests.test_brain_orchestrator -v",
+      "result": "PASS",
+      "tests": 34,
+      "duration_seconds": 7.228,
+      "exit_code": 0,
+      "log_path_device_tmp": "/data/data/com.termux/files/usr/tmp/hg2-r2-targeted-20261019185930.log",
+      "log_sha256": "0873850260e026ea44d45cefeab4241f3b8da4dc6338a98569ee0fb3c0681c89",
+      "log_path_repository": "evidence/logs/HG2-CENTRAL-BRAIN-R2-FOCUSED-20261019.log"
+    },
+    {
+      "id": "E-R2-REGRESSION-003",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v",
+      "result": "PASS",
+      "tests": 241,
+      "duration_seconds": 20.941,
+      "exit_code": 0,
+      "log_path_device_tmp": "/data/data/com.termux/files/usr/tmp/hg2-r2-final-20261019190501.log",
+      "log_sha256": "8b6425450f29e3be7bb6a9421c407c7523b5d3209c29bdf0ab727f598b70c878",
+      "interpretation": "Post-code-change complete local unittest suite with ResourceWarning promoted to error. This does not establish production operation.",
+      "log_path_repository": "evidence/logs/HG2-CENTRAL-BRAIN-R2-FULL-REGRESSION-20261019.log"
+    }
+  ],
+  "static_checks": {
+    "python_compile": {
+      "command": "PYTHONPYCACHEPREFIX=/data/data/com.termux/files/usr/tmp/hg2-r2-pycache PYTHONDONTWRITEBYTECODE=1 python -m py_compile hg/server.py tests/test_server.py hg/brain_orchestrator.py",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    "manifest_json": {
+      "command": "python -m json.tool manifest.json >/dev/null",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    "git_diff_check": {
+      "command": "git diff --check",
+      "result": "PASS",
+      "exit_code": 0,
+      "rechecked_after_external_research_reference_update": true
+    },
+    "markdown_relative_links": {
+      "documents_checked": 14,
+      "broken_relative_links": 0,
+      "result": "PASS"
+    },
+    "master_plan_deliverable_count": {
+      "expected": 12,
+      "actual": 12,
+      "result": "PASS"
+    },
+    "documentation_file_count": {
+      "main_plan_plus_supporting_products": 13,
+      "main_plan": 1,
+      "supporting_products": 12,
+      "result": "PASS"
+    },
+    "reproducible_logs": {
+      "repository_copies": 3,
+      "hashes_match_test_records": true,
+      "result": "PASS"
+    }
+  },
+  "deliverables": [
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-MASTER-PLAN-R2.md",
+      "sha256": "768cadd3f06ad22321bec501caa2e10e85a3269762e6a975c94748c5807b3ff2",
+      "lines": 247
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-EXTERNAL-RESEARCH-R2.md",
+      "sha256": "915e4976528525aa9af73c321f6ebfc7c0a1a379f9611138d60a8c86fef68363",
+      "lines": 34
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-INDEPENDENT-CRITIQUE-R2.md",
+      "sha256": "697200056656fa02297b1c40153dcc82cf853e437772de80b1585f58acd7165a",
+      "lines": 173
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-REPOSITORY-ARCHITECTURE-MAP-R2.md",
+      "sha256": "c0224e6a4078b90c9ae391a1f8509be665e5db5d8a452b8da1ef47899669d2fd",
+      "lines": 88
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-CAPABILITY-INVENTORY-R2.md",
+      "sha256": "0b71b06638a1fe06a437375877a6119d5694907ef72c5b6c68e176125ab7e37a",
+      "lines": 65
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-DEPENDENCY-CONFLICT-MATRIX-R2.md",
+      "sha256": "6905b5dc58f6104671e7559f381b522093b9ea9447deba54b42e68871295100f",
+      "lines": 60
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-RISK-REGISTER-R2.md",
+      "sha256": "12bc853107ef46d27566088ae1a6423eafd8d8491742c6fc217c82582d66a425",
+      "lines": 48
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-CAPABILITY-CONTRACTS-R2.md",
+      "sha256": "3c115a5638b28b9c77a73f4dac0bc5b0f6b33563db8ef380d0a20324c73c9b46",
+      "lines": 248
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-DISPOSITION-MATRIX-R2.md",
+      "sha256": "ef0d159232edff712d1389905b9170f81ec2f219120e57bd540b2c7309ea13f3",
+      "lines": 35
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-FAILURE-TEST-MATRIX-R2.md",
+      "sha256": "e014ef188ceb92db381d5fbd786fce5c0ccbdfbe9a1e415822b98d92d4658c22",
+      "lines": 74
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-MIGRATION-CHECKPOINT-ROLLBACK-R2.md",
+      "sha256": "f839d950b1efcfd88299b948b4b4b16e15f069321be29607c9268f65c06807d6",
+      "lines": 80
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-MVE-END-TO-END-PLAN-R2.md",
+      "sha256": "148d603d354738d8def363ca7a418b0e341cd3d5ed0be97ef194e9790f788df3",
+      "lines": 58
+    },
+    {
+      "path": "docs/architecture/HG2-CENTRAL-BRAIN-EVOLUTION-LEDGER-R2.md",
+      "sha256": "47926e6e9f5eefdeebb91e262440e0f75b2af4077584c8b83b5402c47ac63169",
+      "lines": 71
+    }
+  ],
+  "other_changed_paths": [
+    {
+      "path": "hg/server.py",
+      "sha256": "55dc837b5946cf67bbda3399bf0bc2051edc37115278e2ed87a76523a1ed7adb",
+      "change": "Pre-call provider audit with fail-closed behavior."
+    },
+    {
+      "path": "tests/test_server.py",
+      "sha256": "4b0691a31d5441d63ba3290565d6beb4b16473e9901c890b1bd95191dc20a602",
+      "change": "Audit ordering/privacy assertions and injected audit-storage-failure negative test."
+    },
+    {
+      "path": "docs/architecture/HG2-INDEPENDENT-ARCHITECTURE-R2.md",
+      "sha256": "f4f4c12b104883987d3b9b148c3a8f222282cac8493eb5f42d1920085326c14a",
+      "change": "Links the consolidated central-brain R2 plan and identifies this document as runtime-integration history."
+    }
+  ],
+  "external_research": {
+    "checked_at": "2026-10-19",
+    "sources": [
+      "https://www.nist.gov/itl/ai-risk-management-framework/nist-ai-rmf-playbook",
+      "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "https://www.nist.gov/itl/ai-risk-management-framework/ai-risk-management-framework-resources",
+      "https://genai.owasp.org/llm-top-10/",
+      "https://github.com/GenAI-Security-Project/GenAI-LLM-Top10",
+      "https://learn.microsoft.com/en-us/azure/architecture/patterns/saga",
+      "https://learn.microsoft.com/en-us/azure/architecture/patterns/idempotent-consumer",
+      "https://learn.microsoft.com/en-us/azure/architecture/databases/guide/transactional-out-box-cosmos",
+      "https://opentelemetry.io/docs/concepts/context-propagation/",
+      "https://google.github.io/eng-practices/review/",
+      "https://sre.google/sre-book/testing-reliability/",
+      "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches"
+    ],
+    "interpretation": "External patterns informed the plan and risk review; these references are not evidence that the patterns exist in HG2."
+  },
+  "open_release_gates": [
+    {
+      "id": "F-02",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "issue": "Brain plan/step state is not durably persisted or replayed on restart."
+    },
+    {
+      "id": "F-03",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "issue": "No trusted runtime capability registry is bound; planning_coordination, tools_execution and security_verification lack operational API adapters."
+    },
+    {
+      "id": "F-04",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "issue": "Request-local manifest checking is not an independent verifier for external provenance or semantic correctness."
+    },
+    {
+      "id": "F-05",
+      "severity": "BLOCKED",
+      "status": "NOT_RUN",
+      "issue": "Live provider and deployed phone runtime were not verified in this pass."
+    },
+    {
+      "id": "F-06",
+      "severity": "HIGH",
+      "status": "INVESTIGATE",
+      "issue": "Workflow/DurableTransactionStore integration must preserve the existing canonical StateStore and must not create a second competing source of truth."
+    },
+    {
+      "id": "F-07",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "issue": "A synchronous adapter cannot be forcibly cancelled by the coordinator; adapter-level hard timeout remains necessary."
+    },
+    {
+      "id": "F-08",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "issue": "Stable client idempotency for repeated POST /api/ask has not been integrated."
+    },
+    {
+      "id": "F-09",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "issue": "Logical domain naming still uses the legacy word branch in the V1 orchestration wire contract."
+    },
+    {
+      "id": "F-10",
+      "severity": "HIGH",
+      "status": "NOT_RUN",
+      "issue": "Intent classification and generated-answer quality lack a frozen evaluation corpus and measured acceptance baselines."
+    }
+  ],
+  "readiness": {
+    "master_plan_package": "MASTER_PLAN_PLUS_12_SUPPORTING_PRODUCTS_WRITTEN_AND_STATICALLY_VALIDATED; TEST_LOGS_PRESERVED_IN_REPOSITORY",
+    "precall_audit_remediation": "TESTED",
+    "all_five_domains_operational": false,
+    "production_ready": false,
+    "release_or_merge_approved": false,
+    "pr_29_disposition": "KEEP_OPEN_DRAFT; do not merge/deploy until open release gates are independently addressed."
+  },
+  "integrity_note": "This JSON records the pre-commit candidate and test evidence. Its own SHA-256 is recorded in the adjacent .sha256 sidecar after the file is written. File hashes prove byte consistency, not independent provenance or runtime identity.",
+  "log_artifacts": [
+    {
+      "path": "evidence/logs/HG2-CENTRAL-BRAIN-R2-BASELINE-20261019.log",
+      "sha256": "32de458237595c9f8e5b50b1fad1bbccf792290ad88aaec13b149a3f3e92a6b2",
+      "bytes": 35288
+    },
+    {
+      "path": "evidence/logs/HG2-CENTRAL-BRAIN-R2-FOCUSED-20261019.log",
+      "sha256": "0873850260e026ea44d45cefeab4241f3b8da4dc6338a98569ee0fb3c0681c89",
+      "bytes": 7324
+    },
+    {
+      "path": "evidence/logs/HG2-CENTRAL-BRAIN-R2-FULL-REGRESSION-20261019.log",
+      "sha256": "8b6425450f29e3be7bb6a9421c407c7523b5d3209c29bdf0ab727f598b70c878",
+      "bytes": 35502
+    }
+  ]
+}

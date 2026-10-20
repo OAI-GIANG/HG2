@@ -1,0 +1,14 @@
+test_caller_cannot_promote_memory_to_verified (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_caller_cannot_promote_memory_to_verified) ... ok
+test_caller_verified_label_stays_effectively_unverified (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_caller_verified_label_stays_effectively_unverified) ... ok
+test_conflicts_are_unresolved_not_silently_selected (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_conflicts_are_unresolved_not_silently_selected) ... ok
+test_database_refuses_symlink_path (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_database_refuses_symlink_path) ... ok
+test_expiry_is_explicit_and_never_promoted (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_expiry_is_explicit_and_never_promoted) ... ok
+test_modified_record_digest_fails_closed (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_modified_record_digest_fails_closed) ... ok
+test_revoked_memory_stays_revoked (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_revoked_memory_stays_revoked) ... ok
+test_sensitive_memories_are_not_written_without_encryption_adapter (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_sensitive_memories_are_not_written_without_encryption_adapter) ... ok
+test_store_restart_integrity_and_conflict_are_durable (tests.test_provenance_memory.ProvenanceMemoryAcceptanceTests.test_store_restart_integrity_and_conflict_are_durable) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.086s
+
+OK

@@ -1,0 +1,43 @@
+{
+  "schema_version": "HG2_UNIFIED_HARNESS_ECC_ABSORPTION_TEST_RESULT_V1",
+  "created_at": "2026-10-20T00:56:45.748118+07:00",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-unified-harness-ecc-absorption-20261020",
+  "head_before_feature_commit": "f89a0ff9266e8d321a117e099a9c4e7282705b30",
+  "runtime": {
+    "python": "3.14.6",
+    "platform": "Android-16-aarch64-64bit-ELF"
+  },
+  "test_command": "python -m unittest discover -s tests",
+  "test_result": "PASS",
+  "test_count": 333,
+  "elapsed_seconds": 39.685,
+  "full_log_sha256": "7dbdb98022fd8b94f17717adb575040e13fe14f1b268130abb49caadb5de26e3",
+  "checks": {
+    "compileall_hg_tests": "PASS",
+    "git_diff_check": "PASS",
+    "manifest_json": "PASS",
+    "no_runtime_dependencies_added": true,
+    "new_integration_uses_existing_state_store": true,
+    "live_service_deployment_attempted": false,
+    "ecc_runtime_or_source_installed": false
+  },
+  "source_sha256": {
+    "README.md": "9eda05a708369480e767d4fd8afe46b9eff018688e93a40ffebd80a0b88869d4",
+    "manifest.json": "58f5b20ad670c0b95465b7e1425287046f79a4691f41d416288b3e494e52e001",
+    "hg/server.py": "959a8228bceb453d41b6f61d039679709672599c47428828b9abf5943ed84faa",
+    "hg/unified_harness.py": "6d408b5fd785035f7266190245178af3dcce1a5c7039f504245750713a7dd892",
+    "hg/remote_desktop_commander.py": "894f623ce4379a0b16e2202627389fafe06b7ea5a224d89e67cf2b5b8ed06a42",
+    "hg/skill_contract.py": "a1456d769deaea3ef7866c5e78047b0efe1db0af021ac42b0352f6768a86f725",
+    "tests/test_server.py": "eacf560163b893e30d6e52117fe7b56c1260daafc33f9d4f76208d6de2c291e6",
+    "tests/test_unified_harness.py": "36dd235e830d6f1444dbd66b52068e5881ab27c4e41f95611ee98ee95e09ef6a",
+    "tests/test_remote_desktop_commander.py": "815ca3406de7303286f9b231a2af1713c9c8a9a793ca2291928a9344fa7dee47",
+    "tests/test_skill_contract.py": "e5723f55fc99fb637060737c1ad629f9ba6f33441d7f2f204885676f6d980cc2",
+    "docs/architecture/HG2-UNIFIED-HARNESS-ECC-ABSORPTION-2026-10-20.md": "e953787747b35d20ad941f9494aebef3a8be40c9ab08e4dea57d9d84556f688a"
+  },
+  "evidence_boundaries": [
+    "Tests execute on the Termux working tree, not the live service deployment.",
+    "Passing contract/gate tests do not prove an actual remote desktop target adapter or OS-enforced timeout.",
+    "The pre-existing P0 contract/state-owner preflight report is deliberately excluded from feature staging."
+  ]
+}

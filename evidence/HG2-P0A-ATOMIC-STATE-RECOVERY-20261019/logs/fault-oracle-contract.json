@@ -1,0 +1,36 @@
+{
+  "schema_version": "hg2.state-recovery-oracle.v1",
+  "oracle_id": "HG2-P0A-FAULT-ORACLE-20261019-R1",
+  "canonical_authority": "hash-chained history.jsonl journal",
+  "derived_artifacts": [
+    "state.json",
+    "head.json"
+  ],
+  "recoverable_cases": [
+    "verified journal is exactly one complete event ahead of an anchored checkpoint, with projection matching the prior or tail state",
+    "incomplete invalid JSON tail is present while head and projection anchor the exact complete verified prefix",
+    "bootstrap marker is valid and incomplete initialization artifacts are consistent with the zero-sequence baseline"
+  ],
+  "mandatory_assertions": [
+    "all complete journal records verify schema, sequence, event identity and hash chain before repair",
+    "no event ID appears more than once",
+    "each completed target event survives exactly one replay after restart",
+    "partial invalid frame bytes are preserved by SHA-256 before truncation",
+    "a recovery receipt is bound to exact observed evidence and represented once in the canonical journal",
+    "ambiguous complete JSON without delimiter is not discarded or accepted",
+    "missing/corrupt/unanchored head, corrupted journal, non-matching projection or checkpoint lag greater than one event fail closed without guessed repair",
+    "a second restart after recovery preserves the same event inventory and verified head",
+    "after a write-boundary error, the same StateStore instance rejects all later emits until a fresh validated reopen"
+  ],
+  "negative_controls": [
+    "complete JSON frame missing final newline",
+    "missing checkpoint",
+    "corrupt checkpoint",
+    "checkpoint not anchored to journal",
+    "projection mismatch",
+    "journal chain tamper, sequence gap, duplicate event ID"
+  ],
+  "side_effect_scope": "all fault injection uses per-test TemporaryDirectory and child subprocesses; no production state path is opened",
+  "verdict_rule": "PASS for tested recoverable injection windows only; unresolved/ambiguous corruption remains an explicitly blocking fail-closed status",
+  "release_promotion": "not authorized by this oracle"
+}
