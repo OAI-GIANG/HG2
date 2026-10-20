@@ -1,0 +1,29 @@
+{
+  "schema_version": "HG2_TRUST_ROOT_PROVISIONING_GAP_V1",
+  "status": "BLOCKED_NOT_PROVISIONED",
+  "repository": "OAI-GIANG/HG2",
+  "independent_runner_signer_seen": false,
+  "production_allowed_signers_file_seen": false,
+  "independently_delivered_sha256_pin_seen": false,
+  "actual_runner_signed_receipt_seen": false,
+  "search_scope": [
+    "candidate repository workflow files",
+    "config/SSH metadata file names",
+    "presence of runner trust-root environment variables"
+  ],
+  "finding": "No actual CI runner signer, administrator-provisioned allowed-signers file, separately delivered trust-root pin, or actual signed receipt was found in the inspected scope. This is a bounded search finding.",
+  "not_done": [
+    "No production key generated",
+    "No fingerprint self-promoted to trusted",
+    "No runner claim invented"
+  ],
+  "required_external_steps": [
+    "CI/admin provisions a dedicated signer outside the repository.",
+    "Public key is installed in a restricted allowed-signers file on verifier host.",
+    "Allowed-signers SHA-256 pin is delivered through an independent channel.",
+    "Actual runner signs receipt bound to exact commit/tree/suite/environment/log bytes.",
+    "Independent verifier checks signer, image, command, hashes, exit code, summary and pin.",
+    "Independent reviewer verifies trust provisioning and runner provenance."
+  ],
+  "acceptance": "Remain blocked until all steps are evidenced."
+}

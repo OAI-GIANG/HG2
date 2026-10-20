@@ -1,3 +1,5 @@
+715f4964516a03ffe720391f8b11edd2b231b5a34722a1ef75a8d9cf36a3ce1f  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/dirty-item-review-r1.json
+3f11e16958c54019c7c236ab1bdb89eaa9af1504f59a294ed47a4a60881c46a9  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/dirty-item-review-r1.md
 171e4388142ba0c8d4d52128f181827b067343265e5b03532a0876f295056164  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/live-checkout-reconciliation.json
 e5b9ff94be97dbd1352bf7ca2ae23c34b86f553bdc4c9c64160760723b337da4  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/live-checkout-reconciliation.md
 8c93cf8b46678d6b8317b57605f2faad026d69be3383b15b14f1d1433f66d5ab  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/model-eval/assessment.json
@@ -14,10 +16,15 @@ b79589b0bbd7f0714e4c2e60c2a198e8714361cd8ad52a76aa362ee74a3379ae  /data/data/com
 ec29706bc63533e6cee43938c86eea0d564f98b1a09e8e5584b396be51ac34ac  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/model-eval/sqlite-crash.prompt.txt
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/model-eval/sqlite-crash.runtime.txt
 63e352454eb822c7e4aa29e5d14f6e6d888eb134c60f29968655eff51b96f56c  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/model-eval/sqlite-crash.stdout.txt
+9be7a724ea165a9318046e862389d3d6fcb5f5d9e139da4127dfa895d58cbb18  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/runtime-rollback-plan-r1.md
 975ce6b005752536d3817bd84b792000da9ea42c5070608ecddd826ea3ef7f60  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/tests/full-regression-r1.log
 3195f65bbeab4924dd8fd870ce151d62b7fc7ece60e878913c4ad82a2edea008  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/tests/full-regression-r2.log
 45020d3d32c6adc5bb38dd7ad482ae9efa8e8c4eb2aa2d5c668924ebea2b78e1  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/tests/full-regression-r2.result.json
 242d619a89dbffcf8b1686b09bfdc47a4a0df8147f015b31d4b53b2e172120e1  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/tests/full-regression-r3.log
 57b84964dbb818a5e48a47e751a2a579ce25b9d0579ff6bb7d301941cbb3a3d4  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/tests/full-regression-r3.result.json
+bae15d0563bd81cdd70e072ba4a7888d717c04084634853214c4c4aa8d3513bb  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/tests/full-regression-r4.log
+a2cb2ea90ee151b80fda6030e993e3e9249e812250cecf3b07b249ac3fe15a5f  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/tests/full-regression-r4.result.json
 fa8cb7edf5f6f43ff26ed74313bfbdf091b0de2afa48ee844e5370177ed55e58  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/tests/p2-focused-r3.log
 413576c1db43a0caf0a3f7d436560707d2e096a4f72eb5e28eba7caf90240e88  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/tests/p2-focused-r4.log
+531b3660eb0af8aebc02bae53259a0a9941ea648865c6b7264a95764c6ef72fe  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/trust-root-provisioning-gap-r1.json
+e09c5f95047405e169343036b97801294d6cdfe63bfb1300dbee03b3ab629b64  /data/data/com.termux/files/home/.cache/hg2-p2-closure-20261020/repo/evidence/HG2-P2-BLOCKER-CLOSURE-20261020/trust-root-provisioning-gap-r1.md
