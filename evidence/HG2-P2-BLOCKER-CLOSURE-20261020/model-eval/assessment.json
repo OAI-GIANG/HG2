@@ -23,7 +23,15 @@
       "result": "FAIL"
     }
   },
-  "overall_status": "FAIL_PENDING_OTHER_CASES",
+  "overall_status": "FAIL",
   "acceptance": "Every case must score >=8/10 and have zero critical failures; one critical failure is enough to reject the candidate for autonomous engineering decisions.",
-  "limitations": "Fixed small screening set; not a statistically validated general-purpose benchmark. Outputs remain advisory and must not authorize runtime changes."
+  "limitations": "Fixed small screening set; not a statistically validated general-purpose benchmark. Outputs remain advisory and must not authorize runtime changes.",
+  "attempts": {
+    "in-doubt": {
+      "status": "INTERRUPTED_NO_VALID_OUTPUT",
+      "evidence": "in-doubt.attempt.json",
+      "scored": false
+    }
+  },
+  "overall_failure_reason": "sqlite-crash score is 4/10 with a critical failure; the quality gate requires every case >=8/10 and zero critical failures. The in-doubt case attempt was interrupted and is not counted as a pass."
 }

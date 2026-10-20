@@ -9,12 +9,14 @@ import sys
 import tempfile
 import threading
 import unittest
+from unittest import mock
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from hg.durable import CONTRACT, DurableDeliveryError, DurableOutbox
 from hg.history import HistoryError, StateStore
 from hg.phone_runtime import PhoneRuntime
+from hg.server import HGHTTPServer
 
 
 CAPABILITIES = {
@@ -139,6 +141,63 @@ class P2BlockerClosureTests(unittest.TestCase):
         self.assertEqual(len(self._markers(restarted_again, "orphan-provider-call")), 1)
         self.assertTrue(restarted_again.health()["integrity"]["ok"])
 
+    def test_http_runtime_restart_recovers_in_doubt_under_server_startup_lock(self):
+        # Exercise the real HTTP server constructor and PhoneRuntime startup path,
+        # but only against a temporary state directory and ephemeral loopback port.
+        state = tempfile.mkdtemp(prefix="hg2-p2-http-restart-")
+        self.addCleanup(shutil.rmtree, state, ignore_errors=True)
+        env = {
+            "HG_STATE_DIR": state,
+            "HG_API_READ_TOKEN": "test-read-token",
+            "HG_API_WRITE_TOKEN": "test-write-token",
+            "HG_API_READ_TOKEN_ID": "read-v1",
+            "HG_API_WRITE_TOKEN_ID": "write-v1",
+            "HG_API_READ_TOKEN_EXPIRES_AT": "4102444800",
+            "HG_API_WRITE_TOKEN_EXPIRES_AT": "4102444800",
+            "HG_API_REVOKED_TOKEN_IDS": "",
+            "HG_API_PRINCIPAL_ID": "p2-test-owner",
+            "HG_MEMORY_READ_SCOPES": "owner",
+            "HG_MEMORY_WRITE_SCOPES": "owner",
+        }
+        request_id = "ask-http-restart-p2"
+        correlation_id = "corr-http-restart-p2"
+        with mock.patch.dict(os.environ, env, clear=False):
+            first = HGHTTPServer(("127.0.0.1", 0))
+            try:
+                first.runtime.store.emit(
+                    "model.call.started",
+                    {"operation": "model_answer", "brain_request_id": request_id,
+                     "query_sha256": "a" * 64, "context_manifest_sha256": "b" * 64,
+                     "brain_plan_digest": "c" * 64},
+                    correlation_id=correlation_id,
+                    event_id="model-call-start:" + request_id,
+                )
+                self.assertTrue(first.runtime.store.verify()["ok"])
+            finally:
+                first.server_close()
+
+            # New server instance reopens the same temporary state and must recover
+            # before serving, without retrying the uncertain model call.
+            second = HGHTTPServer(("127.0.0.1", 0))
+            try:
+                events = second.runtime.store.replay()
+                doubts = [event for event in events
+                          if event.get("event_type") == "model.call.in_doubt"
+                          and (event.get("payload") or {}).get("brain_request_id") == request_id]
+                self.assertEqual(len(doubts), 1)
+                self.assertEqual(doubts[0]["payload"]["reason"], "OUTCOME_UNKNOWN_AFTER_START")
+                self.assertTrue(second.runtime.store.verify()["ok"])
+            finally:
+                second.server_close()
+
+        recovered_again = PhoneRuntime(state_dir=state)
+        self.assertEqual(
+            len([event for event in recovered_again.store.replay()
+                 if event.get("event_type") == "model.call.in_doubt"
+                 and (event.get("payload") or {}).get("brain_request_id") == request_id]),
+            1,
+        )
+
     def test_real_child_process_crash_after_completion_does_not_mark_in_doubt(self):
         state = self.root / "state-completed"
         process = crash_after_model_start(state, "completed-provider-call", complete=True)
@@ -168,11 +227,31 @@ class P2BlockerClosureTests(unittest.TestCase):
             StateStore(str(active))
         restored = self.root / "state-restored"
         shutil.copytree(backup, restored)
-        recovered = PhoneRuntime(state_dir=str(restored))
-        self.assertTrue(recovered.health()["integrity"]["ok"])
-        self.assertTrue(any(
-            e.get("event_id") == "p2-checkpoint-marker" for e in recovered.store.replay()
-        ))
+        server_env = {
+            "HG_STATE_DIR": str(restored),
+            "HG_API_READ_TOKEN": "test-read-token",
+            "HG_API_WRITE_TOKEN": "test-write-token",
+            "HG_API_READ_TOKEN_ID": "read-v1",
+            "HG_API_WRITE_TOKEN_ID": "write-v1",
+            "HG_API_READ_TOKEN_EXPIRES_AT": "4102444800",
+            "HG_API_WRITE_TOKEN_EXPIRES_AT": "4102444800",
+            "HG_API_REVOKED_TOKEN_IDS": "",
+            "HG_API_PRINCIPAL_ID": "p2-test-owner",
+            "HG_MEMORY_READ_SCOPES": "owner",
+            "HG_MEMORY_WRITE_SCOPES": "owner",
+        }
+        with mock.patch.dict(os.environ, server_env, clear=False):
+            # Exercise rollback at the real server startup boundary, using only a
+            # restored temporary snapshot; the corrupted directory stays untouched.
+            restored_server = HGHTTPServer(("127.0.0.1", 0))
+            try:
+                self.assertTrue(restored_server.runtime.health()["integrity"]["ok"])
+                self.assertTrue(any(
+                    e.get("event_id") == "p2-checkpoint-marker"
+                    for e in restored_server.runtime.store.replay()
+                ))
+            finally:
+                restored_server.server_close()
 
     def test_http_outbox_retry_after_lost_ack_is_idempotent_across_store_restart(self):
         OutboxReceiver.logical_batches = set()

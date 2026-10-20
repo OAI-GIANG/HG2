@@ -1,0 +1,16 @@
+{
+  "schema_version": "HG2_LOCAL_MODEL_SCREENING_ATTEMPT_V1",
+  "case": "in-doubt",
+  "status": "INTERRUPTED_NO_VALID_OUTPUT",
+  "model": "Qwen/Qwen3-8B-GGUF",
+  "model_file": "Qwen3-8B-Q4_K_M.gguf",
+  "model_sha256": "d98cdcbd03e17ce47681435b5150e34c1417f50b5c0019dd560e4882c5745785",
+  "executable": "/data/data/com.termux/files/home/.cache/hg2-llm-local/llama.cpp/build/bin/llama-cli",
+  "arguments": ["-t", "6", "-c", "3072", "-n", "512", "--temp", "0.6", "--top-k", "20", "--top-p", "0.95", "--no-display-prompt"],
+  "observed_runtime_seconds": 186,
+  "observation": "No stdout or stderr bytes were produced. Process consumed roughly 380-489 percent CPU and 38 percent memory during observation.",
+  "action": "Terminated only the exact llama-cli process launched for this evaluation after verifying its executable and model path. No service process was affected.",
+  "score": null,
+  "critical_failure": null,
+  "acceptance_effect": "Not scored. Existing sqlite-crash case remains score 4/10 with a critical failure, so the overall model quality gate remains FAIL."
+}
