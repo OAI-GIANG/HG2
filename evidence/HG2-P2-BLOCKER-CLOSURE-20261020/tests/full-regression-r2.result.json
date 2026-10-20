@@ -1,0 +1,11 @@
+{
+  "schema_version": "HG2_TEST_RUN_RESULT_V1",
+  "command": "python3 -W error::ResourceWarning -m unittest discover -s tests",
+  "python": "Python 3.14.6",
+  "commit": "f855bd3728bfad5f91c53aa64652067aa7639aa7",
+  "exit_code": 0,
+  "tests_run": 393,
+  "result": "OK",
+  "log_sha256": "3195f65bbeab4924dd8fd870ce151d62b7fc7ece60e878913c4ad82a2edea008",
+  "scope": "Isolated candidate workspace only; does not prove live runtime cutover, independent trust-root provisioning, or offline model quality acceptance."
+}

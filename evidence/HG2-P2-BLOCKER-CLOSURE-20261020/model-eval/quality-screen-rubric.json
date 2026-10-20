@@ -1,0 +1,95 @@
+{
+  "schema_version": "HG2_VI_TECHNICAL_QUALITY_SCREEN_V1",
+  "model": "Qwen/Qwen3-8B-GGUF",
+  "revision": "7c41481f57cb95916b40956ab2f0b139b296d974",
+  "filename": "Qwen3-8B-Q4_K_M.gguf",
+  "file_sha256": "d98cdcbd03e17ce47681435b5150e34c1417f50b5c0019dd560e4882c5745785",
+  "license": "apache-2.0",
+  "generation": {
+    "context": 3072,
+    "max_new_tokens": 512,
+    "threads": 6,
+    "temperature": 0.6,
+    "top_k": 20,
+    "top_p": 0.95,
+    "presence_penalty": 1.5,
+    "enable_thinking": false
+  },
+  "scoring": "Each prompt is scored 0–10; pass threshold 8/10 and zero critical failure.",
+  "cases": {
+    "sqlite-crash": {
+      "max_score": 10,
+      "critical_failures": [
+        "recommend deleting WAL/SHM to recover",
+        "recommend .load as SQLite recovery step",
+        "suggest ROLLBACK in a new process to undo a transaction from an already terminated process",
+        "write production DB without permission"
+      ],
+      "criteria": [
+        "SQLite rollback/recovery on reopening after uncommitted transaction",
+        "preserve DB-WAL/SHM and do not manually delete them",
+        "use consistent backup/copy including required sidecars or SQLite backup API",
+        "PRAGMA integrity_check on a disposable copy",
+        "distinguish remote/outbox side effects from SQLite transaction atomicity"
+      ]
+    },
+    "outbox": {
+      "max_score": 10,
+      "critical_failures": [
+        "new idempotency key on retry",
+        "delete pending events after timeout without authenticated receipt",
+        "claim HTTP alone guarantees exactly-once effects"
+      ],
+      "criteria": [
+        "stable batch ID/idempotency key",
+        "durable dedupe on receiver tied to effect",
+        "retry after restart same ID",
+        "verify authenticated ACK binds ID/digest/count",
+        "append local ACK only after validation"
+      ]
+    },
+    "runner-attestation": {
+      "max_score": 10,
+      "critical_failures": [
+        "claim SHA-256 alone authenticates runner",
+        "accept missing trust root/signature/exit code"
+      ],
+      "criteria": [
+        "external trust root, pin separately obtained",
+        "verify signature and signer identity",
+        "bind clean commit and tree, suite ID/command/digest",
+        "bind environment and runner/image identity",
+        "bind exit code/test summary/actual stdout+stderr hash and bytes"
+      ]
+    },
+    "in-doubt": {
+      "max_score": 10,
+      "critical_failures": [
+        "automatically repeat unknown external provider call as safe",
+        "rewrite/loss event history"
+      ],
+      "criteria": [
+        "durable start before dispatch",
+        "recognize unmatched start after restart",
+        "append in_doubt exactly once over restarts",
+        "completed event suppresses false marker",
+        "retry only with stable idempotency or reconciled evidence"
+      ]
+    },
+    "offline-gate": {
+      "max_score": 10,
+      "critical_failures": [
+        "model output directly authorizes arbitrary shell/runtime changes",
+        "fluency alone proves technical correctness"
+      ],
+      "criteria": [
+        "output is untrusted proposal",
+        "deterministic policy/test gate",
+        "persist model/version/prompt/response evidence",
+        "fallback/abstain if gate fails",
+        "measurable acceptance threshold and fail-closed result"
+      ]
+    }
+  },
+  "overall_pass": "all five scored prompts >=8/10 with no critical failures; screening exercise only, not a statistically valid general engineering benchmark"
+}
