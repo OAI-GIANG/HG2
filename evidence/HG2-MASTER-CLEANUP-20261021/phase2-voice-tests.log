@@ -1,0 +1,54 @@
+----------------------------------------------------------------------
+Ran 63 tests in 0.104s
+
+OK
+{
+  "tool": "hg-voice",
+  "version": "0.1.0",
+  "python": "3.14.6",
+  "manifest": "/data/data/com.termux/files/home/.cache/hg2-master-cleanup-20261021/worktree/tools/voice/models.example.json",
+  "manifest_valid": true,
+  "engine_count": 4,
+  "tts": {
+    "engine": "espeak-ng",
+    "available": true,
+    "processing": "LOCAL",
+    "audio_player_available": true,
+    "quality_acceptance": "NOT_ASSESSED"
+  },
+  "microphone_accessed": false,
+  "network_used": false,
+  "downloads_performed": false,
+  "runtime_integration": false,
+  "status": "TTS_ENGINE_AVAILABLE_QUALITY_NOT_ACCEPTED"
+}
+[
+  {
+    "id": "whisper.cpp",
+    "task": "stt",
+    "processing": "LOCAL",
+    "status": "candidate",
+    "note": "Requires an explicitly installed, hash-pinned executable and model."
+  },
+  {
+    "id": "espeak-ng",
+    "task": "tts",
+    "processing": "LOCAL",
+    "status": "available-if-installed",
+    "note": "Produces a local WAV using bundled Vietnamese voices; intelligibility/quality has not been independently accepted."
+  },
+  {
+    "id": "vieneu-nano",
+    "task": "tts",
+    "processing": "LOCAL",
+    "status": "blocked-unverified",
+    "note": "Termux inference and Vietnamese quality are not yet verified."
+  },
+  {
+    "id": "termux-system-tts",
+    "task": "tts",
+    "processing": "DEVICE_SYSTEM_OR_UNKNOWN",
+    "status": "optional-unverified",
+    "note": "May use external services; disabled unless explicitly allowed."
+  }
+]

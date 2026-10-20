@@ -1,0 +1,44 @@
+{
+  "schema_version": "HG2_MASTER_CLEANUP_PHASE2_VERIFICATION_V1",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-master-cleanup-20261021",
+  "tested_code_revision": "24c80d28fa742078cc62bcbf350f98831027d97f",
+  "test_environment": {
+    "os": "Android / Termux",
+    "architecture": "aarch64",
+    "python": "3.14.6"
+  },
+  "tests": {
+    "core": {
+      "command": "python -m unittest discover -s tests -p 'test*.py' -q",
+      "result": "PASS",
+      "passed": 429,
+      "failed": 0,
+      "log": "evidence/HG2-MASTER-CLEANUP-20261021/phase2-core-tests.log",
+      "sha256": "f5d6e542331197a1b5fb8feb36e9ec4af5965b4d9d9610879be4f9d3a579e548"
+    },
+    "voice": {
+      "command": "cd tools/voice && python -m unittest discover -s tests -p 'test*.py' -q",
+      "result": "PASS",
+      "passed": 63,
+      "failed": 0,
+      "log": "evidence/HG2-MASTER-CLEANUP-20261021/phase2-voice-tests.log",
+      "sha256": "236e1ad53d9efb693b284d7640b1842f8e081ae7bde9b39dd127797050bfa240"
+    },
+    "aggregate": {
+      "passed": 492,
+      "failed": 0
+    },
+    "compileall": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "scope_limits": [
+    "No state migration or deletion was performed",
+    "No production service was restarted or modified",
+    "No live runtime adapter was added",
+    "Documentation/evidence additions are not a proof of production integration",
+    "Runtime checkout remains dirty and loaded-code provenance remains unmatched"
+  ],
+  "decision": "PHASE2_DESIGN_AND_READONLY_AUDIT_RECORDED; STATE_MIGRATION_AND_FULL_BRAIN_INTEGRATION_BLOCKED",
+  "release_status": "NOT_CLOSED_VERIFIED"
+}
