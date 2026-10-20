@@ -42,11 +42,43 @@
       "size_bytes": 1107408544,
       "sha256": "228fb5627f7510b8b3516cdb6435e4b0d2a2bf330fe5b0ab19284a3570a8bb1f",
       "engineering_quality_gate": "FAIL"
+    },
+    "third_candidate": {
+      "model": "Qwen/Qwen3-4B-GGUF",
+      "revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+      "license": "Apache-2.0",
+      "quantization": "Q4_K_M",
+      "size_bytes": 2497280256,
+      "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+      "tokens_per_second": 7.2,
+      "engineering_quality_gate": "FAIL"
     }
+  },
+  "runtime_checkpoints": {
+    "checkout_snapshot_verified": true,
+    "checkout_snapshot": "~/.cache/hg2-runtime-checkpoints/20261020-P2-live-checkout",
+    "checkout_snapshot_manifest_sha256": "a35ffa47e95843217097902d414187ae763e38783e9e27568228ed66bd75e00b",
+    "state_snapshot_verified": true,
+    "state_snapshot": "~/.cache/hg2-runtime-checkpoints/20261020-P2-live-state",
+    "state_snapshot_archive_sha256": "f7cd4672165ce750b2e7f96efd2816a9b6665a03932cd46cdbf76a401b015ba2",
+    "state_snapshot_manifest_sha256": "df53b5b1d4e9191dcfab014d0b9e5695f191cce10e5f0be289e860e97d52e7f3",
+    "candidate_runtime_on_disposable_state_copy": "PASS",
+    "live_state_cutover": false
+  },
+  "integration": {
+    "p2_evidence_pr": 33,
+    "p2_evidence_pr_state": "MERGED",
+    "candidate_branch_head": "90fb02c735ddd43d8e7f38bafc70c50da40ad283",
+    "release_pr": 29,
+    "release_pr_state": "OPEN",
+    "release_pr_ci": "PASS",
+    "release_pr_ci_url": "https://circleci.com/gh/OAI-GIANG/HG2/300",
+    "release_pr_merged_to_hg_genesis": false
   },
   "remaining_blockers": [
     "Trusted production semantic evidence verifier and externally provisioned trust root not established",
-    "Active PhoneRuntime checkout has unpreserved dirty modifications; production StateStore cutover and recovery not proven"
+    "Active PhoneRuntime changes are preserved in a verified snapshot but remain unreconciled; production StateStore cutover and recovery not proven",
+    "All three local text model candidates failed the engineering-quality gate"
   ],
   "live_runtime_mutated": false,
   "services_restarted": false,
