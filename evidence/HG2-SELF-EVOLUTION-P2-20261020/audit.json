@@ -1,0 +1,54 @@
+{
+  "schema_version": "HG2_SELF_EVOLUTION_P2_AUDIT_V1",
+  "date": "2026-10-20",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-self-evolution-p2-readiness-20261020",
+  "base_commit": "25992701fd0e8ce8d4349dc0fdd298311420d309",
+  "status": "BLOCKED",
+  "focused_crash_recovery": {
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "isolated_temporary_database": true,
+    "live_runtime_cutover": false
+  },
+  "full_regression": {
+    "command": "python -W error::ResourceWarning -m unittest discover -s tests",
+    "tests": 380,
+    "passed": 380,
+    "failed": 0,
+    "errors": 0,
+    "duration_seconds": 43.863,
+    "log": "evidence/HG2-SELF-EVOLUTION-P2-20261020/logs/full-regression.log"
+  },
+  "local_model": {
+    "runtime": "llama.cpp",
+    "runtime_commit": "3bb63cbcbfb62056c84fe9e521b0f3d756d29c32",
+    "target": "Android Termux aarch64",
+    "model": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+    "model_revision": "a615a81362316d7b9f5a7a9c4313adfdf9b54588",
+    "license": "Apache-2.0",
+    "quantization": "Q4_K_M",
+    "size_bytes": 1117320736,
+    "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "model_gateway_loopback_test": "PASS",
+    "engineering_quality_gate": "FAIL",
+    "production_binding": false,
+    "second_candidate": {
+      "model": "Qwen/Qwen3-1.7B-GGUF",
+      "revision": "cd3d34a469f89b12676edce7d272750201959466",
+      "license": "Apache-2.0",
+      "quantization": "Q4_K_M",
+      "size_bytes": 1107408544,
+      "sha256": "228fb5627f7510b8b3516cdb6435e4b0d2a2bf330fe5b0ab19284a3570a8bb1f",
+      "engineering_quality_gate": "FAIL"
+    }
+  },
+  "remaining_blockers": [
+    "Trusted production semantic evidence verifier and externally provisioned trust root not established",
+    "Active PhoneRuntime checkout has unpreserved dirty modifications; production StateStore cutover and recovery not proven"
+  ],
+  "live_runtime_mutated": false,
+  "services_restarted": false,
+  "pr29_merged_to_hg_genesis": false
+}
