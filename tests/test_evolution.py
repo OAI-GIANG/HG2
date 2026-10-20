@@ -11,9 +11,12 @@ from hg.evolution import (
 
 
 def compare_evaluations(spec, baseline, candidate, **kwargs):
-    """Test harness stub only; it is not a production evidence verifier."""
+    """Test harness stub only; its receipts do not prove external evidence truth."""
     kwargs.setdefault("evidence_verifier_id", "unit-test-stub")
-    kwargs.setdefault("evidence_verifier", lambda _ref: True)
+    kwargs.setdefault(
+        "evidence_verifier",
+        lambda ref: (True, "test-receipt:" + hashlib.sha256(ref.encode()).hexdigest()),
+    )
     return _compare_evaluations(spec, baseline, candidate, **kwargs)
 
 
@@ -283,10 +286,16 @@ class EvolutionGateTests(unittest.TestCase):
         self.assertEqual(missing["reason_code"], "EVIDENCE_VERIFIER_REQUIRED")
         rejected = _compare_evaluations(
             spec, baseline, candidate, evidence_verifier_id="test-false-verifier",
-            evidence_verifier=lambda _ref: False
+            evidence_verifier=lambda _ref: (False, "test-receipt:failed")
         )
         self.assertEqual(rejected["status"], "INCONCLUSIVE")
         self.assertEqual(rejected["reason_code"], "EVIDENCE_REFERENCE_UNVERIFIED")
+        malformed = _compare_evaluations(
+            spec, baseline, candidate, evidence_verifier_id="test-bool-verifier",
+            evidence_verifier=lambda _ref: True
+        )
+        self.assertEqual(malformed["status"], "INCONCLUSIVE")
+        self.assertEqual(malformed["reason_code"], "EVIDENCE_VERIFIER_INVALID_RESPONSE")
 
     def test_unhashable_target_and_case_status_fail_closed(self):
         with self.assertRaisesRegex(EvolutionError, "EVOLUTION_TARGET_KIND_INVALID"):

@@ -241,19 +241,26 @@ def compare_evaluations(
     verifier_id = evidence_verifier_id
     evidence_refs = sorted(set(spec["evidence_refs"] + baseline["evidence_refs"]
                                + candidate["evidence_refs"]))
+    verification_receipts = []
     for ref in evidence_refs:
         try:
             verified = evidence_verifier(ref)
         except Exception:
             return _decision("INCONCLUSIVE", "EVIDENCE_VERIFIER_ERROR", spec, baseline, candidate)
-        if verified is not True:
+        if (not isinstance(verified, tuple) or len(verified) != 2
+                or type(verified[0]) is not bool
+                or not isinstance(verified[1], str) or not verified[1].strip()):
+            return _decision("INCONCLUSIVE", "EVIDENCE_VERIFIER_INVALID_RESPONSE", spec, baseline, candidate)
+        if verified[0] is not True:
             return _decision("INCONCLUSIVE", "EVIDENCE_REFERENCE_UNVERIFIED", spec, baseline, candidate)
+        verification_receipts.append({"reference": ref, "receipt_ref": verified[1]})
 
     def decide(status, reason, **extra):
         return _decision(
             status, reason, spec, baseline, candidate,
             evidence_verifier_id=verifier_id,
-            evidence_verification="CALLBACK_TRUE_FOR_ALL_REFERENCES",
+            evidence_verification="CALLBACK_RECEIPT_FOR_ALL_REFERENCES",
+            evidence_verification_refs=verification_receipts,
             **extra,
         )
 
