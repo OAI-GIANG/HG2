@@ -21,3 +21,15 @@ HG absorbs selected engineering patterns, not ECC runtime code or command names.
 HG schemas, policy, state authority, and Remote Desktop Commander identity remain
 native to HG. Third-party skills are untrusted until their source, hash, license,
 capabilities, and verification path are reviewed.
+
+## Functional architecture and local tools
+
+The target layout is one central Brain plus four subordinate logical domains. See
+[`docs/architecture/HG2-FIVE-BRANCH-ARCHITECTURE-V1.md`](docs/architecture/HG2-FIVE-BRANCH-ARCHITECTURE-V1.md)
+for ownership boundaries and readiness rules.
+
+Offline local utilities include repository code intelligence (`tools/hg_code_intelligence.py`),
+creative-assimilation candidate evaluation (`hg/creative_assimilation.py`), and the optional
+voice CLI (`tools/voice`). Their unit tests do not imply that they are wired as production Brain
+capabilities. Voice synthesis quality is not accepted; local model-backed ASR/TTS remains gated
+on pinned artifacts, rights/license review and target-device quality evidence.

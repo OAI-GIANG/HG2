@@ -63,7 +63,7 @@ class BrainOrchestratorTests(unittest.TestCase):
                 return success(ctx, branch)
             self.handlers[branch] = handler
 
-    def test_five_domain_route_and_execution(self):
+    def test_four_subordinate_domains_route_under_single_brain(self):
         caps = [c for branch in BRANCH_ORDER for c in sorted(BRANCH_CAPABILITIES[branch])[:1]]
         req = request(caps)
         plan = self.brain.plan(req, available_capabilities=self.inventory, workers=self.handlers)
@@ -75,6 +75,14 @@ class BrainOrchestratorTests(unittest.TestCase):
         self.assertEqual(result["invoked_branches"], list(BRANCH_ORDER))
         self.assertEqual(self.called, list(BRANCH_ORDER))
         self.assertEqual(len(result["plan_digest"]), 64)
+        self.assertNotIn("planning_coordination", BRANCH_ORDER)
+
+    def test_planning_is_brain_control_plane_not_a_peer_worker(self):
+        self.assertEqual(len(BRANCH_ORDER), 4)
+        self.assertNotIn("planning_coordination", BRANCH_CAPABILITIES)
+        with self.assertRaisesRegex(BrainRoutingError, "UNKNOWN_CAPABILITY"):
+            self.brain.plan(request(["task.decompose"]),
+                            available_capabilities=self.inventory, workers=self.handlers)
 
     def test_missing_capability_blocks_before_any_worker_runs(self):
         req = request(["memory.search", "tool.execute"])
@@ -198,7 +206,7 @@ class BrainOrchestratorTests(unittest.TestCase):
         self.assertEqual(result["invoked_branches"], ["memory_knowledge"])
 
     def test_route_branch_budget_blocks(self):
-        req = request(["memory.search", "research.analyze", "task.decompose"],
+        req = request(["memory.search", "research.analyze", "tool.execute"],
                       max_branches=2)
         result = self.brain.execute(req, available_capabilities=self.inventory,
                                     workers=self.handlers, evidence_verifier=lambda ref: True)

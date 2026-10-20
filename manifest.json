@@ -17,7 +17,8 @@
     "hg.capability_registry",
     "hg.unified_harness",
     "hg.remote_desktop_commander",
-    "hg.skill_contract"
+    "hg.skill_contract",
+    "hg.creative_assimilation"
   ],
   "origin": "clean_room"
 }

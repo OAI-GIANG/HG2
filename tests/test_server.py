@@ -169,7 +169,7 @@ class ServerTests(unittest.TestCase):
                          body["capability_registry"]["registry_digest"])
         registry_by_id = {item["capability_id"]: item for item in planned["payload"]["registry_entries"]}
         self.assertEqual(registry_by_id["memory.search"]["lifecycle_state"], "TESTED")
-        self.assertEqual(registry_by_id["task.decompose"]["lifecycle_state"], "UNBOUND")
+        self.assertNotIn("task.decompose", registry_by_id)
         self.assertFalse(registry_by_id["synthesis.propose"]["hard_timeout_enforced"])
 
         # A duplicate with the same principal, key, source and normalized input replays

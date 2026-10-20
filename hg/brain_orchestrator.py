@@ -23,10 +23,11 @@ from .contracts import (
 )
 
 # Logical capability ownership, not Git branches or separate command authorities.
+# The Brain is the sole command/planning authority. These are its four subordinate
+# domains; planning is not a fifth worker and cannot be registered as a peer adapter.
 BRANCH_CAPABILITIES: dict[str, frozenset[str]] = {
     "memory_knowledge": frozenset({"memory.search", "memory.recall", "provenance.inspect"}),
     "research_synthesis": frozenset({"research.analyze", "synthesis.propose", "source.compare"}),
-    "planning_coordination": frozenset({"task.decompose", "dependency.plan"}),
     "tools_execution": frozenset({"tool.execute", "artifact.build"}),
     "security_verification": frozenset({"policy.check", "evidence.verify", "conflict.review"}),
 }
@@ -39,7 +40,7 @@ _CAPABILITY_OWNER = {
 _CAPABILITY_ID = re.compile(r"^[a-z][a-z0-9_.-]{0,95}$")
 _SHA = re.compile(r"^(?:[0-9a-f]{40}|[0-9a-f]{64})$")
 _MAX_CAPABILITIES = 32
-_MAX_BRANCHES = 5
+_MAX_BRANCHES = 4
 _MAX_STEPS = 100
 _MAX_DEADLINE_SECONDS = 3600.0
 
