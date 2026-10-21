@@ -1,0 +1,18 @@
+{
+  "schema": "HG2_MODEL_GATEWAY_EXACT_OUTPUT_NORMALIZER_REAL_SMOKE_V1",
+  "observed_at_utc": "2026-10-21T07:11:43.781819+00:00",
+  "model": "qwen2.5-1.5b-instruct-q4_k_m",
+  "query_sha256": "09f1926fabeec178645f7b9d3c27094e17f50dc185839b70c4a767a1d6bcea9c",
+  "expected": "HG2_RUNTIME_IDEMPOTENCY_CHECK",
+  "answer": "HG2_RUNTIME_IDEMPOTENCY_CHECK",
+  "exact_match": true,
+  "answer_sha256": "bb70921b3c726da01c30b28305b9458c1af0f483c2251730386bc1f10e51d2f4",
+  "provider_answer_sha256": "13efedaabfcc02468af09707d64b8390c968661681a810fab1f79f3069d03439",
+  "normalized_answer_sha256": "bb70921b3c726da01c30b28305b9458c1af0f483c2251730386bc1f10e51d2f4",
+  "answer_normalization": "UNWRAPPED_EXACT_ANSWER_JSON_ENVELOPE",
+  "response_sha256": "6ac676d470f3ed587bd6eaef7eeb7fa7ed7d3e53e75d5090adff66899aecf6d0",
+  "manifest_sha256": "fb2b7ae96891ec93d3d43f0cac370fbdf8dbc708a7ee48f36153294e3a235551",
+  "provider_called": true,
+  "live_api_ask_called": false,
+  "live_state_write_expected": false
+}

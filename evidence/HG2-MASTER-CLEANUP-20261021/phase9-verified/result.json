@@ -1,0 +1,72 @@
+{
+  "schema": "HG2_MODEL_GATEWAY_EXACT_OUTPUT_NORMALIZER_RESULT_V1",
+  "recorded_at_utc": "2026-10-21T07:13:27.918302+00:00",
+  "repository": "OAI-GIANG/HG2",
+  "base_runtime_revision": "fcc561ae919b64572c5a9b549d5664b7fbfd4676",
+  "candidate_work_branch": "stt/hg2-master-cleanup-20261021",
+  "candidate_source_changes": [
+    "hg/model_gateway.py",
+    "tests/test_model_gateway.py"
+  ],
+  "unit_tests": {
+    "command": "python3 -B -m unittest discover -s tests -p test_model_gateway.py",
+    "result": "PASS",
+    "count": 11,
+    "log_sha256": "5d9ac5473cfad66829aa7d149f89491362b0b5263ab19a39817866fdb5286f86"
+  },
+  "real_local_model_smoke": {
+    "model": "qwen2.5-1.5b-instruct-q4_k_m",
+    "result": "PASS",
+    "exact_match": true,
+    "normalization": "UNWRAPPED_EXACT_ANSWER_JSON_ENVELOPE",
+    "provider_answer_sha256": "13efedaabfcc02468af09707d64b8390c968661681a810fab1f79f3069d03439",
+    "normalized_answer_sha256": "bb70921b3c726da01c30b28305b9458c1af0f483c2251730386bc1f10e51d2f4",
+    "live_api_ask_called": false
+  },
+  "live_state_unchanged": true,
+  "full_http_api_e2e_on_candidate": "NOT_RUN",
+  "live_runtime_restarted": false,
+  "production_deployed": false,
+  "commit_created_for_this_fix": true,
+  "status": "TESTED_NOT_DEPLOYED",
+  "limitations": [
+    "The active production runtime remains on the old release and has not been restarted.",
+    "The live POST /api/ask response from the old release was PARTIAL and did not satisfy the exact-output format.",
+    "The candidate has unit tests and a real ModelGateway call against the local provider, but no isolated candidate HTTP-server test yet.",
+    "Normalization only unwraps a single-key answer envelope when the extracted exact-output literal matches; mismatched responses remain unchanged."
+  ],
+  "recorded_update": "Added explicit TRIMMED_EXACT_OUTPUT_WHITESPACE status and regression test.",
+  "candidate_commit": "07aa9492a95514324e01a12a5f3ee3d717c82ae6",
+  "commit_message": "fix: normalize explicit exact-output model responses",
+  "pushed": false,
+  "merged": false,
+  "deployed": false,
+  "candidate_server_startup_health": "PASS",
+  "candidate_startup_provenance": "PASS",
+  "candidate_http_api_e2e": "HTTP route integration with fake provider PASS; separate candidate-server POST blocked before request; real provider ModelGateway smoke PASS",
+  "candidate_http_request_sent": false,
+  "live_runtime_after_candidate_cleanup": {
+    "ok": true,
+    "runtime": "READY",
+    "build_commit": "fcc561ae919b64572c5a9b549d5664b7fbfd4676",
+    "source_manifest_sha256": "4fcc892b1f95c37143e5e75590afbdbc349c9128d647e831067b9dd6eacd751c",
+    "event_count": 13,
+    "integrity": "chain_ok",
+    "provenance_ok": true
+  },
+  "implementation_commit": "71c7aa95700817f5fba32544d6fe0e0ba2463171",
+  "test_commit": "07aa9492a95514324e01a12a5f3ee3d717c82ae6",
+  "server_route_integration_test": {
+    "result": "PASS",
+    "count": 1,
+    "log_sha256": "1249cc18b1fa740eb8f64343b82ca85d2411a1c639966c5612d6228431a9462f",
+    "coverage": [
+      "Exact output normalized from single-key JSON answer envelope",
+      "Raw provider-answer hash differs from normalized-answer hash",
+      "Brain result remains PARTIAL with RESPONSE_ONLY branch",
+      "Same-key replay returns cached exact answer without a second provider call",
+      "Event count does not change on replay",
+      "StateStore integrity verifies after the request"
+    ]
+  }
+}
