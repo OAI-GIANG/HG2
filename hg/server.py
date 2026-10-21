@@ -33,6 +33,8 @@ from .brain_orchestrator import BrainOrchestrator
 from .capability_registry import RuntimeCapabilityRegistry, RuntimeDomainBinding
 from .contracts import BRAIN_REQUEST_V1, CAPABILITY_RESULT_V1, canonical_digest
 from .unified_harness import UnifiedHarness
+from .auth import BearerAuthenticator, CONFIGURABLE_SCOPES
+from .maep import MaepError
 
 MAX_BODY = 256 * 1024
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
@@ -121,6 +123,11 @@ class HGHTTPServer(ThreadingHTTPServer):
         self.principal_id = os.environ.get("HG_API_PRINCIPAL_ID", "phone-owner")
         self.read_scopes = _scopes("HG_MEMORY_READ_SCOPES")
         self.write_scopes = _scopes("HG_MEMORY_WRITE_SCOPES")
+        # MAEP is opt-in. The request must be authenticated again into a sealed
+        # principal whose scopes exactly match the pre-bound MAEP host adapter.
+        self.maep_scopes = _scopes("HG_MAEP_SCOPES")
+        if not self.maep_scopes <= CONFIGURABLE_SCOPES:
+            self.maep_scopes = frozenset()
         self.max_connections = _bounded_int("HG_MAX_CONNECTIONS", 32, 1, 256)
         self.request_timeout = _bounded_float("HG_REQUEST_TIMEOUT_SECONDS", 5.0, 0.1, 60.0)
         rate_limit = _bounded_int("HG_RATE_LIMIT_REQUESTS", 120, 1, 10000)
@@ -1208,8 +1215,163 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                 with self.server._ask_lock:
                     self.server._ask_active.discard(active_key)
 
+    def _maep_binding(self):
+        """Return a pre-bound MAEP adapter only when it shares the runtime state owner."""
+        binding = getattr(self.server.runtime, "maep_binding", None)
+        if binding is None:
+            self._send(503, {"ok": False, "error": {"code": "MAEP_RUNTIME_BINDING_UNAVAILABLE"}})
+            return None
+        adapter = getattr(binding, "adapter", None)
+        if adapter is None or getattr(adapter, "store", None) is not getattr(self.server.runtime, "store", None):
+            self._send(503, {"ok": False, "error": {"code": "MAEP_CANONICAL_STATE_MISMATCH"}})
+            return None
+        header = self.headers.get("Authorization", "")
+        principal = BearerAuthenticator(
+            self.server.write_token, self.server.maep_scopes,
+            principal_id=self.server.principal_id,
+        ).authenticate(header)
+        if principal is None:
+            code = "MAEP_SCOPE_NOT_CONFIGURED" if not self.server.maep_scopes else "MAEP_PRINCIPAL_AUTHENTICATION_FAILED"
+            self._send(403, {"ok": False, "error": {"code": code}})
+            return None
+        if (principal.principal_id != binding.principal.principal_id
+                or principal.scopes != binding.principal.scopes
+                or not principal.allows("audit.append")):
+            self._send(403, {"ok": False, "error": {"code": "MAEP_BOUND_PRINCIPAL_MISMATCH"}})
+            return None
+        return binding
+
+    @staticmethod
+    def _maep_task_matches(existing, submitted):
+        """Compare immutable request fields while ignoring server-managed stage status."""
+        fields = ("OBJECTIVE", "SCOPE", "INPUT", "OUTPUT", "EVIDENCE", "RISKS",
+                  "STOP_CONDITION", "NEXT_ACTION", "CLOSURE_CONDITIONS", "BRANCH", "HEAD", "WORKING_TREE")
+        for field in fields:
+            if existing.get(field) != submitted.get(field):
+                return False
+        if existing.get("REPOSITORY") != submitted.get("REPOSITORY", "OAI-GIANG/HG2"):
+            return False
+        old = existing.get("ACCEPTANCE_CRITERIA", [])
+        new = submitted.get("ACCEPTANCE_CRITERIA", [])
+        normalize = lambda items: [
+            {"id": item.get("id"), "description": item.get("description"),
+             "required": item.get("required"), "verification": item.get("verification")}
+            for item in items if isinstance(item, dict)
+        ]
+        return normalize(old) == normalize(new)
+
+    def _handle_maep_task_create(self):
+        if self._auth(write=True) is None:
+            return
+        binding = self._maep_binding()
+        if binding is None:
+            return
+        try:
+            body = self._body()
+            if type(body) is not dict or set(body) != {"task"} or type(body.get("task")) is not dict:
+                self._send(400, {"ok": False, "error": {"code": "MAEP_TASK_BODY_INVALID"}})
+                return
+            task = body["task"]
+            key = self.headers.get("Idempotency-Key", "")
+            task_id = task.get("task_id")
+            if not isinstance(key, str) or not ID_RE.fullmatch(key) or key != task_id:
+                self._send(400, {"ok": False, "error": {"code": "MAEP_TASK_IDEMPOTENCY_KEY_MISMATCH"}})
+                return
+            engine = binding.build_orchestrator()
+            try:
+                existing = engine.load_task(task_id)
+            except MaepError as exc:
+                if exc.code != "MAEP_TASK_NOT_FOUND":
+                    raise
+                state = engine.create_task(task)
+                self._send(201, {"ok": True, "task": state,
+                                 "idempotency": {"key": key, "replayed": False}})
+                return
+            if not self._maep_task_matches(existing, task):
+                self._send(409, {"ok": False, "error": {"code": "MAEP_TASK_IDEMPOTENCY_CONFLICT"}})
+                return
+            self._send(200, {"ok": True, "task": existing,
+                             "idempotency": {"key": key, "replayed": True}})
+        except TimeoutError:
+            self.close_connection = True
+            self._send(408, {"ok": False, "error": {"code": "REQUEST_TIMEOUT"}}, headers={"Connection": "close"})
+        except OverflowError:
+            self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
+        except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+            self._send(400, {"ok": False, "error": {"code": "MAEP_TASK_REQUEST_INVALID"}})
+        except MaepError as exc:
+            self._send(422, {"ok": False, "error": {"code": exc.code}})
+        except Exception:
+            self._send(503, {"ok": False, "error": {"code": "MAEP_REQUEST_FAILED_CLOSED"}})
+
+    def _handle_maep_run_next(self, task_id):
+        if self._auth(write=True) is None:
+            return
+        binding = self._maep_binding()
+        if binding is None:
+            return
+        try:
+            body = self._body()
+            if body not in ({}, None):
+                self._send(400, {"ok": False, "error": {"code": "MAEP_RUN_BODY_INVALID"}})
+                return
+            key = self.headers.get("Idempotency-Key", "")
+            if not isinstance(key, str) or not ID_RE.fullmatch(key) or not key.startswith(task_id + ":"):
+                self._send(400, {"ok": False, "error": {"code": "MAEP_PHASE_IDEMPOTENCY_KEY_INVALID"}})
+                return
+            engine = binding.build_orchestrator()
+            state = engine.load_task(task_id)
+            phase_id = key.rsplit(":", 1)[-1]
+            if phase_id not in {f"S{i}" for i in range(14)}:
+                self._send(400, {"ok": False, "error": {"code": "MAEP_PHASE_ID_INVALID"}})
+                return
+            previous = state.get("stage_results", {}).get(phase_id)
+            if isinstance(previous, dict) and previous.get("idempotency_key") == key:
+                if previous.get("status") == "RUNNING" and state.get("status") == "IN_PROGRESS":
+                    # A persisted RUNNING receipt is an interrupted action. The engine
+                    # transitions it to BLOCKED; it must never call the handler again.
+                    state = engine.run_next(task_id)
+                else:
+                    self._send(200, {"ok": True, "task": state,
+                                     "idempotency": {"key": key, "replayed": True}})
+                    return
+                self._send(409, {"ok": False, "task": state,
+                                 "error": {"code": "MAEP_INTERRUPTED_ACTION_REQUIRES_RECONCILIATION"},
+                                 "idempotency": {"key": key, "replayed": True}})
+                return
+            expected = task_id + ":" + state.get("CURRENT_STATE", "")
+            if key != expected:
+                self._send(409, {"ok": False, "error": {"code": "MAEP_PHASE_IDEMPOTENCY_CONFLICT"}})
+                return
+            state = engine.run_next(task_id)
+            if state.get("status") == "BLOCKED":
+                self._send(409, {"ok": False, "task": state,
+                                 "error": {"code": (state.get("block") or {}).get("code", "MAEP_STAGE_BLOCKED")},
+                                 "idempotency": {"key": key, "replayed": False}})
+                return
+            self._send(200, {"ok": True, "task": state,
+                             "idempotency": {"key": key, "replayed": False}})
+        except TimeoutError:
+            self.close_connection = True
+            self._send(408, {"ok": False, "error": {"code": "REQUEST_TIMEOUT"}}, headers={"Connection": "close"})
+        except OverflowError:
+            self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
+        except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+            self._send(400, {"ok": False, "error": {"code": "MAEP_RUN_REQUEST_INVALID"}})
+        except MaepError as exc:
+            self._send(422, {"ok": False, "error": {"code": exc.code}})
+        except Exception:
+            self._send(503, {"ok": False, "error": {"code": "MAEP_REQUEST_FAILED_CLOSED"}})
+
     def do_POST(self):
         path = urlsplit(self.path).path
+        if path == "/api/maep/tasks":
+            self._handle_maep_task_create()
+            return
+        run_match = re.fullmatch(r"/api/maep/tasks/([^/]+)/run-next", path)
+        if run_match:
+            self._handle_maep_run_next(run_match.group(1))
+            return
         if path == "/api/durable/sync":
             grants = self._auth(write=True)
             if grants is None: return
