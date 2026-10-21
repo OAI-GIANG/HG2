@@ -1,9 +1,11 @@
 import json, os, tempfile, threading, unittest, urllib.error, urllib.request
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest.mock import patch
 from http.client import HTTPConnection
 from hg.history import StateStore
 from hg.phone_runtime import PhoneRuntime
 from hg.server import HGHTTPServer
+from hg.model_gateway import ModelGateway
 
 READ_TOKEN = "test-hg-api-read-token"
 WRITE_TOKEN = "test-hg-api-write-token"
@@ -200,6 +202,61 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(final_status, 409)
         self.assertEqual(final_body["error"]["code"], "IDEMPOTENCY_OUTCOME_FINAL_RESPONSE_NOT_CACHED")
         self.assertEqual(gateway.calls, 1)
+
+    def test_ask_normalizes_exact_output_envelope_and_replays(self):
+        token = "HG2_RUNTIME_IDEMPOTENCY_CHECK"
+
+        class ProviderHandler(BaseHTTPRequestHandler):
+            calls = 0
+            def do_POST(self):
+                n = int(self.headers.get("Content-Length", "0"))
+                json.loads(self.rfile.read(n))
+                ProviderHandler.calls += 1
+                content = json.dumps({"answer": token}, separators=(",", ":"))
+                payload = json.dumps({"model": "fake-model-v1", "choices": [{"message": {"content": content}}]}).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            def log_message(self, *args):
+                return
+
+        ProviderHandler.calls = 0
+        provider = ThreadingHTTPServer(("127.0.0.1", 0), ProviderHandler)
+        provider_thread = threading.Thread(target=provider.serve_forever, daemon=True)
+        provider_thread.start()
+        def stop_provider():
+            provider.shutdown(); provider.server_close(); provider_thread.join(timeout=2)
+        self.addCleanup(stop_provider)
+        self.rt.model_gateway = ModelGateway(
+            base_url="http://127.0.0.1:%d/v1" % provider.server_port,
+            api_key="fake-provider-key", model="fake-model", timeout=3,
+        )
+        headers = {"Idempotency-Key": "ask-exact-output-normalizer-test-01"}
+        status, body = self.call(
+            "/api/ask", "POST", {"query": "Return exactly HG2_RUNTIME_IDEMPOTENCY_CHECK and nothing else."},
+            token=READ_TOKEN, headers=headers,
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(body["answer"], token)
+        self.assertEqual(body["model_manifest"]["answer_normalization"], "UNWRAPPED_EXACT_ANSWER_JSON_ENVELOPE")
+        self.assertNotEqual(body["model_manifest"]["provider_answer_sha256"], body["model_manifest"]["normalized_answer_sha256"])
+        self.assertEqual(body["brain"]["status"], "PARTIAL")
+        self.assertEqual([x["status"] for x in body["brain"]["branch_results"]], ["SUCCESS", "RESPONSE_ONLY"])
+        events_after_first = len(self.rt.store.replay())
+        self.assertEqual(ProviderHandler.calls, 1)
+
+        replay_status, replay_body = self.call(
+            "/api/ask", "POST", {"query": "Return exactly HG2_RUNTIME_IDEMPOTENCY_CHECK and nothing else."},
+            token=READ_TOKEN, headers=headers,
+        )
+        self.assertEqual(replay_status, 200)
+        self.assertEqual(replay_body["answer"], token)
+        self.assertTrue(replay_body["idempotency"]["replayed"])
+        self.assertEqual(ProviderHandler.calls, 1)
+        self.assertEqual(len(self.rt.store.replay()), events_after_first)
+        self.assertTrue(self.rt.store.verify()["ok"])
 
     def test_ask_fails_closed_when_precall_audit_write_fails(self):
         self.rt.memory.remember({"id":"audit-fail-memory","type":"fact","title":"HG2","content":"single runtime","scope_id":"owner"},
