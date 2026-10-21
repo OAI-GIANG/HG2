@@ -312,5 +312,58 @@ class MaepOrchestratorTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, "MAEP_CANONICAL_SQLITE_STORE_REQUIRED")
 
 
+    def test_unsealed_or_missing_principal_is_rejected(self):
+        with self.assertRaises(MaepError) as caught:
+            MaepOrchestrator(
+                self.store, principal=None, actor_id="maep-test",
+                handlers=self.handlers, authorizer=test_authorizer,
+                evidence_verifier=test_evidence_verifier,
+            )
+        self.assertEqual(caught.exception.code, "MAEP_SEALED_PRINCIPAL_REQUIRED")
+
+    def test_actor_must_match_authenticated_principal(self):
+        with self.assertRaises(MaepError) as caught:
+            MaepOrchestrator(
+                self.store, principal=self.principal, actor_id="different-actor",
+                handlers=self.handlers, authorizer=test_authorizer,
+                evidence_verifier=test_evidence_verifier,
+            )
+        self.assertEqual(caught.exception.code, "MAEP_ACTOR_PRINCIPAL_MISMATCH")
+
+    def test_missing_evidence_verifier_blocks_before_handler(self):
+        engine = MaepOrchestrator(
+            self.store, principal=self.principal, actor_id="maep-test",
+            handlers=self.handlers, authorizer=test_authorizer,
+            evidence_verifier=None,
+        )
+        engine.create_task(make_task("task:no-verifier"))
+        state = engine.run_next("task:no-verifier")
+        self.assertEqual(state["status"], "BLOCKED")
+        self.assertEqual(state["block"]["code"], "ENTRY_EVIDENCE_UNVERIFIED")
+        self.assertEqual(state["block"]["detail"], "EVIDENCE_VERIFIER_UNAVAILABLE")
+        self.assertEqual(self.calls, [])
+
+    def test_evidence_verifier_exception_malformed_or_denied_fails_closed(self):
+        verifiers = (
+            lambda ids, context: (_ for _ in ()).throw(RuntimeError("verifier unavailable")),
+            lambda ids, context: {"ok": True},
+            lambda ids, context: (False, "EVIDENCE_REJECTED"),
+        )
+        for index, verifier in enumerate(verifiers):
+            with self.subTest(verifier=index):
+                handlers, calls = all_handlers()
+                engine = MaepOrchestrator(
+                    self.store, principal=self.principal, actor_id="maep-test",
+                    handlers=handlers, authorizer=test_authorizer,
+                    evidence_verifier=verifier,
+                )
+                task_id = "task:bad-verifier:" + str(index)
+                engine.create_task(make_task(task_id))
+                state = engine.run_next(task_id)
+                self.assertEqual(state["status"], "BLOCKED")
+                self.assertEqual(state["block"]["code"], "ENTRY_EVIDENCE_UNVERIFIED")
+                self.assertEqual(calls, [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
