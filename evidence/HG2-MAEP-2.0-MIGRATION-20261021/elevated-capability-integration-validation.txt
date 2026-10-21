@@ -1,0 +1,23 @@
+HG2 MAEP-2.0 ELEVATED CAPABILITY INTEGRATION VALIDATION
+Repository: OAI-GIANG/HG2
+Branch: stt/hg2-master-cleanup-20261021
+Base HEAD before this continuation: 1ad5f6528e5be63f63986660e616df790ffc217c
+Scope: isolated worktree and temporary test fixtures only
+
+Implementation:
+- Added hg/elevated_capability_registry.py.
+- Added tests/test_elevated_capability_registry.py.
+- Added docs/MAEP-2.0-ELEVATED-CAPABILITY-INTEGRATION.md.
+- Real bounded file.read handler checks exact sealed-principal scope, allowlisted root, no path traversal/symlink, size bounds and expected SHA-256.
+- Added adapter binding into existing RuntimeCapabilityRegistry as security_verification/evidence.verify.
+- Bound a MAEP S0 read-only stage to CanonicalWorkflowAdapter, same SQLiteStateStore, real FilesystemEvidenceVerifier and exact principal scope.
+
+Targeted tests: python -m unittest tests.test_elevated_capability_registry tests.test_maep_host_binding tests.test_capability_registry -v
+Result: 21 passed, 0 failed, exit code 0
+Full suite: python -m unittest discover -s tests -v
+Result: 515 passed, 0 failed, exit code 0 (48.594 seconds; run completed before final test-only assertion tightening and unused-import removal)
+py_compile after final test edit: PASS
+git diff --check after final test edit: PASS
+
+Explicitly still UNIMPLEMENTED and fail-closed even when scoped: file.write, shell.exec, network.fetch, deploy, identity.change, state.import, provider.invoke. No live HTTP route, production handler, production credential, service, data, or cutover was changed.
+Fixture digest verification proves byte integrity only, not source authenticity or semantic truth.
