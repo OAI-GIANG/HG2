@@ -49,7 +49,7 @@ state = orchestrator.run_until_blocked(state["task_id"])
 
 The adapter must receive a real sealed principal with the audit.append scope and the canonical SQLiteStateStore. The handlers, host_action_authorizer, and host_evidence_verifier above are intentionally placeholders: they must be bound to the existing BrainOrchestrator/UnifiedHarness and the actual host capability boundary before production use. Do not replace them with unconditional True callbacks.
 
-The current active HTTP runtime still uses the legacy PhoneRuntime state store; the existing workflow adapter explicitly does not perform that runtime cutover. This branch does not add an unauthenticated API route or silently migrate live state.
+The current active HTTP runtime still uses the legacy PhoneRuntime state store; the existing workflow adapter explicitly does not perform that runtime cutover. This branch does not add an unauthenticated API route or silently migrate live state. In addition, the current `hg.authority.authorize` policy only allows `health.read`, `session.create`, and edge operations, while explicitly forbidding `file.read`, `file.write`, `shell.exec`, `network.fetch`, `deploy`, and `state.import`. The existing sealed-principal scopes do not yet form a policy-approved mapping to those runtime actions. Therefore a test callback returning `(True, reference)` is not sufficient to authorize a production MAEP phase; the host-policy contract must be explicitly extended and independently reviewed before execution handlers can be enabled.
 
 ## Legacy state migration contract
 
