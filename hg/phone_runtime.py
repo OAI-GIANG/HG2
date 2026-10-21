@@ -15,6 +15,17 @@ class PhoneRuntime:
         self.timeout = timeout
         self.store = StateStore(self.state_dir)
 
+    def maep_orchestrator(self, *, handlers=None, authorizer=None, evidence_verifier=None):
+        """Bind MAEP task checkpoints to the phone runtime's canonical hash-chained state."""
+        from .maep import MaepOrchestrator
+
+        return MaepOrchestrator(
+            self.store,
+            handlers=handlers,
+            authorizer=authorizer,
+            evidence_verifier=evidence_verifier,
+        )
+
     def health(self):
         return {"ok": True, "product": "HG", "runtime_id": self.store.runtime_id,
                 "edge_configured": bool(self.edge_url), "integrity": self.store.verify()}
