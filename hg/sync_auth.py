@@ -1,7 +1,8 @@
-"""Experimental authenticated batch gate for HG sync.
+"""Optional authenticated batch gate for HG sync.
 
 Keys and trust anchors are injected by the caller; this module never loads secrets
-from files or environment. It is candidate-only and is not wired into PhoneRuntime.
+from files or environment. PhoneRuntime can enable it only by receiving an explicit
+context ID, spool directory, and gate; the default live runtime leaves sync disabled.
 """
 from __future__ import annotations
 import hashlib, hmac, json, os, tempfile

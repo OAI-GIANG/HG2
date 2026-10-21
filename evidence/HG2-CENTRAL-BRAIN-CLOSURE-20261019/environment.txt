@@ -1,0 +1,4 @@
+branch=stt/hg2-brain-orchestrator-r1-20261019
+head=2d5498cc8c28a056c513aace4371ad96a2129adc
+tree=b2423af9ca0fda515693299547f189b73ac9e01a
+python=Python 3.14.6

@@ -1,0 +1,22 @@
+{
+  "schema": "HG2_MODEL_GATEWAY_HTTP_ROUTE_INTEGRATION_V1",
+  "recorded_at_utc": "2026-10-21T07:17:09.756465+00:00",
+  "test": "test_server.ServerTests.test_ask_normalizes_exact_output_envelope_and_replays",
+  "result": "PASS",
+  "test_count": 1,
+  "log_sha256": "1249cc18b1fa740eb8f64343b82ca85d2411a1c639966c5612d6228431a9462f",
+  "provider": "deterministic local fake OpenAI-compatible HTTP provider",
+  "http_route": "POST /api/ask through HGHTTPServer on ephemeral loopback port",
+  "state": "Temporary test state only",
+  "assertions": [
+    "Exact output normalized from single-key JSON answer envelope",
+    "Raw provider-answer hash differs from normalized-answer hash",
+    "Brain result remains PARTIAL with RESPONSE_ONLY branch",
+    "Same-key replay returns cached exact answer without a second provider call",
+    "Event count does not change on replay",
+    "StateStore integrity verifies after the request"
+  ],
+  "live_runtime_touched": false,
+  "live_runtime_restarted": false,
+  "real_model_provider_covered_separately": true
+}

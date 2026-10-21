@@ -88,10 +88,32 @@ class IntegrityPolicyTests(unittest.TestCase):
         with self.assertRaises(HistoryError):
             StateStore(d)
 
-    def test_torn_append_is_fail_closed(self):
+    def test_torn_append_is_quarantined_only_with_anchored_state(self):
         s, d = build()
-        with open(os.path.join(d, "history.jsonl"), "a", encoding="utf-8") as fh:
-            fh.write('{"seq": 4, "event_id": "torn", "event_type": "sess')  # interrupted write, no newline
+        self.addCleanup(shutil.rmtree, d, ignore_errors=True)
+        tail = b'{"seq": 4, "event_id": "torn", "event_type": "sess'
+        log = os.path.join(d, "history.jsonl")
+        with open(log, "ab") as fh:
+            fh.write(tail)
+        recovered = StateStore(d)
+        with open(log, "rb") as fh:
+            self.assertTrue(fh.read().endswith(b"\n"))
+        quarantines = [n for n in os.listdir(d) if n.startswith("history.incomplete-tail.")]
+        receipts = [n for n in os.listdir(d) if n.startswith("history.recovery.") and n.endswith(".json")]
+        self.assertEqual(len(quarantines), 1)
+        self.assertEqual(len(receipts), 1)
+        with open(os.path.join(d, quarantines[0]), "rb") as fh:
+            self.assertEqual(fh.read(), tail)
+        self.assertTrue(any(e["event_type"] == "history.state.recovered" for e in recovered.replay()))
+        self.assertTrue(recovered.verify()["ok"])
+
+    def test_torn_append_refused_when_checkpoint_not_anchored(self):
+        s, d = build()
+        self.addCleanup(shutil.rmtree, d, ignore_errors=True)
+        with open(os.path.join(d, "history.jsonl"), "ab") as fh:
+            fh.write(b'{"seq": 4, "event_id": "torn"')
+        with open(os.path.join(d, "head.json"), "w", encoding="utf-8") as fh:
+            json.dump({"seq": 1, "head_hash": ZERO}, fh)
         with self.assertRaises(HistoryError):
             StateStore(d)
 

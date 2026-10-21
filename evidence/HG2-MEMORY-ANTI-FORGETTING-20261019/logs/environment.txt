@@ -1,0 +1,6 @@
+date=2026-10-19T22:58:18+07:00
+python=Python 3.14.6
+platform=Linux localhost 6.6.118-android15-8-gebdfad32d749-ab15099304-4k #1 SMP PREEMPT Thu Mar 26 19:01:13 UTC 2026 aarch64 Android
+branch=stt/hg2-brain-orchestrator-r1-20261019
+head=b15b19b1130cdf27520df7dce3b788ec1d86376d
+device=Android Termux aarch64 (Remote Desktop Commander authorized session)

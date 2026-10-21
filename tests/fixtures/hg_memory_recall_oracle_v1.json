@@ -1,0 +1,337 @@
+{
+  "schema_version": "hg.memory-recall-oracle.v1",
+  "description": "Fixed synthetic evaluation set for deterministic lexical retrieval, not semantic claims.",
+  "normalization": "NFC + casefold + NFC; lexical token overlap does not establish semantic equivalence.",
+  "documents": [
+    {
+      "id": "mem-project-canonical",
+      "scope_id": "owner",
+      "title": "HG2 repository policy",
+      "content": "OAI-GIANG/HG2 is the only execution repository for HG.",
+      "labels": [
+        "repository_policy"
+      ]
+    },
+    {
+      "id": "mem-voice-vietnamese",
+      "scope_id": "owner",
+      "title": "Vietnamese voice output",
+      "content": "Voice output uses Vietnamese speech synthesis and produces MP3 audio.",
+      "labels": [
+        "voice"
+      ]
+    },
+    {
+      "id": "mem-state-recovery",
+      "scope_id": "owner",
+      "title": "Atomic state recovery",
+      "content": "P0-A recovers verified interrupted StateStore commits from the canonical event journal.",
+      "labels": [
+        "state_recovery"
+      ]
+    },
+    {
+      "id": "mem-authorization",
+      "scope_id": "owner",
+      "title": "Memory access control",
+      "content": "Memory retrieval filters records by explicit scope grants before returning content.",
+      "labels": [
+        "acl"
+      ]
+    },
+    {
+      "id": "mem-trust",
+      "scope_id": "owner",
+      "title": "Unverified memory provenance",
+      "content": "User supplied trust labels do not promote a memory record to verified status.",
+      "labels": [
+        "provenance"
+      ]
+    },
+    {
+      "id": "mem-event",
+      "scope_id": "owner",
+      "title": "Upcoming community event",
+      "content": "The community gathering is planned for 18 November 2026.",
+      "labels": [
+        "event"
+      ]
+    },
+    {
+      "id": "mem-decomposed-vietnamese",
+      "scope_id": "owner",
+      "title": "Dữ liệu tiếng Việt có dấu",
+      "content": "Cơ chế ghi nhớ phải truy hồi thông tin và giữ nguyên dấu tiếng Việt.",
+      "labels": [
+        "unicode"
+      ]
+    },
+    {
+      "id": "mem-scope-private",
+      "scope_id": "secret-team",
+      "title": "Private project note",
+      "content": "Synthetic confidential test note for scope isolation only.",
+      "labels": [
+        "acl_negative"
+      ]
+    },
+    {
+      "id": "mem-favorite-color",
+      "scope_id": "owner",
+      "title": "Favorite color",
+      "content": "Cerulean",
+      "aliases": [
+        "favorite hue",
+        "hue liked",
+        "preferred shade"
+      ],
+      "labels": [
+        "curated_alias_recall"
+      ]
+    },
+    {
+      "id": "mem-expired-status",
+      "scope_id": "owner",
+      "title": "Stale project status",
+      "content": "The old project status was active",
+      "provenance_fixture": {
+        "statement": "The old project status was active",
+        "memory_key": "project.status",
+        "observed_at": "2026-01-01T00:00:00+00:00",
+        "expires_at": "2026-06-01T00:00:00+00:00"
+      },
+      "labels": [
+        "expiry_suppression"
+      ]
+    },
+    {
+      "id": "mem-unknown-expiry",
+      "scope_id": "owner",
+      "title": "Undated project status",
+      "content": "An undated project status claim",
+      "provenance_fixture": {
+        "statement": "An undated project status claim",
+        "memory_key": "project.status.undated",
+        "observed_at": "2026-01-01T00:00:00+00:00",
+        "expires_at": null
+      },
+      "labels": [
+        "unknown_freshness_suppression"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "Q01",
+      "query": "OAI-GIANG HG2 execution repository",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-project-canonical"
+      ],
+      "kind": "exact_terms"
+    },
+    {
+      "id": "Q02",
+      "query": "P0-A StateStore event journal recovery",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-state-recovery"
+      ],
+      "kind": "exact_terms"
+    },
+    {
+      "id": "Q03",
+      "query": "MP3 Vietnamese speech synthesis",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-voice-vietnamese"
+      ],
+      "kind": "exact_terms"
+    },
+    {
+      "id": "Q04",
+      "query": "explicit scope grants memory retrieval",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-authorization"
+      ],
+      "kind": "exact_terms"
+    },
+    {
+      "id": "Q05",
+      "query": "trust labels verified provenance",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-trust"
+      ],
+      "kind": "exact_terms"
+    },
+    {
+      "id": "Q06",
+      "query": "gathering 18 November 2026",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-event"
+      ],
+      "kind": "exact_terms"
+    },
+    {
+      "id": "Q07",
+      "query": "Cơ chế ghi nhớ phải truy hồi thông tin",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-decomposed-vietnamese"
+      ],
+      "kind": "vietnamese_diacritics"
+    },
+    {
+      "id": "Q08",
+      "query": "Cơ chế ghi nhớ phải truy hồi thông tin",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-decomposed-vietnamese"
+      ],
+      "kind": "unicode_decomposed"
+    },
+    {
+      "id": "Q09",
+      "query": "oai-giang hg2 EXECUTION REPOSITORY",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-project-canonical"
+      ],
+      "kind": "casefold"
+    },
+    {
+      "id": "Q10",
+      "query": "gardening soil roses unrelated",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [],
+      "kind": "negative_false_positive"
+    },
+    {
+      "id": "Q11",
+      "query": "private confidential synthetic test note",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [],
+      "kind": "acl_leakage_negative"
+    },
+    {
+      "id": "Q12",
+      "query": "confidential synthetic test note",
+      "grants": [
+        "secret-team"
+      ],
+      "relevant": [
+        "mem-scope-private"
+      ],
+      "kind": "acl_granted"
+    },
+    {
+      "id": "Q13",
+      "query": "community event",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-event"
+      ],
+      "kind": "paraphrase_partial_overlap"
+    },
+    {
+      "id": "Q14",
+      "query": "what is the one approved execution repository?",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-project-canonical"
+      ],
+      "kind": "natural_language_paraphrase"
+    },
+    {
+      "id": "Q15",
+      "query": "unrelated completely absent xyz qqq",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [],
+      "kind": "no_match"
+    },
+    {
+      "id": "Q16",
+      "query": "Which hue is liked?",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [
+        "mem-favorite-color"
+      ],
+      "kind": "curated_alias_paraphrase"
+    },
+    {
+      "id": "Q17",
+      "query": "stale project status",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [],
+      "kind": "expired_memory_suppression"
+    },
+    {
+      "id": "Q18",
+      "query": "undated project status claim",
+      "grants": [
+        "owner"
+      ],
+      "relevant": [],
+      "kind": "unknown_freshness_suppression"
+    }
+  ],
+  "acceptance": {
+    "expected_retrievable": [
+      "Q01",
+      "Q02",
+      "Q03",
+      "Q04",
+      "Q05",
+      "Q06",
+      "Q07",
+      "Q08",
+      "Q09",
+      "Q12",
+      "Q16"
+    ],
+    "absolute_acl_isolation": true,
+    "known_limit_cases": [
+      "Q10",
+      "Q11",
+      "Q13",
+      "Q14",
+      "Q15"
+    ],
+    "no_semantic_claim_from_lexical_test": true
+  }
+}

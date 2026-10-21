@@ -12,7 +12,13 @@
     "hg.provenance",
     "hg.sync",
     "hg.sync_auth",
-    "hg.sync_bootstrap"
+    "hg.sync_bootstrap",
+    "hg.brain_orchestrator",
+    "hg.capability_registry",
+    "hg.unified_harness",
+    "hg.remote_desktop_commander",
+    "hg.skill_contract",
+    "hg.creative_assimilation"
   ],
   "origin": "clean_room"
 }

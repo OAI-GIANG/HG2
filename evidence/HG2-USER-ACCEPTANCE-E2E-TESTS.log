@@ -1,0 +1,275 @@
+test_bidirectional_a_to_b_and_b_to_a (test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_bidirectional_a_to_b_and_b_to_a) ... ok
+test_crash_after_import_before_cursor_then_redelivery_recovers (test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_crash_after_import_before_cursor_then_redelivery_recovers) ... ok
+test_crash_mid_batch_import_then_resume_idempotently (test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_crash_mid_batch_import_then_resume_idempotently) ... ok
+test_duplicate_delivery_after_commit_is_idempotent_success (test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_duplicate_delivery_after_commit_is_idempotent_success) ... ok
+test_phone_runtime_authenticated_bidirectional_end_to_end (test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_phone_runtime_authenticated_bidirectional_end_to_end) ... ok
+test_restart_recovery_and_cursor_persistence (test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_restart_recovery_and_cursor_persistence) ... ok
+test_rollback_archive_integrity_and_restore_fixture (test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_rollback_archive_integrity_and_restore_fixture) ... ok
+test_tamper_gap_and_fork_rejected (test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_tamper_gap_and_fork_rejected) ... ok
+test_unknown_peer_rejected_without_state_mutation (test_authenticated_sync_transaction.AuthenticatedTransactionTests.test_unknown_peer_rejected_without_state_mutation) ... ok
+test_conflicting_same_claim_digests_are_inconclusive (test_brain_orchestrator.BrainOrchestratorTests.test_conflicting_same_claim_digests_are_inconclusive) ... ok
+test_deadline_stops_dispatch_before_next_branch (test_brain_orchestrator.BrainOrchestratorTests.test_deadline_stops_dispatch_before_next_branch) ... ok
+test_different_outputs_are_allowed_without_agreement_policy (test_brain_orchestrator.BrainOrchestratorTests.test_different_outputs_are_allowed_without_agreement_policy) ... ok
+test_duplicate_or_foreign_branch_result_is_inconclusive (test_brain_orchestrator.BrainOrchestratorTests.test_duplicate_or_foreign_branch_result_is_inconclusive) ... ok
+test_empty_expected_domain_set_is_not_success (test_brain_orchestrator.BrainOrchestratorTests.test_empty_expected_domain_set_is_not_success) ... ok
+test_failure_dominates_other_nonfatal_statuses (test_brain_orchestrator.BrainOrchestratorTests.test_failure_dominates_other_nonfatal_statuses) ... ok
+test_five_domain_route_and_execution (test_brain_orchestrator.BrainOrchestratorTests.test_five_domain_route_and_execution) ... ok
+test_manifest_declares_dependency_free_coordinator (test_brain_orchestrator.BrainOrchestratorTests.test_manifest_declares_dependency_free_coordinator) ... ok
+test_max_steps_budget_blocks_before_dispatch (test_brain_orchestrator.BrainOrchestratorTests.test_max_steps_budget_blocks_before_dispatch) ... ok
+test_missing_adapter_does_not_count_as_capability (test_brain_orchestrator.BrainOrchestratorTests.test_missing_adapter_does_not_count_as_capability) ... ok
+test_missing_capability_blocks_before_any_worker_runs (test_brain_orchestrator.BrainOrchestratorTests.test_missing_capability_blocks_before_any_worker_runs) ... ok
+test_missing_result_cannot_aggregate_to_success (test_brain_orchestrator.BrainOrchestratorTests.test_missing_result_cannot_aggregate_to_success) ... ok
+test_no_workers_call_when_source_contract_invalid (test_brain_orchestrator.BrainOrchestratorTests.test_no_workers_call_when_source_contract_invalid) ... ok
+test_non_sha_source_revision_rejected_before_dispatch (test_brain_orchestrator.BrainOrchestratorTests.test_non_sha_source_revision_rejected_before_dispatch) ... ok
+test_partial_result_preserves_partial_status (test_brain_orchestrator.BrainOrchestratorTests.test_partial_result_preserves_partial_status) ... ok
+test_result_request_mismatch_fails_closed (test_brain_orchestrator.BrainOrchestratorTests.test_result_request_mismatch_fails_closed) ... ok
+test_route_branch_budget_blocks (test_brain_orchestrator.BrainOrchestratorTests.test_route_branch_budget_blocks) ... ok
+test_same_request_identity_with_different_goal_has_different_plan_digest (test_brain_orchestrator.BrainOrchestratorTests.test_same_request_identity_with_different_goal_has_different_plan_digest) ... ok
+test_unknown_capability_and_unsafe_constraints_rejected (test_brain_orchestrator.BrainOrchestratorTests.test_unknown_capability_and_unsafe_constraints_rejected) ... ok
+test_unverified_evidence_cannot_return_success (test_brain_orchestrator.BrainOrchestratorTests.test_unverified_evidence_cannot_return_success) ... ok
+test_worker_exception_is_in_doubt_and_stops_following_branches (test_brain_orchestrator.BrainOrchestratorTests.test_worker_exception_is_in_doubt_and_stops_following_branches) ... ok
+test_disjoint_and_deny (test_core.AuthorityTests.test_disjoint_and_deny) ... ok
+test_edge_behaviour (test_core.EdgeTests.test_edge_behaviour) ... ok
+test_fail_closed_without_token (test_core.EdgeTests.test_fail_closed_without_token) ... ok
+test_checkpoint_mismatch (test_core.HistoryTests.test_checkpoint_mismatch) ... ok
+test_genesis_and_chain (test_core.HistoryTests.test_genesis_and_chain) ... ok
+test_idempotent (test_core.HistoryTests.test_idempotent) ... ok
+test_restart_in_new_process (test_core.HistoryTests.test_restart_in_new_process) ... ok
+test_tamper_matrix (test_core.HistoryTests.test_tamper_matrix) ... ok
+test_identity (test_core.IdentityTests.test_identity) ... ok
+test_no_legacy_reference (test_core.IdentityTests.test_no_legacy_reference) ... ok
+test_edge_roundtrip (test_core.PhoneTests.test_edge_roundtrip) ... ok
+test_local_and_offline (test_core.PhoneTests.test_local_and_offline) ... ok
+test_excluded_scope_is_never_sent (test_durable.DurableTests.test_excluded_scope_is_never_sent) ... ok
+test_legacy_backend_contract_mismatch_never_posts (test_durable.DurableTests.test_legacy_backend_contract_mismatch_never_posts) ... ok
+test_missing_config_fails_closed (test_durable.DurableTests.test_missing_config_fails_closed) ... ok
+test_missing_scope_allowlist_fails_closed_without_network (test_durable.DurableTests.test_missing_scope_allowlist_fails_closed_without_network) ... ok
+test_non_loopback_cleartext_is_rejected_before_network (test_durable.DurableTests.test_non_loopback_cleartext_is_rejected_before_network) ... ok
+test_receipt_mismatch_does_not_acknowledge (test_durable.DurableTests.test_receipt_mismatch_does_not_acknowledge) ... ok
+test_successful_delivery_is_acknowledged_idempotently (test_durable.DurableTests.test_successful_delivery_is_acknowledged_idempotently) ... ok
+test_wildcard_scope_allowlist_is_rejected (test_durable.DurableTests.test_wildcard_scope_allowlist_is_rejected) ... ok
+test_commit_blocked_without_evidence_verifier (test_durable_transactions.DurableTransactionTests.test_commit_blocked_without_evidence_verifier) ... ok
+test_concurrent_processes_share_single_idempotency_record (test_durable_transactions.DurableTransactionTests.test_concurrent_processes_share_single_idempotency_record) ... ok
+test_corrupt_transaction_projection_json_fails_closed (test_durable_transactions.DurableTransactionTests.test_corrupt_transaction_projection_json_fails_closed) ... ok
+test_default_begin_is_blocked_without_trusted_authorizer (test_durable_transactions.DurableTransactionTests.test_default_begin_is_blocked_without_trusted_authorizer) ... ok
+test_event_chain_tampering_detected (test_durable_transactions.DurableTransactionTests.test_event_chain_tampering_detected) ... ok
+test_failed_event_append_rolls_back_state_transition_atomically (test_durable_transactions.DurableTransactionTests.test_failed_event_append_rolls_back_state_transition_atomically) ... ok
+test_full_state_path_commits_only_with_injected_verifiers (test_durable_transactions.DurableTransactionTests.test_full_state_path_commits_only_with_injected_verifiers) ... ok
+test_idempotent_begin_has_one_record_and_one_initial_event (test_durable_transactions.DurableTransactionTests.test_idempotent_begin_has_one_record_and_one_initial_event) ... ok
+test_incomplete_steps_enter_in_doubt (test_durable_transactions.DurableTransactionTests.test_incomplete_steps_enter_in_doubt) ... ok
+test_invalid_storage_and_digest_fail_closed (test_durable_transactions.DurableTransactionTests.test_invalid_storage_and_digest_fail_closed) ... ok
+test_malformed_event_detail_json_fails_closed (test_durable_transactions.DurableTransactionTests.test_malformed_event_detail_json_fails_closed) ... ok
+test_persistence_survives_store_reopen (test_durable_transactions.DurableTransactionTests.test_persistence_survives_store_reopen) ... ok
+test_restart_recovery_moves_running_to_in_doubt (test_durable_transactions.DurableTransactionTests.test_restart_recovery_moves_running_to_in_doubt) ... ok
+test_same_idempotency_key_different_payload_rejected (test_durable_transactions.DurableTransactionTests.test_same_idempotency_key_different_payload_rejected) ... ok
+test_transaction_digest_projection_tampering_detected (test_durable_transactions.DurableTransactionTests.test_transaction_digest_projection_tampering_detected) ... ok
+test_transaction_projection_tampering_detected (test_durable_transactions.DurableTransactionTests.test_transaction_projection_tampering_detected) ... ok
+test_bounds_and_architecture_are_checked (test_edge_schema_guard.EdgePayloadSchemaTests.test_bounds_and_architecture_are_checked) ... ok
+test_existing_heartbeat_payload_shape_remains_valid (test_edge_schema_guard.EdgePayloadSchemaTests.test_existing_heartbeat_payload_shape_remains_valid) ... ok
+test_existing_register_payload_shapes_remain_valid (test_edge_schema_guard.EdgePayloadSchemaTests.test_existing_register_payload_shapes_remain_valid) ... ok
+test_fields_are_not_coerced (test_edge_schema_guard.EdgePayloadSchemaTests.test_fields_are_not_coerced) ... ok
+test_http_handler_rejects_duplicate_json_keys (test_edge_schema_guard.EdgePayloadSchemaTests.test_http_handler_rejects_duplicate_json_keys) ... ok
+test_http_handler_rejects_invalid_payload_before_state_mutation (test_edge_schema_guard.EdgePayloadSchemaTests.test_http_handler_rejects_invalid_payload_before_state_mutation) ... ok
+test_http_handler_rejects_non_standard_json_constants (test_edge_schema_guard.EdgePayloadSchemaTests.test_http_handler_rejects_non_standard_json_constants) ... ok
+test_model_key_fields_are_rejected_recursively (test_edge_schema_guard.EdgePayloadSchemaTests.test_model_key_fields_are_rejected_recursively) ... ok
+test_non_object_is_rejected (test_edge_schema_guard.EdgePayloadSchemaTests.test_non_object_is_rejected) ... ok
+test_string_values_are_not_scanned_as_field_names (test_edge_schema_guard.EdgePayloadSchemaTests.test_string_values_are_not_scanned_as_field_names) ... ok
+test_unknown_fields_are_rejected (test_edge_schema_guard.EdgePayloadSchemaTests.test_unknown_fields_are_rejected) ... ok
+test_all_emitted_required_fields_are_required (test_history_malformed_shapes.MalformedHistoryShapeTests.test_all_emitted_required_fields_are_required) ... ok
+test_blank_line_and_missing_final_newline_fail_closed (test_history_malformed_shapes.MalformedHistoryShapeTests.test_blank_line_and_missing_final_newline_fail_closed) ... ok
+test_checkpoint_json_non_object_fails_closed (test_history_malformed_shapes.MalformedHistoryShapeTests.test_checkpoint_json_non_object_fails_closed) ... ok
+test_history_contract_classifies_legacy_v1_without_changing_record (test_history_malformed_shapes.MalformedHistoryShapeTests.test_history_contract_classifies_legacy_v1_without_changing_record) ... ok
+test_history_contract_classifies_well_formed_v2_as_structure_only (test_history_malformed_shapes.MalformedHistoryShapeTests.test_history_contract_classifies_well_formed_v2_as_structure_only) ... ok
+test_history_contract_rejects_ambiguous_or_unknown_schema_fields (test_history_malformed_shapes.MalformedHistoryShapeTests.test_history_contract_rejects_ambiguous_or_unknown_schema_fields) ... ok
+test_history_contract_rejects_v2_authority_and_idempotency_mismatch (test_history_malformed_shapes.MalformedHistoryShapeTests.test_history_contract_rejects_v2_authority_and_idempotency_mismatch) ... ok
+test_invalid_field_types_fail_closed (test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_field_types_fail_closed) ... ok
+test_invalid_field_values_fail_closed_even_with_recomputed_hash (test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_field_values_fail_closed_even_with_recomputed_hash) ... ok
+test_invalid_utf8_fails_closed_without_raw_decode_error (test_history_malformed_shapes.MalformedHistoryShapeTests.test_invalid_utf8_fails_closed_without_raw_decode_error) ... ok
+test_missing_required_field_fails_closed (test_history_malformed_shapes.MalformedHistoryShapeTests.test_missing_required_field_fails_closed) ... ok
+test_non_object_json_fails_initialization_with_history_error (test_history_malformed_shapes.MalformedHistoryShapeTests.test_non_object_json_fails_initialization_with_history_error) ... ok
+test_non_object_json_fails_verify_closed (test_history_malformed_shapes.MalformedHistoryShapeTests.test_non_object_json_fails_verify_closed) ... ok
+test_valid_history_remains_compatible_after_restart (test_history_malformed_shapes.MalformedHistoryShapeTests.test_valid_history_remains_compatible_after_restart) ... ok
+test_checkpoint_rollback_mismatch (test_integrity_v2.IntegrityPolicyTests.test_checkpoint_rollback_mismatch) ... ok
+test_corrupt_checkpoint_json (test_integrity_v2.IntegrityPolicyTests.test_corrupt_checkpoint_json) ... ok
+test_fresh_directory_initialises (test_integrity_v2.IntegrityPolicyTests.test_fresh_directory_initialises) ... ok
+test_healthy_roundtrip_and_recovery (test_integrity_v2.IntegrityPolicyTests.test_healthy_roundtrip_and_recovery) ... ok
+test_missing_checkpoint_is_fail_closed (test_integrity_v2.IntegrityPolicyTests.test_missing_checkpoint_is_fail_closed) ... ok
+test_missing_log_and_state_but_runtime_id_present (test_integrity_v2.IntegrityPolicyTests.test_missing_log_and_state_but_runtime_id_present) ... ok
+test_missing_log_with_state_present_is_fail_closed (test_integrity_v2.IntegrityPolicyTests.test_missing_log_with_state_present_is_fail_closed) ... ok
+test_state_projection_corrupt (test_integrity_v2.IntegrityPolicyTests.test_state_projection_corrupt) ... ok
+test_state_projection_tamper (test_integrity_v2.IntegrityPolicyTests.test_state_projection_tamper) ... ok
+test_tail_truncation_and_reorder_and_duplicate (test_integrity_v2.IntegrityPolicyTests.test_tail_truncation_and_reorder_and_duplicate) ... ok
+test_torn_append_is_fail_closed (test_integrity_v2.IntegrityPolicyTests.test_torn_append_is_fail_closed) ... ok
+test_bounds_client_state (test_limits.FixedWindowRateLimiterTests.test_bounds_client_state) ... ok
+test_enforces_limit_and_returns_retry_after (test_limits.FixedWindowRateLimiterTests.test_enforces_limit_and_returns_retry_after) ... ok
+test_rejects_invalid_configuration (test_limits.FixedWindowRateLimiterTests.test_rejects_invalid_configuration) ... ok
+test_resets_after_window (test_limits.FixedWindowRateLimiterTests.test_resets_after_window) ... ok
+test_create_read_and_replay (test_memory.MemoryTests.test_create_read_and_replay) ... ok
+test_history_integrity_covers_memory_mutation (test_memory.MemoryTests.test_history_integrity_covers_memory_mutation) ... ok
+test_idempotency_and_conflict (test_memory.MemoryTests.test_idempotency_and_conflict) ... ok
+test_retrieve_and_context_manifest (test_memory.MemoryTests.test_retrieve_and_context_manifest) ... ok
+test_scope_denied (test_memory.MemoryTests.test_scope_denied) ... ok
+test_tombstone_not_resurrected (test_memory.MemoryTests.test_tombstone_not_resurrected) ... ok
+test_update_requires_exact_version (test_memory.MemoryTests.test_update_requires_exact_version) ... ok
+test_external_cleartext_or_credentialed_urls_fail_before_network (test_model_gateway.ModelGatewayTests.test_external_cleartext_or_credentialed_urls_fail_before_network) ... ok
+test_invalid_provider_response_fails_closed (test_model_gateway.ModelGatewayTests.test_invalid_provider_response_fails_closed) ... ok
+test_missing_configuration_fails_closed (test_model_gateway.ModelGatewayTests.test_missing_configuration_fails_closed) ... ok
+test_request_and_manifest (test_model_gateway.ModelGatewayTests.test_request_and_manifest) ... ok
+test_status_does_not_contact_provider_or_disclose_secret (test_model_gateway.ModelGatewayTests.test_status_does_not_contact_provider_or_disclose_secret) ... ok
+test_all_fixtures_explicitly_not_run (test_native_intelligence_fixtures.NativeIntelligenceFixturePackageTests.test_all_fixtures_explicitly_not_run) ... ok
+test_fixture_package_regression (test_native_intelligence_fixtures.NativeIntelligenceFixturePackageTests.test_fixture_package_regression) ... ok
+test_static_semantic_validator (test_native_intelligence_fixtures.NativeIntelligenceFixturePackageTests.test_static_semantic_validator) ... ok
+test_phone_runtime_explicit_sync_configuration_reuses_single_store (test_phone_runtime_sync_integration.PhoneRuntimeSyncIntegrationTests.test_phone_runtime_explicit_sync_configuration_reuses_single_store) ... ok
+test_runtime_rejects_authenticated_cursor_inside_state_directory (test_phone_runtime_sync_integration.PhoneRuntimeSyncIntegrationTests.test_runtime_rejects_authenticated_cursor_inside_state_directory) ... ok
+test_sync_reuses_runtime_store_and_two_runtime_contexts_exchange_envelopes (test_phone_runtime_sync_integration.PhoneRuntimeSyncIntegrationTests.test_sync_reuses_runtime_store_and_two_runtime_contexts_exchange_envelopes) ... ok
+test_approval_expiry_and_conflicting_transition_fail_closed (test_policy.PolicyTests.test_approval_expiry_and_conflicting_transition_fail_closed) ... ok
+test_approval_requires_independent_approver (test_policy.PolicyTests.test_approval_requires_independent_approver) ... ok
+test_compatibility_authorizer_remains_deny_by_default (test_policy.PolicyTests.test_compatibility_authorizer_remains_deny_by_default) ... ok
+test_configurable_auth_scopes_are_single_sourced_through_policy (test_policy.PolicyTests.test_configurable_auth_scopes_are_single_sourced_through_policy) ... ok
+test_expired_future_and_revoked_grants_are_denied (test_policy.PolicyTests.test_expired_future_and_revoked_grants_are_denied) ... ok
+test_explicit_grant_is_required_and_scoped (test_policy.PolicyTests.test_explicit_grant_is_required_and_scoped) ... ok
+test_forbidden_action_cannot_be_granted (test_policy.PolicyTests.test_forbidden_action_cannot_be_granted) ... ok
+test_malformed_grant_and_approval_state_fail_closed (test_policy.PolicyTests.test_malformed_grant_and_approval_state_fail_closed) ... ok
+test_provider_invocation_requires_sealed_principal_not_boolean_or_approval (test_policy.PolicyTests.test_provider_invocation_requires_sealed_principal_not_boolean_or_approval) ... ok
+test_self_approved_record_never_authorizes (test_policy.PolicyTests.test_self_approved_record_never_authorizes) ... ok
+test_service_mutations_require_the_exact_sealed_scope (test_policy.PolicyTests.test_service_mutations_require_the_exact_sealed_scope) ... ok
+test_build_accepts_matching_commit_and_manifest (test_provenance.ProvenanceTests.test_build_accepts_matching_commit_and_manifest) ... ok
+test_build_rejects_missing_or_mismatching_identity (test_provenance.ProvenanceTests.test_build_rejects_missing_or_mismatching_identity) ... ok
+test_manifest_is_deterministic_and_covers_runtime_source (test_provenance.ProvenanceTests.test_manifest_is_deterministic_and_covers_runtime_source) ... ok
+test_conflicting_batch_id_fails_closed (test_replica.ReplicaTests.test_conflicting_batch_id_fails_closed) ... ok
+test_happy_path_atomic_receipt_and_restart_persistence (test_replica.ReplicaTests.test_happy_path_atomic_receipt_and_restart_persistence) ... ok
+test_http_authentication_and_capability_endpoint (test_replica.ReplicaTests.test_http_authentication_and_capability_endpoint) ... ok
+test_real_http_outbox_to_replica_round_trip (test_replica.ReplicaTests.test_real_http_outbox_to_replica_round_trip) ... ok
+test_record_checksum_is_mandatory (test_replica.ReplicaTests.test_record_checksum_is_mandatory) ... ok
+test_sqlite_backup_restore_preserves_replica_evidence (test_replica.ReplicaTests.test_sqlite_backup_restore_preserves_replica_evidence) ... ok
+test_tampered_event_hash_rejected (test_replica.ReplicaTests.test_tampered_event_hash_rejected) ... ok
+test_tombstone_is_replicated_as_append_only_event (test_replica.ReplicaTests.test_tombstone_is_replicated_as_append_only_event) ... ok
+test_wrong_scope_rejected_without_writing (test_replica.ReplicaTests.test_wrong_scope_rejected_without_writing) ... ok
+test_ask_uses_authorized_context_and_audits_call (test_server.ServerTests.test_ask_uses_authorized_context_and_audits_call) ... 127.0.0.1 - - [19/Oct/2026 18:18:29] HG_API "POST /api/ask HTTP/1.1" 200 -
+ok
+test_ask_without_provider_config_fails_closed (test_server.ServerTests.test_ask_without_provider_config_fails_closed) ... 127.0.0.1 - - [19/Oct/2026 18:18:30] HG_API "POST /api/ask HTTP/1.1" 503 -
+ok
+test_create_list_read_delete (test_server.ServerTests.test_create_list_read_delete) ... 127.0.0.1 - - [19/Oct/2026 18:18:30] HG_API "POST /api/memory HTTP/1.1" 201 -
+127.0.0.1 - - [19/Oct/2026 18:18:30] HG_API "GET /api/memory HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:30] HG_API "GET /api/memory/api-fact HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:30] HG_API "GET /api/memory/search?q=Single+system HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:30] HG_API "GET /api/memory/context?q=Single+system HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:30] HG_API "DELETE /api/memory/api-fact HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:30] HG_API "GET /api/memory/api-fact HTTP/1.1" 404 -
+ok
+test_credential_expiry_and_revocation_fail_closed (test_server.ServerTests.test_credential_expiry_and_revocation_fail_closed) ... 127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET /api/memory HTTP/1.1" 401 -
+ok
+test_health_and_auth (test_server.ServerTests.test_health_and_auth) ... 127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET /api/health HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET /api/library HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET /api/library HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET /api/library HTTP/1.1" 403 -
+127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [19/Oct/2026 18:18:31] HG_API "POST /api/memory HTTP/1.1" 401 -
+ok
+test_library_endpoint_empty_state_and_path_integrity_fail_closed (test_server.ServerTests.test_library_endpoint_empty_state_and_path_integrity_fail_closed) ... 127.0.0.1 - - [19/Oct/2026 18:18:32] HG_API "GET /api/library HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:32] HG_API "GET /api/library HTTP/1.1" 503 -
+ok
+test_scope_enforced_and_no_duplicate_json_keys (test_server.ServerTests.test_scope_enforced_and_no_duplicate_json_keys) ... 127.0.0.1 - - [19/Oct/2026 18:18:32] HG_API "POST /api/memory HTTP/1.1" 403 -
+127.0.0.1 - - [19/Oct/2026 18:18:32] HG_API "POST /api/memory HTTP/1.1" 400 -
+ok
+test_source_provenance_mismatch_degrades_health (test_server.ServerTests.test_source_provenance_mismatch_degrades_health) ... 127.0.0.1 - - [19/Oct/2026 18:18:33] HG_API "GET /api/health HTTP/1.1" 503 -
+ok
+test_startup_fails_closed_for_invalid_credential_ids_or_revocation_list (test_server.ServerTests.test_startup_fails_closed_for_invalid_credential_ids_or_revocation_list) ... ok
+test_startup_fails_when_read_and_write_credentials_match (test_server.ServerTests.test_startup_fails_when_read_and_write_credentials_match) ... ok
+test_startup_fails_without_credential_expiry (test_server.ServerTests.test_startup_fails_without_credential_expiry) ... ok
+test_startup_fails_without_token (test_server.ServerTests.test_startup_fails_without_token) ... ok
+test_connection_budget_returns_503_and_retry_after (test_server_limits.ServerLimitTests.test_connection_budget_returns_503_and_retry_after) ... ok
+test_http_429_has_retry_after (test_server_limits.ServerLimitTests.test_http_429_has_retry_after) ... 127.0.0.1 - - [19/Oct/2026 18:18:36] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:36] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 18:18:36] HG_API "GET / HTTP/1.1" 429 -
+ok
+test_invalid_connection_configuration_fails_closed (test_server_limits.ServerLimitTests.test_invalid_connection_configuration_fails_closed) ... ok
+test_main_refuses_public_cleartext_bind (test_server_limits.ServerLimitTests.test_main_refuses_public_cleartext_bind) ... ok
+test_slow_headers_are_not_dispatched (test_server_limits.ServerLimitTests.test_slow_headers_are_not_dispatched) ... ok
+test_slow_request_body_times_out_without_mutation (test_server_limits.ServerLimitTests.test_slow_request_body_times_out_without_mutation) ... 127.0.0.1 - - [19/Oct/2026 18:18:37] HG_API "POST /api/memory HTTP/1.1" 408 -
+ok
+test_slow_request_line_is_closed_by_socket_deadline (test_server_limits.ServerLimitTests.test_slow_request_line_is_closed_by_socket_deadline) ... 127.0.0.1 - - [19/Oct/2026 18:18:38] HG_API Request timed out: TimeoutError('timed out')
+ok
+test_backend_schema_upgrade_requires_explicit_migration (test_sqlite_state.SQLiteStateStoreTests.test_backend_schema_upgrade_requires_explicit_migration) ... ok
+test_checkpoint_mismatch_fails_closed_on_reopen (test_sqlite_state.SQLiteStateStoreTests.test_checkpoint_mismatch_fails_closed_on_reopen) ... ok
+test_corrupt_event_fails_closed_on_reopen (test_sqlite_state.SQLiteStateStoreTests.test_corrupt_event_fails_closed_on_reopen) ... ok
+test_event_id_retry_is_idempotent_for_same_operation (test_sqlite_state.SQLiteStateStoreTests.test_event_id_retry_is_idempotent_for_same_operation) ... ok
+test_event_id_reuse_for_different_operation_is_rejected (test_sqlite_state.SQLiteStateStoreTests.test_event_id_reuse_for_different_operation_is_rejected) ... ok
+test_failed_projection_rolls_back_event_and_checkpoint (test_sqlite_state.SQLiteStateStoreTests.test_failed_projection_rolls_back_event_and_checkpoint) ... ok
+test_genesis_append_and_restart (test_sqlite_state.SQLiteStateStoreTests.test_genesis_append_and_restart) ... ok
+test_idempotency_cannot_cross_actor_boundary (test_sqlite_state.SQLiteStateStoreTests.test_idempotency_cannot_cross_actor_boundary) ... ok
+test_idempotency_key_conflict_is_rejected (test_sqlite_state.SQLiteStateStoreTests.test_idempotency_key_conflict_is_rejected) ... ok
+test_idempotency_key_returns_same_event_for_same_operation (test_sqlite_state.SQLiteStateStoreTests.test_idempotency_key_returns_same_event_for_same_operation) ... ok
+test_outbox_acknowledgements_are_ordered_and_monotonic (test_sqlite_state.SQLiteStateStoreTests.test_outbox_acknowledgements_are_ordered_and_monotonic) ... ok
+test_outbox_digest_corruption_is_detected (test_sqlite_state.SQLiteStateStoreTests.test_outbox_digest_corruption_is_detected) ... ok
+test_outbox_event_and_acknowledgement (test_sqlite_state.SQLiteStateStoreTests.test_outbox_event_and_acknowledgement) ... ok
+test_outbox_invalid_cursor_and_missing_event_fail_closed (test_sqlite_state.SQLiteStateStoreTests.test_outbox_invalid_cursor_and_missing_event_fail_closed) ... ok
+test_outbox_mutations_require_policy_permits (test_sqlite_state.SQLiteStateStoreTests.test_outbox_mutations_require_policy_permits) ... ok
+test_outbox_retry_cannot_change_delivery_policy (test_sqlite_state.SQLiteStateStoreTests.test_outbox_retry_cannot_change_delivery_policy) ... ok
+test_projection_corruption_is_detected (test_sqlite_state.SQLiteStateStoreTests.test_projection_corruption_is_detected) ... ok
+test_batch_limit_is_bounded (test_sync.SyncDispatcherTests.test_batch_limit_is_bounded) ... ok
+test_dispatch_delivers_and_acknowledges_in_order (test_sync.SyncDispatcherTests.test_dispatch_delivers_and_acknowledges_in_order) ... ok
+test_dispatch_without_authorized_sync_principal_fails_closed (test_sync.SyncDispatcherTests.test_dispatch_without_authorized_sync_principal_fails_closed) ... ok
+test_invalid_acknowledgement_does_not_advance_cursor (test_sync.SyncDispatcherTests.test_invalid_acknowledgement_does_not_advance_cursor) ... ok
+test_invalid_cursor_ack_is_rejected (test_sync.SyncDispatcherTests.test_invalid_cursor_ack_is_rejected) ... ok
+test_transport_failure_leaves_event_pending_and_records_attempt (test_sync.SyncDispatcherTests.test_transport_failure_leaves_event_pending_and_records_attempt) ... ok
+test_checkpoint_sequence_cursor_with_matching_hash_is_accepted (test_sync_auth.AuthGateTests.test_checkpoint_sequence_cursor_with_matching_hash_is_accepted) ... ok
+test_corrupt_cursor_fails_closed (test_sync_auth.AuthGateTests.test_corrupt_cursor_fails_closed) ... ok
+test_crash_after_anchor_advance_before_cursor_write_recovers_on_restart (test_sync_auth.AuthGateTests.test_crash_after_anchor_advance_before_cursor_write_recovers_on_restart) ... ok
+test_cursor_restart_rejects_replay (test_sync_auth.AuthGateTests.test_cursor_restart_rejects_replay) ... ok
+test_cursor_rollback_below_checkpoint_rejected (test_sync_auth.AuthGateTests.test_cursor_rollback_below_checkpoint_rejected) ... ok
+test_equal_sequence_cursor_with_wrong_hash_rejected (test_sync_auth.AuthGateTests.test_equal_sequence_cursor_with_wrong_hash_rejected) ... ok
+test_fork_rejected (test_sync_auth.AuthGateTests.test_fork_rejected) ... ok
+test_gap_rejected (test_sync_auth.AuthGateTests.test_gap_rejected) ... ok
+test_missing_checkpoint_rejected (test_sync_auth.AuthGateTests.test_missing_checkpoint_rejected) ... ok
+test_replay_rejected_after_commit (test_sync_auth.AuthGateTests.test_replay_rejected_after_commit) ... ok
+test_rollback_to_older_valid_cursor_is_detected_and_repaired_from_anchor (test_sync_auth.AuthGateTests.test_rollback_to_older_valid_cursor_is_detected_and_repaired_from_anchor) ... ok
+test_short_key_rejected (test_sync_auth.AuthGateTests.test_short_key_rejected) ... ok
+test_tamper_rejected (test_sync_auth.AuthGateTests.test_tamper_rejected) ... ok
+test_unknown_peer_rejected (test_sync_auth.AuthGateTests.test_unknown_peer_rejected) ... ok
+test_valid_authenticated_batch_and_checkpoint_chain (test_sync_auth.AuthGateTests.test_valid_authenticated_batch_and_checkpoint_chain) ... ok
+test_bootstrap_creates_new_runtime_with_gate_and_single_store (test_sync_bootstrap.BootstrapTests.test_bootstrap_creates_new_runtime_with_gate_and_single_store) ... ok
+test_bootstrapped_runtime_bidirectional_authenticated_sync_and_integrity (test_sync_bootstrap.BootstrapTests.test_bootstrapped_runtime_bidirectional_authenticated_sync_and_integrity) ... ok
+test_crash_before_cursor_commit_recovers_after_restart (test_sync_bootstrap.BootstrapTests.test_crash_before_cursor_commit_recovers_after_restart) ... ok
+test_fail_closed_for_missing_trust_or_key_provider (test_sync_bootstrap.BootstrapTests.test_fail_closed_for_missing_trust_or_key_provider) ... ok
+test_manifest_declares_auth_and_bootstrap_modules (test_sync_bootstrap.BootstrapTests.test_manifest_declares_auth_and_bootstrap_modules) ... ok
+test_a_to_b_via_spool (test_t018_sync.SyncTests.test_a_to_b_via_spool) ... ok
+test_b_to_a_via_spool (test_t018_sync.SyncTests.test_b_to_a_via_spool) ... ok
+test_concurrent_updates_do_not_overwrite (test_t018_sync.SyncTests.test_concurrent_updates_do_not_overwrite) ... ok
+test_duplicate_event_id_different_payload_is_conflict (test_t018_sync.SyncTests.test_duplicate_event_id_different_payload_is_conflict) ... ok
+test_duplicate_event_id_is_idempotent (test_t018_sync.SyncTests.test_duplicate_event_id_is_idempotent) ... ok
+test_import_rejects_arbitrary_paths_and_traversal (test_t018_sync.SyncTests.test_import_rejects_arbitrary_paths_and_traversal) ... ok
+test_import_rejects_duplicate_json_keys_and_nan (test_t018_sync.SyncTests.test_import_rejects_duplicate_json_keys_and_nan) ... ok
+test_interrupted_batch_apply_resumes_without_duplicate_events (test_t018_sync.SyncTests.test_interrupted_batch_apply_resumes_without_duplicate_events) ... ok
+test_invalid_later_event_does_not_partially_apply_batch (test_t018_sync.SyncTests.test_invalid_later_event_does_not_partially_apply_batch) ... ok
+test_multi_event_batch_preserves_origin_chain (test_t018_sync.SyncTests.test_multi_event_batch_preserves_origin_chain) ... ok
+test_origin_sequence_gap_rejected_before_apply (test_t018_sync.SyncTests.test_origin_sequence_gap_rejected_before_apply) ... ok
+test_rehashed_payload_without_matching_origin_record_rejected (test_t018_sync.SyncTests.test_rehashed_payload_without_matching_origin_record_rejected) ... ok
+test_restart_recovery_keeps_state_and_no_reapply (test_t018_sync.SyncTests.test_restart_recovery_keeps_state_and_no_reapply) ... ok
+test_stale_in_batch_chain_and_self_origin_rejected (test_t018_sync.SyncTests.test_stale_in_batch_chain_and_self_origin_rejected) ... ok
+test_tampered_payload_rejected (test_t018_sync.SyncTests.test_tampered_payload_rejected) ... ok
+test_truncated_batch_rejected_and_audited (test_t018_sync.SyncTests.test_truncated_batch_rejected_and_audited) ... ok
+test_two_processes_are_used (test_t018_sync.SyncTests.test_two_processes_are_used) ... ok
+test_unsupported_schema_and_missing_field_rejected (test_t018_sync.SyncTests.test_unsupported_schema_and_missing_field_rejected) ... ok
+test_approval_gate_cannot_be_bypassed (test_workflow.WorkflowTests.test_approval_gate_cannot_be_bypassed) ... ok
+test_deadline_expiry_and_time_regression (test_workflow.WorkflowTests.test_deadline_expiry_and_time_regression) ... ok
+test_denial_and_approval_id_mismatch_fail_closed (test_workflow.WorkflowTests.test_denial_and_approval_id_mismatch_fail_closed) ... ok
+test_direct_invalid_transition_rolls_back (test_workflow.WorkflowTests.test_direct_invalid_transition_rolls_back) ... ok
+test_malformed_state_values_fail_closed (test_workflow.WorkflowTests.test_malformed_state_values_fail_closed) ... ok
+test_persisted_transition_retry_is_idempotent (test_workflow.WorkflowTests.test_persisted_transition_retry_is_idempotent) ... ok
+test_persisted_workflow_lifecycle (test_workflow.WorkflowTests.test_persisted_workflow_lifecycle) ... ok
+test_retry_is_bounded (test_workflow.WorkflowTests.test_retry_is_bounded) ... ok
+test_stale_workflow_version_is_rejected (test_workflow.WorkflowTests.test_stale_workflow_version_is_rejected) ... ok
+test_task_lifecycle_success (test_workflow.WorkflowTests.test_task_lifecycle_success) ... ok
+test_terminal_task_cannot_transition (test_workflow.WorkflowTests.test_terminal_task_cannot_transition) ... ok
+test_workflow_cannot_mint_an_actor_different_from_authenticated_subject (test_workflow.WorkflowTests.test_workflow_cannot_mint_an_actor_different_from_authenticated_subject) ... ok
+test_workflow_mutations_fail_closed_without_sealed_principal (test_workflow.WorkflowTests.test_workflow_mutations_fail_closed_without_sealed_principal) ... ok
+
+----------------------------------------------------------------------
+Ran 240 tests in 19.843s
+
+OK

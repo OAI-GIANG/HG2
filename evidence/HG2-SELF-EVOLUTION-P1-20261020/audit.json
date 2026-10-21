@@ -1,0 +1,66 @@
+{
+  "base_commit": "6e8fc4ce5fe8fa63612c0f37b74c8c1220fa0773",
+  "blockers": [
+    "Provision and independently verify production trust roots and semantic evidence/oracle results.",
+    "Design and test explicit PhoneRuntime cutover with snapshots and rollback before live adapter use.",
+    "Implement atomic supersession/activation under separate authenticated approval if required.",
+    "Prove a compatible, legally usable, resource-bounded local general-purpose model if offline open-ended generation is required.",
+    "Run exact-device long-duration process-kill/reboot/low-storage/screen-off/network-loss tests before autonomous queue enablement."
+  ],
+  "branch": "stt/hg2-self-evolution-p1-closure-20261020",
+  "claim_limits": [
+    "Byte digest matching is not semantic truth verification.",
+    "The in-test verifier is only a test stub, not a production trust root.",
+    "Workflow adapter is not connected to live PhoneRuntime.",
+    "Experience supersession is only a decision record, not activation or promotion.",
+    "General-purpose free offline text generation was not verified.",
+    "No human independent review was performed or claimed."
+  ],
+  "created_at": "2026-10-20T08:33:49.830993+07:00",
+  "environment": {
+    "execution": "Android/Termux via Remote Desktop Commander",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6"
+  },
+  "files": {
+    "docs/architecture/HG2-INTELLIGENCE-SELF-EVOLUTION-PLAN-R1-20261020.md": "1c739c633167da054c90782eab39f6a1716b31541a325c2203e3fb4523518c09",
+    "docs/architecture/HG2-SELF-EVOLUTION-P1-CLOSURE-20261020.md": "97f5644c2161a9add70147f3ecdad2d5d760aeac0cdb895d5c25bd93d6ef89c1",
+    "evidence/HG2-SELF-EVOLUTION-P1-20261020/logs/focused-regression.log": "021f55a4ec55772b4d30cc3e2bf2a58c80eacd78e4dbffc1e72556f50aab4522",
+    "evidence/HG2-SELF-EVOLUTION-P1-20261020/logs/full-regression.log": "cbae2940edafa52412cc025232d94056fb833756d3fac9d5b837ef37d5b50498",
+    "hg/evidence_verifier.py": "fbe8eda5f00e1a8dd5996987c35be4e89d4d7532d22b6786b0f282759ee53c88",
+    "hg/evolution.py": "10149de5b511f3ca3322b875694ed0e30dbe7f0ed283c1e6fc76111d2e7d47ff",
+    "hg/experience_memory.py": "e68eb00567c71d985c8926f8c50c218bff457312d91fe596e88b363d77585292",
+    "hg/workflow_store_adapter.py": "12792bc54abe5de1c6bfa6ca04b98054cd14d708b7376d7ff4f8c0b146a4c241",
+    "tests/test_evidence_verifier.py": "0e20e60bca4284ffbeb464e68e122ac50eb3c706896871bba53cc3b179296011",
+    "tests/test_evolution.py": "b7cce1de23ecc4401d33c9174d24f431ee2a8ed6e034e486a6f9e8c59c675b51",
+    "tests/test_experience_memory.py": "1e01e7afdea189afd2ad1c61b6f29b03e856784d6acb3928dc2e9c81ae807bcd",
+    "tests/test_workflow_store_adapter.py": "46505e61b575a5e7f42b8d548c9710048808e2ca46e3ee885acee0171187d7d1"
+  },
+  "repository": "OAI-GIANG/HG2",
+  "runtime": {
+    "PhoneRuntime_wired": false,
+    "automatic_activation": false,
+    "deployment": false,
+    "local_general_purpose_llm_found": false,
+    "model_gateway_configured": false,
+    "production_state_mutated": false,
+    "service_restarted": false
+  },
+  "schema_version": "HG2_SELF_EVOLUTION_P1_AUDIT_V1",
+  "tests": {
+    "ast_parse": "PASS on final source before commit",
+    "focused": {
+      "duration_seconds": 0.887,
+      "passed_tests": 100,
+      "result": "PASS",
+      "sha256": "021f55a4ec55772b4d30cc3e2bf2a58c80eacd78e4dbffc1e72556f50aab4522"
+    },
+    "full": {
+      "duration_seconds": 46.404,
+      "passed_tests": 379,
+      "result": "PASS",
+      "sha256": "cbae2940edafa52412cc025232d94056fb833756d3fac9d5b837ef37d5b50498"
+    },
+    "git_diff_check": "PASS on final staged content before commit"
+  }
+}

@@ -22,7 +22,10 @@ ALLOWED = frozenset({
 NEEDS_AUTH = frozenset({
     "edge.register", "edge.heartbeat", "edge.status",
 }) | CONFIGURABLE_SCOPES
-PRINCIPAL_ONLY_ACTIONS = frozenset({"provider.invoke"})
+PRINCIPAL_ONLY_ACTIONS = frozenset({
+    "provider.invoke", "file.read", "file.write", "shell.exec", "network.fetch",
+    "deploy", "identity.change", "state.import",
+})
 APPROVABLE_ACTIONS = ALLOWED - PRINCIPAL_ONLY_ACTIONS
 # Internal state-changing service actions are deliberately explicit and fail closed.
 SERVICE_MUTATION_ACTIONS = frozenset({
@@ -51,10 +54,7 @@ MUTATION_EVENT_ACTIONS = MappingProxyType({
     "tool.loop_blocked": "brain.request",
     "tool.iteration_limit": "brain.request",
 })
-FORBIDDEN = frozenset({
-    "file.read", "file.write", "shell.exec", "network.fetch", "deploy",
-    "identity.change", "state.import",
-})
+FORBIDDEN = frozenset()  # Legacy blanket denials replaced by exact-scope principal authorization.
 _DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
 _APPROVAL_STATES = frozenset({"PENDING", "APPROVED", "DENIED", "EXPIRED"})
 _APPROVAL_FIELDS = {

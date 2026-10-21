@@ -1,0 +1,73 @@
+{
+  "base_checkpoint": "fe1b153a0d8cd34d638d8b126df205802daf2e63",
+  "branch": "stt/hg2-master-cleanup-20261021",
+  "environment": {
+    "architecture": "aarch64",
+    "platform": "Android-16-aarch64-64bit-ELF",
+    "python": "3.14.6"
+  },
+  "file_hash_manifest_sha256": "a367eb0acb5b52d52963a38127e59c51586a1529261c364f2b661bb91c1ef8c5",
+  "file_sha256": {
+    "docs/architecture/HG2-RUNTIME-STATE-BOUNDARY-20261021.md": "4c0b0358691e8f41d1f67529f9c285dc391cfe0fc96cd80bd6da1f16cbed3c14",
+    "evidence/HG2-MASTER-CLEANUP-20261021/phase3-boundary-tests.log": "424198a1c8946764ccce09e8a25ef05acfde721a6ca30e9d8b3831075b12e100",
+    "evidence/HG2-MASTER-CLEANUP-20261021/phase3-compileall.log": "abb80a22fa0eb189548f2945e977f0d83af6be92cb2b4df8c276dd9b837aa9c3",
+    "evidence/HG2-MASTER-CLEANUP-20261021/phase3-diff-check.log": "8c83a0dcfebc4bf532bca09474cc581378ddfd5f8589b4f2abf8dcc91ec9e6e7",
+    "evidence/HG2-MASTER-CLEANUP-20261021/phase3-full-tests.log": "ecada62c575944c10df45fb9efcd95f1005e774391b829593705198f4b6ab7a6",
+    "hg/runtime_state_boundary.py": "1e3f118a08d4850c3be93af288b98c480156cc1d656190a03e500abacbe48809",
+    "tests/test_runtime_state_boundary.py": "1d937ebc0276d538b61d1d18a2ea40abaac2677f7b082bce4526acf90c301998"
+  },
+  "migration_rehearsal": {
+    "cross_backend_translation_performed": false,
+    "production_data_touched": false,
+    "reopen_replay_verify_passed": true,
+    "scope": "synthetic temporary StateStore fixture copied to isolated directory",
+    "sha256_copy_verified": true
+  },
+  "open_gates": [
+    "commit signature/provenance",
+    "independent review",
+    "live runtime identity/fingerprint attestation",
+    "cross-backend semantic parity",
+    "authorized cutover/rollback"
+  ],
+  "protected_checkouts": {
+    "original_checkout": "~/HG2 at 313149d3028b7a6aa4eb2c96fd93cd3981b866f1; pre-existing untracked docs/review and pycache state preserved before cleanup limited to isolated worktree",
+    "runtime_checkout": "~/hg2-phone at 4d97c34d8bb7c1091265330aef63dd78d0e72c49; dirty tracked and untracked files preserved"
+  },
+  "repository": "OAI-GIANG/HG2",
+  "runtime_operations": {
+    "deploy": false,
+    "live_migration": false,
+    "merge": false,
+    "push": false,
+    "restart": false
+  },
+  "schema_version": "HG2_PHASE3_VERIFICATION_V1",
+  "static_checks": {
+    "compileall_exit_code": 0,
+    "diff_check_exit_code": 0
+  },
+  "status": "PHASE3_IN_PROGRESS_MIGRATION_BLOCKED_PENDING_PARITY_AND_PROVENANCE",
+  "tested_tree_base_revision": "fe1b153a0d8cd34d638d8b126df205802daf2e63",
+  "tested_tree_has_uncommitted_phase3_changes": true,
+  "tests": {
+    "boundary_suite": {
+      "exit_code": 0,
+      "failed": 0,
+      "log": "evidence/HG2-MASTER-CLEANUP-20261021/phase3-boundary-tests.log",
+      "passed": 7
+    },
+    "full_suite": {
+      "command": "python -m unittest discover -s tests -p 'test*.py' -q",
+      "exit_code": 0,
+      "failed": 0,
+      "log": "evidence/HG2-MASTER-CLEANUP-20261021/phase3-full-tests.log",
+      "passed": 436
+    },
+    "related_regression_group": {
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 101
+    }
+  }
+}

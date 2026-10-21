@@ -1,0 +1,113 @@
+{
+  "schema_version": "HG2_MASTER_CLEANUP_PHASE2_READONLY_V1",
+  "repository": "OAI-GIANG/HG2",
+  "candidate_branch": "stt/hg2-master-cleanup-20261021",
+  "checkpoint_before_phase2": "24c80d28fa742078cc62bcbf350f98831027d97f",
+  "observation_date": "2026-10-21",
+  "device": {
+    "os": "Android",
+    "android_kernel": "6.6.118-android15-8-gebdfad32d749-ab15099304-4k",
+    "architecture": "aarch64",
+    "python": "3.14.6",
+    "termux_version": "0.118.3"
+  },
+  "isolated_candidate": {
+    "path": "~/.cache/hg2-master-cleanup-20261021/worktree",
+    "head": "24c80d28fa742078cc62bcbf350f98831027d97f",
+    "branch": "stt/hg2-master-cleanup-20261021",
+    "working_tree": "clean_at_initial_read"
+  },
+  "original_checkout": {
+    "path": "~/HG2",
+    "head": "313149d3028b7a6aa4eb2c96fd93cd3981b866f1",
+    "branch": "stt/hg2-voice-tools-design-20261018",
+    "status": "preserved; pre-existing untracked docs/review and __pycache__ remain"
+  },
+  "runtime_checkout": {
+    "path": "~/hg2-phone",
+    "head": "4d97c34d8bb7c1091265330aef63dd78d0e72c49",
+    "branch": "detached_HEAD",
+    "working_tree": "dirty",
+    "tracked_changes": [
+      "README.md",
+      "contract/ARCHITECTURE_V1.md",
+      "hg/authority.py",
+      "hg/edge.py (deleted)",
+      "hg/history.py",
+      "hg/phone_runtime.py",
+      "hg/sync.py",
+      "manifest.json",
+      "tests/test_core.py"
+    ],
+    "untracked": [
+      "hg/provenance.py",
+      "hg/sync_auth.py",
+      "hg/sync_bootstrap.py",
+      "n1.log",
+      "n2.log",
+      "raw1.log",
+      "raw2.log"
+    ],
+    "diff_stat": {
+      "files_changed": 9,
+      "insertions": 367,
+      "deletions": 300
+    },
+    "action": "read_only_inspection_only"
+  },
+  "service_status_observed": {
+    "hg-runtime": "down",
+    "hg2-runtime": "running",
+    "hg-backend": "down",
+    "method": "sv status",
+    "service_restart_performed": false
+  },
+  "hg2_runtime_log_observation": {
+    "product": "HG",
+    "network_integration": false,
+    "runtime_identity_status": "OBSERVED_UNMATCHED",
+    "source_comparison_status": "NOT_RUN_NO_EXPECTED_CODE_FINGERPRINT",
+    "trust_status": "PROCESS_LOCAL_OBSERVATION_UNATTESTED",
+    "limitations": [
+      "Process-local observation is not cryptographically authenticated remote attestation",
+      "Disk hash is not equivalent to loaded-code fingerprint",
+      "No expected-code fingerprint was supplied for comparison"
+    ]
+  },
+  "state_ownership_findings": {
+    "PhoneRuntime": "constructs history.StateStore and injects the same instance into SyncContext",
+    "MemoryStore": "event-sourced projection over history.StateStore",
+    "sync.py": "uses history.StateStore and can construct its own store when used standalone",
+    "sync_dispatcher.py": "requires SQLiteStateStore and operates on its transactional outbox",
+    "workflow_store_adapter.py": "requires SQLiteStateStore and explicitly reports runtime_cutover_performed=false",
+    "durable_transactions.py": "separate SQLite transaction ledger with plan/step/evidence/commit/recovery semantics",
+    "deletion_or_migration": "none"
+  },
+  "brain_adapter_findings": {
+    "observed_server_bindings": [
+      "memory.search",
+      "synthesis.propose (response-only)"
+    ],
+    "unbound_capabilities": [
+      "memory.recall",
+      "provenance.inspect",
+      "research.analyze",
+      "source.compare",
+      "tool.execute",
+      "artifact.build",
+      "policy.check",
+      "evidence.verify",
+      "conflict.review"
+    ],
+    "claim": "four-domain production integration is not complete"
+  },
+  "safety": {
+    "runtime_files_modified": false,
+    "runtime_services_stopped_or_restarted": false,
+    "push_performed": false,
+    "merge_performed": false,
+    "deploy_performed": false,
+    "state_store_deleted": false,
+    "state_migration_performed": false
+  }
+}

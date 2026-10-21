@@ -1,0 +1,20 @@
+HG2 ELEVATED CAPABILITY POLICY VALIDATION
+Repository: OAI-GIANG/HG2
+Branch: stt/hg2-master-cleanup-20261021
+Tested HEAD: 381982f65783de1c1201d7c1187fb2cce892c87d
+Scope: isolated worktree only
+
+Targeted command: python -m unittest tests.test_core tests.test_policy tests.test_remote_desktop_commander tests.test_maep_host_binding -v
+Targeted result: 39 passed, 0 failed, exit code 0
+
+Full command: python -m unittest discover -s tests -v
+Full result: 509 passed, 0 failed, exit code 0
+py_compile: PASS
+git diff --check: PASS
+
+Blanket deny entries removed from HG application policy for the elevated capabilities. These capabilities require an exact scope on a sealed authenticated principal; the legacy boolean API does not authorize them. Generic grants cannot authorize principal-only elevated capabilities. Existing host/tool guards remain.
+
+Production state changed: NO
+Runtime route added: NO
+Production deployment performed: NO
+This evidence does not claim OS-level privilege, runtime wiring, production authorization, or production import readiness.

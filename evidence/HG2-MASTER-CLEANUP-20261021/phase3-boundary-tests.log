@@ -1,0 +1,12 @@
+test_contract_fails_closed_on_unverified_or_mismatched_identity (tests.test_runtime_state_boundary.RuntimeStateBoundaryTests.test_contract_fails_closed_on_unverified_or_mismatched_identity) ... ok
+test_durable_transaction_ledger_is_not_misclassified_as_runtime_state (tests.test_runtime_state_boundary.RuntimeStateBoundaryTests.test_durable_transaction_ledger_is_not_misclassified_as_runtime_state) ... ok
+test_file_store_satisfies_read_only_contract_and_identity_survives_reopen (tests.test_runtime_state_boundary.RuntimeStateBoundaryTests.test_file_store_satisfies_read_only_contract_and_identity_survives_reopen) ... ok
+test_sqlite_consumers_share_identity_but_keep_distinct_roles (tests.test_runtime_state_boundary.RuntimeStateBoundaryTests.test_sqlite_consumers_share_identity_but_keep_distinct_roles) ... ok
+test_sqlite_store_satisfies_read_only_contract_and_identity_survives_reopen (tests.test_runtime_state_boundary.RuntimeStateBoundaryTests.test_sqlite_store_satisfies_read_only_contract_and_identity_survives_reopen) ... ok
+test_sync_context_and_runtime_share_one_file_store (tests.test_runtime_state_boundary.RuntimeStateBoundaryTests.test_sync_context_and_runtime_share_one_file_store) ... ok
+test_synthetic_file_store_backup_restore_preserves_hashes_and_replay (tests.test_runtime_state_boundary.RuntimeStateBoundaryTests.test_synthetic_file_store_backup_restore_preserves_hashes_and_replay) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.280s
+
+OK

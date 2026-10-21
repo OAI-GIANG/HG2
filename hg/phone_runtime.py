@@ -24,12 +24,81 @@ class PhoneRuntime:
         self.memory = MemoryStore(self.store)
         self.model_gateway = ModelGateway(timeout=45)
         self.durable = DurableOutbox(self.store, timeout=timeout)
+        self._recover_incomplete_model_calls()
         self.sync_context = None
         self.authenticated_sync_gate = None
         # Authenticated synchronization is opt-in. The adapter reuses this exact store;
         # it is not allowed to create another StateStore for the same runtime directory.
         if any(v is not None for v in (sync_context_id, sync_spool_dir, authenticated_sync_gate)):
             self.configure_authenticated_sync(sync_context_id, sync_spool_dir, authenticated_sync_gate)
+
+    def _recover_incomplete_model_calls(self):
+        """Mark calls with a durable start but no terminal receipt IN_DOUBT; never replay them."""
+        events = self.store.replay()
+        completed = set()
+        in_doubt = set()
+        starts = {}
+        for event in events:
+            event_type = event.get("event_type")
+            payload = event.get("payload")
+            if not isinstance(payload, dict):
+                continue
+            request_id = payload.get("brain_request_id")
+            if not isinstance(request_id, str) or not request_id:
+                continue
+            if event_type == "model.call.started":
+                starts[request_id] = event
+            elif event_type == "model.call.completed":
+                completed.add(request_id)
+            elif event_type == "model.call.in_doubt":
+                in_doubt.add(request_id)
+        for request_id, event in starts.items():
+            if request_id in completed or request_id in in_doubt:
+                continue
+            source = event.get("payload", {})
+            correlation_id = event.get("correlation_id")
+            payload = {
+                "operation": "model_answer",
+                "brain_request_id": request_id,
+                "correlation_id": correlation_id,
+                "query_sha256": source.get("query_sha256"),
+                "context_manifest_sha256": source.get("context_manifest_sha256"),
+                "brain_plan_digest": source.get("brain_plan_digest"),
+                "reason": "OUTCOME_UNKNOWN_AFTER_START",
+            }
+            self.store.emit(
+                "model.call.in_doubt", payload,
+                correlation_id=correlation_id,
+                causation_id=event.get("event_id"),
+                event_id="model-call-in-doubt:" + request_id,
+            )
+
+    def mark_model_call_in_doubt(self, start_event):
+        """Persist the same conservative recovery marker from a duplicate-request path."""
+        if not isinstance(start_event, dict) or start_event.get("event_type") != "model.call.started":
+            raise ValueError("MODEL_CALL_START_EVENT_REQUIRED")
+        source = start_event.get("payload")
+        if not isinstance(source, dict):
+            raise ValueError("MODEL_CALL_START_PAYLOAD_INVALID")
+        request_id = source.get("brain_request_id")
+        if not isinstance(request_id, str) or not request_id:
+            raise ValueError("MODEL_CALL_REQUEST_ID_MISSING")
+        correlation_id = start_event.get("correlation_id")
+        payload = {
+            "operation": "model_answer",
+            "brain_request_id": request_id,
+            "correlation_id": correlation_id,
+            "query_sha256": source.get("query_sha256"),
+            "context_manifest_sha256": source.get("context_manifest_sha256"),
+            "brain_plan_digest": source.get("brain_plan_digest"),
+            "reason": "OUTCOME_UNKNOWN_AFTER_START",
+        }
+        return self.store.emit(
+            "model.call.in_doubt", payload,
+            correlation_id=correlation_id,
+            causation_id=start_event.get("event_id"),
+            event_id="model-call-in-doubt:" + request_id,
+        )
 
     def configure_authenticated_sync(self, context_id, spool_dir, gate):
         if not isinstance(context_id, str) or not context_id.strip():

@@ -1,0 +1,23 @@
+repository=OAI-GIANG/HG2
+base_commit=c2161feb76b2be8964a109910475a5b1a018eb1a
+branch=stt/hg2-brain-orchestrator-r1-20261019
+platform=Android/Termux
+aarch=aarch64
+python=3.14.6
+fault_command=PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest tests.test_state_recovery -v
+fault_exit_code=0
+fault_tests=22
+fault_duration_seconds=7.819
+full_command=PYTHONDONTWRITEBYTECODE=1 python -W error::ResourceWarning -m unittest discover -s tests -v
+full_exit_code=0
+full_tests=281
+full_duration_seconds=41.119
+pr_29_state=OPEN
+pr_29_draft=true
+pr_29_merged_at=null
+merge_or_deploy_performed=false
+observation_command=PYTHONDONTWRITEBYTECODE=1 python tests/run_state_recovery_observations.py
+observation_exit_code=0
+observation_cases=27
+observation_verdict=PASS
+observation_sha256=d8b6862d339b1c31adca29f110290772181ba94c0d567a1747769d2aa907a3b9

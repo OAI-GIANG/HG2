@@ -10,6 +10,9 @@ CONFIGURABLE_SCOPES = frozenset({
     "policy.approval.request", "policy.approval.vote",
     "brain.request", "audit.append", "sync.outbox.attempt", "sync.outbox.acknowledge",
     "state.migration.import", "state.backup", "state.restore",
+    # Elevated capabilities are configurable only through an authenticated, exact-scope principal.
+    "file.read", "file.write", "shell.exec", "network.fetch", "deploy",
+    "identity.change", "state.import",
 })
 DEFAULT_SCOPES = frozenset({"provider.invoke"})
 _MAX_TOKEN_CHARS = 4096

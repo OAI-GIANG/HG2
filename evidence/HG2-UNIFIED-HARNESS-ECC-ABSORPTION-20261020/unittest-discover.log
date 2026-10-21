@@ -1,0 +1,43 @@
+...........................................................................................................................................................................................127.0.0.1 - - [20/Oct/2026 00:56:10] HG_API "POST /api/ask HTTP/1.1" 503 -
+.127.0.0.1 - - [20/Oct/2026 00:56:10] HG_API "POST /api/ask HTTP/1.1" 400 -
+.127.0.0.1 - - [20/Oct/2026 00:56:11] HG_API "POST /api/ask HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:11] HG_API "POST /api/ask HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:11] HG_API "POST /api/ask HTTP/1.1" 409 -
+127.0.0.1 - - [20/Oct/2026 00:56:11] HG_API "POST /api/ask HTTP/1.1" 409 -
+.127.0.0.1 - - [20/Oct/2026 00:56:11] HG_API "POST /api/ask HTTP/1.1" 503 -
+.127.0.0.1 - - [20/Oct/2026 00:56:12] HG_API "POST /api/ask HTTP/1.1" 409 -
+127.0.0.1 - - [20/Oct/2026 00:56:12] HG_API "POST /api/ask HTTP/1.1" 200 -
+.127.0.0.1 - - [20/Oct/2026 00:56:13] HG_API "POST /api/memory HTTP/1.1" 201 -
+127.0.0.1 - - [20/Oct/2026 00:56:13] HG_API "GET /api/memory HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:13] HG_API "GET /api/memory/api-fact HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:13] HG_API "GET /api/memory/search?q=Single+system HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:13] HG_API "GET /api/memory/context?q=Single+system HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:13] HG_API "DELETE /api/memory/api-fact HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:13] HG_API "GET /api/memory/api-fact HTTP/1.1" 404 -
+.127.0.0.1 - - [20/Oct/2026 00:56:13] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [20/Oct/2026 00:56:13] HG_API "GET /api/memory HTTP/1.1" 401 -
+.127.0.0.1 - - [20/Oct/2026 00:56:14] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:14] HG_API "GET /api/health HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:14] HG_API "GET /api/library HTTP/1.1" 401 -
+127.0.0.1 - - [20/Oct/2026 00:56:14] HG_API "GET /api/library HTTP/1.1" 401 -
+127.0.0.1 - - [20/Oct/2026 00:56:14] HG_API "GET /api/library HTTP/1.1" 403 -
+127.0.0.1 - - [20/Oct/2026 00:56:14] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [20/Oct/2026 00:56:14] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [20/Oct/2026 00:56:14] HG_API "GET /api/memory HTTP/1.1" 401 -
+127.0.0.1 - - [20/Oct/2026 00:56:14] HG_API "POST /api/memory HTTP/1.1" 401 -
+.127.0.0.1 - - [20/Oct/2026 00:56:15] HG_API "GET /api/library HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:15] HG_API "GET /api/library HTTP/1.1" 503 -
+....127.0.0.1 - - [20/Oct/2026 00:56:17] HG_API "POST /api/memory HTTP/1.1" 403 -
+127.0.0.1 - - [20/Oct/2026 00:56:17] HG_API "POST /api/memory HTTP/1.1" 400 -
+..127.0.0.1 - - [20/Oct/2026 00:56:18] HG_API "GET /api/health HTTP/1.1" 503 -
+.....127.0.0.1 - - [20/Oct/2026 00:56:21] HG_API "POST /api/ask HTTP/1.1" 503 -
+..127.0.0.1 - - [20/Oct/2026 00:56:22] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:22] HG_API "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [20/Oct/2026 00:56:22] HG_API "GET / HTTP/1.1" 429 -
+....127.0.0.1 - - [20/Oct/2026 00:56:23] HG_API "POST /api/memory HTTP/1.1" 408 -
+.127.0.0.1 - - [20/Oct/2026 00:56:24] HG_API Request timed out: TimeoutError('timed out')
+........................................................................................................................
+----------------------------------------------------------------------
+Ran 333 tests in 39.685s
+
+OK

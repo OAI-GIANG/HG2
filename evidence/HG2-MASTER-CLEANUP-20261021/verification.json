@@ -1,0 +1,66 @@
+{
+  "schema": "HG2_MASTER_CLEANUP_VERIFICATION_V1",
+  "status": "TESTED_NOT_PRODUCTION_VERIFIED",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-master-cleanup-20261021",
+  "tested_commit": "7c5c1bc546acf6d1252ebb5158baae84149c5ecf",
+  "base_commit": "f855bd3728bfad5f91c53aa64652067aa7639aa7",
+  "environment": {
+    "os": "Android/Termux",
+    "architecture": "aarch64",
+    "python": "3.14.6"
+  },
+  "tests": {
+    "core": {
+      "command": "python -m unittest discover -s tests -p 'test*.py' -q",
+      "result": "PASS",
+      "tests": 429,
+      "failures": 0,
+      "log_sha256": "fed51b9efa2a1ba776f9612649ec4bed67a48376b263e7c47fd328221f5836a8"
+    },
+    "voice": {
+      "command": "cd tools/voice && python -m unittest discover -s tests -p 'test*.py' -q",
+      "result": "PASS",
+      "tests": 63,
+      "failures": 0,
+      "log_sha256": "f9e579bc5b554bab31af6e000786cd589c78ce030d504ff8733d78b3b94df248"
+    },
+    "total_tests": 492,
+    "total_failures": 0,
+    "compileall": {
+      "command": "python -m compileall -q hg tools tests",
+      "result": "PASS"
+    },
+    "git_diff_check": {
+      "command": "git diff --cached --check",
+      "result": "PASS"
+    }
+  },
+  "static_analysis": {
+    "tool": "tools/hg_code_intelligence.py",
+    "version": "1.0.0",
+    "source_revision": "7c5c1bc546acf6d1252ebb5158baae84149c5ecf",
+    "snapshot_sha256": "9d87f4e24627745f54281bb18c81b84f1bbc616ee7653e93ff0834424f54e22d",
+    "report_sha256": "17e951cf7a0a1d3aa226f5a59c2ffbd136a68dd38e4c0fd326417e097d6e4085",
+    "files_seen": 784,
+    "python_files_total": 206,
+    "python_files_parsed": 206,
+    "parse_failures": 0,
+    "dynamic_import_sites": 16,
+    "unclassified_files": 334,
+    "unsupported_source_files": 244,
+    "coverage_complete": false,
+    "state_store_impact_status": "KNOWN_DEPENDENTS_ONLY_INCOMPLETE_COVERAGE"
+  },
+  "known_blockers": [
+    "Brain API does not yet bind all four subordinate domains",
+    "PhoneRuntime uses history.StateStore while SyncDispatcher and CanonicalWorkflowAdapter require SQLiteStateStore",
+    "voice quality not accepted and model-backed ASR/TTS not runtime-integrated",
+    "live runtime checkout ~/hg2-phone was not modified or deployment-verified"
+  ],
+  "limitations": [
+    "Test results prove local test paths only",
+    "Static AST import analysis is not a complete runtime call graph",
+    "No push, merge, deploy, or destructive state-store deletion was performed"
+  ]
+}
