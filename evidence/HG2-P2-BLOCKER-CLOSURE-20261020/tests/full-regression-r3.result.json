@@ -1,0 +1,11 @@
+{
+  "schema_version": "HG2_TEST_RUN_RESULT_V1",
+  "command": "python3 -W error::ResourceWarning -m unittest discover -s tests",
+  "python": "Python 3.14.6",
+  "commit_under_test": "a6de469fbe1fcdaef0f47d3f10ed20e6ff61592c plus uncommitted integration-test changes in isolated workspace",
+  "exit_code": 0,
+  "tests_run": 394,
+  "result": "OK",
+  "log_sha256": "242d619a89dbffcf8b1686b09bfdc47a4a0df8147f015b31d4b53b2e172120e1",
+  "scope": "Isolated candidate workspace only; runtime startup tests use temporary state and loopback ports. No live state or service was changed."
+}

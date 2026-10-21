@@ -1,0 +1,11 @@
+{
+  "schema_version": "HG2_TEST_RUN_RESULT_V1",
+  "command": "python3 -W error::ResourceWarning -m unittest discover -s tests",
+  "python": "Python 3.14.6",
+  "code_at_test_start": "a8dc8bf5c0abb5570b6ac0c141f98c24c5b34562 plus uncommitted documentation/evidence artifacts only",
+  "exit_code": 0,
+  "tests_run": 394,
+  "result": "OK",
+  "log_sha256": "bae15d0563bd81cdd70e072ba4a7888d717c04084634853214c4c4aa8d3513bb",
+  "scope": "Isolated candidate workspace. No production service or live state was changed."
+}

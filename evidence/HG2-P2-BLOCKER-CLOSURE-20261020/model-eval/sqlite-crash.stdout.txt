@@ -1,0 +1,40 @@
+
+
+Loading model... 
+
+▄▄ ▄▄
+██ ██
+██ ██  ▀▀█▄ ███▄███▄  ▀▀█▄    ▄████ ████▄ ████▄
+██ ██ ▄█▀██ ██ ██ ██ ▄█▀██    ██    ██ ██ ██ ██
+██ ██ ▀█▄██ ██ ██ ██ ▀█▄██ ██ ▀████ ████▀ ████▀
+                                    ██    ██
+                                    ▀▀    ▀▀
+
+build      : b1-3bb63cb
+model      : /data/data/com.termux/files/home/.cache/hg2-llm-local/models/Qwen3-8B-Q4_K_M.gguf
+ftype      : Q4_K - Medium
+modalities : text
+using custom system prompt
+
+available commands:
+  /exit or Ctrl+C     stop or exit
+  /regen              regenerate the last response
+  /clear              clear the chat history
+  /read <file>        add a text file
+  /glob <pattern>     add text files using globbing pattern
+
+
+
+> Nhiệm vụ kỹ thuật: trên Android/Termux, một tiến trình Python gọi os._exit(17) ngay sau INSERT nhưng trước COMMIT trong SQLite đang dùng WAL. Sau khi khởi động lại, hãy đưa 5–7 bước phục hồi AN TOÀN. Bắt buộc phân biệt rollback transaction SQLite với hậu quả bên ngoài DB như gửi outbox; nêu rõ xử lý DB-WAL/DB-SHM, cách kiểm chứng integrity_check trên bản sao và điều không được làm. Không có quyền sửa dữ li ... (truncated)
+1. **Ngừng mọi hoạt động với DB**: Ngưng tiến trình Python để tránh thay đổi thêm dữ liệu.  
+2. **Kiểm tra WAL/SHM**: Xác nhận tệp `.sqlite-wal` và `.sqlite-shm` vẫn tồn tại, không bị xóa hoặc di chuyển.  
+3. **Tạo bản sao DB**: Sao lưu toàn bộ tệp DB gốc để phục hồi nếu cần (không thay đổi DB gốc).  
+4. **Chạy `integrity_check` trên bản sao**: Sử dụng `PRAGMA integrity_check;` để xác định lỗi trong DB.  
+5. **Rollback transaction SQLite**: Nếu có lỗi do transaction chưa commit, dùng `ROLLBACK` trên bản sao (không áp dụng lên DB gốc).  
+6. **Kiểm tra outbox/đầu ra bên ngoài**: Xác nhận dữ liệu đã gửi hoặc xử lý bên ngoài DB không bị mất.  
+7. **Không sửa đổi DB production**: Tránh thay đổi tệp DB gốc, chỉ phục hồi từ bản sao nếu cần.
+
+[ Prompt: 17.1 t/s | Generation: 5.1 t/s ]
+
+
+Exiting...

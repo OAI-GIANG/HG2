@@ -1,0 +1,37 @@
+{
+  "schema_version": "HG2_LOCAL_VI_ENGINEERING_QUALITY_ASSESSMENT_V1",
+  "model": "Qwen/Qwen3-8B-GGUF",
+  "model_revision": "7c41481f57cb95916b40956ab2f0b139b296d974",
+  "model_sha256": "d98cdcbd03e17ce47681435b5150e34c1417f50b5c0019dd560e4882c5745785",
+  "license": "apache-2.0",
+  "generation_config": {
+    "context": 3072,
+    "max_new_tokens": 512,
+    "threads": 6,
+    "temperature": 0.6,
+    "top_k": 20,
+    "top_p": 0.95,
+    "presence_penalty": 1.5,
+    "enable_thinking": false
+  },
+  "cases": {
+    "sqlite-crash": {
+      "score": 4,
+      "max_score": 10,
+      "critical_failure": true,
+      "failure": "Recommends ROLLBACK on a copy in a new process after the original process already terminated. That cannot roll back the terminated process's uncommitted transaction; SQLite performs recovery/rollback when the DB is reopened. Response also lacks a robust consistent backup procedure.",
+      "result": "FAIL"
+    }
+  },
+  "overall_status": "FAIL",
+  "acceptance": "Every case must score >=8/10 and have zero critical failures; one critical failure is enough to reject the candidate for autonomous engineering decisions.",
+  "limitations": "Fixed small screening set; not a statistically validated general-purpose benchmark. Outputs remain advisory and must not authorize runtime changes.",
+  "attempts": {
+    "in-doubt": {
+      "status": "INTERRUPTED_NO_VALID_OUTPUT",
+      "evidence": "in-doubt.attempt.json",
+      "scored": false
+    }
+  },
+  "overall_failure_reason": "sqlite-crash score is 4/10 with a critical failure; the quality gate requires every case >=8/10 and zero critical failures. The in-doubt case attempt was interrupted and is not counted as a pass."
+}
