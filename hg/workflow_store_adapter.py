@@ -54,6 +54,20 @@ class CanonicalWorkflowAdapter:
     def runtime_id(self) -> str:
         return self.store.runtime_id
 
+    def maep_orchestrator(self, *, handlers=None, authorizer=None, evidence_verifier=None):
+        """Create MAEP on this canonical SQLite store and sealed principal; never use legacy StateStore."""
+        from .maep import MaepOrchestrator
+
+        return MaepOrchestrator(
+            self.store,
+            principal=self.principal,
+            actor_id=self.actor_id,
+            handlers=handlers,
+            authorizer=authorizer,
+            evidence_verifier=evidence_verifier,
+            clock=self.clock,
+        )
+
     def create(self, **kwargs) -> dict[str, Any]:
         task = self.service.create(**kwargs)
         return self._confirm_projection(task)
