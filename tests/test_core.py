@@ -43,6 +43,7 @@ class AuthorityTests(unittest.TestCase):
     def test_disjoint_and_deny(self):
         self.assertFalse(ALLOWED & FORBIDDEN)
         self.assertFalse(authorize("shell.exec", authenticated=True).allowed)
+        self.assertEqual(authorize("shell.exec", authenticated=True).reason, "SEALED_PRINCIPAL_REQUIRED")
         self.assertEqual(authorize("session.create").reason, "AUTHENTICATION_REQUIRED")
         self.assertTrue(authorize("session.create", authenticated=True).allowed)
 

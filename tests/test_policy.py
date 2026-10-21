@@ -98,11 +98,28 @@ class PolicyTests(unittest.TestCase):
         with self.assertRaisesRegex(PolicyError, "APPROVAL_STATUS_INVALID"):
             decide_approval(request, decision="APPROVED", approver_id="reviewer", now=101)
 
-    def test_forbidden_action_cannot_be_granted(self):
+    def test_elevated_actions_require_exact_sealed_principal_scope(self):
+        from hg.authority import authorize as legacy_authorize
+        elevated = {
+            "file.read", "file.write", "shell.exec", "network.fetch", "deploy",
+            "identity.change", "state.import", "provider.invoke",
+        }
+        for action in elevated:
+            with self.subTest(action=action):
+                self.assertFalse(legacy_authorize(action, authenticated=True).allowed)
+                self.assertEqual(legacy_authorize(action, authenticated=True).reason, "SEALED_PRINCIPAL_REQUIRED")
+                auth = BearerAuthenticator("elevated-token", {action}, principal_id="owner-delegated")
+                principal = auth.authenticate("Bearer elevated-token")
+                self.assertIsNotNone(principal)
+                self.assertTrue(authorize_principal(action, principal).allowed)
+                other = BearerAuthenticator("other-token", {"health.read"}, principal_id="other").authenticate("Bearer other-token")
+                self.assertFalse(authorize_principal(action, other).allowed)
+
+    def test_elevated_action_cannot_be_authorized_by_generic_grant(self):
         grant = CapabilityGrant("g1", "alice", "shell.exec", 1)
         result = authorize_with_grants("alice", "shell.exec", [grant], now=2)
         self.assertFalse(result.allowed)
-        self.assertEqual(result.reason, "EXPLICITLY_FORBIDDEN")
+        self.assertEqual(result.reason, "SEALED_PRINCIPAL_REQUIRED")
 
     def test_approval_requires_independent_approver(self):
         request = create_approval_request(
