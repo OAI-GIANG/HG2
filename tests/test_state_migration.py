@@ -5,10 +5,13 @@ import unittest
 from hg.state_migration import (
     LEGACY_AUTHORITY_UNATTESTED,
     SCHEMA_VERSION,
+    STATE_MIGRATION_SCHEMA_V2,
     MigrationEnvelopeError,
     build_envelope,
+    build_envelope_v2,
     canonical_envelope_bytes,
     validate_envelope,
+    validate_envelope_v2,
 )
 
 
@@ -27,6 +30,78 @@ class StateMigrationEnvelopeTests(unittest.TestCase):
             source_head_sha256=digest("head-file"),
             source_runtime_id_sha256=digest("runtime-file"),
         )
+
+    def v2_source_files(self):
+        return {
+            "history.jsonl": b'{"event_id":"legacy-1","sequence":1}\n{"event_id":"legacy-2","sequence":2}\n',
+            "head.json": b'{"sequence":2,"head_digest":"abc"}\n',
+            "state.json": b'{"sessions":{},"counters":{}}\n',
+            "runtime_id": b"legacy-runtime\n",
+        }
+
+    def test_v2_preserves_exact_bytes_of_all_durable_state_files(self):
+        files = self.v2_source_files()
+        envelope = build_envelope_v2(
+            source_files=files,
+            source_runtime_id="legacy-runtime",
+            source_head_digest=digest("head"),
+        )
+        result = validate_envelope_v2(envelope)
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["schema_version"], STATE_MIGRATION_SCHEMA_V2)
+        self.assertEqual(result["event_count"], 2)
+        self.assertEqual(result["source_file_count"], 4)
+        self.assertEqual(result["legacy_authority"], LEGACY_AUTHORITY_UNATTESTED)
+        self.assertFalse(result["production_import_authorized"])
+        self.assertFalse(result["migration_performed"])
+        for name, raw in files.items():
+            self.assertEqual(base64.b64decode(envelope["source_files"][name]["base64"]), raw)
+            self.assertEqual(envelope["source_files"][name]["size_bytes"], len(raw))
+            self.assertEqual(envelope["source_files"][name]["sha256"], hashlib.sha256(raw).hexdigest())
+
+    def test_v2_rejects_boolean_event_count(self):
+        envelope = build_envelope_v2(
+            source_files=self.v2_source_files(),
+            source_runtime_id="legacy-runtime",
+            source_head_digest=digest("head"),
+        )
+        envelope["event_count"] = True
+        with self.assertRaisesRegex(MigrationEnvelopeError, "V2_EVENT_COUNT_INVALID"):
+            validate_envelope_v2(envelope)
+
+    def test_v2_rejects_missing_state_file(self):
+        files = self.v2_source_files()
+        files.pop("state.json")
+        with self.assertRaisesRegex(MigrationEnvelopeError, "V2_SOURCE_FILE_SET_INVALID"):
+            build_envelope_v2(source_files=files, source_runtime_id="legacy-runtime",
+                              source_head_digest=digest("head"))
+
+    def test_v2_rejects_runtime_id_mismatch(self):
+        files = self.v2_source_files()
+        files["runtime_id"] = b"other-runtime\n"
+        with self.assertRaisesRegex(MigrationEnvelopeError, "V2_RUNTIME_ID_MISMATCH"):
+            build_envelope_v2(source_files=files, source_runtime_id="legacy-runtime",
+                              source_head_digest=digest("head"))
+
+    def test_v2_rejects_tampered_file_bytes(self):
+        envelope = build_envelope_v2(
+            source_files=self.v2_source_files(),
+            source_runtime_id="legacy-runtime",
+            source_head_digest=digest("head"),
+        )
+        broken = dict(envelope)
+        broken["source_files"] = dict(envelope["source_files"])
+        broken["source_files"]["state.json"] = dict(envelope["source_files"]["state.json"])
+        broken["source_files"]["state.json"]["base64"] = base64.b64encode(b'{"tampered":true}\n').decode()
+        with self.assertRaisesRegex(MigrationEnvelopeError, "V2_SOURCE_FILE_DIGEST_MISMATCH:state.json"):
+            validate_envelope_v2(broken)
+
+    def test_v2_rejects_duplicate_keys_in_json_state(self):
+        files = self.v2_source_files()
+        files["state.json"] = b'{"sessions":{},"sessions":{"x":1}}\n'
+        with self.assertRaisesRegex(MigrationEnvelopeError, "V2_SOURCE_JSON_INVALID:state.json"):
+            build_envelope_v2(source_files=files, source_runtime_id="legacy-runtime",
+                              source_head_digest=digest("head"))
 
     def test_round_trip_preserves_exact_bytes_and_fails_closed(self):
         result = validate_envelope(self.envelope)
@@ -71,7 +146,7 @@ class StateMigrationEnvelopeTests(unittest.TestCase):
     def test_rejects_duplicate_json_keys(self):
         with self.assertRaisesRegex(MigrationEnvelopeError, "SOURCE_EVENT_JSON_INVALID"):
             build_envelope(
-                source_log=b'{"event_id":"one","event_id":"two"}\\n',
+                source_log=b'{"event_id":"one","event_id":"two"}\n',
                 source_runtime_id="legacy-runtime",
                 source_head_digest=digest("head"),
                 source_state_sha256=digest("state"),
