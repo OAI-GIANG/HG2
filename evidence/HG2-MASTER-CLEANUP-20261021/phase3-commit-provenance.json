@@ -1,0 +1,53 @@
+{
+  "base_checkpoint": "fe1b153a0d8cd34d638d8b126df205802daf2e63",
+  "base_checkpoint_signature": {
+    "status": "UNSIGNED_NOT_VERIFIED",
+    "verification_command": "git verify-commit fe1b153a0d8cd34d638d8b126df205802daf2e63",
+    "verification_exit_code": 1
+  },
+  "branch": "stt/hg2-master-cleanup-20261021",
+  "closure": "BLOCKED_PENDING_SIGNED_PROVENANCE_INDEPENDENT_REVIEW_RUNTIME_IDENTITY_AND_BACKEND_PARITY",
+  "commit_signature": {
+    "git_show_signature_status": "N",
+    "status": "UNSIGNED_NOT_VERIFIED",
+    "verification_command": "git verify-commit a13320488cec55199d0284024d69bed8d882b560",
+    "verification_exit_code": 1
+  },
+  "external_actions": {
+    "deploy": false,
+    "live_migration": false,
+    "merge": false,
+    "push": false
+  },
+  "file_hash_manifest_sha256": "37a4b5c44f0d42bb22b398f3ba73f4cfd58b3d09d15c2e0bf1ee845a626da584",
+  "file_sha256": {
+    "docs/architecture/HG2-RUNTIME-STATE-BOUNDARY-20261021.md": "4c0b0358691e8f41d1f67529f9c285dc391cfe0fc96cd80bd6da1f16cbed3c14",
+    "evidence/HG2-MASTER-CLEANUP-20261021/phase3-boundary-tests.log": "424198a1c8946764ccce09e8a25ef05acfde721a6ca30e9d8b3831075b12e100",
+    "evidence/HG2-MASTER-CLEANUP-20261021/phase3-compileall.log": "abb80a22fa0eb189548f2945e977f0d83af6be92cb2b4df8c276dd9b837aa9c3",
+    "evidence/HG2-MASTER-CLEANUP-20261021/phase3-diff-check.log": "8c83a0dcfebc4bf532bca09474cc581378ddfd5f8589b4f2abf8dcc91ec9e6e7",
+    "evidence/HG2-MASTER-CLEANUP-20261021/phase3-full-tests.log": "ecada62c575944c10df45fb9efcd95f1005e774391b829593705198f4b6ab7a6",
+    "evidence/HG2-MASTER-CLEANUP-20261021/phase3-verification.json": "6622d258cdc763314fad49447c05ccea703b7c15c39dec283a3d86c0e0b180f8",
+    "hg/runtime_state_boundary.py": "1e3f118a08d4850c3be93af288b98c480156cc1d656190a03e500abacbe48809",
+    "tests/test_runtime_state_boundary.py": "1d937ebc0276d538b61d1d18a2ea40abaac2677f7b082bce4526acf90c301998"
+  },
+  "independent_review": "NOT_OBTAINED",
+  "repository": "OAI-GIANG/HG2",
+  "runtime_identity": {
+    "hg-backend": "down",
+    "hg-runtime": "down",
+    "hg2-runtime_service": "running pid 8885",
+    "runtime_code_fingerprint_match": "NOT_VERIFIED",
+    "runtime_restarted": false
+  },
+  "schema_version": "HG2_PHASE3_COMMIT_PROVENANCE_V1",
+  "test_evidence": {
+    "compileall": "PASS",
+    "full_suite_failed": 0,
+    "full_suite_passed": 436,
+    "git_diff_check": "PASS",
+    "related_regression_passed": 101,
+    "targeted_boundary_passed": 7
+  },
+  "tested_code_commit": "a13320488cec55199d0284024d69bed8d882b560",
+  "working_tree_clean_at_capture": true
+}
