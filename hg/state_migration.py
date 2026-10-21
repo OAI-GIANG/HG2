@@ -46,6 +46,15 @@ def canonical_envelope_bytes(envelope: dict[str, Any]) -> bytes:
     return _canonical(envelope)
 
 
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON object key")
+        result[key] = value
+    return result
+
+
 def _validate_jsonl(source_log: bytes) -> int:
     if not source_log or not source_log.endswith(b"\n"):
         raise MigrationEnvelopeError("SOURCE_EVENT_JSON_INVALID")
@@ -55,6 +64,7 @@ def _validate_jsonl(source_log: bytes) -> int:
             raise MigrationEnvelopeError("SOURCE_EVENT_JSON_INVALID")
         try:
             event = json.loads(line.decode("utf-8", errors="strict"),
+                               object_pairs_hook=_reject_duplicate_keys,
                                parse_constant=lambda _: (_ for _ in ()).throw(ValueError("nonfinite")))
         except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
             raise MigrationEnvelopeError("SOURCE_EVENT_JSON_INVALID") from exc

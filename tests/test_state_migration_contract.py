@@ -43,6 +43,12 @@ class StateMigrationContractTests(unittest.TestCase):
         with self.assertRaisesRegex(MigrationEnvelopeError, 'PRODUCTION_IMPORT_MUST_REMAIN_DISABLED'):
             validate_envelope(broken)
 
+    def test_duplicate_json_keys_are_rejected(self):
+        with self.assertRaisesRegex(MigrationEnvelopeError, 'SOURCE_EVENT_JSON_INVALID'):
+            build_envelope(source_log=b'{\"event_id\":\"first\",\"event_id\":\"second\"}\n', source_runtime_id='legacy-runtime',
+                source_head_digest=sha('head'), source_state_sha256=sha('state'),
+                source_head_sha256=sha('head-file'), source_runtime_id_sha256=sha('runtime-file'))
+
     def test_invalid_jsonl_rejected(self):
         with self.assertRaisesRegex(MigrationEnvelopeError, 'SOURCE_EVENT_JSON_INVALID'):
             build_envelope(source_log=b'not-json\n', source_runtime_id='legacy-runtime',
