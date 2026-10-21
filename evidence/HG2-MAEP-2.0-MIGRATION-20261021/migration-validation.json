@@ -1,0 +1,40 @@
+{
+  "schema_version": "HG2_MAEP_MIGRATION_VALIDATION_V1",
+  "repository": "OAI-GIANG/HG2",
+  "worktree": "/data/data/com.termux/files/home/.cache/hg2-master-cleanup-20261021/worktree",
+  "branch": "stt/hg2-master-cleanup-20261021",
+  "head_observed_after_fix": "521c067a028f69618f65641986fa029dfae3bcb9",
+  "scope": "isolated fixture-only migration envelope validation",
+  "change": "Reject duplicate JSON object keys while parsing legacy event JSONL.",
+  "migration_contract": "HG_STATE_MIGRATION_ENVELOPE_V1",
+  "targeted_tests": {
+    "count": 10,
+    "result": "PASS",
+    "command": "python -m unittest discover -s tests -p 'test_state_migration.py' -v"
+  },
+  "full_suite": {
+    "count": 496,
+    "result": "PASS",
+    "command": "python -m unittest discover -s tests",
+    "exit_code": 0,
+    "log": "evidence/HG2-MAEP-2.0-MIGRATION-20261021/full-suite.log",
+    "log_sha256": "6d3b6a406dd0deb97a6e361944a0c569c32d6188b8bf9770e2c37c8783d7bc6d"
+  },
+  "static_checks": {
+    "py_compile": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "artifact_sha256": {
+    "hg/state_migration.py": "4018f74d62740d0372e2d32fcef14ec6012b786329315a75c3210b222456fa2b",
+    "tests/test_state_migration.py": "29f2f9b88229c2d11cee29e947711d83b4a37193d1554aa9d776cd53376b6098"
+  },
+  "safety": {
+    "production_state_modified": false,
+    "production_service_restarted": false,
+    "live_migration_performed": false,
+    "production_import_authorized": false,
+    "legacy_authority_claimed": false,
+    "existing_untracked_evidence_overwritten": false
+  },
+  "status": "MIGRATION_ENVELOPE_TESTS_PASS; PRODUCTION_CUTOVER_BLOCKED_PENDING_AUTHORITY_AND_LOSSLESS_MIGRATION_PROOF"
+}
