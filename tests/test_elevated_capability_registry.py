@@ -1,4 +1,6 @@
 import hashlib
+import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,7 +12,10 @@ from hg.elevated_capability_registry import (
     ELEVATED_ACTIONS, ElevatedCapabilityError, ElevatedCapabilityRegistry,
 )
 from hg.evidence_verifier import FilesystemEvidenceVerifier
+from hg.local_process_rdc_adapter import LocalProcessOperation, PosixLocalRdcAdapter
 from hg.maep_host_binding import MaepHostBinding
+from hg.process_supervisor import PosixProcessSupervisor
+from hg.remote_desktop_commander import RemoteOperation
 from hg.sqlite_state import SQLiteStateStore
 from hg.workflow_store_adapter import CanonicalWorkflowAdapter
 
@@ -58,11 +63,129 @@ class ElevatedCapabilityRegistryTests(unittest.TestCase):
             "all-scopes-token", set(ELEVATED_ACTIONS) | {"audit.append"}, principal_id="owner-delegated"
         ).authenticate("Bearer all-scopes-token")
         registry = ElevatedCapabilityRegistry(principal=all_scopes, evidence_verifier=self.verifier)
-        for action in ELEVATED_ACTIONS - {"file.read"}:
+        for action in ELEVATED_ACTIONS - {"file.read", "file.write"}:
             with self.subTest(action=action):
                 # Even a principal with the exact scope cannot dispatch an unregistered handler.
                 with self.assertRaisesRegex(ElevatedCapabilityError, "ELEVATED_HANDLER_NOT_REGISTERED"):
                     registry.dispatch(action, {})
+
+    def test_file_write_create_only_and_idempotent_retry(self):
+        write_root = Path(self.tmp.name) / "writes"
+        write_root.mkdir()
+        writer = ElevatedCapabilityRegistry(
+            principal=BearerAuthenticator(
+                "writer-token", {"file.write"}, principal_id="writer"
+            ).authenticate("Bearer writer-token"),
+            evidence_verifier=self.verifier,
+            write_roots=[str(write_root)],
+        )
+        content = "first immutable payload\n"
+        digest = hashlib.sha256(content.encode()).hexdigest()
+        payload = {"relative_path": "new.txt", "content_utf8": content, "expected_sha256": digest}
+        first = writer.dispatch("file.write", payload)
+        self.assertEqual(first["status"], "COMPLETE")
+        self.assertTrue(first["created"])
+        self.assertEqual((write_root / "new.txt").read_text(), content)
+        second = writer.dispatch("file.write", payload)
+        self.assertEqual(second["status"], "IDEMPOTENT_NOOP")
+        self.assertTrue(second["idempotent"])
+        changed = {"relative_path": "new.txt", "content_utf8": "different",
+                   "expected_sha256": hashlib.sha256(b"different").hexdigest()}
+        with self.assertRaisesRegex(ElevatedCapabilityError, "FILE_WRITE_TARGET_CONFLICT"):
+            writer.dispatch("file.write", changed)
+
+    def test_file_write_rejects_traversal_digest_mismatch_and_missing_root(self):
+        writer = ElevatedCapabilityRegistry(
+            principal=BearerAuthenticator(
+                "writer-token", {"file.write"}, principal_id="writer"
+            ).authenticate("Bearer writer-token"),
+            evidence_verifier=self.verifier,
+        )
+        content = "payload"
+        digest = hashlib.sha256(content.encode()).hexdigest()
+        with self.assertRaisesRegex(ElevatedCapabilityError, "FILE_WRITE_ROOTS_NOT_CONFIGURED"):
+            writer.dispatch("file.write", {"relative_path": "x", "content_utf8": content,
+                                           "expected_sha256": digest})
+        root = Path(self.tmp.name) / "writes"
+        root.mkdir()
+        writer = ElevatedCapabilityRegistry(
+            principal=writer.principal, evidence_verifier=self.verifier, write_roots=[str(root)]
+        )
+        for relative in ("../outside", "/absolute", "nested\\escape"):
+            with self.subTest(relative=relative):
+                with self.assertRaises(ElevatedCapabilityError):
+                    writer.dispatch("file.write", {"relative_path": relative, "content_utf8": content,
+                                                   "expected_sha256": digest})
+        with self.assertRaisesRegex(ElevatedCapabilityError, "FILE_WRITE_DIGEST_MISMATCH"):
+            writer.dispatch("file.write", {"relative_path": "x", "content_utf8": content,
+                                           "expected_sha256": "0" * 64})
+
+    def test_file_write_interrupted_temp_write_leaves_no_target_or_temp(self):
+        from unittest.mock import patch
+        write_root = Path(self.tmp.name) / "writes"
+        write_root.mkdir()
+        writer = ElevatedCapabilityRegistry(
+            principal=BearerAuthenticator(
+                "writer-token", {"file.write"}, principal_id="writer"
+            ).authenticate("Bearer writer-token"),
+            evidence_verifier=self.verifier,
+            write_roots=[str(write_root)],
+        )
+        content = "partially written content"
+        payload = {"relative_path": "never-visible.txt", "content_utf8": content,
+                   "expected_sha256": hashlib.sha256(content.encode()).hexdigest()}
+        def interrupt(fd, data):
+            import os
+            os.write(fd, data[:4])
+            raise OSError("injected interruption")
+        with patch.object(writer, "_write_temp_bytes", side_effect=interrupt):
+            with self.assertRaisesRegex(ElevatedCapabilityError, "FILE_WRITE_ATOMIC_CREATE_FAILED"):
+                writer.dispatch("file.write", payload)
+        self.assertFalse((write_root / "never-visible.txt").exists())
+        self.assertEqual(list(write_root.iterdir()), [])
+
+    @unittest.skipUnless(os.name == "posix" and hasattr(os, "killpg"), "requires POSIX process-group signaling")
+    def test_shell_exec_dispatches_only_fixed_registered_rdc_operation(self):
+        adapter_id = "hg.rdc.local.posix"
+        operation = RemoteOperation(
+            operation_id="device.status",
+            required_capabilities=("remote.desktop.status",),
+            risk_class="LOCAL_READ_ONLY",
+            adapter_id=adapter_id,
+            adapter_version="1",
+        )
+        def argv_builder(arguments):
+            if set(arguments) != {"detail"} or arguments["detail"] != "basic":
+                raise ValueError("typed arguments rejected")
+            return [sys.executable, "-c", "print('registered-rdc-operation-ok')"]
+        adapter = PosixLocalRdcAdapter(
+            target_id="phone-termux-primary", adapter_id=adapter_id, adapter_version="1",
+            operations=(LocalProcessOperation(operation, argv_builder, 2.0),),
+            supervisor=PosixProcessSupervisor(termination_grace_seconds=0.05),
+        )
+        principal = BearerAuthenticator(
+            "shell-token", {"shell.exec"}, principal_id="shell-owner"
+        ).authenticate("Bearer shell-token")
+        registry = ElevatedCapabilityRegistry(principal=principal, evidence_verifier=self.verifier)
+        registry.bind_registered_rdc_shell_exec(
+            adapter=adapter,
+            operation_ids=["device.status"],
+            source_revision="a" * 40,
+            granted_capabilities_by_operation={"device.status": {"remote.desktop.status"}},
+        )
+        result = registry.dispatch("shell.exec", {
+            "operation_id": "device.status", "command_id": "cmd-rdc-1", "request_id": "req-rdc-1",
+            "idempotency_key": "idem-rdc-1", "arguments": {"detail": "basic"}, "approval_ref": None,
+        })
+        self.assertEqual(result["status"], "COMPLETE")
+        self.assertEqual(result["operation_id"], "device.status")
+        self.assertTrue(result["side_effect_performed"])
+        self.assertEqual(len(result["output_digest"]), 64)
+        with self.assertRaisesRegex(ElevatedCapabilityError, "RDC_OPERATION_NOT_ALLOWLISTED"):
+            registry.dispatch("shell.exec", {
+                "operation_id": "raw-shell", "command_id": "cmd-rdc-2", "request_id": "req-rdc-2",
+                "idempotency_key": "idem-rdc-2", "arguments": {"detail": "basic"}, "approval_ref": None,
+            })
 
     def test_wrong_principal_scope_is_denied_before_handler(self):
         wrong = BearerAuthenticator("read-only-token", {"audit.append"}, principal_id="read-only").authenticate(
