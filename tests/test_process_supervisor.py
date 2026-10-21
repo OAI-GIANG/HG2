@@ -73,6 +73,21 @@ class PosixProcessSupervisorTests(unittest.TestCase):
                 time.sleep(0.02)
             self.assertIn(state, (None, "Z"), f"grandchild still active, state={state}")
 
+    def test_timeout_kills_descendant_even_if_group_leader_exits_first(self):
+        # The leader exits immediately; its child inherits stdout/stderr pipes and
+        # ignores SIGTERM. Timeout handling must still kill the process group rather
+        # than return early because the leader has already exited.
+        script = (
+            "import subprocess,sys; "
+            "subprocess.Popen([sys.executable,'-c',"
+            "'import signal,time; signal.signal(signal.SIGTERM,signal.SIG_IGN); time.sleep(1.5)']); "
+            "print('leader-exited', flush=True)"
+        )
+        result = self.supervisor.run([sys.executable, "-c", script], timeout_seconds=0.15)
+        self.assertEqual(result.status, "TIMED_OUT")
+        self.assertLess(result.elapsed_seconds, 1.0,
+                        "descendant holding inherited pipes survived the timeout")
+
     def test_rejects_shell_strings_and_relative_executables(self):
         with self.assertRaisesRegex(ProcessSupervisorError, "PROCESS_ARGV_SEQUENCE_REQUIRED"):
             self.supervisor.run("echo unsafe", timeout_seconds=1)

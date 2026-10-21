@@ -117,8 +117,10 @@ class PosixProcessSupervisor:
 
     def _terminate_group(self, child: subprocess.Popen[str]) -> None:
         """TERM the process group, then KILL it if it does not finish promptly."""
-        if child.poll() is not None:
-            return
+        # Do not return merely because the group leader has exited: descendants
+        # may still be alive in its process group and keep inherited pipes open.
+        # The session/process-group ID is the original child PID, so signal the
+        # group first and only treat ProcessLookupError as proof it is gone.
         try:
             os.killpg(child.pid, signal.SIGTERM)
         except ProcessLookupError:
