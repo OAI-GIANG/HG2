@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 CONFIGURABLE_SCOPES = frozenset({
     "provider.invoke", "session.create", "edge.register", "edge.heartbeat",
-    "workflow.task.create", "workflow.task.transition",
+    "workflow.task.create", "workflow.task.read", "workflow.task.transition",
     "policy.approval.request", "policy.approval.vote",
     "brain.request", "audit.append", "sync.outbox.attempt", "sync.outbox.acknowledge",
     "state.migration.import", "state.backup", "state.restore",

@@ -33,6 +33,7 @@ from .brain_orchestrator import BrainOrchestrator
 from .capability_registry import RuntimeCapabilityRegistry, RuntimeDomainBinding
 from .contracts import BRAIN_REQUEST_V1, CAPABILITY_RESULT_V1, canonical_digest
 from .unified_harness import UnifiedHarness
+from .maep import MaepError, PHASE_IDS
 
 MAX_BODY = 256 * 1024
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
@@ -103,7 +104,10 @@ class HGHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = False
 
-    def __init__(self, address, runtime=None):
+    def __init__(self, address, runtime=None, maep_orchestrator=None):
+        # MAEP is opt-in by explicit dependency injection. The live PhoneRuntime
+        # still owns the legacy StateStore, so main() must not create a second store.
+        self.maep_orchestrator = maep_orchestrator
         # Validate credentials/configuration before taking the process lock so a
         # configuration error remains distinguishable from a duplicate runtime.
         self.read_token = os.environ.get("HG_API_READ_TOKEN", "")
@@ -141,7 +145,10 @@ class HGHTTPServer(ThreadingHTTPServer):
             raise RuntimeError("RUNTIME_PROCESS_LOCK_UNAVAILABLE")
 
         if runtime is not None:
-            state_dir = runtime.store.dir
+            state_dir = (getattr(runtime.store, "dir", None)
+                         or getattr(runtime.store, "directory", None))
+            if not isinstance(state_dir, str) or not state_dir:
+                raise RuntimeError("RUNTIME_STATE_DIRECTORY_UNAVAILABLE")
         else:
             state_dir = (os.environ.get("HG_STATE_DIR")
                          or os.path.join(os.getcwd(), "hg-state"))
@@ -168,6 +175,15 @@ class HGHTTPServer(ThreadingHTTPServer):
             # process lock is held; startup recovery can therefore not race a
             # second API process before it starts serving.
             self.runtime = runtime if runtime is not None else PhoneRuntime(state_dir=state_dir)
+            if self.maep_orchestrator is not None:
+                maep_store = getattr(getattr(self.maep_orchestrator, "store", None), "store", None)
+                maep_principal = getattr(getattr(self.maep_orchestrator, "store", None), "principal", None)
+                maep_actor = getattr(getattr(self.maep_orchestrator, "store", None), "actor_id", None)
+                if maep_store is not self.runtime.store:
+                    raise RuntimeError("MAEP_RUNTIME_STORE_MISMATCH")
+                if (maep_actor != self.principal_id
+                        or getattr(maep_principal, "principal_id", None) != self.principal_id):
+                    raise RuntimeError("MAEP_RUNTIME_PRINCIPAL_MISMATCH")
             super().__init__(address, HGRequestHandler)
         except Exception:
             self._release_runtime_lock()
@@ -320,6 +336,24 @@ class HGRequestHandler(BaseHTTPRequestHandler):
             raise ValueError("json_object_required")
         return value
 
+    def _maep_gate(self, *, write: bool, required_scopes: set[str]):
+        grants = self._auth(write=write)
+        if grants is None:
+            return None
+        missing = sorted(required_scopes - set(grants))
+        if missing:
+            self._send(403, {"ok": False, "error": {
+                "code": "MAEP_SCOPE_DENIED", "missing_scopes": missing,
+            }})
+            return None
+        orchestrator = self.server.maep_orchestrator
+        if orchestrator is None:
+            self._send(503, {"ok": False, "error": {
+                "code": "MAEP_RUNTIME_NOT_CONFIGURED",
+            }})
+            return None
+        return orchestrator
+
     def do_GET(self):
         path = urlsplit(self.path).path
         if path in ("/", "/ui/index.html"):
@@ -358,6 +392,21 @@ class HGRequestHandler(BaseHTTPRequestHandler):
                         "model_gateway": self.server.runtime.model_gateway.status(),
                         "edge_configured": health.get("edge_configured", False),
                         "durable": self.server.runtime.durable.status(), "build": self.server.build_identity})
+            return
+        maep_match = re.fullmatch(r"/api/maep/tasks/([^/]+)", path)
+        if maep_match:
+            if not ID_RE.fullmatch(maep_match.group(1)):
+                self._send(404, {"ok": False, "error": {"code": "NOT_FOUND"}})
+                return
+            orchestrator = self._maep_gate(write=False, required_scopes={"workflow.task.read"})
+            if orchestrator is None:
+                return
+            try:
+                state = orchestrator.load_task(maep_match.group(1))
+                self._send(200, {"ok": True, "task": state})
+            except MaepError as exc:
+                status = 404 if exc.code == "MAEP_TASK_NOT_FOUND" else 409
+                self._send(status, {"ok": False, "error": {"code": exc.code}})
             return
         if path == "/api/durable/status":
             grants = self._auth(write=False)
@@ -1210,6 +1259,61 @@ class HGRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
+        if path == "/api/maep/tasks":
+            orchestrator = self._maep_gate(
+                write=True, required_scopes={"workflow.task.create", "audit.append"}
+            )
+            if orchestrator is None:
+                return
+            try:
+                body = self._body()
+                if set(body) != {"task"}:
+                    raise ValueError("maep_task_object_required")
+                state = orchestrator.create_task(body["task"])
+                self._send(201, {"ok": True, "task": state})
+            except TimeoutError:
+                self.close_connection = True
+                self._send(408, {"ok": False, "error": {"code": "REQUEST_TIMEOUT"}},
+                           headers={"Connection": "close"})
+            except OverflowError:
+                self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
+            except MaepError as exc:
+                status = 409 if exc.code == "MAEP_TASK_ALREADY_EXISTS" else 422
+                self._send(status, {"ok": False, "error": {"code": exc.code}})
+            except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+                self._send(400, {"ok": False, "error": {"code": "INVALID_MAEP_TASK"}})
+            return
+        maep_run_match = re.fullmatch(r"/api/maep/tasks/([^/]+)/run", path)
+        if maep_run_match:
+            if not ID_RE.fullmatch(maep_run_match.group(1)):
+                self._send(404, {"ok": False, "error": {"code": "NOT_FOUND"}})
+                return
+            orchestrator = self._maep_gate(
+                write=True, required_scopes={"workflow.task.transition", "audit.append"}
+            )
+            if orchestrator is None:
+                return
+            try:
+                body = self._body()
+                if set(body) - {"max_steps"}:
+                    raise ValueError("unknown_maep_run_field")
+                max_steps = body.get("max_steps", len(PHASE_IDS))
+                if type(max_steps) is not int or not 1 <= max_steps <= len(PHASE_IDS):
+                    raise ValueError("max_steps_out_of_range")
+                state = orchestrator.run_until_blocked(maep_run_match.group(1), max_steps=max_steps)
+                self._send(200, {"ok": True, "task": state})
+            except TimeoutError:
+                self.close_connection = True
+                self._send(408, {"ok": False, "error": {"code": "REQUEST_TIMEOUT"}},
+                           headers={"Connection": "close"})
+            except OverflowError:
+                self._send(413, {"ok": False, "error": {"code": "BODY_TOO_LARGE"}})
+            except MaepError as exc:
+                status = 404 if exc.code == "MAEP_TASK_NOT_FOUND" else 409
+                self._send(status, {"ok": False, "error": {"code": exc.code}})
+            except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+                self._send(400, {"ok": False, "error": {"code": "INVALID_MAEP_RUN_REQUEST"}})
+            return
         if path == "/api/durable/sync":
             grants = self._auth(write=True)
             if grants is None: return
