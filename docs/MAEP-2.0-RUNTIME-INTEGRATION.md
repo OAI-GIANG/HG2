@@ -25,7 +25,7 @@ A handler entry for each enabled phase must have:
 - The supplied context["idempotency_key"] must be passed to the real side-effect adapter/transaction ledger. The orchestrator does not itself guarantee that an arbitrary callback is idempotent.
 - authorizer(action, context) and evidence_verifier(evidence_ids, context) must return (bool, decision_reference) from real host-bound policy and evidence verification. Test callbacks are not production trust roots.
 
-No handler registry, host-bound action authorizer, or authenticated production evidence verifier is wired by this change. Therefore the default runtime cannot execute tasks and will return BLOCKED; this is intentional and prevents the new controller from bypassing hg.authority or claiming trust it cannot prove.
+An isolated `hg.maep_host_binding.MaepHostBinding` seam is now available for a static phase/action allowlist and handler registry. It binds through `CanonicalWorkflowAdapter` to the same canonical `SQLiteStateStore` and sealed principal, checks the principal scope before forwarding to the host authorizer, validates callback response shapes, and delegates evidence verification. This is a binding seam only: no production handler registry, host-bound action authorizer, or authenticated production evidence verifier is wired to the live HTTP runtime. The default runtime therefore remains unable to execute MAEP tasks and must return BLOCKED; this prevents bypassing `hg.authority` or claiming trust that has not been established.
 
 ## Integration with the canonical workflow store
 
@@ -51,6 +51,13 @@ The adapter must receive a real sealed principal with the audit.append scope and
 
 The current active HTTP runtime still uses the legacy PhoneRuntime state store; the existing workflow adapter explicitly does not perform that runtime cutover. This branch does not add an unauthenticated API route or silently migrate live state.
 
+## Legacy state migration contract
+
+- `HG_STATE_MIGRATION_ENVELOPE_V1` preserves the exact `history.jsonl` bytes and records SHA-256 metadata for related legacy state files. V1 alone is not a complete byte-preserving archive of all durable state files.
+- `HG_STATE_MIGRATION_ENVELOPE_V2` packages exact bytes, byte lengths, and SHA-256 digests for `history.jsonl`, `head.json`, `state.json`, and `runtime_id`. It rejects missing/extra files, malformed JSON, duplicate object keys, non-finite JSON constants, runtime identity mismatch, tampered bytes, and attempts to enable production import.
+- Both versions explicitly mark legacy authority as `LEGACY_AUTHORITY_UNATTESTED`, keep `production_import_authorized=false`, and state that no migration has been performed. A valid envelope proves byte integrity relative to its own contents; it does not authenticate the source, prove semantic truth, reconstruct the SQLite event chain, or prove projection parity.
+- Fixture verification does not replace a consistent live backup, restore rehearsal, cross-backend fault injection, shadow parity, or an authorized cutover/rollback plan.
+
 ## Verification and remaining blockers
 
 - Unit tests exercise all 14 stages with test-only authorization/evidence adapters, checkpoint reload, denied authorization, missing entry/exit evidence, interrupted execution, stale checkpoint conflict, reconciliation, and closure rejection.
@@ -61,7 +68,7 @@ The current active HTTP runtime still uses the legacy PhoneRuntime state store; 
 
 ## Change boundary
 
-Implementation work is isolated to branch stt/hg2-maep-integrated-20261021 in ~/.cache/hg2-maep-integrated-20261021/worktree, based on the remotely published brain-orchestrator branch that already contains workflow, SQLite state, UnifiedHarness, and BrainOrchestrator. This branch must not be merged or deployed until host adapters and runtime acceptance are verified. The original checkout and the master-cleanup worktree were not modified by this implementation.
+The MAEP orchestration core and SQLite adapter were originally developed on branch `stt/hg2-maep-integrated-20261021` in `~/.cache/hg2-maep-integrated-20261021/worktree`. This continuation added migration-envelope V2, regression evidence, and the static host-binding seam on the isolated branch `stt/hg2-master-cleanup-20261021` in `~/.cache/hg2-master-cleanup-20261021/worktree`. The original checkout and live production state were not modified. Neither branch is authorized for merge or deployment until host adapters, migration/recovery, and runtime acceptance are verified.
 
 ## External references
 

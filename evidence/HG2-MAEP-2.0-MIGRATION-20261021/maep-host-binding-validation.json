@@ -1,0 +1,40 @@
+{
+  "schema_version": "HG2_MAEP_HOST_BINDING_VALIDATION_V1",
+  "repository": "OAI-GIANG/HG2",
+  "branch": "stt/hg2-master-cleanup-20261021",
+  "component": "hg.maep_host_binding.MaepHostBinding",
+  "scope": "isolated static host-binding seam; no live HTTP runtime wiring",
+  "reviewed_properties": [
+    "Requires CanonicalWorkflowAdapter and therefore the canonical SQLiteStateStore plus sealed principal.",
+    "Uses a static phase-to-action allowlist and a registered handler map; actions are not derived from task prompts.",
+    "Checks the principal scope before forwarding authorization to the host callback.",
+    "Rejects malformed/exceptional authorization and evidence-verifier responses.",
+    "Builds MaepOrchestrator through the existing adapter; does not open a second state store."
+  ],
+  "targeted_tests": {
+    "count": 5,
+    "result": "PASS",
+    "command": "python -m unittest discover -s tests -p 'test_maep_host_binding.py' -v"
+  },
+  "full_suite": {
+    "count": 507,
+    "result": "PASS",
+    "exit_code": 0,
+    "log": "evidence/HG2-MAEP-2.0-MIGRATION-20261021/full-suite-v2.log",
+    "log_sha256": "bc2cec8d337e486369855e5f14c97da98cefe274a1da548534e2205b91f33862"
+  },
+  "artifact_sha256": {
+    "hg/maep_host_binding.py": "7b298c88bc90e350640f0d85b123d088bc69bd43b7c7487f4b349b5ff181a1e8",
+    "tests/test_maep_host_binding.py": "9a0ae8f7c78ad32d6529a1ea15969e230fad097f0185783305d79f6afcbbc22c",
+    "docs/MAEP-2.0-RUNTIME-INTEGRATION.md": "18b0b6d7ba70b8e4716f6185406295d01261cec68371ef06451773018b849842"
+  },
+  "production_boundary": {
+    "production_state_modified": false,
+    "production_service_restarted": false,
+    "production_route_added": false,
+    "real_production_handler_registry_bound": false,
+    "host_authority_authenticated": false,
+    "production_evidence_verifier_bound": false
+  },
+  "status": "STATIC_HOST_BINDING_SEAM_VERIFIED_IN_TESTS; PRODUCTION_INTEGRATION_NOT_VERIFIED"
+}
